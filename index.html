@@ -676,20 +676,42 @@ function renderSummary() {
     const map = {};
     shots.forEach(s => {
       const k = s.clubShort || s.club;
-      if (!map[k]) map[k] = {count:0, dists:[]};
-      map[k].count++;
-      if (s.dist) map[k].dists.push(s.dist);
+      if (!map[k]) map[k] = {shots:[]};
+      map[k].shots.push(s);
     });
-    const clubs = Object.entries(map).sort((a,b)=>b[1].count-a[1].count);
-    if (clubs.length === 0) { el.innerHTML = '<div class="empty-state"><span class="empty-icon">🏌️</span>No shots logged yet.</div>'; return; }
-    el.innerHTML = '<div class="summary-card">' + clubs.map(([club, d]) => {
-      const avg = d.dists.length ? Math.round(d.dists.reduce((a,v)=>a+v,0)/d.dists.length) : null;
-      const mx = d.dists.length ? Math.max(...d.dists) : null;
-      return `<div class="summary-row">
-        <span class="summary-row-label">${club}</span>
-        <span class="summary-row-detail">${d.count} shot${d.count===1?'':'s'}${avg?'<br>Avg '+avg+'m · Max '+mx+'m':''}</span>
-      </div>`;
-    }).join('') + '</div>';
+    const clubOrder = ['Driver','3W','5W','4i','5i','6i','7i','8i','9i','PW','GW','SW','LW','Putter'];
+    const clubs = Object.entries(map).sort((a,b) => {
+      const ai = clubOrder.indexOf(a[0]), bi = clubOrder.indexOf(b[0]);
+      if (ai === -1 && bi === -1) return 0;
+      if (ai === -1) return 1;
+      if (bi === -1) return -1;
+      return ai - bi;
+    });
+    if (clubs.length === 0) { el.innerHTML = '<div class="empty-state"><span class="empty-icon">&#127953;</span>No shots logged yet.</div>'; return; }
+    el.innerHTML = clubs.map(([club, d]) => {
+      const dists = d.shots.map(s=>s.dist).filter(Boolean);
+      const avg = dists.length ? Math.round(dists.reduce((a,v)=>a+v,0)/dists.length) : null;
+      const shotRows = d.shots.map((s,i) =>
+        '<div style="display:flex;align-items:center;gap:10px;padding:10px 14px;border-bottom:0.5px solid rgba(0,0,0,0.07);">' +
+        '<div style="width:24px;height:24px;border-radius:50%;background:#e8f5ed;font-size:11px;font-weight:700;color:#1a6b3a;display:flex;align-items:center;justify-content:center;flex-shrink:0;">' + (i+1) + '</div>' +
+        '<div style="flex:1;font-size:14px;color:#5a6a60;">Hole ' + s.hole + '</div>' +
+        '<div style="font-size:14px;font-weight:500;color:#1a1a1a;">' + (s.dist ? s.dist+'m' : '&mdash;') + '</div>' +
+        '</div>'
+      ).join('');
+      const footer = avg ?
+        '<div style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:#f2faf5;">' +
+        '<span style="font-size:13px;font-weight:600;color:#5a6a60;">Avg · Max</span>' +
+        '<span style="font-size:15px;font-weight:700;color:#1a6b3a;">' + avg + 'm · ' + Math.max(...dists) + 'm</span>' +
+        '</div>' : '';
+      return '<div style="background:#fff;border:0.5px solid rgba(0,0,0,0.08);border-radius:14px;overflow:hidden;margin-bottom:12px;">' +
+        '<div style="background:#1a6b3a;padding:10px 14px;display:flex;align-items:center;justify-content:space-between;">' +
+        '<span style="font-size:15px;font-weight:700;color:#fff;">' + club + '</span>' +
+        '<span style="font-size:13px;color:rgba(255,255,255,0.75);">' + d.shots.length + ' shot' + (d.shots.length===1?'':'s') + '</span>' +
+        '</div>' +
+        shotRows +
+        footer +
+        '</div>';
+    }).join('');
   }
 }
 

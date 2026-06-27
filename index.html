@@ -650,16 +650,28 @@ function renderSummary() {
   const el = document.getElementById('summary-content');
   if (activeTab === 'holes') {
     const holes = [...new Set(shots.map(s=>s.hole))].sort((a,b)=>a-b);
-    if (holes.length === 0) { el.innerHTML = '<div class="empty-state"><span class="empty-icon">📊</span>No shots logged yet.</div>'; return; }
-    el.innerHTML = '<div class="summary-card">' + holes.map(h => {
+    if (holes.length === 0) { el.innerHTML = '<div class="empty-state"><span class="empty-icon">&#128202;</span>No shots logged yet.</div>'; return; }
+    el.innerHTML = holes.map(h => {
       const hs = shots.filter(s=>s.hole===h);
-      const dist = hs.reduce((a,s)=>a+(s.dist||0),0);
-      return `<div class="summary-row">
-        <span class="summary-pill">${h}</span>
-        <span class="summary-row-label">Hole ${h}</span>
-        <span class="summary-row-detail">${hs.length} shots<br>${dist}m total</span>
-      </div>`;
-    }).join('') + '</div>';
+      const totalDist = hs.reduce((a,s)=>a+(s.dist||0),0);
+      const shotRows = hs.map((s,i) =>
+        '<div style="display:flex;align-items:center;gap:10px;padding:10px 14px;border-bottom:0.5px solid rgba(0,0,0,0.07);">' +
+        '<div style="width:24px;height:24px;border-radius:50%;background:#e8f5ed;font-size:11px;font-weight:700;color:#1a6b3a;display:flex;align-items:center;justify-content:center;flex-shrink:0;">' + (i+1) + '</div>' +
+        '<div style="flex:1;font-size:14px;font-weight:500;color:#1a1a1a;">' + (s.clubShort||s.club) + '</div>' +
+        '<div style="font-size:14px;color:#5a6a60;">' + (s.dist ? s.dist+'m' : '&mdash;') + '</div>' +
+        '</div>'
+      ).join('');
+      return '<div style="background:#fff;border:0.5px solid rgba(0,0,0,0.08);border-radius:14px;overflow:hidden;margin-bottom:12px;">' +
+        '<div style="background:#1a6b3a;padding:10px 14px;display:flex;align-items:center;justify-content:space-between;">' +
+        '<span style="font-size:15px;font-weight:700;color:#fff;">Hole ' + h + '</span>' +
+        '<span style="font-size:13px;color:rgba(255,255,255,0.75);">' + hs.length + ' shot' + (hs.length===1?'':'s') + '</span>' +
+        '</div>' +
+        shotRows +
+        '<div style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:#f2faf5;">' +
+        '<span style="font-size:13px;font-weight:600;color:#5a6a60;">Total distance</span>' +
+        '<span style="font-size:15px;font-weight:700;color:#1a6b3a;">' + totalDist + 'm</span>' +
+        '</div></div>';
+    }).join('');
   } else {
     const map = {};
     shots.forEach(s => {

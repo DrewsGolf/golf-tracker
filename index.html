@@ -411,6 +411,10 @@
         <button class="summary-tab" onclick="showTab('clubs')" id="tab-clubs-btn">By club</button>
       </div>
       <div id="summary-content"></div>
+      <div style="margin-top:8px;">
+        <button class="btn btn-secondary" onclick="exportCSV()">&#8659; Download as spreadsheet (CSV)</button>
+        <button class="btn btn-secondary" onclick="exportEmail()">&#9993; Email round to myself</button>
+      </div>
     </div>
 
     <!-- SCORECARD SCREEN -->
@@ -713,6 +717,57 @@ function renderSummary() {
         '</div>';
     }).join('');
   }
+}
+
+// EXPORT
+function exportCSV() {
+  if (shots.length === 0) { showToast('No shots to export'); return; }
+  const date = new Date().toLocaleDateString('en-AU').replace(/\//g,'-');
+  let csv = 'Date,Hole,Shot,Club,Distance (m)
+';
+  const holes = [...new Set(shots.map(s=>s.hole))].sort((a,b)=>a-b);
+  holes.forEach(h => {
+    shots.filter(s=>s.hole===h).forEach((s,i) => {
+      csv += date+','+h+','+(i+1)+','+(s.clubShort||s.club)+','+(s.dist||'')+'
+';
+    });
+  });
+  const blob = new Blob([csv], {type:'text/csv'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'golf-round-'+date+'.csv';
+  a.click();
+  URL.revokeObjectURL(url);
+  showToast('CSV downloaded');
+}
+
+function exportEmail() {
+  if (shots.length === 0) { showToast('No shots to email'); return; }
+  const date = new Date().toLocaleDateString('en-AU');
+  let body = 'Golf Round — '+date+'
+
+';
+  const holes = [...new Set(shots.map(s=>s.hole))].sort((a,b)=>a-b);
+  let grandTotal = 0;
+  holes.forEach(h => {
+    const hs = shots.filter(s=>s.hole===h);
+    const holeDist = hs.reduce((a,s)=>a+(s.dist||0),0);
+    grandTotal += holeDist;
+    body += 'Hole '+h+' ('+hs.length+' shots)
+';
+    hs.forEach((s,i) => {
+      body += '  Shot '+(i+1)+': '+(s.clubShort||s.club)+(s.dist?' — '+s.dist+'m':'')+'
+';
+    });
+    body += '  Total: '+holeDist+'m
+
+';
+  });
+  body += 'Round total: '+shots.length+' shots, '+grandTotal+'m';
+  const subject = encodeURIComponent('Golf Round — '+date);
+  const bodyEnc = encodeURIComponent(body);
+  window.location.href = 'mailto:?subject='+subject+'&body='+bodyEnc;
 }
 
 // SCORECARD

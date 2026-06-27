@@ -1,14 +1,14 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
+<!-- saved from url=(0045)file:///C:/Users/aande/Downloads/index_2.html -->
+<html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Shot Tracker">
 <meta name="theme-color" content="#1a6b3a">
-<link rel="manifest" href="manifest.json">
-<link rel="apple-touch-icon" href="icon-192.svg">
+<link rel="manifest" href="file:///C:/Users/aande/Downloads/manifest.json">
+<link rel="apple-touch-icon" href="file:///C:/Users/aande/Downloads/icon-192.svg">
 <title>Shot Tracker</title>
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
@@ -328,9 +328,9 @@
 <body>
 <div id="app">
   <div class="topbar" id="topbar">
-    <button class="topbar-back" id="back-btn" onclick="goBack()" style="display:none" aria-label="Back">&#8592;</button>
+    <button class="topbar-back" id="back-btn" onclick="goBack()" style="display:none" aria-label="Back">←</button>
     <h1 id="topbar-title">Shot Tracker</h1>
-    <button class="topbar-action" id="topbar-action" onclick="topbarAction()" style="display:none"></button>
+    <button class="topbar-action" id="topbar-action" onclick="topbarAction()" style="display: block;">New round</button>
   </div>
 
   <div class="content">
@@ -344,37 +344,43 @@
         </div>
         <div class="stat-card">
           <div class="stat-label">This hole</div>
-          <div class="stat-value" id="s-hole-shots">0</div>
+          <div class="stat-value" id="s-hole-shots">1</div>
         </div>
         <div class="stat-card">
           <div class="stat-label">Total shots</div>
-          <div class="stat-value" id="s-total">0</div>
+          <div class="stat-value" id="s-total">1</div>
         </div>
         <div class="stat-card">
           <div class="stat-label">Total distance</div>
-          <div class="stat-value" id="s-dist">0m</div>
+          <div class="stat-value" id="s-dist">20m</div>
         </div>
       </div>
 
       <div class="hole-nav">
-        <button class="hole-nav-btn" id="hole-prev" onclick="changeHole(-1)" aria-label="Previous hole">&#8592;</button>
+        <button class="hole-nav-btn" id="hole-prev" onclick="changeHole(-1)" aria-label="Previous hole" disabled="">←</button>
         <div class="hole-center">
           <div class="hole-main" id="hole-main-label">Hole 1</div>
-          <div class="hole-sub" id="hole-sub-label">Tap arrows to change hole</div>
+          <div class="hole-sub" id="hole-sub-label">1 shot logged</div>
         </div>
-        <button class="hole-nav-btn" id="hole-next" onclick="changeHole(1)" aria-label="Next hole">&#8594;</button>
+        <button class="hole-nav-btn" id="hole-next" onclick="changeHole(1)" aria-label="Next hole">→</button>
       </div>
 
-      <div class="shot-list" id="home-shot-list"></div>
+      <div class="shot-list" id="home-shot-list">
+    <div class="shot-item">
+      <div class="shot-bubble">1</div>
+      <div class="shot-club">5i</div>
+      <div class="shot-dist">20m</div>
+      <button class="shot-del" onclick="deleteShot(&#39;1782598486105&#39;)" aria-label="Delete shot">✕</button>
+    </div></div>
 
-      <button class="btn btn-primary" onclick="showScreen('screen-log')">
+      <button class="btn btn-primary" onclick="showScreen(&#39;screen-log&#39;)">
         <span class="btn-icon">+</span> Log a shot
       </button>
-      <button class="btn btn-secondary" onclick="showScreen('screen-summary')">
-        &#9783; Round summary
+      <button class="btn btn-secondary" onclick="showScreen(&#39;screen-summary&#39;)">
+        ☷ Round summary
       </button>
-      <button class="btn btn-secondary" onclick="showScreen('screen-scorecard')">
-        &#9646; Scorecard
+      <button class="btn btn-secondary" onclick="showScreen(&#39;screen-scorecard&#39;)">
+        ▮ Scorecard
       </button>
     </div>
 
@@ -407,13 +413,13 @@
     <!-- SUMMARY SCREEN -->
     <div class="screen" id="screen-summary">
       <div class="summary-tabs">
-        <button class="summary-tab active" onclick="showTab('holes')" id="tab-holes-btn">By hole</button>
-        <button class="summary-tab" onclick="showTab('clubs')" id="tab-clubs-btn">By club</button>
+        <button class="summary-tab active" onclick="showTab(&#39;holes&#39;)" id="tab-holes-btn">By hole</button>
+        <button class="summary-tab" onclick="showTab(&#39;clubs&#39;)" id="tab-clubs-btn">By club</button>
       </div>
       <div id="summary-content"></div>
       <div style="margin-top:8px;">
-        <button class="btn btn-secondary" onclick="exportCSV()">&#8659; Download as spreadsheet (CSV)</button>
-        <button class="btn btn-secondary" onclick="exportEmail()">&#9993; Email round to myself</button>
+        <button class="btn btn-secondary" onclick="exportCSV()">⇓ Download as spreadsheet (CSV)</button>
+        <button class="btn btn-secondary" onclick="exportEmail()">✉ Email round to myself</button>
       </div>
     </div>
 
@@ -447,6 +453,8 @@ let shots = JSON.parse(localStorage.getItem('golf-shots-v2') || '[]');
 let selectedClub = null;
 let gpsStart = null;
 let gpsState = 'idle'; // idle | started | done
+let lastKnownPosition = null; // position of last ball landing, reused as start for next shot
+let lastKnownHole = null;     // which hole lastKnownPosition belongs to
 let activeTab = 'holes';
 let screenStack = ['screen-home'];
 
@@ -501,7 +509,7 @@ function topbarAction() {
   if (id === 'screen-home') {
     if (shots.length === 0) { showToast('No shots to clear'); return; }
     if (confirm('Start a new round? This will clear all current shots.')) {
-      shots = []; persist(); currentHole = 1; renderHome(); showToast('New round started');
+      shots = []; persist(); currentHole = 1; lastKnownPosition = null; lastKnownHole = null; renderHome(); showToast('New round started');
     }
   }
 }
@@ -538,6 +546,8 @@ function changeHole(dir) {
   const next = currentHole + dir;
   if (next < 1 || next > 18) return;
   currentHole = next;
+  lastKnownPosition = null; // reset GPS carry-over on hole change
+  lastKnownHole = null;
   renderHome();
   document.getElementById('topbar-title').textContent = 'Shot Tracker';
 }
@@ -554,9 +564,26 @@ function initLog() {
   gpsStart = null;
   document.getElementById('dist-input').value = '';
   document.getElementById('gps-result').textContent = '';
-  document.getElementById('gps-label').textContent = 'Tap Start before you hit, then mark at ball';
-  document.getElementById('gps-btn').textContent = 'Start';
   document.getElementById('gps-dot').classList.remove('pulse');
+
+  const holeShots = shots.filter(s => s.hole === currentHole);
+  const canReuse = lastKnownPosition && lastKnownHole === currentHole && holeShots.length > 0;
+
+  if (canReuse) {
+    // Subsequent shot on same hole — pre-load last position as start
+    gpsStart = lastKnownPosition;
+    gpsState = 'started';
+    document.getElementById('gps-label').textContent = 'Using last ball position as start';
+    document.getElementById('gps-btn').textContent = 'Mark ball';
+    document.getElementById('gps-dot').classList.add('pulse');
+    document.getElementById('gps-result').textContent = 'Walk to your ball and tap Mark ball. Or tap Start to re-measure from your current position.';
+  } else {
+    // First shot of hole — must tap Start
+    document.getElementById('gps-label').textContent = 'Tap Start before you hit, then mark at ball';
+    document.getElementById('gps-btn').textContent = 'Start';
+    document.getElementById('gps-result').textContent = holeShots.length === 0 ? 'First shot of hole — tap Start from the tee or fairway.' : '';
+  }
+
   renderClubs();
   updateTopbar('screen-log');
 }
@@ -575,6 +602,7 @@ function handleGPS() {
     return;
   }
   if (gpsState === 'idle') {
+    // Fresh start — capture current position as shot origin
     document.getElementById('gps-label').textContent = 'Start captured — walk to your ball';
     document.getElementById('gps-btn').textContent = 'Mark ball';
     document.getElementById('gps-dot').classList.add('pulse');
@@ -590,14 +618,17 @@ function handleGPS() {
       document.getElementById('gps-dot').classList.remove('pulse');
     }, {enableHighAccuracy: true, timeout: 10000});
   } else if (gpsState === 'started') {
+    // Mark ball landing — calculate distance and save landing position
     document.getElementById('gps-result').textContent = 'Getting ball position...';
     navigator.geolocation.getCurrentPosition(pos => {
       const d = haversine(gpsStart, pos.coords);
       document.getElementById('dist-input').value = d;
-      document.getElementById('gps-result').textContent = `GPS distance: ${d}m`;
-      document.getElementById('gps-label').textContent = `Distance measured: ${d}m`;
+      document.getElementById('gps-result').textContent = 'GPS distance: '+d+'m';
+      document.getElementById('gps-label').textContent = 'Distance measured: '+d+'m';
       document.getElementById('gps-btn').textContent = 'Re-measure';
       document.getElementById('gps-dot').classList.remove('pulse');
+      lastKnownPosition = pos.coords; // save landing spot for next shot
+      lastKnownHole = currentHole;
       gpsState = 'done';
       gpsStart = null;
     }, () => {
@@ -608,9 +639,10 @@ function handleGPS() {
       gpsStart = null;
     }, {enableHighAccuracy: true, timeout: 10000});
   } else if (gpsState === 'done') {
+    // Reset to allow re-measure from scratch
     gpsState = 'idle';
     gpsStart = null;
-    document.getElementById('gps-label').textContent = 'Tap Start before you hit, then mark at ball';
+    document.getElementById('gps-label').textContent = 'Tap Start to re-measure from current position';
     document.getElementById('gps-btn').textContent = 'Start';
     document.getElementById('gps-result').textContent = '';
     document.getElementById('gps-dot').classList.remove('pulse');
@@ -803,5 +835,6 @@ if ('serviceWorker' in navigator) {
   navigator.serviceWorker.register('/sw.js').catch(() => {});
 }
 </script>
-</body>
-</html>
+
+
+</body></html>

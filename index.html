@@ -35,6 +35,10 @@
   .stat-value { font-size: 26px; font-weight: 700; color: var(--text-primary); line-height: 1; }
   .stat-value.green { color: var(--green-dark); }
 
+  /* Hole nav arrows */
+  .hole-nav-btn { width: 36px; height: 36px; background: var(--green-light); border: none; border-radius: 9px; font-size: 18px; color: var(--green-dark); display: flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0; }
+  .hole-nav-btn:disabled { opacity: 0.3; cursor: default; }
+
   /* Hole header card */
   .hole-header-card { background: var(--card); border: 0.5px solid var(--border); border-radius: var(--radius); padding: 14px 16px; margin-bottom: 14px; }
   .hole-title-row { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
@@ -144,7 +148,9 @@
       <!-- Hole header -->
       <div class="hole-header-card">
         <div class="hole-title-row">
+          <button class="hole-nav-btn" id="hole-prev" onclick="changeHole(-1)" aria-label="Previous hole">&#8592;</button>
           <div class="hole-title-text" id="hole-title">Hole 1</div>
+          <button class="hole-nav-btn" id="hole-next" onclick="changeHole(1)" aria-label="Next hole">&#8594;</button>
           <div id="par-area">
             <div class="par-row">
               <span class="par-label">Par</span>
@@ -154,6 +160,9 @@
           </div>
         </div>
         <div id="gps-status-bar" class="gps-status"></div>
+
+        <!-- Shot list for current hole -->
+        <div class="shot-list" id="home-shot-list"></div>
 
         <!-- STAGE: tee-up -->
         <div id="stage-teeup">
@@ -195,9 +204,6 @@
         </div>
 
       </div><!-- /hole-header-card -->
-
-      <!-- Shot list for current hole -->
-      <div class="shot-list" id="home-shot-list"></div>
 
       <!-- Bottom nav -->
       <div class="nav-btns">
@@ -342,6 +348,7 @@ function renderHome() {
   }
 
   renderStage();
+  updateHoleArrows();
 }
 
 // ── Stage management ────────────────────────────────────────────────────────
@@ -508,9 +515,16 @@ function doRemeasure() {
   // Remove it
   shots = shots.filter(s => s.id !== lastShot.id);
   // Restore position: go back to previous ball pos or tee
-  lastBallPosition = null; // will re-mark from tee or previous
+  lastBallPosition = null;
   persist();
+  // Always go back to clubs stage (tee position already locked)
+  // even if this was the first shot — no need to re-tee-up
   renderHome();
+  // Override renderStage: if no shots left but tee is set, show clubs not teeup
+  if (teePosition && shots.filter(s => s.hole === currentHole).length === 0) {
+    setStage('clubs');
+    renderClubGrid('club-grid-main', 'main');
+  }
   showToast('Last shot removed — re-mark it');
 }
 
@@ -571,16 +585,62 @@ function cancelFinalDist() {
   renderClubGrid('club-grid-next', 'next');
 }
 
+// ── Change hole (arrows) ────────────────────────────────────────────────────
+function changeHole(dir) {
+  const next = currentHole + dir;
+  if (next < 1 || next > 18) return;
+
+  if (dir > 0) {
+    // Going forward — check if hole is unfinished
+    const holeShots = shots.filter(s => s.hole === currentHole);
+    const isUnfinished = holeShots.length > 0 && !holeFinished;
+    if (isUnfinished) {
+      if (!confirm('Hole ' + currentHole + ' is not finished. Save it and move to Hole ' + next + '?')) {
+        return; // stay on current hole
+      }
+    }
+    // Save and advance
+    currentHole = next;
+    selectedClub = null;
+    teePosition = null;
+    lastBallPosition = null;
+    holeFinished = false;
+    renderHome();
+    showToast('Hole ' + currentHole);
+  } else {
+    // Going back — view only, no editing
+    currentHole = next;
+    selectedClub = null;
+    teePosition = null;
+    lastBallPosition = null;
+    holeFinished = true; // lock editing on past holes
+    renderHome();
+    showToast('Viewing Hole ' + currentHole + ' — read only');
+  }
+
+  // Update arrow states
+  document.getElementById('hole-prev').disabled = currentHole === 1;
+  document.getElementById('hole-next').disabled = currentHole === 18;
+}
+
 // ── Save hole & advance ─────────────────────────────────────────────────────
 function doSaveHole() {
-  if (currentHole >= 18) { showToast('Round complete!'); return; }
+  if (currentHole >= 18) { showToast('Round complete! Great round ⛳'); return; }
   currentHole++;
   selectedClub = null;
   teePosition = null;
   lastBallPosition = null;
   holeFinished = false;
   renderHome();
+  updateHoleArrows();
   showToast('Hole saved — Hole ' + currentHole);
+}
+
+function updateHoleArrows() {
+  const prev = document.getElementById('hole-prev');
+  const next = document.getElementById('hole-next');
+  if (prev) prev.disabled = currentHole === 1;
+  if (next) next.disabled = currentHole === 18;
 }
 
 // ── Summary ─────────────────────────────────────────────────────────────────

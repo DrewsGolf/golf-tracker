@@ -1,9 +1,11 @@
-const CACHE = 'golf-tracker-v3';
+const CACHE = 'golf-tracker-v4';
 const FILES = [
   '/',
   '/index.html',
   '/setup.html',
   '/round.html',
+  '/find.html',
+  '/courses.js',
   '/manifest.json',
   '/icon-192.svg',
   '/icon-512.svg'

@@ -1,425 +1,222 @@
 <!DOCTYPE html>
-<!-- saved from url=(0045)file:///C:/Users/aande/Downloads/index_2.html -->
-<html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-
+<html lang="en">
+<head>
+<meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Shot Tracker">
 <meta name="theme-color" content="#1a6b3a">
-<link rel="manifest" href="file:///C:/Users/aande/Downloads/manifest.json">
-<link rel="apple-touch-icon" href="file:///C:/Users/aande/Downloads/icon-192.svg">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-192.svg">
 <title>Shot Tracker</title>
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-
   :root {
-    --green-dark: #1a6b3a;
-    --green-mid: #2d8a52;
-    --green-light: #e8f5ed;
-    --green-pale: #f2faf5;
-    --text-primary: #1a1a1a;
-    --text-secondary: #5a6a60;
-    --text-muted: #94a89c;
-    --bg: #f5f7f5;
-    --card: #ffffff;
-    --border: rgba(0,0,0,0.08);
-    --border-mid: rgba(0,0,0,0.14);
-    --radius: 14px;
-    --radius-sm: 9px;
-    --safe-top: env(safe-area-inset-top, 0px);
-    --safe-bottom: env(safe-area-inset-bottom, 0px);
+    --green-dark: #1a6b3a; --green-mid: #2d8a52; --green-light: #e8f5ed; --green-pale: #f2faf5;
+    --text-primary: #1a1a1a; --text-secondary: #5a6a60; --text-muted: #94a89c;
+    --bg: #f5f7f5; --card: #ffffff; --border: rgba(0,0,0,0.08); --border-mid: rgba(0,0,0,0.14);
+    --radius: 14px; --radius-sm: 9px;
+    --safe-top: env(safe-area-inset-top, 0px); --safe-bottom: env(safe-area-inset-bottom, 0px);
   }
-
-  html, body {
-    height: 100%;
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-    background: var(--bg);
-    color: var(--text-primary);
-    overflow: hidden;
-  }
-
-  /* App shell */
-  #app {
-    display: flex;
-    flex-direction: column;
-    height: 100%;
-    max-width: 430px;
-    margin: 0 auto;
-    position: relative;
-  }
-
-  /* Top bar */
-  .topbar {
-    background: var(--green-dark);
-    color: #fff;
-    padding: calc(var(--safe-top) + 14px) 16px 14px;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    flex-shrink: 0;
-  }
-  .topbar-back {
-    background: rgba(255,255,255,0.18);
-    border: none;
-    border-radius: 8px;
-    width: 34px; height: 34px;
-    display: flex; align-items: center; justify-content: center;
-    color: #fff; font-size: 20px; cursor: pointer; flex-shrink: 0;
-  }
+  html, body { height: 100%; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg); color: var(--text-primary); overflow: hidden; }
+  #app { display: flex; flex-direction: column; height: 100%; max-width: 430px; margin: 0 auto; }
+  .topbar { background: var(--green-dark); color: #fff; padding: calc(var(--safe-top) + 14px) 16px 14px; display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
+  .topbar-back { background: rgba(255,255,255,0.18); border: none; border-radius: 8px; width: 34px; height: 34px; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 20px; cursor: pointer; flex-shrink: 0; }
   .topbar h1 { font-size: 17px; font-weight: 600; flex: 1; }
-  .topbar-action {
-    background: rgba(255,255,255,0.18);
-    border: none; border-radius: 8px;
-    padding: 6px 12px; color: #fff; font-size: 13px;
-    font-weight: 500; cursor: pointer;
-  }
-
-  /* Scrollable content */
-  .content {
-    flex: 1;
-    overflow-y: auto;
-    -webkit-overflow-scrolling: touch;
-    padding: 16px 16px calc(var(--safe-bottom) + 16px);
-  }
-
-  /* Screens */
-  .screen { display: none; }
-  .screen.active { display: block; }
+  .topbar-action { background: rgba(255,255,255,0.18); border: none; border-radius: 8px; padding: 6px 12px; color: #fff; font-size: 13px; font-weight: 500; cursor: pointer; }
+  .content { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; padding: 16px 16px calc(var(--safe-bottom) + 16px); }
+  .screen { display: none; } .screen.active { display: block; }
 
   /* Stat cards */
-  .stat-row {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 10px;
-    margin-bottom: 18px;
-  }
-  .stat-card {
-    background: var(--card);
-    border-radius: var(--radius);
-    border: 0.5px solid var(--border);
-    padding: 14px 16px;
-  }
+  .stat-row { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 14px; }
+  .stat-card { background: var(--card); border-radius: var(--radius); border: 0.5px solid var(--border); padding: 12px 14px; }
   .stat-label { font-size: 11px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 4px; }
-  .stat-value { font-size: 28px; font-weight: 700; color: var(--text-primary); line-height: 1; }
+  .stat-value { font-size: 26px; font-weight: 700; color: var(--text-primary); line-height: 1; }
   .stat-value.green { color: var(--green-dark); }
 
-  /* Hole nav */
-  .hole-nav {
-    background: var(--card);
-    border: 0.5px solid var(--border);
-    border-radius: var(--radius);
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 10px 8px;
-    margin-bottom: 18px;
-  }
-  .hole-nav-btn {
-    width: 42px; height: 42px;
-    background: var(--green-light);
-    border: none;
-    border-radius: 10px;
-    font-size: 22px; color: var(--green-dark);
-    display: flex; align-items: center; justify-content: center;
-    cursor: pointer; flex-shrink: 0;
-  }
-  .hole-nav-btn:disabled { opacity: 0.3; cursor: default; }
-  .hole-center { text-align: center; }
-  .hole-main { font-size: 22px; font-weight: 700; color: var(--text-primary); }
-  .hole-sub { font-size: 12px; color: var(--text-muted); margin-top: 1px; }
+  /* Hole header card */
+  .hole-header-card { background: var(--card); border: 0.5px solid var(--border); border-radius: var(--radius); padding: 14px 16px; margin-bottom: 14px; }
+  .hole-title-row { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+  .hole-title-text { font-size: 22px; font-weight: 700; color: var(--text-primary); flex: 1; }
+  .par-row { display: flex; align-items: center; gap: 8px; }
+  .par-label { font-size: 13px; color: var(--text-secondary); white-space: nowrap; }
+  .par-input { width: 52px; border: 0.5px solid var(--border-mid); border-radius: 8px; padding: 7px 10px; font-size: 16px; font-weight: 700; text-align: center; color: var(--text-primary); background: var(--bg); -moz-appearance: textfield; }
+  .par-input::-webkit-outer-spin-button, .par-input::-webkit-inner-spin-button { -webkit-appearance: none; }
+  .par-save-btn { background: var(--green-dark); color: #fff; border: none; border-radius: 8px; padding: 7px 14px; font-size: 13px; font-weight: 600; cursor: pointer; white-space: nowrap; }
+  .par-saved-badge { background: var(--green-light); color: var(--green-dark); font-size: 12px; font-weight: 700; padding: 5px 10px; border-radius: 20px; white-space: nowrap; }
 
   /* Buttons */
-  .btn {
-    display: flex; align-items: center; justify-content: center; gap: 8px;
-    width: 100%; padding: 15px;
-    border-radius: var(--radius); border: none;
-    font-size: 15px; font-weight: 600;
-    cursor: pointer; transition: opacity 0.15s, transform 0.1s;
-  }
+  .btn { display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; padding: 15px; border-radius: var(--radius); border: none; font-size: 15px; font-weight: 600; cursor: pointer; transition: opacity 0.15s, transform 0.1s; margin-bottom: 10px; }
   .btn:active { opacity: 0.82; transform: scale(0.985); }
-  .btn-primary { background: var(--green-dark); color: #fff; margin-bottom: 10px; }
-  .btn-secondary {
-    background: var(--card);
-    color: var(--text-secondary);
-    border: 0.5px solid var(--border-mid);
-    margin-bottom: 10px;
-  }
-  .btn-danger { background: #fff0f0; color: #c0392b; border: 0.5px solid #f5c6c6; margin-top: 8px; }
-  .btn-icon { font-size: 18px; }
+  .btn:last-child { margin-bottom: 0; }
+  .btn-primary { background: var(--green-dark); color: #fff; }
+  .btn-teeup { background: #1a6b3a; color: #fff; font-size: 17px; padding: 18px; }
+  .btn-secondary { background: var(--card); color: var(--text-secondary); border: 0.5px solid var(--border-mid); }
+  .btn-danger { background: #fff0f0; color: #c0392b; border: 0.5px solid #f5c6c6; }
+  .btn-amber { background: #fffbf0; color: #b8820a; border: 0.5px solid #f0d890; }
+  .btn-inthehole { background: #1a3a6b; color: #fff; }
+  .btn-save-hole { background: #2d6b1a; color: #fff; font-size: 17px; padding: 18px; }
 
-  /* Shot list */
-  .shot-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 18px; }
-  .shot-item {
-    background: var(--card);
-    border: 0.5px solid var(--border);
-    border-radius: var(--radius-sm);
-    display: flex; align-items: center;
-    padding: 12px 14px;
-    gap: 12px;
-  }
-  .shot-bubble {
-    width: 28px; height: 28px; border-radius: 50%;
-    background: var(--green-light);
-    font-size: 12px; font-weight: 700; color: var(--green-dark);
-    display: flex; align-items: center; justify-content: center;
-    flex-shrink: 0;
-  }
-  .shot-club { font-size: 15px; font-weight: 600; flex: 1; }
-  .shot-dist { font-size: 14px; color: var(--text-secondary); font-weight: 500; }
-  .shot-del {
-    background: none; border: none;
-    color: var(--text-muted); font-size: 18px;
-    cursor: pointer; padding: 2px 2px 2px 8px;
-  }
-  .empty-state {
-    text-align: center; padding: 32px 16px;
-    color: var(--text-muted); font-size: 14px; line-height: 1.6;
-  }
-  .empty-icon { font-size: 36px; margin-bottom: 8px; display: block; }
-
-  /* Log screen */
-  .section-heading {
-    font-size: 11px; font-weight: 700; letter-spacing: 0.07em;
-    text-transform: uppercase; color: var(--text-muted);
-    margin: 0 0 10px;
-  }
-  .gps-card {
-    background: var(--green-light);
-    border: 0.5px solid rgba(45,138,82,0.25);
-    border-radius: var(--radius);
-    padding: 14px 16px;
-    margin-bottom: 18px;
-  }
-  .gps-row { display: flex; align-items: center; gap: 10px; }
-  .gps-dot {
-    width: 10px; height: 10px; border-radius: 50%;
-    background: var(--green-mid); flex-shrink: 0;
-  }
-  .gps-dot.pulse { animation: pulse 1.2s infinite; }
-  @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.5;transform:scale(1.3)} }
-  .gps-label { font-size: 13px; color: var(--green-dark); font-weight: 500; flex: 1; }
-  .gps-action-btn {
-    background: var(--green-dark); color: #fff;
-    border: none; border-radius: 8px;
-    padding: 8px 14px; font-size: 13px; font-weight: 600;
-    cursor: pointer;
-  }
-  .gps-action-btn:active { opacity: 0.8; }
-  .gps-result-text { font-size: 12px; color: var(--text-secondary); margin-top: 8px; }
-
-  .dist-manual {
-    background: var(--card);
-    border: 0.5px solid var(--border-mid);
-    border-radius: var(--radius);
-    display: flex; align-items: center;
-    padding: 0 16px;
-    margin-bottom: 18px; overflow: hidden;
-  }
-  .dist-manual label { font-size: 14px; color: var(--text-secondary); white-space: nowrap; margin-right: 10px; }
-  .dist-manual input {
-    flex: 1; border: none; outline: none;
-    font-size: 24px; font-weight: 700; color: var(--text-primary);
-    padding: 16px 0;
-    background: transparent; text-align: center;
-    -moz-appearance: textfield;
-  }
-  .dist-manual input::-webkit-outer-spin-button,
-  .dist-manual input::-webkit-inner-spin-button { -webkit-appearance: none; }
-  .dist-manual .dist-unit { font-size: 14px; color: var(--text-muted); }
+  /* Walk instruction */
+  .walk-instruction { text-align: center; padding: 10px 0 4px; font-size: 14px; color: var(--text-secondary); font-style: italic; margin-bottom: 6px; }
 
   /* Club grid */
-  .club-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 8px;
-    margin-bottom: 18px;
-  }
-  .club-btn {
-    background: var(--card);
-    border: 0.5px solid var(--border-mid);
-    border-radius: var(--radius-sm);
-    padding: 13px 6px;
-    font-size: 14px; font-weight: 500;
-    color: var(--text-primary);
-    cursor: pointer; text-align: center;
-    transition: background 0.12s, border-color 0.12s;
-  }
+  .club-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 14px; }
+  .club-btn { background: var(--card); border: 0.5px solid var(--border-mid); border-radius: var(--radius-sm); padding: 13px 6px; font-size: 14px; font-weight: 500; color: var(--text-primary); cursor: pointer; text-align: center; transition: background 0.12s; }
   .club-btn:active { transform: scale(0.96); }
-  .club-btn.sel {
-    background: var(--green-dark); color: #fff;
-    border-color: var(--green-dark);
-  }
+  .club-btn.sel { background: var(--green-dark); color: #fff; border-color: var(--green-dark); }
+
+  /* Shot list */
+  .shot-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 14px; }
+  .shot-item { background: var(--card); border: 0.5px solid var(--border); border-radius: var(--radius-sm); display: flex; align-items: center; padding: 12px 14px; gap: 12px; }
+  .shot-bubble { width: 28px; height: 28px; border-radius: 50%; background: var(--green-light); font-size: 12px; font-weight: 700; color: var(--green-dark); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .shot-club { font-size: 15px; font-weight: 600; flex: 1; }
+  .shot-dist { font-size: 14px; color: var(--text-secondary); font-weight: 500; }
+
+  /* Remeasure strip */
+  .remeasure-strip { display: flex; align-items: center; justify-content: space-between; background: #fffbf0; border: 0.5px solid #f0d890; border-radius: var(--radius-sm); padding: 10px 14px; margin-bottom: 14px; }
+  .remeasure-label { font-size: 13px; color: #b8820a; font-weight: 500; }
+  .remeasure-btn { background: #b8820a; color: #fff; border: none; border-radius: 8px; padding: 7px 14px; font-size: 13px; font-weight: 600; cursor: pointer; }
+
+  /* In the hole dialog */
+  .dialog-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.45); z-index: 100; display: flex; align-items: flex-end; justify-content: center; }
+  .dialog-box { background: var(--card); border-radius: 20px 20px 0 0; padding: 24px 20px calc(var(--safe-bottom) + 24px); width: 100%; max-width: 430px; }
+  .dialog-title { font-size: 17px; font-weight: 700; color: var(--text-primary); margin-bottom: 6px; text-align: center; }
+  .dialog-sub { font-size: 14px; color: var(--text-secondary); text-align: center; margin-bottom: 20px; }
+  .dialog-btn { display: flex; align-items: center; justify-content: center; width: 100%; padding: 15px; border-radius: var(--radius); border: none; font-size: 15px; font-weight: 600; cursor: pointer; margin-bottom: 10px; }
+  .dialog-btn-yes { background: var(--green-dark); color: #fff; }
+  .dialog-btn-no { background: var(--bg); color: var(--text-secondary); border: 0.5px solid var(--border-mid); }
+
+  /* GPS pulse */
+  .gps-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--green-mid); display: inline-block; margin-right: 6px; }
+  .gps-dot.pulse { animation: pulse 1.2s infinite; }
+  @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.5;transform:scale(1.3)} }
+  .gps-status { display: flex; align-items: center; font-size: 12px; color: var(--text-secondary); margin-bottom: 10px; min-height: 20px; }
+
+  /* Nav buttons at bottom of home */
+  .nav-btns { display: flex; gap: 8px; margin-top: 6px; }
+  .nav-btn { flex: 1; padding: 12px 6px; background: var(--card); border: 0.5px solid var(--border-mid); border-radius: var(--radius-sm); font-size: 12px; font-weight: 600; color: var(--text-secondary); cursor: pointer; text-align: center; }
 
   /* Summary */
-  .summary-tabs {
-    display: flex; gap: 6px; margin-bottom: 16px;
-  }
-  .summary-tab {
-    flex: 1; padding: 10px;
-    font-size: 13px; font-weight: 600;
-    border-radius: var(--radius-sm);
-    border: 0.5px solid var(--border-mid);
-    background: var(--card); color: var(--text-secondary);
-    cursor: pointer; text-align: center;
-    transition: background 0.12s;
-  }
+  .summary-tabs { display: flex; gap: 6px; margin-bottom: 16px; }
+  .summary-tab { flex: 1; padding: 10px; font-size: 13px; font-weight: 600; border-radius: var(--radius-sm); border: 0.5px solid var(--border-mid); background: var(--card); color: var(--text-secondary); cursor: pointer; text-align: center; }
   .summary-tab.active { background: var(--green-dark); color: #fff; border-color: var(--green-dark); }
 
-  .summary-card {
-    background: var(--card);
-    border: 0.5px solid var(--border);
-    border-radius: var(--radius);
-    overflow: hidden;
-    margin-bottom: 16px;
-  }
-  .summary-row {
-    display: flex; align-items: center;
-    padding: 13px 16px;
-    border-bottom: 0.5px solid var(--border);
-    gap: 10px;
-  }
-  .summary-row:last-child { border-bottom: none; }
-  .summary-row-label { font-size: 15px; font-weight: 600; flex: 1; }
-  .summary-row-detail { font-size: 13px; color: var(--text-secondary); text-align: right; line-height: 1.5; }
-  .summary-pill {
-    background: var(--green-light);
-    color: var(--green-dark);
-    font-size: 12px; font-weight: 700;
-    padding: 4px 10px; border-radius: 20px;
-    flex-shrink: 0;
-  }
-
-  /* Divider */
-  .divider { border: none; border-top: 0.5px solid var(--border); margin: 6px 0 18px; }
-
-  /* Toast */
-  #toast {
-    position: fixed; bottom: calc(var(--safe-bottom) + 24px);
-    left: 50%; transform: translateX(-50%) translateY(20px);
-    background: #1a1a1a; color: #fff;
-    padding: 10px 20px; border-radius: 100px;
-    font-size: 13px; font-weight: 500;
-    opacity: 0; transition: opacity 0.25s, transform 0.25s;
-    pointer-events: none; white-space: nowrap; z-index: 999;
-  }
-  #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
-
-  /* Scorecard screen */
+  /* Scorecard */
   .score-table { width: 100%; border-collapse: collapse; font-size: 13px; }
-  .score-table th {
-    background: var(--green-dark); color: #fff;
-    padding: 10px 8px; text-align: center; font-weight: 600;
-  }
+  .score-table th { background: var(--green-dark); color: #fff; padding: 10px 8px; text-align: center; font-weight: 600; }
   .score-table th:first-child { text-align: left; padding-left: 14px; }
-  .score-table td {
-    padding: 11px 8px; text-align: center;
-    border-bottom: 0.5px solid var(--border);
-    color: var(--text-primary);
-  }
+  .score-table td { padding: 11px 8px; text-align: center; border-bottom: 0.5px solid var(--border); color: var(--text-primary); }
   .score-table td:first-child { font-weight: 600; text-align: left; padding-left: 14px; }
   .score-table tr:last-child td { border-bottom: none; font-weight: 700; background: var(--green-pale); }
-  .score-table-wrap {
-    background: var(--card); border: 0.5px solid var(--border);
-    border-radius: var(--radius); overflow: hidden; margin-bottom: 16px;
-  }
+  .score-table-wrap { background: var(--card); border: 0.5px solid var(--border); border-radius: var(--radius); overflow: hidden; margin-bottom: 16px; }
+
+  /* Toast */
+  #toast { position: fixed; bottom: calc(var(--safe-bottom) + 24px); left: 50%; transform: translateX(-50%) translateY(20px); background: #1a1a1a; color: #fff; padding: 10px 20px; border-radius: 100px; font-size: 13px; font-weight: 500; opacity: 0; transition: opacity 0.25s, transform 0.25s; pointer-events: none; white-space: nowrap; z-index: 999; }
+  #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  .empty-state { text-align: center; padding: 32px 16px; color: var(--text-muted); font-size: 14px; line-height: 1.6; }
+  .empty-icon { font-size: 36px; margin-bottom: 8px; display: block; }
+  .section-label { font-size: 11px; font-weight: 700; letter-spacing: 0.07em; text-transform: uppercase; color: var(--text-muted); margin: 0 0 8px; }
 </style>
 </head>
 <body>
 <div id="app">
-  <div class="topbar" id="topbar">
-    <button class="topbar-back" id="back-btn" onclick="goBack()" style="display:none" aria-label="Back">←</button>
+  <div class="topbar">
+    <button class="topbar-back" id="back-btn" onclick="goBack()" style="display:none">&#8592;</button>
     <h1 id="topbar-title">Shot Tracker</h1>
-    <button class="topbar-action" id="topbar-action" onclick="topbarAction()" style="display: block;">New round</button>
+    <button class="topbar-action" id="topbar-action" onclick="topbarAction()" style="display:none"></button>
   </div>
-
   <div class="content">
 
     <!-- HOME SCREEN -->
     <div class="screen active" id="screen-home">
+
+      <!-- Stat boxes -->
       <div class="stat-row">
-        <div class="stat-card">
-          <div class="stat-label">Hole</div>
-          <div class="stat-value green" id="s-hole">1</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-label">This hole</div>
-          <div class="stat-value" id="s-hole-shots">1</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-label">Total shots</div>
-          <div class="stat-value" id="s-total">1</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-label">Total distance</div>
-          <div class="stat-value" id="s-dist">20m</div>
-        </div>
+        <div class="stat-card"><div class="stat-label">Hole</div><div class="stat-value green" id="s-hole">1</div></div>
+        <div class="stat-card"><div class="stat-label">This hole</div><div class="stat-value" id="s-hole-shots">0</div></div>
+        <div class="stat-card"><div class="stat-label">Total shots</div><div class="stat-value" id="s-total">0</div></div>
+        <div class="stat-card"><div class="stat-label">Total distance</div><div class="stat-value" id="s-dist">0m</div></div>
       </div>
 
-      <div class="hole-nav">
-        <button class="hole-nav-btn" id="hole-prev" onclick="changeHole(-1)" aria-label="Previous hole" disabled="">←</button>
-        <div class="hole-center">
-          <div class="hole-main" id="hole-main-label">Hole 1</div>
-          <div class="hole-sub" id="hole-sub-label">1 shot logged</div>
+      <!-- Hole header -->
+      <div class="hole-header-card">
+        <div class="hole-title-row">
+          <div class="hole-title-text" id="hole-title">Hole 1</div>
+          <div id="par-area">
+            <div class="par-row">
+              <span class="par-label">Par</span>
+              <input class="par-input" type="number" id="par-input" min="3" max="6" placeholder="–" inputmode="numeric">
+              <button class="par-save-btn" onclick="savePar()">Save</button>
+            </div>
+          </div>
         </div>
-        <button class="hole-nav-btn" id="hole-next" onclick="changeHole(1)" aria-label="Next hole">→</button>
-      </div>
+        <div id="gps-status-bar" class="gps-status"></div>
 
-      <div class="shot-list" id="home-shot-list">
-    <div class="shot-item">
-      <div class="shot-bubble">1</div>
-      <div class="shot-club">5i</div>
-      <div class="shot-dist">20m</div>
-      <button class="shot-del" onclick="deleteShot(&#39;1782598486105&#39;)" aria-label="Delete shot">✕</button>
-    </div></div>
-
-      <button class="btn btn-primary" onclick="showScreen(&#39;screen-log&#39;)">
-        <span class="btn-icon">+</span> Log a shot
-      </button>
-      <button class="btn btn-secondary" onclick="showScreen(&#39;screen-summary&#39;)">
-        ☷ Round summary
-      </button>
-      <button class="btn btn-secondary" onclick="showScreen(&#39;screen-scorecard&#39;)">
-        ▮ Scorecard
-      </button>
-    </div>
-
-    <!-- LOG SHOT SCREEN -->
-    <div class="screen" id="screen-log">
-
-      <div class="gps-card" id="gps-card">
-        <div class="gps-row">
-          <div class="gps-dot" id="gps-dot"></div>
-          <div class="gps-label" id="gps-label">Tap start, then walk to your ball</div>
-          <button class="gps-action-btn" id="gps-btn" onclick="handleGPS()">Start</button>
+        <!-- STAGE: tee-up -->
+        <div id="stage-teeup">
+          <button class="btn btn-teeup" onclick="doTeeUp()">&#9971; Tee Up</button>
         </div>
-        <div class="gps-result-text" id="gps-result"></div>
+
+        <!-- STAGE: select club (after tee up, before marking) -->
+        <div id="stage-clubs" style="display:none">
+          <div class="section-label">Select club</div>
+          <div class="club-grid" id="club-grid-main"></div>
+          <div id="walk-instruction" class="walk-instruction" style="display:none">Walk to your ball and mark it</div>
+          <button class="btn btn-primary" id="btn-mark" onclick="doMark()" style="display:none">Mark Shot</button>
+          <button class="btn btn-inthehole" id="btn-inthehole-1" onclick="doInTheHole()" style="display:none">&#9971; In The Hole</button>
+        </div>
+
+        <!-- STAGE: after marking — remeasure + next club -->
+        <div id="stage-next" style="display:none">
+          <div class="remeasure-strip">
+            <span class="remeasure-label">&#9888; Last shot recorded</span>
+            <button class="remeasure-btn" onclick="doRemeasure()">Remeasure</button>
+          </div>
+          <div class="section-label">Select club for next shot</div>
+          <div class="club-grid" id="club-grid-next"></div>
+          <div id="walk-instruction-next" class="walk-instruction" style="display:none">Walk to your ball and mark it</div>
+          <button class="btn btn-primary" id="btn-mark-next" onclick="doMark()" style="display:none">Mark Shot</button>
+          <button class="btn btn-inthehole" id="btn-inthehole-2" onclick="doInTheHole()" style="display:none">&#9971; In The Hole</button>
+        </div>
+
+        <!-- STAGE: in the hole — record distance? -->
+        <div id="stage-final-dist" style="display:none">
+          <div class="walk-instruction" style="display:block;margin-bottom:10px;">Walk to the hole and mark your final shot</div>
+          <button class="btn btn-primary" onclick="doMarkFinal()">&#9655; Mark Final Shot</button>
+          <button class="btn btn-secondary" onclick="cancelFinalDist()">&#8592; Cancel</button>
+        </div>
+
+        <!-- STAGE: save hole -->
+        <div id="stage-save-hole" style="display:none">
+          <button class="btn btn-save-hole" onclick="doSaveHole()">&#10003; Save Hole &amp; Next Hole</button>
+        </div>
+
+      </div><!-- /hole-header-card -->
+
+      <!-- Shot list for current hole -->
+      <div class="shot-list" id="home-shot-list"></div>
+
+      <!-- Bottom nav -->
+      <div class="nav-btns">
+        <button class="nav-btn" onclick="showScreen('screen-summary')">&#9783; Summary</button>
+        <button class="nav-btn" onclick="showScreen('screen-scorecard')">&#9646; Scorecard</button>
       </div>
 
-      <p class="section-heading">Or enter distance manually</p>
-      <div class="dist-manual">
-        <label for="dist-input">Distance</label>
-        <input type="number" id="dist-input" placeholder="0" min="0" max="500" inputmode="numeric">
-        <span class="dist-unit">m</span>
-      </div>
-
-      <p class="section-heading">Club used</p>
-      <div class="club-grid" id="club-grid"></div>
-
-      <button class="btn btn-primary" onclick="saveShot()">Save shot</button>
-      <button class="btn btn-secondary" onclick="goBack()">Cancel</button>
-    </div>
+    </div><!-- /screen-home -->
 
     <!-- SUMMARY SCREEN -->
     <div class="screen" id="screen-summary">
       <div class="summary-tabs">
-        <button class="summary-tab active" onclick="showTab(&#39;holes&#39;)" id="tab-holes-btn">By hole</button>
-        <button class="summary-tab" onclick="showTab(&#39;clubs&#39;)" id="tab-clubs-btn">By club</button>
+        <button class="summary-tab active" onclick="showTab('holes')" id="tab-holes-btn">By hole</button>
+        <button class="summary-tab" onclick="showTab('clubs')" id="tab-clubs-btn">By club</button>
       </div>
       <div id="summary-content"></div>
       <div style="margin-top:8px;">
-        <button class="btn btn-secondary" onclick="exportCSV()">⇓ Download as spreadsheet (CSV)</button>
-        <button class="btn btn-secondary" onclick="exportEmail()">✉ Email round to myself</button>
+        <button class="btn btn-secondary" onclick="exportCSV()">&#8659; Download as spreadsheet (CSV)</button>
+        <button class="btn btn-secondary" onclick="exportEmail()">&#9993; Email round to myself</button>
       </div>
     </div>
 
@@ -427,20 +224,24 @@
     <div class="screen" id="screen-scorecard">
       <div class="score-table-wrap">
         <table class="score-table">
-          <thead>
-            <tr>
-              <th>Hole</th>
-              <th>Shots</th>
-              <th>Dist (m)</th>
-            </tr>
-          </thead>
+          <thead><tr><th>Hole</th><th>Par</th><th>Shots</th><th>+/-</th><th>Dist (m)</th></tr></thead>
           <tbody id="scorecard-body"></tbody>
         </table>
       </div>
     </div>
 
-  </div><!-- /content -->
-</div><!-- /app -->
+  </div>
+</div>
+
+<!-- In The Hole dialog -->
+<div id="dialog-overlay" class="dialog-overlay" style="display:none" onclick="closeDialogOutside(event)">
+  <div class="dialog-box">
+    <div class="dialog-title">In The Hole! &#127881;</div>
+    <div class="dialog-sub">Do you want to record the distance of your final shot?</div>
+    <button class="dialog-btn dialog-btn-yes" onclick="inTheHoleYes()">Yes — walk to the hole &amp; mark it</button>
+    <button class="dialog-btn dialog-btn-no" onclick="inTheHoleNo()">No — just record the club</button>
+  </div>
+</div>
 
 <div id="toast"></div>
 
@@ -448,27 +249,30 @@
 const CLUBS = ['Driver','3 Wood','5 Wood','4 Iron','5 Iron','6 Iron','7 Iron','8 Iron','9 Iron','Pitching W','Gap W','Sand W','Lob W','Putter'];
 const CLUBS_SHORT = ['Driver','3W','5W','4i','5i','6i','7i','8i','9i','PW','GW','SW','LW','Putter'];
 
+// ── State ──────────────────────────────────────────────────────────────────
 let currentHole = 1;
-let shots = JSON.parse(localStorage.getItem('golf-shots-v2') || '[]');
+let shots = JSON.parse(localStorage.getItem('golf-shots-v3') || '[]');
+let holePars = JSON.parse(localStorage.getItem('golf-pars-v1') || '{}');
 let selectedClub = null;
-let gpsStart = null;
-let gpsState = 'idle'; // idle | started | done
-let lastKnownPosition = null; // position of last ball landing, reused as start for next shot
-let lastKnownHole = null;     // which hole lastKnownPosition belongs to
-let activeTab = 'holes';
+let teePosition = null;      // GPS position at tee-up / start of shot
+let lastBallPosition = null; // GPS position of last ball landing (reused as next start)
+let pendingShotClub = null;  // club held while waiting for mark
+let holeFinished = false;    // true after In The Hole pressed and confirmed
 let screenStack = ['screen-home'];
+let activeTab = 'holes';
 
-function persist() { localStorage.setItem('golf-shots-v2', JSON.stringify(shots)); }
+function persist() {
+  localStorage.setItem('golf-shots-v3', JSON.stringify(shots));
+  localStorage.setItem('golf-pars-v1', JSON.stringify(holePars));
+}
 
+// ── Screen routing ──────────────────────────────────────────────────────────
 function showScreen(id) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   document.getElementById(id).classList.add('active');
-  if (!screenStack.includes(id) || screenStack[screenStack.length-1] !== id) {
-    screenStack.push(id);
-  }
+  if (screenStack[screenStack.length-1] !== id) screenStack.push(id);
   updateTopbar(id);
   if (id === 'screen-home') renderHome();
-  if (id === 'screen-log') initLog();
   if (id === 'screen-summary') renderSummary();
   if (id === 'screen-scorecard') renderScorecard();
 }
@@ -488,193 +292,298 @@ function updateTopbar(id) {
   const back = document.getElementById('back-btn');
   const title = document.getElementById('topbar-title');
   const action = document.getElementById('topbar-action');
-  const titles = {
-    'screen-home': 'Shot Tracker',
-    'screen-log': 'Log Shot — Hole ' + currentHole,
-    'screen-summary': 'Round Summary',
-    'screen-scorecard': 'Scorecard'
-  };
+  const titles = { 'screen-home': 'Shot Tracker', 'screen-summary': 'Round Summary', 'screen-scorecard': 'Scorecard' };
   title.textContent = titles[id] || 'Shot Tracker';
   back.style.display = id === 'screen-home' ? 'none' : 'flex';
-  action.style.display = 'none';
-  if (id === 'screen-home') {
-    action.style.display = 'block';
-    action.textContent = 'New round';
-    document.getElementById('topbar-action').style.display = 'block';
-  }
+  action.style.display = id === 'screen-home' ? 'block' : 'none';
+  if (id === 'screen-home') { action.textContent = 'New round'; }
 }
 
 function topbarAction() {
-  const id = screenStack[screenStack.length-1];
-  if (id === 'screen-home') {
-    if (shots.length === 0) { showToast('No shots to clear'); return; }
-    if (confirm('Start a new round? This will clear all current shots.')) {
-      shots = []; persist(); currentHole = 1; lastKnownPosition = null; lastKnownHole = null; renderHome(); showToast('New round started');
-    }
+  if (shots.length === 0 && currentHole === 1) { showToast('Nothing to clear'); return; }
+  if (confirm('Start a new round? This clears all current data.')) {
+    shots = []; holePars = {}; currentHole = 1;
+    selectedClub = null; teePosition = null; lastBallPosition = null; holeFinished = false;
+    persist(); renderHome(); showToast('New round started');
   }
 }
 
-// HOME
+// ── Home render ─────────────────────────────────────────────────────────────
 function renderHome() {
   const holeShots = shots.filter(s => s.hole === currentHole);
   document.getElementById('s-hole').textContent = currentHole;
   document.getElementById('s-hole-shots').textContent = holeShots.length;
   document.getElementById('s-total').textContent = shots.length;
-  const td = shots.reduce((a,s)=>a+(s.dist||0),0);
+  const td = shots.reduce((a,s) => a+(s.dist||0), 0);
   document.getElementById('s-dist').textContent = td + 'm';
-  document.getElementById('hole-main-label').textContent = 'Hole ' + currentHole;
-  const counted = shots.filter(s => s.hole === currentHole).length;
-  document.getElementById('hole-sub-label').textContent = counted === 0 ? 'No shots logged yet' : counted + ' shot' + (counted===1?'':'s') + ' logged';
-  document.getElementById('hole-prev').disabled = currentHole === 1;
-  document.getElementById('hole-next').disabled = currentHole === 18;
+  document.getElementById('hole-title').textContent = 'Hole ' + currentHole;
 
+  // Par area
+  const savedPar = holePars[currentHole];
+  const parArea = document.getElementById('par-area');
+  if (holeFinished && savedPar) {
+    parArea.innerHTML = '<span class="par-saved-badge">Par ' + savedPar + '</span>';
+  } else {
+    parArea.innerHTML = '<div class="par-row"><span class="par-label">Par</span><input class="par-input" type="number" id="par-input" min="3" max="6" placeholder="–" inputmode="numeric" value="' + (savedPar||'') + '"><button class="par-save-btn" onclick="savePar()">Save</button></div>';
+  }
+
+  // Shot list
   const list = document.getElementById('home-shot-list');
   if (holeShots.length === 0) {
-    list.innerHTML = '<div class="empty-state"><span class="empty-icon">⛳</span>No shots logged for this hole yet.<br>Tap "Log a shot" to get started.</div>';
-    return;
-  }
-  list.innerHTML = holeShots.map((s,i) => `
-    <div class="shot-item">
-      <div class="shot-bubble">${i+1}</div>
-      <div class="shot-club">${s.clubShort || s.club}</div>
-      <div class="shot-dist">${s.dist ? s.dist+'m' : '—'}</div>
-      <button class="shot-del" onclick="deleteShot('${s.id}')" aria-label="Delete shot">✕</button>
-    </div>`).join('');
-}
-
-function changeHole(dir) {
-  const next = currentHole + dir;
-  if (next < 1 || next > 18) return;
-  currentHole = next;
-  lastKnownPosition = null; // reset GPS carry-over on hole change
-  lastKnownHole = null;
-  renderHome();
-  document.getElementById('topbar-title').textContent = 'Shot Tracker';
-}
-
-function deleteShot(id) {
-  shots = shots.filter(s => s.id !== id);
-  persist(); renderHome(); showToast('Shot removed');
-}
-
-// LOG SHOT
-function initLog() {
-  selectedClub = null;
-  gpsState = 'idle';
-  gpsStart = null;
-  document.getElementById('dist-input').value = '';
-  document.getElementById('gps-result').textContent = '';
-  document.getElementById('gps-dot').classList.remove('pulse');
-
-  const holeShots = shots.filter(s => s.hole === currentHole);
-  const canReuse = lastKnownPosition && lastKnownHole === currentHole && holeShots.length > 0;
-
-  if (canReuse) {
-    // Subsequent shot on same hole — pre-load last position as start
-    gpsStart = lastKnownPosition;
-    gpsState = 'started';
-    document.getElementById('gps-label').textContent = 'Using last ball position as start';
-    document.getElementById('gps-btn').textContent = 'Mark ball';
-    document.getElementById('gps-dot').classList.add('pulse');
-    document.getElementById('gps-result').textContent = 'Walk to your ball and tap Mark ball. Or tap Start to re-measure from your current position.';
+    list.innerHTML = '';
   } else {
-    // First shot of hole — must tap Start
-    document.getElementById('gps-label').textContent = 'Tap Start before you hit, then mark at ball';
-    document.getElementById('gps-btn').textContent = 'Start';
-    document.getElementById('gps-result').textContent = holeShots.length === 0 ? 'First shot of hole — tap Start from the tee or fairway.' : '';
+    list.innerHTML = holeShots.map((s,i) =>
+      '<div class="shot-item">' +
+      '<div class="shot-bubble">' + (i+1) + '</div>' +
+      '<div class="shot-club">' + (s.clubShort||s.club) + '</div>' +
+      '<div class="shot-dist">' + (s.dist ? s.dist+'m' : '&mdash;') + '</div>' +
+      '</div>'
+    ).join('');
   }
 
-  renderClubs();
-  updateTopbar('screen-log');
+  renderStage();
 }
 
-function renderClubs() {
-  document.getElementById('club-grid').innerHTML = CLUBS.map((c,i) =>
-    `<button class="club-btn${selectedClub===c?' sel':''}" onclick="selectClub('${c}')">${CLUBS_SHORT[i]}</button>`
+// ── Stage management ────────────────────────────────────────────────────────
+// Stages: 'teeup' | 'clubs' | 'next' | 'final-dist' | 'save-hole'
+function setStage(stage) {
+  document.getElementById('stage-teeup').style.display = 'none';
+  document.getElementById('stage-clubs').style.display = 'none';
+  document.getElementById('stage-next').style.display = 'none';
+  document.getElementById('stage-final-dist').style.display = 'none';
+  document.getElementById('stage-save-hole').style.display = 'none';
+  if (stage) document.getElementById('stage-' + stage).style.display = 'block';
+}
+
+function renderStage() {
+  const holeShots = shots.filter(s => s.hole === currentHole);
+  if (holeFinished) { setStage('save-hole'); return; }
+  if (holeShots.length === 0) {
+    setStage('teeup');
+  } else {
+    setStage('next');
+    renderClubGrid('club-grid-next', 'next');
+  }
+}
+
+function renderClubGrid(gridId, mode) {
+  const grid = document.getElementById(gridId);
+  if (!grid) return;
+  grid.innerHTML = CLUBS.map((c,i) =>
+    '<button class="club-btn' + (selectedClub===c?' sel':'') + '" onclick="selectClub(\'' + c + '\',\'' + mode + '\')">' + CLUBS_SHORT[i] + '</button>'
   ).join('');
+  // Show/hide walk + mark buttons based on club selection
+  updateMarkButtons(mode);
 }
 
-function selectClub(c) { selectedClub = c; renderClubs(); }
+function selectClub(club, mode) {
+  selectedClub = club;
+  if (mode === 'main') {
+    renderClubGrid('club-grid-main', 'main');
+  } else {
+    renderClubGrid('club-grid-next', 'next');
+  }
+}
 
-function handleGPS() {
-  if (!navigator.geolocation) {
-    document.getElementById('gps-result').textContent = 'GPS not available on this device.';
-    return;
+function updateMarkButtons(mode) {
+  const hasSel = !!selectedClub;
+  if (mode === 'main') {
+    document.getElementById('walk-instruction').style.display = hasSel ? 'block' : 'none';
+    document.getElementById('btn-mark').style.display = hasSel ? 'flex' : 'none';
+    document.getElementById('btn-inthehole-1').style.display = hasSel ? 'flex' : 'none';
+    if (hasSel) {
+      const idx = shots.filter(s=>s.hole===currentHole).length;
+      document.getElementById('btn-mark').textContent = 'Mark ' + ordinal(idx+1) + ' Shot';
+    }
+  } else {
+    document.getElementById('walk-instruction-next').style.display = hasSel ? 'block' : 'none';
+    document.getElementById('btn-mark-next').style.display = hasSel ? 'flex' : 'none';
+    document.getElementById('btn-inthehole-2').style.display = hasSel ? 'flex' : 'none';
+    if (hasSel) {
+      const idx = shots.filter(s=>s.hole===currentHole).length;
+      document.getElementById('btn-mark-next').textContent = 'Mark ' + ordinal(idx+1) + ' Shot';
+    }
   }
-  if (gpsState === 'idle') {
-    // Fresh start — capture current position as shot origin
-    document.getElementById('gps-label').textContent = 'Start captured — walk to your ball';
-    document.getElementById('gps-btn').textContent = 'Mark ball';
-    document.getElementById('gps-dot').classList.add('pulse');
-    document.getElementById('gps-result').textContent = 'Getting your position...';
-    navigator.geolocation.getCurrentPosition(pos => {
-      gpsStart = pos.coords;
-      gpsState = 'started';
-      document.getElementById('gps-result').textContent = 'Position locked. Walk to your ball and tap Mark ball.';
-    }, () => {
-      document.getElementById('gps-result').textContent = 'Could not get GPS — check location permissions.';
-      gpsState = 'idle';
-      document.getElementById('gps-btn').textContent = 'Start';
-      document.getElementById('gps-dot').classList.remove('pulse');
-    }, {enableHighAccuracy: true, timeout: 10000});
-  } else if (gpsState === 'started') {
-    // Mark ball landing — calculate distance and save landing position
-    document.getElementById('gps-result').textContent = 'Getting ball position...';
-    navigator.geolocation.getCurrentPosition(pos => {
-      const d = haversine(gpsStart, pos.coords);
-      document.getElementById('dist-input').value = d;
-      document.getElementById('gps-result').textContent = 'GPS distance: '+d+'m';
-      document.getElementById('gps-label').textContent = 'Distance measured: '+d+'m';
-      document.getElementById('gps-btn').textContent = 'Re-measure';
-      document.getElementById('gps-dot').classList.remove('pulse');
-      lastKnownPosition = pos.coords; // save landing spot for next shot
-      lastKnownHole = currentHole;
-      gpsState = 'done';
-      gpsStart = null;
-    }, () => {
-      document.getElementById('gps-result').textContent = 'Could not get position — enter manually.';
-      gpsState = 'idle';
-      document.getElementById('gps-btn').textContent = 'Start';
-      document.getElementById('gps-dot').classList.remove('pulse');
-      gpsStart = null;
-    }, {enableHighAccuracy: true, timeout: 10000});
-  } else if (gpsState === 'done') {
-    // Reset to allow re-measure from scratch
-    gpsState = 'idle';
-    gpsStart = null;
-    document.getElementById('gps-label').textContent = 'Tap Start to re-measure from current position';
-    document.getElementById('gps-btn').textContent = 'Start';
-    document.getElementById('gps-result').textContent = '';
-    document.getElementById('gps-dot').classList.remove('pulse');
-  }
+}
+
+function ordinal(n) {
+  const s = ['th','st','nd','rd'], v = n%100;
+  return n + (s[(v-20)%10]||s[v]||s[0]);
+}
+
+// ── GPS helpers ─────────────────────────────────────────────────────────────
+function setGPSStatus(msg, pulsing) {
+  const bar = document.getElementById('gps-status-bar');
+  bar.innerHTML = '<span class="gps-dot' + (pulsing?' pulse':'') + '"></span>' + msg;
+}
+function clearGPSStatus() { document.getElementById('gps-status-bar').innerHTML = ''; }
+
+function getPosition(callback, errorCallback) {
+  if (!navigator.geolocation) { errorCallback('GPS not available'); return; }
+  navigator.geolocation.getCurrentPosition(
+    pos => callback(pos.coords),
+    () => errorCallback('Could not get GPS position'),
+    {enableHighAccuracy: true, timeout: 12000}
+  );
 }
 
 function haversine(a, b) {
   const R = 6371000;
-  const f1 = a.latitude * Math.PI/180, f2 = b.latitude * Math.PI/180;
-  const df = (b.latitude - a.latitude) * Math.PI/180;
-  const dl = (b.longitude - a.longitude) * Math.PI/180;
+  const f1 = a.latitude*Math.PI/180, f2 = b.latitude*Math.PI/180;
+  const df = (b.latitude-a.latitude)*Math.PI/180;
+  const dl = (b.longitude-a.longitude)*Math.PI/180;
   const x = Math.sin(df/2)**2 + Math.cos(f1)*Math.cos(f2)*Math.sin(dl/2)**2;
-  return Math.round(2 * R * Math.asin(Math.sqrt(x)));
+  return Math.round(2*R*Math.asin(Math.sqrt(x)));
 }
 
-function saveShot() {
-  if (!selectedClub) { showToast('Please select a club'); return; }
-  const dist = parseInt(document.getElementById('dist-input').value) || 0;
-  const idx = CLUBS.indexOf(selectedClub);
+// ── Par ─────────────────────────────────────────────────────────────────────
+function savePar() {
+  const input = document.getElementById('par-input');
+  if (!input) return;
+  const val = parseInt(input.value);
+  if (!val || val < 3 || val > 6) { showToast('Par must be 3–6'); return; }
+  holePars[currentHole] = val;
+  persist();
+  showToast('Par ' + val + ' saved');
+}
+
+// ── Tee Up ──────────────────────────────────────────────────────────────────
+function doTeeUp() {
+  setGPSStatus('Getting tee position...', true);
+  getPosition(coords => {
+    teePosition = coords;
+    lastBallPosition = null;
+    selectedClub = null;
+    setGPSStatus('Tee position locked', false);
+    setTimeout(clearGPSStatus, 2000);
+    setStage('clubs');
+    renderClubGrid('club-grid-main', 'main');
+  }, err => {
+    setGPSStatus(err + ' — try again', false);
+  });
+}
+
+// ── Mark shot ───────────────────────────────────────────────────────────────
+function doMark() {
+  if (!selectedClub) { showToast('Select a club first'); return; }
+  pendingShotClub = selectedClub;
+  const startPos = lastBallPosition || teePosition;
+  if (!startPos) { showToast('Tap Tee Up first'); return; }
+  setGPSStatus('Getting ball position...', true);
+  getPosition(coords => {
+    const dist = selectedClub === 'Putter' ? null : haversine(startPos, coords);
+    recordShot(pendingShotClub, dist);
+    lastBallPosition = coords;
+    setGPSStatus('Shot recorded', false);
+    setTimeout(clearGPSStatus, 2000);
+    selectedClub = null;
+    pendingShotClub = null;
+    renderHome();
+  }, err => {
+    setGPSStatus(err, false);
+    pendingShotClub = null;
+  });
+}
+
+function recordShot(club, dist) {
+  const idx = CLUBS.indexOf(club);
   shots.push({
     id: Date.now().toString(),
     hole: currentHole,
-    club: selectedClub,
-    clubShort: CLUBS_SHORT[idx] || selectedClub,
-    dist: dist
+    club: club,
+    clubShort: CLUBS_SHORT[idx] || club,
+    dist: dist || null
   });
   persist();
-  showToast('Shot saved');
-  goBack();
 }
 
-// SUMMARY
+// ── Remeasure ───────────────────────────────────────────────────────────────
+function doRemeasure() {
+  // Remove last shot for this hole
+  const holeShots = shots.filter(s => s.hole === currentHole);
+  if (holeShots.length === 0) return;
+  const lastShot = holeShots[holeShots.length-1];
+  // Restore selectedClub to the remeasured shot's club
+  selectedClub = lastShot.club;
+  // Remove it
+  shots = shots.filter(s => s.id !== lastShot.id);
+  // Restore position: go back to previous ball pos or tee
+  lastBallPosition = null; // will re-mark from tee or previous
+  persist();
+  renderHome();
+  showToast('Last shot removed — re-mark it');
+}
+
+// ── In The Hole ─────────────────────────────────────────────────────────────
+function doInTheHole() {
+  if (!selectedClub) {
+    showToast('Select a club for your final shot first');
+    return;
+  }
+  document.getElementById('dialog-overlay').style.display = 'flex';
+}
+
+function closeDialogOutside(e) {
+  if (e.target === document.getElementById('dialog-overlay')) closeDialog();
+}
+function closeDialog() { document.getElementById('dialog-overlay').style.display = 'none'; }
+
+function inTheHoleYes() {
+  closeDialog();
+  pendingShotClub = selectedClub;
+  setStage('final-dist');
+}
+
+function inTheHoleNo() {
+  closeDialog();
+  recordShot(selectedClub, null);
+  selectedClub = null;
+  holeFinished = true;
+  renderHome();
+}
+
+function doMarkFinal() {
+  const startPos = lastBallPosition || teePosition;
+  if (!startPos) { showToast('No start position — recording without distance'); recordShot(pendingShotClub, null); holeFinished = true; renderHome(); return; }
+  setGPSStatus('Getting final position...', true);
+  getPosition(coords => {
+    const dist = pendingShotClub === 'Putter' ? null : haversine(startPos, coords);
+    recordShot(pendingShotClub, dist);
+    pendingShotClub = null;
+    selectedClub = null;
+    holeFinished = true;
+    setGPSStatus('Final shot recorded', false);
+    setTimeout(clearGPSStatus, 2000);
+    renderHome();
+  }, err => {
+    setGPSStatus(err, false);
+    recordShot(pendingShotClub, null);
+    pendingShotClub = null;
+    selectedClub = null;
+    holeFinished = true;
+    renderHome();
+  });
+}
+
+function cancelFinalDist() {
+  pendingShotClub = null;
+  setStage('next');
+  renderClubGrid('club-grid-next', 'next');
+}
+
+// ── Save hole & advance ─────────────────────────────────────────────────────
+function doSaveHole() {
+  if (currentHole >= 18) { showToast('Round complete!'); return; }
+  currentHole++;
+  selectedClub = null;
+  teePosition = null;
+  lastBallPosition = null;
+  holeFinished = false;
+  renderHome();
+  showToast('Hole saved — Hole ' + currentHole);
+}
+
+// ── Summary ─────────────────────────────────────────────────────────────────
 function showTab(t) {
   activeTab = t;
   document.getElementById('tab-holes-btn').classList.toggle('active', t==='holes');
@@ -701,8 +610,7 @@ function renderSummary() {
         '<div style="background:#1a6b3a;padding:10px 14px;display:flex;align-items:center;justify-content:space-between;">' +
         '<span style="font-size:15px;font-weight:700;color:#fff;">Hole ' + h + '</span>' +
         '<span style="font-size:13px;color:rgba(255,255,255,0.75);">' + hs.length + ' shot' + (hs.length===1?'':'s') + '</span>' +
-        '</div>' +
-        shotRows +
+        '</div>' + shotRows +
         '<div style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:#f2faf5;">' +
         '<span style="font-size:13px;font-weight:600;color:#5a6a60;">Total distance</span>' +
         '<span style="font-size:15px;font-weight:700;color:#1a6b3a;">' + totalDist + 'm</span>' +
@@ -716,12 +624,9 @@ function renderSummary() {
       map[k].shots.push(s);
     });
     const clubOrder = ['Driver','3W','5W','4i','5i','6i','7i','8i','9i','PW','GW','SW','LW','Putter'];
-    const clubs = Object.entries(map).sort((a,b) => {
-      const ai = clubOrder.indexOf(a[0]), bi = clubOrder.indexOf(b[0]);
-      if (ai === -1 && bi === -1) return 0;
-      if (ai === -1) return 1;
-      if (bi === -1) return -1;
-      return ai - bi;
+    const clubs = Object.entries(map).sort((a,b)=>{
+      const ai=clubOrder.indexOf(a[0]), bi=clubOrder.indexOf(b[0]);
+      if(ai===-1&&bi===-1)return 0; if(ai===-1)return 1; if(bi===-1)return -1; return ai-bi;
     });
     if (clubs.length === 0) { el.innerHTML = '<div class="empty-state"><span class="empty-icon">&#127953;</span>No shots logged yet.</div>'; return; }
     el.innerHTML = clubs.map(([club, d]) => {
@@ -736,39 +641,57 @@ function renderSummary() {
       ).join('');
       const footer = avg ?
         '<div style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:#f2faf5;">' +
-        '<span style="font-size:13px;font-weight:600;color:#5a6a60;">Avg · Max</span>' +
-        '<span style="font-size:15px;font-weight:700;color:#1a6b3a;">' + avg + 'm · ' + Math.max(...dists) + 'm</span>' +
+        '<span style="font-size:13px;font-weight:600;color:#5a6a60;">Avg &middot; Max</span>' +
+        '<span style="font-size:15px;font-weight:700;color:#1a6b3a;">' + avg + 'm &middot; ' + Math.max(...dists) + 'm</span>' +
         '</div>' : '';
       return '<div style="background:#fff;border:0.5px solid rgba(0,0,0,0.08);border-radius:14px;overflow:hidden;margin-bottom:12px;">' +
         '<div style="background:#1a6b3a;padding:10px 14px;display:flex;align-items:center;justify-content:space-between;">' +
         '<span style="font-size:15px;font-weight:700;color:#fff;">' + club + '</span>' +
         '<span style="font-size:13px;color:rgba(255,255,255,0.75);">' + d.shots.length + ' shot' + (d.shots.length===1?'':'s') + '</span>' +
-        '</div>' +
-        shotRows +
-        footer +
-        '</div>';
+        '</div>' + shotRows + footer + '</div>';
     }).join('');
   }
 }
 
-// EXPORT
+// ── Scorecard ────────────────────────────────────────────────────────────────
+function renderScorecard() {
+  const tbody = document.getElementById('scorecard-body');
+  let totalShots = 0, totalDist = 0, totalPar = 0;
+  const rows = [];
+  for (let h = 1; h <= 18; h++) {
+    const hs = shots.filter(s=>s.hole===h);
+    if (hs.length > 0) {
+      const dist = hs.reduce((a,s)=>a+(s.dist||0),0);
+      const par = holePars[h];
+      const diff = par ? (hs.length - par) : null;
+      const diffStr = diff === null ? '—' : (diff === 0 ? 'E' : (diff > 0 ? '+'+diff : diff));
+      totalShots += hs.length; totalDist += dist;
+      if (par) totalPar += par;
+      rows.push('<tr><td>' + h + '</td><td>' + (par||'—') + '</td><td>' + hs.length + '</td><td>' + diffStr + '</td><td>' + (dist||'—') + '</td></tr>');
+    }
+  }
+  if (rows.length === 0) { tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:#94a89c;padding:24px">No shots yet</td></tr>'; return; }
+  const totalDiff = totalPar ? (totalShots - totalPar) : null;
+  const totalDiffStr = totalDiff === null ? '—' : (totalDiff === 0 ? 'E' : (totalDiff > 0 ? '+'+totalDiff : totalDiff));
+  tbody.innerHTML = rows.join('') + '<tr><td>Total</td><td>' + (totalPar||'—') + '</td><td>' + totalShots + '</td><td>' + totalDiffStr + '</td><td>' + totalDist + '</td></tr>';
+}
+
+// ── Export ───────────────────────────────────────────────────────────────────
 function exportCSV() {
   if (shots.length === 0) { showToast('No shots to export'); return; }
   const date = new Date().toLocaleDateString('en-AU').replace(/\//g,'-');
-  const rows = ['Date,Hole,Shot,Club,Distance (m)'];
+  const rows = ['Date,Hole,Par,Shot,Club,Distance (m)'];
   const holes = [...new Set(shots.map(s=>s.hole))].sort((a,b)=>a-b);
   holes.forEach(h => {
     shots.filter(s=>s.hole===h).forEach((s,i) => {
-      rows.push(date+','+h+','+(i+1)+','+(s.clubShort||s.club)+','+(s.dist||''));
+      rows.push(date+','+h+','+(holePars[h]||'')+','+(i+1)+','+(s.clubShort||s.club)+','+(s.dist||''));
     });
   });
   const csv = rows.join('\r\n');
   const blob = new Blob([csv], {type:'text/csv'});
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
-  a.href = url;
-  a.download = 'golf-round-'+date+'.csv';
-  a.click();
+  a.href = url; a.download = 'golf-round-'+date+'.csv'; a.click();
   URL.revokeObjectURL(url);
   showToast('CSV downloaded');
 }
@@ -783,10 +706,9 @@ function exportEmail() {
     const hs = shots.filter(s=>s.hole===h);
     const holeDist = hs.reduce((a,s)=>a+(s.dist||0),0);
     grandTotal += holeDist;
-    lines.push('Hole '+h+' ('+hs.length+' shots)');
-    hs.forEach((s,i) => {
-      lines.push('  Shot '+(i+1)+': '+(s.clubShort||s.club)+(s.dist?' - '+s.dist+'m':''));
-    });
+    const par = holePars[h];
+    lines.push('Hole '+h+(par?' (Par '+par+')':'')+ ' — '+hs.length+' shots');
+    hs.forEach((s,i) => { lines.push('  Shot '+(i+1)+': '+(s.clubShort||s.club)+(s.dist?' - '+s.dist+'m':' - -')); });
     lines.push('  Total: '+holeDist+'m');
     lines.push('');
   });
@@ -796,45 +718,19 @@ function exportEmail() {
   window.location.href = 'mailto:?subject='+subject+'&body='+body;
 }
 
-// SCORECARD
-function renderScorecard() {
-  const tbody = document.getElementById('scorecard-body');
-  let totalShots = 0, totalDist = 0;
-  const rows = [];
-  for (let h = 1; h <= 18; h++) {
-    const hs = shots.filter(s=>s.hole===h);
-    if (hs.length > 0) {
-      const dist = hs.reduce((a,s)=>a+(s.dist||0),0);
-      totalShots += hs.length; totalDist += dist;
-      rows.push(`<tr><td>${h}</td><td>${hs.length}</td><td>${dist||'—'}</td></tr>`);
-    }
-  }
-  if (rows.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="3" style="text-align:center;color:#94a89c;padding:24px">No shots yet</td></tr>';
-    return;
-  }
-  tbody.innerHTML = rows.join('') + `<tr><td>Total</td><td>${totalShots}</td><td>${totalDist}</td></tr>`;
-}
-
-// TOAST
+// ── Toast ────────────────────────────────────────────────────────────────────
 function showToast(msg) {
   const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.classList.add('show');
-  setTimeout(() => t.classList.remove('show'), 2000);
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2200);
 }
 
-// Init
+// ── Init ─────────────────────────────────────────────────────────────────────
 renderHome();
 updateTopbar('screen-home');
 document.getElementById('topbar-action').style.display = 'block';
 document.getElementById('topbar-action').textContent = 'New round';
-
-// Register service worker for offline support
-if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('/sw.js').catch(() => {});
-}
+if ('serviceWorker' in navigator) { navigator.serviceWorker.register('/sw.js').catch(()=>{}); }
 </script>
-
-
-</body></html>
+</body>
+</html>

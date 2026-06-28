@@ -7,7 +7,7 @@ const COURSES = [
     "fee9": "N/A",
     "fee18": "$30\u2013$45",
     "access": "Public",
-    "notes": "Parkland course on Albert Park Lake; club hire available",
+    "notes": "Parkland on Albert Park Lake; club hire available; city views",
     "lat": -37.8136,
     "lng": 144.9631
   },
@@ -19,7 +19,7 @@ const COURSES = [
     "fee9": "N/A",
     "fee18": "$30\u2013$45",
     "access": "Public",
-    "notes": "4 km from CBD; best inner-city public course in Aus",
+    "notes": "4 km from CBD; best inner-city public course in Australia; driving range",
     "lat": -37.7833,
     "lng": 145.0167
   },
@@ -31,7 +31,7 @@ const COURSES = [
     "fee9": "$18\u2013$25",
     "fee18": "N/A",
     "access": "Public",
-    "notes": "Short public 9-hole near Richmond",
+    "notes": "Short public 9-hole near Richmond/CBD",
     "lat": -37.8333,
     "lng": 145.0
   },
@@ -67,7 +67,7 @@ const COURSES = [
     "fee9": "N/A",
     "fee18": "$30\u2013$45",
     "access": "Public",
-    "notes": "Bush parkland public course; no membership required",
+    "notes": "Bush parkland; no membership required",
     "lat": -37.7,
     "lng": 145.0667
   },
@@ -120,6 +120,18 @@ const COURSES = [
     "lng": 145.05
   },
   {
+    "name": "Morack Public Golf Course",
+    "suburb": "Vermont South",
+    "holes": 18,
+    "par": "70",
+    "fee9": "$18\u2013$24",
+    "fee18": "$28\u2013$40",
+    "access": "Public",
+    "notes": "Popular eastern-suburbs public course; covered driving range; par 70",
+    "lat": -37.8833,
+    "lng": 145.2167
+  },
+  {
     "name": "Elsternwick Park Golf Club",
     "suburb": "Elsternwick",
     "holes": 9,
@@ -142,18 +154,6 @@ const COURSES = [
     "notes": "Beginner-friendly par-3 public course",
     "lat": -37.8167,
     "lng": 145.2333
-  },
-  {
-    "name": "Lakeside Golf Club",
-    "suburb": "Melbourne",
-    "holes": 18,
-    "par": "70",
-    "fee9": "N/A",
-    "fee18": "$30\u2013$45",
-    "access": "Public",
-    "notes": "Albert Park lakeside; same complex as Albert Park GC",
-    "lat": -37.8136,
-    "lng": 144.9631
   },
   {
     "name": "Eynesbury Golf",
@@ -204,16 +204,16 @@ const COURSES = [
     "lng": 144.95
   },
   {
-    "name": "Riverside Golf & Recreation Centre",
-    "suburb": "Keilor",
+    "name": "Riverside Golf & Recreation Centre (Ascot Vale)",
+    "suburb": "Ascot Vale",
     "holes": 9,
     "par": "32",
     "fee9": "$16\u2013$22",
     "fee18": "N/A",
     "access": "Public",
-    "notes": "9-hole public along Maribyrnong River at Ascot Vale",
-    "lat": -37.7333,
-    "lng": 144.8333
+    "notes": "9-hole public along Maribyrnong River",
+    "lat": -37.7833,
+    "lng": 144.9167
   },
   {
     "name": "Yarrambat Park Golf Course",
@@ -283,9 +283,33 @@ const COURSES = [
     "fee9": "$14\u2013$22",
     "fee18": "$22\u2013$30",
     "access": "Public",
-    "notes": "Par-3 pitch & putt; public; very popular",
+    "notes": "Par-3 pitch & putt; popular family course",
     "lat": -37.9333,
     "lng": 145.1833
+  },
+  {
+    "name": "Club Mandalay",
+    "suburb": "Beveridge",
+    "holes": 18,
+    "par": "72",
+    "fee9": "N/A",
+    "fee18": "$35\u2013$55",
+    "access": "Public",
+    "notes": "Growth corridor public course",
+    "lat": -37.4667,
+    "lng": 144.9833
+  },
+  {
+    "name": "Gardiners Run Golf & Country Club",
+    "suburb": "Lilydale",
+    "holes": 18,
+    "par": "72",
+    "fee9": "N/A",
+    "fee18": "$35\u2013$55",
+    "access": "Public",
+    "notes": "Public Yarra Valley course",
+    "lat": -37.75,
+    "lng": 145.35
   },
   {
     "name": "Altona Lakes Golf Club",
@@ -300,6 +324,30 @@ const COURSES = [
     "lng": 144.85
   },
   {
+    "name": "Bacchus Marsh Golf Club",
+    "suburb": "Bacchus Marsh",
+    "holes": 18,
+    "par": "71",
+    "fee9": "N/A",
+    "fee18": "$25\u2013$38",
+    "access": "Semi-Private",
+    "notes": "Western Melbourne; semi-private",
+    "lat": -37.6667,
+    "lng": 144.4333
+  },
+  {
+    "name": "Ballan Golf Club",
+    "suburb": "Ballan",
+    "holes": 9,
+    "par": "35",
+    "fee9": "$14\u2013$20",
+    "fee18": "N/A",
+    "access": "Semi-Private",
+    "notes": "Small town 9-hole semi-private",
+    "lat": -37.6,
+    "lng": 144.2333
+  },
+  {
     "name": "Camberwell Golf Club",
     "suburb": "Balwyn North",
     "holes": 9,
@@ -307,7 +355,7 @@ const COURSES = [
     "fee9": "$18\u2013$24",
     "fee18": "N/A",
     "access": "Semi-Private",
-    "notes": "9-hole; members' club open to visitors",
+    "notes": "9-hole; members' club; visitors welcome",
     "lat": -37.7833,
     "lng": 145.0833
   },
@@ -334,6 +382,18 @@ const COURSES = [
     "notes": "Yarra Valley fringe; open visitor tee times",
     "lat": -37.75,
     "lng": 145.3333
+  },
+  {
+    "name": "Cranbourne Golf Club",
+    "suburb": "Cranbourne North",
+    "holes": 18,
+    "par": "72",
+    "fee9": "N/A",
+    "fee18": "$30\u2013$48",
+    "access": "Semi-Private",
+    "notes": "South-east growth corridor; semi-private",
+    "lat": -38.0833,
+    "lng": 145.2833
   },
   {
     "name": "Creekside Golf Club",
@@ -384,6 +444,18 @@ const COURSES = [
     "lng": 145.1167
   },
   {
+    "name": "Freeway Golf",
+    "suburb": "Balwyn North",
+    "holes": 9,
+    "par": "30",
+    "fee9": "$18\u2013$24",
+    "fee18": "N/A",
+    "access": "Semi-Private",
+    "notes": "9-hole par-3; semi-private",
+    "lat": -37.7833,
+    "lng": 145.0833
+  },
+  {
     "name": "Glen Waverley Golf Club",
     "suburb": "Wheelers Hill",
     "holes": 18,
@@ -408,18 +480,6 @@ const COURSES = [
     "lng": 144.7167
   },
   {
-    "name": "Kooringal Golf Club",
-    "suburb": "Altona",
-    "holes": 18,
-    "par": "70",
-    "fee9": "N/A",
-    "fee18": "$28\u2013$40",
-    "access": "Semi-Private",
-    "notes": "Western suburbs; semi-private",
-    "lat": -37.8667,
-    "lng": 144.8333
-  },
-  {
     "name": "Kings Park Golf Club",
     "suburb": "Bundoora",
     "holes": 18,
@@ -432,28 +492,16 @@ const COURSES = [
     "lng": 145.0667
   },
   {
-    "name": "Melton Valley Golf Club",
-    "suburb": "Melton",
+    "name": "Kooringal Golf Club",
+    "suburb": "Altona",
     "holes": 18,
-    "par": "72",
+    "par": "70",
     "fee9": "N/A",
-    "fee18": "$30\u2013$48",
+    "fee18": "$28\u2013$40",
     "access": "Semi-Private",
-    "notes": "Well-reviewed; semi-private west Melbourne",
-    "lat": -37.6833,
-    "lng": 144.5833
-  },
-  {
-    "name": "Strathallan Golf Club",
-    "suburb": "Bundoora",
-    "holes": 18,
-    "par": "72",
-    "fee9": "N/A",
-    "fee18": "$28\u2013$42",
-    "access": "Semi-Private",
-    "notes": "Highly reviewed semi-private; northern suburbs",
-    "lat": -37.7,
-    "lng": 145.0667
+    "notes": "Western suburbs; semi-private",
+    "lat": -37.8667,
+    "lng": 144.8333
   },
   {
     "name": "Latrobe Golf Club",
@@ -468,100 +516,16 @@ const COURSES = [
     "lng": 145.0333
   },
   {
-    "name": "Freeway Golf",
-    "suburb": "Balwyn North",
-    "holes": 9,
-    "par": "30",
-    "fee9": "$18\u2013$24",
-    "fee18": "N/A",
-    "access": "Semi-Private",
-    "notes": "9-hole par-3; semi-private",
-    "lat": -37.7833,
-    "lng": 145.0833
-  },
-  {
-    "name": "Keysborough Golf Club",
-    "suburb": "Keysborough",
+    "name": "Melton Valley Golf Club",
+    "suburb": "Melton",
     "holes": 18,
     "par": "72",
     "fee9": "N/A",
     "fee18": "$30\u2013$48",
     "access": "Semi-Private",
-    "notes": "Sandbelt-adjacent; semi-private",
-    "lat": -38.0,
-    "lng": 145.1667
-  },
-  {
-    "name": "Eastern Sward Golf Club",
-    "suburb": "Bangholme",
-    "holes": 18,
-    "par": "72",
-    "fee9": "N/A",
-    "fee18": "$28\u2013$40",
-    "access": "Semi-Private",
-    "notes": "South-east; semi-private",
-    "lat": -38.0,
-    "lng": 145.1667
-  },
-  {
-    "name": "Australasian Golf Club / Chelsea",
-    "suburb": "Edithvale",
-    "holes": 18,
-    "par": "72",
-    "fee9": "N/A",
-    "fee18": "$30\u2013$45",
-    "access": "Semi-Private",
-    "notes": "South-east; semi-private coastal course",
-    "lat": -38.05,
-    "lng": 145.1333
-  },
-  {
-    "name": "Bembridge Public Golf Course",
-    "suburb": "Somerville",
-    "holes": 18,
-    "par": "72",
-    "fee9": "N/A",
-    "fee18": "$28\u2013$40",
-    "access": "Semi-Private",
-    "notes": "Peninsula fringe; semi-private",
-    "lat": -38.2167,
-    "lng": 145.1667
-  },
-  {
-    "name": "Ballan Golf Club",
-    "suburb": "Ballan",
-    "holes": 9,
-    "par": "35",
-    "fee9": "$14\u2013$20",
-    "fee18": "N/A",
-    "access": "Semi-Private",
-    "notes": "Small town; members' club, visitors welcome",
-    "lat": -37.6,
-    "lng": 144.2333
-  },
-  {
-    "name": "Werribee Park Golf Club",
-    "suburb": "Werribee",
-    "holes": 18,
-    "par": "72",
-    "fee9": "N/A",
-    "fee18": "$35\u2013$55",
-    "access": "Semi-Private",
-    "notes": "Near Werribee Mansion; semi-private",
-    "lat": -37.9,
-    "lng": 144.6667
-  },
-  {
-    "name": "Cranbourne Golf Club",
-    "suburb": "Cranbourne North",
-    "holes": 18,
-    "par": "72",
-    "fee9": "N/A",
-    "fee18": "$30\u2013$48",
-    "access": "Semi-Private",
-    "notes": "South-east growth corridor; semi-private",
-    "lat": -38.0833,
-    "lng": 145.2833
+    "notes": "Well-reviewed; semi-private west Melbourne",
+    "lat": -37.6833,
+    "lng": 144.5833
   },
   {
     "name": "Patterson River Golf Club",
@@ -588,16 +552,136 @@ const COURSES = [
     "lng": 144.7667
   },
   {
-    "name": "Bacchus Marsh Golf Club",
-    "suburb": "Bacchus Marsh",
+    "name": "Rossdale Golf Club",
+    "suburb": "Aspendale",
     "holes": 18,
-    "par": "71",
+    "par": "72",
     "fee9": "N/A",
-    "fee18": "$25\u2013$38",
+    "fee18": "$35\u2013$55",
     "access": "Semi-Private",
-    "notes": "Western Melbourne; semi-private",
-    "lat": -37.6667,
-    "lng": 144.4333
+    "notes": "'Melbourne's Friendliest Golf Club'; bayside banksias & pines; visitors welcome",
+    "lat": -38.0333,
+    "lng": 145.1
+  },
+  {
+    "name": "Scotchmans Creek Golf Club",
+    "suburb": "Scoresby",
+    "holes": 18,
+    "par": "72",
+    "fee9": "N/A",
+    "fee18": "$28\u2013$42",
+    "access": "Semi-Private",
+    "notes": "South-east semi-private; visitors welcome",
+    "lat": -37.9,
+    "lng": 145.2333
+  },
+  {
+    "name": "Settlers Run Golf & Country Club",
+    "suburb": "Botanic Ridge",
+    "holes": 18,
+    "par": "72",
+    "fee9": "N/A",
+    "fee18": "$69\u2013$89",
+    "access": "Semi-Private",
+    "notes": "Greg Norman design; Top-100 ranked; public access Mon/Wed/Fri",
+    "lat": -38.15,
+    "lng": 145.2167
+  },
+  {
+    "name": "South Pines Golf Club",
+    "suburb": "South Morang",
+    "holes": 18,
+    "par": "72",
+    "fee9": "N/A",
+    "fee18": "$30\u2013$45",
+    "access": "Semi-Private",
+    "notes": "Northern suburbs; semi-private; visitors welcome",
+    "lat": -37.65,
+    "lng": 145.1
+  },
+  {
+    "name": "Strathallan Golf Club",
+    "suburb": "Bundoora",
+    "holes": 18,
+    "par": "72",
+    "fee9": "N/A",
+    "fee18": "$28\u2013$42",
+    "access": "Semi-Private",
+    "notes": "Highly reviewed semi-private; northern suburbs",
+    "lat": -37.7,
+    "lng": 145.0667
+  },
+  {
+    "name": "Werribee Park Golf Club",
+    "suburb": "Werribee",
+    "holes": 18,
+    "par": "72",
+    "fee9": "N/A",
+    "fee18": "$35\u2013$55",
+    "access": "Semi-Private",
+    "notes": "Near Werribee Mansion; semi-private",
+    "lat": -37.9,
+    "lng": 144.6667
+  },
+  {
+    "name": "Eastern Sward Golf Club",
+    "suburb": "Bangholme",
+    "holes": 18,
+    "par": "72",
+    "fee9": "N/A",
+    "fee18": "$28\u2013$40",
+    "access": "Semi-Private",
+    "notes": "South-east; semi-private",
+    "lat": -38.0,
+    "lng": 145.1667
+  },
+  {
+    "name": "Australasian Golf Club / Chelsea",
+    "suburb": "Edithvale",
+    "holes": 18,
+    "par": "72",
+    "fee9": "N/A",
+    "fee18": "$30\u2013$45",
+    "access": "Semi-Private",
+    "notes": "South-east coastal; semi-private",
+    "lat": -38.05,
+    "lng": 145.1333
+  },
+  {
+    "name": "Bembridge Public Golf Course",
+    "suburb": "Somerville",
+    "holes": 18,
+    "par": "72",
+    "fee9": "N/A",
+    "fee18": "$28\u2013$40",
+    "access": "Semi-Private",
+    "notes": "Peninsula fringe; semi-private",
+    "lat": -38.2167,
+    "lng": 145.1667
+  },
+  {
+    "name": "Keysborough Golf Club",
+    "suburb": "Keysborough",
+    "holes": 18,
+    "par": "72",
+    "fee9": "N/A",
+    "fee18": "$30\u2013$48",
+    "access": "Semi-Private",
+    "notes": "Sandbelt-adjacent; semi-private",
+    "lat": -38.0,
+    "lng": 145.1667
+  },
+  {
+    "name": "Spring Valley Golf Club",
+    "suburb": "Clayton South",
+    "holes": 18,
+    "par": "72",
+    "fee9": "N/A",
+    "fee18": "$110\u2013$130",
+    "access": "Members \u2013 Visitors Welcome",
+    "notes": "Top-ranked Sandbelt; visitors Mon/Tue/Thu/Fri/Sun; strict dress code",
+    "lat": -37.95,
+    "lng": 145.1167
   },
   {
     "name": "Frankston Golf Club",
@@ -607,7 +691,7 @@ const COURSES = [
     "fee9": "N/A",
     "fee18": "$60\u2013$90",
     "access": "Members \u2013 Visitors Welcome",
-    "notes": "Top-50 ranked; members' club; book ahead; visitors most weekdays",
+    "notes": "Top-50 ranked; members' club; visitors most weekdays",
     "lat": -38.15,
     "lng": 145.1167
   },
@@ -643,7 +727,7 @@ const COURSES = [
     "fee9": "N/A",
     "fee18": "$40\u2013$60",
     "access": "Members \u2013 Visitors Welcome",
-    "notes": "Sandbelt-adjacent; member club; visitors most days",
+    "notes": "Sandbelt-adjacent; members' club; visitors most days",
     "lat": -37.9833,
     "lng": 145.1167
   },
@@ -655,7 +739,7 @@ const COURSES = [
     "fee9": "N/A",
     "fee18": "$120\u2013$180",
     "access": "Members \u2013 Visitors Welcome",
-    "notes": "World-class Sandbelt; private but visitors accepted via reciprocal/tour",
+    "notes": "World-class Sandbelt; private but accepts visitors via reciprocal/tour",
     "lat": -37.9333,
     "lng": 145.0833
   },
@@ -667,7 +751,7 @@ const COURSES = [
     "fee9": "N/A",
     "fee18": "$120\u2013$180",
     "access": "Members \u2013 Visitors Welcome",
-    "notes": "Sandbelt classic; private; limited visitor access (reciprocal clubs preferred)",
+    "notes": "Sandbelt classic; private; limited visitor access",
     "lat": -37.9333,
     "lng": 145.0833
   },
@@ -799,7 +883,7 @@ const COURSES = [
     "fee9": "N/A",
     "fee18": "$45\u2013$65",
     "access": "Members \u2013 Visitors Welcome",
-    "notes": "Inner-east members' club; visitors welcome most days",
+    "notes": "Inner-east; members' club; visitors welcome most days",
     "lat": -37.8,
     "lng": 145.05
   },
@@ -835,7 +919,7 @@ const COURSES = [
     "fee9": "N/A",
     "fee18": "$35\u2013$55",
     "access": "Members \u2013 Visitors Welcome",
-    "notes": "North corridor; members' club; visitors welcome",
+    "notes": "North corridor; visitors welcome",
     "lat": -37.4167,
     "lng": 144.9833
   },
@@ -847,9 +931,201 @@ const COURSES = [
     "fee9": "N/A",
     "fee18": "$28\u2013$40",
     "access": "Members \u2013 Visitors Welcome",
-    "notes": "Macedon Ranges; members' club; visitors welcome",
+    "notes": "Macedon Ranges; visitors welcome",
     "lat": -37.4833,
     "lng": 144.5833
+  },
+  {
+    "name": "Long Island Country Club",
+    "suburb": "Frankston South",
+    "holes": 18,
+    "par": "72",
+    "fee9": "N/A",
+    "fee18": "$50\u2013$80",
+    "access": "Members \u2013 Visitors Welcome",
+    "notes": "Sandbelt gateway; 'hidden gem'; visitors welcome",
+    "lat": -38.1833,
+    "lng": 145.1333
+  },
+  {
+    "name": "Centenary Park Golf Course",
+    "suburb": "Frankston",
+    "holes": 18,
+    "par": "72",
+    "fee9": "N/A",
+    "fee18": "$28\u2013$45",
+    "access": "Members \u2013 Visitors Welcome",
+    "notes": "Municipal/public-access course near Frankston",
+    "lat": -38.15,
+    "lng": 145.1167
+  },
+  {
+    "name": "Riversdale Golf Club",
+    "suburb": "Oakleigh South",
+    "holes": 18,
+    "par": "72",
+    "fee9": "N/A",
+    "fee18": "$60\u2013$90",
+    "access": "Members \u2013 Visitors Welcome",
+    "notes": "Top-100 ranked; private Sandbelt; visitors via arrangement",
+    "lat": -37.9333,
+    "lng": 145.0833
+  },
+  {
+    "name": "The Eastern Golf Club \u2013 South Course",
+    "suburb": "Yering",
+    "holes": 18,
+    "par": "73",
+    "fee9": "N/A",
+    "fee18": "N/A \u2013 Private",
+    "access": "Private",
+    "notes": "Greg Norman design; top-ranked; private members only",
+    "lat": -37.7167,
+    "lng": 145.3833
+  },
+  {
+    "name": "The Eastern Golf Club \u2013 North Course",
+    "suburb": "Yering",
+    "holes": 18,
+    "par": "73",
+    "fee9": "N/A",
+    "fee18": "N/A \u2013 Private",
+    "access": "Private",
+    "notes": "Greg Norman design; private members only",
+    "lat": -37.7167,
+    "lng": 145.3833
+  },
+  {
+    "name": "Rosanna Golf Club",
+    "suburb": "Lower Plenty",
+    "holes": 18,
+    "par": "72",
+    "fee9": "N/A",
+    "fee18": "N/A \u2013 Private",
+    "access": "Private",
+    "notes": "Private members' club",
+    "lat": -37.7333,
+    "lng": 145.1167
+  },
+  {
+    "name": "Heritage Golf & CC \u2013 Henley Course",
+    "suburb": "Chirnside Park",
+    "holes": 18,
+    "par": "72",
+    "fee9": "N/A",
+    "fee18": "N/A \u2013 Private",
+    "access": "Private",
+    "notes": "Top-100 ranked; private; members & guests only",
+    "lat": -37.75,
+    "lng": 145.3333
+  },
+  {
+    "name": "Heritage Golf & CC \u2013 St John Course",
+    "suburb": "Chirnside Park",
+    "holes": 18,
+    "par": "72",
+    "fee9": "N/A",
+    "fee18": "N/A \u2013 Private",
+    "access": "Private",
+    "notes": "Top-100 ranked; private; members & guests only",
+    "lat": -37.75,
+    "lng": 145.3333
+  },
+  {
+    "name": "Warburton Golf Club",
+    "suburb": "Warburton",
+    "holes": 18,
+    "par": "69",
+    "fee9": "$21\u2013$28",
+    "fee18": "$35\u2013$48",
+    "access": "Members \u2013 Visitors Welcome",
+    "notes": "Scenic mountain course; 90 min from CBD; visitors welcome 7 days; no bunkers; club hire available",
+    "lat": -37.75,
+    "lng": 145.6833
+  },
+  {
+    "name": "Yering Meadows Golf Club",
+    "suburb": "Yering",
+    "holes": 27,
+    "par": "108",
+    "fee9": "$35\u2013$50",
+    "fee18": "$55\u2013$75",
+    "access": "Members \u2013 Visitors Welcome",
+    "notes": "27 holes; formerly Croydon GC; Yarra Valley views; visitors welcome",
+    "lat": -37.7167,
+    "lng": 145.3833
+  },
+  {
+    "name": "RACV Healesville Country Club",
+    "suburb": "Healesville",
+    "holes": 18,
+    "par": "68",
+    "fee9": "N/A",
+    "fee18": "$45\u2013$70",
+    "access": "Members \u2013 Visitors Welcome",
+    "notes": "Michael Clayton design; Top-100; resort members & public welcome",
+    "lat": -37.65,
+    "lng": 145.5167
+  },
+  {
+    "name": "Emerald Golf & Country Resort",
+    "suburb": "Emerald",
+    "holes": 18,
+    "par": "72",
+    "fee9": "N/A",
+    "fee18": "$35\u2013$55",
+    "access": "Resort / Public",
+    "notes": "Dandenongs resort; public green fees",
+    "lat": -37.9333,
+    "lng": 145.4333
+  },
+  {
+    "name": "Eildon Golf Club",
+    "suburb": "Eildon",
+    "holes": 9,
+    "par": "34",
+    "fee9": "$15\u2013$22",
+    "fee18": "N/A",
+    "access": "Semi-Private",
+    "notes": "High country 9-hole scenic semi-private",
+    "lat": -37.2333,
+    "lng": 145.9
+  },
+  {
+    "name": "Alexandra Golf Club",
+    "suburb": "Alexandra",
+    "holes": 9,
+    "par": "35",
+    "fee9": "$15\u2013$22",
+    "fee18": "N/A",
+    "access": "Semi-Private",
+    "notes": "Murrindindi 9-hole semi-private",
+    "lat": -37.19,
+    "lng": 145.7167
+  },
+  {
+    "name": "Cathedral Golf Club",
+    "suburb": "Thornton",
+    "holes": 18,
+    "par": "72",
+    "fee9": "N/A",
+    "fee18": "$250\u2013$400",
+    "access": "Private",
+    "notes": "Ultra-exclusive Greg Norman design; invitation/member only",
+    "lat": -37.3,
+    "lng": 145.8333
+  },
+  {
+    "name": "Marysville Golf Course",
+    "suburb": "Marysville",
+    "holes": 9,
+    "par": "34",
+    "fee9": "$15\u2013$22",
+    "fee18": "N/A",
+    "access": "Public",
+    "notes": "Small mountain town public 9-hole",
+    "lat": -37.5167,
+    "lng": 145.75
   },
   {
     "name": "Eagle Ridge Golf Course",
@@ -859,7 +1135,7 @@ const COURSES = [
     "fee9": "N/A",
     "fee18": "$65\u2013$90",
     "access": "Public",
-    "notes": "Public 18-hole near Rye",
+    "notes": "Public 18-hole near Rye; resort-style facilities",
     "lat": -38.4167,
     "lng": 144.8833
   },
@@ -871,7 +1147,7 @@ const COURSES = [
     "fee9": "N/A",
     "fee18": "$80\u2013$130",
     "access": "Resort / Public",
-    "notes": "Public-access resort; Open Course",
+    "notes": "Public-access resort; hosted 2003 & 2005 Australian Open",
     "lat": -38.45,
     "lng": 144.8833
   },
@@ -883,7 +1159,7 @@ const COURSES = [
     "fee9": "N/A",
     "fee18": "$100\u2013$175",
     "access": "Resort / Public",
-    "notes": "Public-access resort; Legends Course",
+    "notes": "Public-access resort; Top-100 ranked",
     "lat": -38.45,
     "lng": 144.8833
   },
@@ -895,7 +1171,7 @@ const COURSES = [
     "fee9": "N/A",
     "fee18": "$90\u2013$185",
     "access": "Resort / Public",
-    "notes": "Tom Doak links; public resort course",
+    "notes": "Tom Doak / Mike Clayton links; public resort; Top-100",
     "lat": -38.45,
     "lng": 144.8833
   },
@@ -907,7 +1183,7 @@ const COURSES = [
     "fee9": "$45\u2013$70",
     "fee18": "$75\u2013$110",
     "access": "Public",
-    "notes": "27 holes; 18+9 layout; public access links",
+    "notes": "27 holes; 18+9 layout; public access links; Tony Cashmore design",
     "lat": -38.3667,
     "lng": 144.8333
   },
@@ -919,7 +1195,7 @@ const COURSES = [
     "fee9": "N/A",
     "fee18": "$80\u2013$145",
     "access": "Resort / Public",
-    "notes": "Resort course; public green fees",
+    "notes": "Resort course at Peninsula tip; public green fees",
     "lat": -38.5,
     "lng": 144.9
   },
@@ -948,6 +1224,18 @@ const COURSES = [
     "lng": 144.9
   },
   {
+    "name": "Devilbend Golf Club",
+    "suburb": "Moorooduc",
+    "holes": 18,
+    "par": "72",
+    "fee9": "N/A",
+    "fee18": "$35\u2013$55",
+    "access": "Semi-Private",
+    "notes": "Gateway to Peninsula; semi-private; visitors welcome",
+    "lat": -38.2833,
+    "lng": 145.2
+  },
+  {
     "name": "Mornington Golf Club",
     "suburb": "Mornington",
     "holes": 18,
@@ -955,19 +1243,31 @@ const COURSES = [
     "fee9": "N/A",
     "fee18": "$50\u2013$75",
     "access": "Semi-Private",
-    "notes": "Top-100 ranked; members' club; open visitor tee times",
+    "notes": "Top-100 ranked; open visitor tee times",
     "lat": -38.2167,
     "lng": 145.0333
   },
   {
-    "name": "Rosebud Country Club",
+    "name": "Rosebud Country Club \u2013 North",
     "suburb": "Rosebud",
     "holes": 18,
     "par": "72",
     "fee9": "N/A",
     "fee18": "$45\u2013$65",
     "access": "Semi-Private",
-    "notes": "Peninsula; semi-private country club",
+    "notes": "Peninsula; 36-hole complex; semi-private",
+    "lat": -38.35,
+    "lng": 144.9
+  },
+  {
+    "name": "Rosebud Country Club \u2013 South",
+    "suburb": "Rosebud",
+    "holes": 18,
+    "par": "72",
+    "fee9": "N/A",
+    "fee18": "$45\u2013$65",
+    "access": "Semi-Private",
+    "notes": "Peninsula; 36-hole complex; semi-private",
     "lat": -38.35,
     "lng": 144.9
   },
@@ -1008,14 +1308,14 @@ const COURSES = [
     "lng": 145.0167
   },
   {
-    "name": "Amstel Golf Club",
+    "name": "Amstel Golf Club \u2013 Ranfurlie",
     "suburb": "Cranbourne",
     "holes": 18,
     "par": "72",
     "fee9": "N/A",
     "fee18": "$35\u2013$55",
     "access": "Semi-Private",
-    "notes": "Semi-private; Ranfurlie public-access layout available",
+    "notes": "Semi-private; Ranfurlie layout; public tee times available",
     "lat": -38.1167,
     "lng": 145.2833
   },
@@ -1068,7 +1368,7 @@ const COURSES = [
     "lng": 145.1167
   },
   {
-    "name": "The National GC \u2013 Old",
+    "name": "The National GC \u2013 Old Course",
     "suburb": "Frankston",
     "holes": 18,
     "par": "70",
@@ -1099,24 +1399,24 @@ const COURSES = [
     "fee9": "N/A",
     "fee18": "$60\u2013$90",
     "access": "Public",
-    "notes": "Top-100; public access with accommodation",
+    "notes": "Top-100; public access; accommodation on site",
     "lat": -38.1667,
     "lng": 144.4333
   },
   {
-    "name": "Thirteenth Beach GLC \u2013 Beach",
+    "name": "Thirteenth Beach GLC \u2013 Beach Course",
     "suburb": "Barwon Heads",
     "holes": 18,
     "par": "72",
     "fee9": "N/A",
     "fee18": "$75\u2013$110",
     "access": "Resort / Public",
-    "notes": "Championship links; resort public access",
+    "notes": "Championship links; resort; 3 courses on site",
     "lat": -38.2667,
     "lng": 144.5
   },
   {
-    "name": "Thirteenth Beach GLC \u2013 Creek",
+    "name": "Thirteenth Beach GLC \u2013 Creek Course",
     "suburb": "Barwon Heads",
     "holes": 18,
     "par": "72",
@@ -1128,6 +1428,18 @@ const COURSES = [
     "lng": 144.5
   },
   {
+    "name": "Thirteenth Beach GLC \u2013 Short Course",
+    "suburb": "Barwon Heads",
+    "holes": 9,
+    "par": "27",
+    "fee9": "$25\u2013$35",
+    "fee18": "N/A",
+    "access": "Resort / Public",
+    "notes": "9-hole short course; resort; all abilities",
+    "lat": -38.2667,
+    "lng": 144.5
+  },
+  {
     "name": "Sandy Links Golf Club",
     "suburb": "Waurn Ponds",
     "holes": 18,
@@ -1135,7 +1447,7 @@ const COURSES = [
     "fee9": "N/A",
     "fee18": "$50\u2013$80",
     "access": "Public",
-    "notes": "Geelong-area public links; visitors welcome",
+    "notes": "Geelong-area public links; free golf U16 with paying adult",
     "lat": -38.2167,
     "lng": 144.3
   },
@@ -1159,7 +1471,7 @@ const COURSES = [
     "fee9": "N/A",
     "fee18": "$30\u2013$50",
     "access": "Semi-Private",
-    "notes": "Bellarine; semi-private",
+    "notes": "Bellarine; semi-private; council-owned course",
     "lat": -38.15,
     "lng": 144.5667
   },
@@ -1174,6 +1486,18 @@ const COURSES = [
     "notes": "Geelong-adjacent semi-private",
     "lat": -38.1667,
     "lng": 144.4167
+  },
+  {
+    "name": "Balyang Par Three Golf Course",
+    "suburb": "Newtown (Geelong)",
+    "holes": 9,
+    "par": "27",
+    "fee9": "$12\u2013$18",
+    "fee18": "N/A",
+    "access": "Public",
+    "notes": "Par-3 public course in Geelong",
+    "lat": -38.15,
+    "lng": 144.3333
   },
   {
     "name": "Geelong Golf Club",
@@ -1231,7 +1555,7 @@ const COURSES = [
     "fee9": "N/A",
     "fee18": "$35\u2013$55",
     "access": "Semi-Private",
-    "notes": "Famous for kangaroos; semi-private; visitors welcome",
+    "notes": "Famous for resident kangaroos; semi-private; visitors welcome",
     "lat": -38.4,
     "lng": 144.1833
   },
@@ -1270,6 +1594,18 @@ const COURSES = [
     "notes": "Volcanic lakes region; semi-private",
     "lat": -38.6667,
     "lng": 143.15
+  },
+  {
+    "name": "Inverleigh Golf Club",
+    "suburb": "Inverleigh",
+    "holes": 9,
+    "par": "35",
+    "fee9": "$12\u2013$18",
+    "fee18": "N/A",
+    "access": "Semi-Private",
+    "notes": "Rural 9-hole semi-private",
+    "lat": -38.1,
+    "lng": 144.05
   },
   {
     "name": "Port Fairy Golf Club",
@@ -1332,6 +1668,54 @@ const COURSES = [
     "lng": 141.6333
   },
   {
+    "name": "Coleraine Golf Club",
+    "suburb": "Coleraine",
+    "holes": 9,
+    "par": "34",
+    "fee9": "$12\u2013$18",
+    "fee18": "N/A",
+    "access": "Semi-Private",
+    "notes": "Rural 9-hole semi-private",
+    "lat": -37.5833,
+    "lng": 141.6833
+  },
+  {
+    "name": "East Framlingham Golf Club",
+    "suburb": "Framlingham",
+    "holes": 9,
+    "par": "34",
+    "fee9": "$12\u2013$18",
+    "fee18": "N/A",
+    "access": "Semi-Private",
+    "notes": "Rural 9-hole semi-private",
+    "lat": -38.2167,
+    "lng": 142.6
+  },
+  {
+    "name": "Portland Golf Club",
+    "suburb": "Portland",
+    "holes": 18,
+    "par": "72",
+    "fee9": "N/A",
+    "fee18": "$25\u2013$35",
+    "access": "Semi-Private",
+    "notes": "Far south-west regional semi-private",
+    "lat": -38.35,
+    "lng": 141.6
+  },
+  {
+    "name": "Dartmoor Golf Club",
+    "suburb": "Dartmoor",
+    "holes": 9,
+    "par": "34",
+    "fee9": "$10\u2013$15",
+    "fee18": "N/A",
+    "access": "Semi-Private",
+    "notes": "Small rural 9-hole",
+    "lat": -37.9167,
+    "lng": 141.2833
+  },
+  {
     "name": "Ballarat Golf Club",
     "suburb": "Alfredton",
     "holes": 18,
@@ -1339,7 +1723,7 @@ const COURSES = [
     "fee9": "N/A",
     "fee18": "$35\u2013$55",
     "access": "Members \u2013 Visitors Welcome",
-    "notes": "Top-100 regional; members' club; visitors welcome 7 days",
+    "notes": "Top-100 regional; visitors welcome 7 days",
     "lat": -37.55,
     "lng": 143.8
   },
@@ -1363,7 +1747,19 @@ const COURSES = [
     "fee9": "N/A",
     "fee18": "$25\u2013$38",
     "access": "Members \u2013 Visitors Welcome",
-    "notes": "Visitors welcome; one of regional VIC's best",
+    "notes": "One of regional VIC's best; visitors welcome",
+    "lat": -37.2833,
+    "lng": 142.9167
+  },
+  {
+    "name": "Aradale Golf Club",
+    "suburb": "Ararat",
+    "holes": 18,
+    "par": "72",
+    "fee9": "N/A",
+    "fee18": "$22\u2013$32",
+    "access": "Semi-Private",
+    "notes": "Ararat; semi-private",
     "lat": -37.2833,
     "lng": 142.9167
   },
@@ -1375,7 +1771,7 @@ const COURSES = [
     "fee9": "N/A",
     "fee18": "$25\u2013$38",
     "access": "Members \u2013 Visitors Welcome",
-    "notes": "Spa country; members' club; visitors welcome",
+    "notes": "Spa country; visitors welcome",
     "lat": -37.3167,
     "lng": 144.1333
   },
@@ -1411,7 +1807,7 @@ const COURSES = [
     "fee9": "$20\u2013$28",
     "fee18": "N/A",
     "access": "Semi-Private",
-    "notes": "Grampians setting; semi-private 9-hole",
+    "notes": "Grampians setting; 9-hole semi-private",
     "lat": -37.1333,
     "lng": 142.5167
   },
@@ -1447,7 +1843,7 @@ const COURSES = [
     "fee9": "N/A",
     "fee18": "$20\u2013$28",
     "access": "Semi-Private",
-    "notes": "Rural north-west; semi-private",
+    "notes": "Rural north-west semi-private",
     "lat": -36.3667,
     "lng": 142.9833
   },
@@ -1462,6 +1858,30 @@ const COURSES = [
     "notes": "Grampians backdrop; 9-hole semi-private",
     "lat": -37.65,
     "lng": 142.3333
+  },
+  {
+    "name": "Grange Golf Club",
+    "suburb": "Stawell",
+    "holes": 9,
+    "par": "34",
+    "fee9": "$12\u2013$18",
+    "fee18": "N/A",
+    "access": "Semi-Private",
+    "notes": "Stawell 9-hole rural semi-private",
+    "lat": -37.05,
+    "lng": 142.7667
+  },
+  {
+    "name": "Glenorchy Golf Club",
+    "suburb": "Glenorchy",
+    "holes": 9,
+    "par": "35",
+    "fee9": "$12\u2013$18",
+    "fee18": "N/A",
+    "access": "Semi-Private",
+    "notes": "Rural 9-hole semi-private",
+    "lat": -36.9167,
+    "lng": 143.9
   },
   {
     "name": "Bendigo Golf Club",
@@ -1484,6 +1904,18 @@ const COURSES = [
     "fee18": "$28\u2013$40",
     "access": "Members \u2013 Visitors Welcome",
     "notes": "Bendigo area; members' club; visitors welcome",
+    "lat": -36.7167,
+    "lng": 144.2333
+  },
+  {
+    "name": "Neangar Park Golf Club",
+    "suburb": "Eaglehawk",
+    "holes": 18,
+    "par": "72",
+    "fee9": "N/A",
+    "fee18": "$28\u2013$40",
+    "access": "Members \u2013 Visitors Welcome",
+    "notes": "Bendigo-area; visitors welcome; popular regional course",
     "lat": -36.7167,
     "lng": 144.2333
   },
@@ -1572,6 +2004,66 @@ const COURSES = [
     "lng": 143.7833
   },
   {
+    "name": "Maryborough Golf Club",
+    "suburb": "Maryborough",
+    "holes": 18,
+    "par": "72",
+    "fee9": "N/A",
+    "fee18": "$22\u2013$32",
+    "access": "Semi-Private",
+    "notes": "Goldfields semi-private",
+    "lat": -37.05,
+    "lng": 143.7333
+  },
+  {
+    "name": "Bridgewater-on-Loddon Golf Club",
+    "suburb": "Bridgewater",
+    "holes": 9,
+    "par": "35",
+    "fee9": "$12\u2013$18",
+    "fee18": "N/A",
+    "access": "Semi-Private",
+    "notes": "Rural 9-hole semi-private",
+    "lat": -36.6,
+    "lng": 143.95
+  },
+  {
+    "name": "Charlton Golf Club",
+    "suburb": "Charlton",
+    "holes": 18,
+    "par": "72",
+    "fee9": "N/A",
+    "fee18": "$18\u2013$28",
+    "access": "Semi-Private",
+    "notes": "Regional semi-private",
+    "lat": -36.2667,
+    "lng": 143.35
+  },
+  {
+    "name": "Boort Golf Club",
+    "suburb": "Boort",
+    "holes": 9,
+    "par": "35",
+    "fee9": "$10\u2013$15",
+    "fee18": "N/A",
+    "access": "Semi-Private",
+    "notes": "Small rural 9-hole",
+    "lat": -36.1167,
+    "lng": 143.7167
+  },
+  {
+    "name": "Broadford Golf Club",
+    "suburb": "Broadford",
+    "holes": 9,
+    "par": "34",
+    "fee9": "$14\u2013$20",
+    "fee18": "N/A",
+    "access": "Semi-Private",
+    "notes": "Small town 9-hole semi-private",
+    "lat": -37.2,
+    "lng": 145.05
+  },
+  {
     "name": "Shepparton Golf Club",
     "suburb": "Shepparton",
     "holes": 18,
@@ -1579,7 +2071,7 @@ const COURSES = [
     "fee9": "N/A",
     "fee18": "$30\u2013$45",
     "access": "Members \u2013 Visitors Welcome",
-    "notes": "Top regional course; members' club; visitors welcome 7 days",
+    "notes": "Top regional course; visitors welcome 7 days",
     "lat": -36.3833,
     "lng": 145.4
   },
@@ -1692,6 +2184,30 @@ const COURSES = [
     "lng": 145.2333
   },
   {
+    "name": "Numurkah Golf Club",
+    "suburb": "Numurkah",
+    "holes": 18,
+    "par": "71",
+    "fee9": "N/A",
+    "fee18": "$22\u2013$32",
+    "access": "Semi-Private",
+    "notes": "Murray region semi-private",
+    "lat": -36.0833,
+    "lng": 145.4333
+  },
+  {
+    "name": "Tongala Golf Club",
+    "suburb": "Tongala",
+    "holes": 9,
+    "par": "35",
+    "fee9": "$10\u2013$15",
+    "fee18": "N/A",
+    "access": "Semi-Private",
+    "notes": "Small rural 9-hole",
+    "lat": -36.25,
+    "lng": 144.9667
+  },
+  {
     "name": "Wangaratta Golf Club",
     "suburb": "Wangaratta",
     "holes": 18,
@@ -1711,7 +2227,7 @@ const COURSES = [
     "fee9": "N/A",
     "fee18": "$28\u2013$40",
     "access": "Members \u2013 Visitors Welcome",
-    "notes": "Border city; members' club; visitors welcome",
+    "notes": "Border city; visitors welcome",
     "lat": -36.1167,
     "lng": 146.8833
   },
@@ -1800,6 +2316,30 @@ const COURSES = [
     "lng": 145.5667
   },
   {
+    "name": "Seymour Golf Club",
+    "suburb": "Seymour",
+    "holes": 18,
+    "par": "71",
+    "fee9": "N/A",
+    "fee18": "$22\u2013$32",
+    "access": "Semi-Private",
+    "notes": "Central Victoria semi-private",
+    "lat": -37.0167,
+    "lng": 145.1333
+  },
+  {
+    "name": "Myrtleford Golf Club",
+    "suburb": "Myrtleford",
+    "holes": 9,
+    "par": "35",
+    "fee9": "$14\u2013$20",
+    "fee18": "N/A",
+    "access": "Semi-Private",
+    "notes": "Alpine foothills 9-hole semi-private",
+    "lat": -36.5667,
+    "lng": 146.7333
+  },
+  {
     "name": "Jubilee Golf Club",
     "suburb": "Wangaratta",
     "holes": 9,
@@ -1807,9 +2347,33 @@ const COURSES = [
     "fee9": "$14\u2013$20",
     "fee18": "N/A",
     "access": "Semi-Private",
-    "notes": "Rural 9-hole semi-private",
+    "notes": "Rural 9-hole semi-private near Wangaratta",
     "lat": -36.3583,
     "lng": 146.3167
+  },
+  {
+    "name": "Barnawartha Golf Club",
+    "suburb": "Barnawartha",
+    "holes": 9,
+    "par": "34",
+    "fee9": "$10\u2013$15",
+    "fee18": "N/A",
+    "access": "Semi-Private",
+    "notes": "Small border town 9-hole",
+    "lat": -36.1,
+    "lng": 146.95
+  },
+  {
+    "name": "Chiltern Golf Club",
+    "suburb": "Chiltern",
+    "holes": 9,
+    "par": "34",
+    "fee9": "$12\u2013$18",
+    "fee18": "N/A",
+    "access": "Semi-Private",
+    "notes": "Historic Chiltern; 9-hole semi-private",
+    "lat": -36.15,
+    "lng": 146.6
   },
   {
     "name": "Bairnsdale Golf Club",
@@ -1819,7 +2383,7 @@ const COURSES = [
     "fee9": "N/A",
     "fee18": "$30\u2013$45",
     "access": "Members \u2013 Visitors Welcome",
-    "notes": "East Gippsland; members' club; visitors welcome",
+    "notes": "East Gippsland; visitors welcome",
     "lat": -37.8833,
     "lng": 147.6833
   },
@@ -1896,6 +2460,30 @@ const COURSES = [
     "lng": 146.3833
   },
   {
+    "name": "Warragul Golf Club",
+    "suburb": "Warragul",
+    "holes": 18,
+    "par": "71",
+    "fee9": "N/A",
+    "fee18": "$25\u2013$38",
+    "access": "Members \u2013 Visitors Welcome",
+    "notes": "West Gippsland; visitors welcome",
+    "lat": -38.1667,
+    "lng": 145.9333
+  },
+  {
+    "name": "Mirboo North Golf Club",
+    "suburb": "Mirboo North",
+    "holes": 9,
+    "par": "35",
+    "fee9": "$14\u2013$20",
+    "fee18": "N/A",
+    "access": "Semi-Private",
+    "notes": "South Gippsland hills; semi-private",
+    "lat": -38.3833,
+    "lng": 146.1667
+  },
+  {
     "name": "Foster Golf Club",
     "suburb": "Foster",
     "holes": 9,
@@ -1968,112 +2556,40 @@ const COURSES = [
     "lng": 146.4167
   },
   {
-    "name": "Gardiners Run Golf & Country Club",
-    "suburb": "Lilydale",
+    "name": "Moe Golf Club",
+    "suburb": "Moe",
     "holes": 18,
-    "par": "72",
+    "par": "70",
     "fee9": "N/A",
-    "fee18": "$35\u2013$55",
-    "access": "Public",
-    "notes": "Public Yarra Valley course",
-    "lat": -37.75,
-    "lng": 145.35
-  },
-  {
-    "name": "Emerald Golf & Country Resort",
-    "suburb": "Emerald",
-    "holes": 18,
-    "par": "72",
-    "fee9": "N/A",
-    "fee18": "$35\u2013$55",
-    "access": "Resort / Public",
-    "notes": "Dandenongs resort; public green fees",
-    "lat": -37.9333,
-    "lng": 145.4333
-  },
-  {
-    "name": "Healesville Country Club",
-    "suburb": "Healesville",
-    "holes": 18,
-    "par": "68",
-    "fee9": "N/A",
-    "fee18": "$45\u2013$70",
-    "access": "Members \u2013 Visitors Welcome",
-    "notes": "Michael Clayton design; Top-100; visitors welcome",
-    "lat": -37.65,
-    "lng": 145.5167
-  },
-  {
-    "name": "Eildon Golf Club",
-    "suburb": "Eildon",
-    "holes": 9,
-    "par": "34",
-    "fee9": "$15\u2013$22",
-    "fee18": "N/A",
+    "fee18": "$25\u2013$35",
     "access": "Semi-Private",
-    "notes": "High country 9-hole scenic semi-private",
-    "lat": -37.2333,
-    "lng": 145.9
+    "notes": "Latrobe Valley; semi-private",
+    "lat": -38.1667,
+    "lng": 146.2667
   },
   {
-    "name": "Alexandra Golf Club",
-    "suburb": "Alexandra",
+    "name": "Newry Golf Club",
+    "suburb": "Newry",
     "holes": 9,
     "par": "35",
-    "fee9": "$15\u2013$22",
+    "fee9": "$10\u2013$15",
     "fee18": "N/A",
     "access": "Semi-Private",
-    "notes": "Murrindindi 9-hole semi-private",
-    "lat": -37.19,
-    "lng": 145.7167
+    "notes": "Remote Gippsland 9-hole",
+    "lat": -37.9167,
+    "lng": 146.9
   },
   {
-    "name": "Cathedral Golf Club",
-    "suburb": "Thornton",
+    "name": "Pakenham Golf Club",
+    "suburb": "Pakenham",
     "holes": 18,
     "par": "72",
     "fee9": "N/A",
-    "fee18": "$250\u2013$400",
-    "access": "Members \u2013 Visitors Welcome",
-    "notes": "Ultra-exclusive; Greg Norman design; invitation/member only",
-    "lat": -37.3,
-    "lng": 145.8333
-  },
-  {
-    "name": "Heritage Golf & CC \u2013 Henley",
-    "suburb": "Chirnside Park",
-    "holes": 18,
-    "par": "72",
-    "fee9": "N/A",
-    "fee18": "$150\u2013$220",
-    "access": "Members \u2013 Visitors Welcome",
-    "notes": "Private; no casual public access; members/guests only",
-    "lat": -37.75,
-    "lng": 145.3333
-  },
-  {
-    "name": "Club Mandalay",
-    "suburb": "Beveridge",
-    "holes": 18,
-    "par": "72",
-    "fee9": "N/A",
-    "fee18": "$35\u2013$55",
-    "access": "Public",
-    "notes": "Growth corridor public course",
-    "lat": -37.4667,
-    "lng": 144.9833
-  },
-  {
-    "name": "Broadford Golf Club",
-    "suburb": "Broadford",
-    "holes": 9,
-    "par": "34",
-    "fee9": "$14\u2013$20",
-    "fee18": "N/A",
+    "fee18": "$28\u2013$40",
     "access": "Semi-Private",
-    "notes": "Small town 9-hole semi-private",
-    "lat": -37.2,
-    "lng": 145.05
+    "notes": "South-east growth corridor semi-private",
+    "lat": -38.0667,
+    "lng": 145.4833
   },
   {
     "name": "Mildura Golf Resort",
@@ -2112,51 +2628,51 @@ const COURSES = [
     "lng": 142.1833
   },
   {
-    "name": "The Eastern Golf Club \u2013 North",
-    "suburb": "Yering",
-    "holes": 18,
-    "par": "73",
-    "fee9": "N/A",
-    "fee18": "N/A \u2013 Private",
-    "access": "Private",
-    "notes": "Top-ranked; private members only",
-    "lat": -37.7167,
-    "lng": 145.3833
+    "name": "Hopetoun Golf Club",
+    "suburb": "Hopetoun",
+    "holes": 9,
+    "par": "34",
+    "fee9": "$10\u2013$15",
+    "fee18": "N/A",
+    "access": "Semi-Private",
+    "notes": "Far north-west rural 9-hole",
+    "lat": -35.7167,
+    "lng": 142.35
   },
   {
-    "name": "The Eastern Golf Club \u2013 South",
-    "suburb": "Yering",
-    "holes": 18,
-    "par": "73",
-    "fee9": "N/A",
-    "fee18": "N/A \u2013 Private",
-    "access": "Private",
-    "notes": "Top-ranked; private members only",
-    "lat": -37.7167,
-    "lng": 145.3833
+    "name": "Jeparit Golf Club",
+    "suburb": "Jeparit",
+    "holes": 9,
+    "par": "34",
+    "fee9": "$10\u2013$15",
+    "fee18": "N/A",
+    "access": "Semi-Private",
+    "notes": "Remote rural 9-hole",
+    "lat": -35.7,
+    "lng": 142.0
   },
   {
-    "name": "Rosanna Golf Club",
-    "suburb": "Lower Plenty",
-    "holes": 18,
-    "par": "72",
-    "fee9": "N/A",
-    "fee18": "N/A \u2013 Private",
-    "access": "Private",
-    "notes": "Private members' club",
-    "lat": -37.7333,
-    "lng": 145.1167
+    "name": "Kaniva Golf Club",
+    "suburb": "Kaniva",
+    "holes": 9,
+    "par": "33",
+    "fee9": "$10\u2013$15",
+    "fee18": "N/A",
+    "access": "Semi-Private",
+    "notes": "Far west rural 9-hole",
+    "lat": -36.3833,
+    "lng": 141.2333
   },
   {
-    "name": "Capital Golf Club (private)",
-    "suburb": "Heatherton",
-    "holes": 18,
-    "par": "72",
-    "fee9": "N/A",
-    "fee18": "N/A \u2013 Private",
-    "access": "Private",
-    "notes": "Private Sandbelt course",
-    "lat": -37.9667,
-    "lng": 145.0833
+    "name": "Nhill Golf Club",
+    "suburb": "Nhill",
+    "holes": 9,
+    "par": "35",
+    "fee9": "$10\u2013$15",
+    "fee18": "N/A",
+    "access": "Semi-Private",
+    "notes": "Small Wimmera town 9-hole",
+    "lat": -36.3333,
+    "lng": 141.65
   }
 ];

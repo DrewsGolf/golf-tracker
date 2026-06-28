@@ -1,4 +1,4 @@
-const CACHE = 'golf-tracker-v4';
+const CACHE = 'golf-tracker-v5';
 const FILES = [
   '/',
   '/index.html',

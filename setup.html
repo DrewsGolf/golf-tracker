@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#1a6b3a">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-192.svg">
+<title>Set Up Your Bag</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  :root {
+    --green-dark: #1a6b3a; --green-mid: #2d8a52; --green-light: #e8f5ed; --green-pale: #f2faf5;
+    --text-primary: #1a1a1a; --text-secondary: #5a6a60; --text-muted: #94a89c;
+    --bg: #f5f7f5; --card: #ffffff; --border: rgba(0,0,0,0.08); --border-mid: rgba(0,0,0,0.14);
+    --radius: 14px; --radius-sm: 9px;
+    --safe-top: env(safe-area-inset-top, 0px); --safe-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  html, body { height: 100%; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg); color: var(--text-primary); }
+  #app { display: flex; flex-direction: column; height: 100%; max-width: 430px; margin: 0 auto; }
+
+  /* Topbar */
+  .topbar { background: var(--green-dark); color: #fff; padding: calc(var(--safe-top) + 14px) 16px 14px; display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
+  .topbar-back { background: rgba(255,255,255,0.18); border: none; border-radius: 8px; width: 34px; height: 34px; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 20px; cursor: pointer; flex-shrink: 0; text-decoration: none; }
+  .topbar h1 { font-size: 17px; font-weight: 600; flex: 1; }
+
+  /* Counter bar */
+  .counter-bar { background: var(--green-dark); padding: 0 16px 14px; flex-shrink: 0; }
+  .counter-inner { background: rgba(255,255,255,0.12); border-radius: 10px; padding: 10px 16px; display: flex; align-items: center; justify-content: space-between; }
+  .counter-text { font-size: 14px; color: #fff; font-weight: 500; }
+  .counter-num { font-size: 22px; font-weight: 800; color: #fff; }
+  .counter-max { font-size: 13px; color: rgba(255,255,255,0.6); }
+  .counter-bar-fill-wrap { margin-top: 8px; height: 5px; background: rgba(255,255,255,0.2); border-radius: 10px; overflow: hidden; }
+  .counter-bar-fill { height: 100%; background: #7dd39a; border-radius: 10px; transition: width 0.25s; }
+  .counter-bar-fill.full { background: #e07070; }
+
+  /* Content */
+  .content { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; padding: 16px 16px calc(var(--safe-bottom) + 100px); }
+
+  /* Category */
+  .category { margin-bottom: 20px; }
+  .category-header { font-size: 12px; font-weight: 700; letter-spacing: 0.07em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 10px; padding-left: 2px; }
+  .club-list { background: var(--card); border-radius: var(--radius); border: 0.5px solid var(--border); overflow: hidden; }
+  .club-row { display: flex; align-items: center; padding: 14px 16px; border-bottom: 0.5px solid var(--border); cursor: pointer; gap: 14px; transition: background 0.1s; }
+  .club-row:last-child { border-bottom: none; }
+  .club-row:active { background: var(--green-pale); }
+  .club-row.selected { background: var(--green-light); }
+  .club-check { width: 24px; height: 24px; border-radius: 50%; border: 1.5px solid var(--border-mid); display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: background 0.15s, border-color 0.15s; }
+  .club-row.selected .club-check { background: var(--green-dark); border-color: var(--green-dark); }
+  .club-check-tick { display: none; color: #fff; font-size: 13px; font-weight: 700; }
+  .club-row.selected .club-check-tick { display: block; }
+  .club-info { flex: 1; }
+  .club-name { font-size: 15px; font-weight: 500; color: var(--text-primary); }
+  .club-desc { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+  .club-badge { font-size: 11px; font-weight: 600; padding: 3px 8px; border-radius: 20px; background: var(--bg); color: var(--text-muted); border: 0.5px solid var(--border-mid); flex-shrink: 0; }
+  .club-row.selected .club-badge { background: var(--green-light); color: var(--green-dark); border-color: rgba(45,138,82,0.2); }
+
+  /* Sticky footer */
+  .footer { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 430px; background: var(--bg); border-top: 0.5px solid var(--border); padding: 12px 16px calc(var(--safe-bottom) + 12px); }
+  .btn { display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; padding: 15px; border-radius: var(--radius); border: none; font-size: 15px; font-weight: 600; cursor: pointer; transition: opacity 0.15s, transform 0.1s; margin-bottom: 8px; }
+  .btn:last-child { margin-bottom: 0; }
+  .btn:active { opacity: 0.82; transform: scale(0.985); }
+  .btn-primary { background: var(--green-dark); color: #fff; }
+  .btn-secondary { background: var(--card); color: var(--text-secondary); border: 0.5px solid var(--border-mid); }
+  .btn:disabled { opacity: 0.4; cursor: default; }
+
+  /* Post-save buttons */
+  .post-save { display: none; flex-direction: column; gap: 8px; }
+  .btn-round { background: #1a3a6b; color: #fff; }
+
+  /* Toast */
+  #toast { position: fixed; bottom: calc(var(--safe-bottom) + 80px); left: 50%; transform: translateX(-50%) translateY(20px); background: #1a1a1a; color: #fff; padding: 10px 20px; border-radius: 100px; font-size: 13px; font-weight: 500; opacity: 0; transition: opacity 0.25s, transform 0.25s; pointer-events: none; white-space: nowrap; z-index: 999; }
+  #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+</style>
+</head>
+<body>
+<div id="app">
+  <div class="topbar">
+    <a class="topbar-back" href="index.html" aria-label="Back">&#8592;</a>
+    <h1>Set Up Your Bag</h1>
+  </div>
+
+  <div class="counter-bar">
+    <div class="counter-inner">
+      <span class="counter-text">Clubs selected</span>
+      <div>
+        <span class="counter-num" id="counter-num">0</span>
+        <span class="counter-max"> / 14</span>
+      </div>
+    </div>
+    <div class="counter-bar-fill-wrap">
+      <div class="counter-bar-fill" id="counter-fill" style="width:0%"></div>
+    </div>
+  </div>
+
+  <div class="content" id="club-content"></div>
+
+  <div class="footer">
+    <div id="pre-save">
+      <button class="btn btn-primary" id="save-btn" onclick="saveBag()">&#10003; Save My Bag</button>
+    </div>
+    <div class="post-save" id="post-save">
+      <button class="btn btn-round" onclick="window.location.href='round.html'">&#9971; Start a Round</button>
+      <button class="btn btn-secondary" onclick="window.location.href='index.html'">&#8592; Return to Menu</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+const ALL_CLUBS = [
+  // Woods
+  { id: 'driver',  name: 'Driver',   desc: '1-Wood — maximum distance off the tee', cat: 'Woods', badge: '1W' },
+  { id: '3wood',   name: '3-Wood',   desc: 'Fairway wood — long shots from fairway or tee', cat: 'Woods', badge: '3W' },
+  { id: '4wood',   name: '4-Wood',   desc: 'Fairway wood — between 3W and 5W', cat: 'Woods', badge: '4W' },
+  { id: '5wood',   name: '5-Wood',   desc: 'Fairway wood — versatile long club', cat: 'Woods', badge: '5W' },
+  { id: '7wood',   name: '7-Wood',   desc: 'Fairway wood — easier to hit than long irons', cat: 'Woods', badge: '7W' },
+  { id: '9wood',   name: '9-Wood',   desc: 'High-lofted wood — good from rough', cat: 'Woods', badge: '9W' },
+  // Hybrids
+  { id: '2hybrid', name: '2-Hybrid', desc: 'Replaces 2-iron — long and forgiving', cat: 'Hybrids', badge: '2H' },
+  { id: '3hybrid', name: '3-Hybrid', desc: 'Replaces 3-iron — popular beginner choice', cat: 'Hybrids', badge: '3H' },
+  { id: '4hybrid', name: '4-Hybrid', desc: 'Replaces 4-iron — easier to hit from rough', cat: 'Hybrids', badge: '4H' },
+  { id: '5hybrid', name: '5-Hybrid', desc: 'Replaces 5-iron — great for high launch', cat: 'Hybrids', badge: '5H' },
+  { id: '6hybrid', name: '6-Hybrid', desc: 'Replaces 6-iron — extra forgiveness', cat: 'Hybrids', badge: '6H' },
+  // Irons
+  { id: '2iron',   name: '2-Iron',   desc: 'Long iron — very difficult to hit', cat: 'Irons', badge: '2i' },
+  { id: '3iron',   name: '3-Iron',   desc: 'Long iron — distance with low loft', cat: 'Irons', badge: '3i' },
+  { id: '4iron',   name: '4-Iron',   desc: 'Long iron — often replaced by hybrids', cat: 'Irons', badge: '4i' },
+  { id: '5iron',   name: '5-Iron',   desc: 'Mid iron — approach shots from distance', cat: 'Irons', badge: '5i' },
+  { id: '6iron',   name: '6-Iron',   desc: 'Mid iron — reliable mid-range club', cat: 'Irons', badge: '6i' },
+  { id: '7iron',   name: '7-Iron',   desc: 'Mid iron — most versatile iron in the bag', cat: 'Irons', badge: '7i' },
+  { id: '8iron',   name: '8-Iron',   desc: 'Short iron — accurate approach shots', cat: 'Irons', badge: '8i' },
+  { id: '9iron',   name: '9-Iron',   desc: 'Short iron — high loft, short distance', cat: 'Irons', badge: '9i' },
+  // Wedges
+  { id: 'pw',      name: 'Pitching Wedge', desc: '45–48° — full shots from ~100–130m', cat: 'Wedges', badge: 'PW' },
+  { id: 'gw',      name: 'Gap Wedge',      desc: '50–52° — fills gap between PW and SW', cat: 'Wedges', badge: 'GW' },
+  { id: 'sw',      name: 'Sand Wedge',     desc: '54–56° — bunkers and short game', cat: 'Wedges', badge: 'SW' },
+  { id: 'lw',      name: 'Lob Wedge',      desc: '58–62° — high soft shots near green', cat: 'Wedges', badge: 'LW' },
+  // Putter
+  { id: 'putter',  name: 'Putter',   desc: 'Rolling the ball on the green', cat: 'Putter', badge: 'PT' },
+];
+
+// Default bag — typical beginner 14-club set
+const DEFAULT_BAG = ['driver','3wood','5wood','4hybrid','5iron','6iron','7iron','8iron','9iron','pw','gw','sw','lw','putter'];
+
+let selected = new Set(JSON.parse(localStorage.getItem('golf-bag-v1') || 'null') || DEFAULT_BAG);
+let saved = false;
+
+function render() {
+  const cats = [...new Set(ALL_CLUBS.map(c => c.cat))];
+  const content = document.getElementById('club-content');
+  content.innerHTML = cats.map(cat => {
+    const clubs = ALL_CLUBS.filter(c => c.cat === cat);
+    return '<div class="category">' +
+      '<div class="category-header">' + cat + '</div>' +
+      '<div class="club-list">' +
+      clubs.map(c => {
+        const sel = selected.has(c.id);
+        return '<div class="club-row' + (sel?' selected':'') + '" onclick="toggle(\'' + c.id + '\')">' +
+          '<div class="club-check"><span class="club-check-tick">&#10003;</span></div>' +
+          '<div class="club-info"><div class="club-name">' + c.name + '</div><div class="club-desc">' + c.desc + '</div></div>' +
+          '<span class="club-badge">' + c.badge + '</span>' +
+          '</div>';
+      }).join('') +
+      '</div></div>';
+  }).join('');
+  updateCounter();
+}
+
+function toggle(id) {
+  if (saved) { saved = false; document.getElementById('pre-save').style.display = 'block'; document.getElementById('post-save').style.display = 'none'; }
+  if (selected.has(id)) {
+    selected.delete(id);
+  } else {
+    if (selected.size >= 14) { showToast('Maximum 14 clubs allowed'); return; }
+    selected.add(id);
+  }
+  render();
+}
+
+function updateCounter() {
+  const n = selected.size;
+  document.getElementById('counter-num').textContent = n;
+  const fill = document.getElementById('counter-fill');
+  fill.style.width = (n/14*100) + '%';
+  fill.classList.toggle('full', n >= 14);
+}
+
+function saveBag() {
+  if (selected.size === 0) { showToast('Select at least one club'); return; }
+  // Save as ordered array matching ALL_CLUBS order
+  const ordered = ALL_CLUBS.filter(c => selected.has(c.id)).map(c => c.id);
+  localStorage.setItem('golf-bag-v1', JSON.stringify(ordered));
+  saved = true;
+  showToast('Bag saved — ' + selected.size + ' clubs');
+  document.getElementById('pre-save').style.display = 'none';
+  document.getElementById('post-save').style.display = 'flex';
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2200);
+}
+
+render();
+if ('serviceWorker' in navigator) { navigator.serviceWorker.register('/sw.js').catch(()=>{}); }
+</script>
+</body>
+</html>

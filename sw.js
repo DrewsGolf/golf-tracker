@@ -1,5 +1,13 @@
-const CACHE = 'golf-tracker-v1';
-const FILES = ['/', '/index.html', '/manifest.json', '/icon-192.svg', '/icon-512.svg'];
+const CACHE = 'golf-tracker-v3';
+const FILES = [
+  '/',
+  '/index.html',
+  '/setup.html',
+  '/round.html',
+  '/manifest.json',
+  '/icon-192.svg',
+  '/icon-512.svg'
+];
 
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(FILES)));

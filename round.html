@@ -135,12 +135,24 @@
   .no-bag-title { font-size: 16px; font-weight: 700; color: #b8820a; margin-bottom: 6px; }
   .no-bag-desc { font-size: 13px; color: #8a6010; margin-bottom: 14px; }
 
-  /* Dialog */
-  .dialog-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.45); z-index: 100; display: flex; align-items: flex-end; justify-content: center; }
-  .dialog-box { background: var(--card); border-radius: 20px 20px 0 0; padding: 24px 20px calc(var(--safe-bottom) + 24px); width: 100%; max-width: 430px; }
-  .dialog-title { font-size: 17px; font-weight: 700; text-align: center; margin-bottom: 6px; }
-  .dialog-sub { font-size: 14px; color: var(--text-secondary); text-align: center; margin-bottom: 20px; }
-  .dialog-btn { display: flex; align-items: center; justify-content: center; width: 100%; padding: 14px; border-radius: var(--radius); border: none; font-size: 15px; font-weight: 600; cursor: pointer; margin-bottom: 8px; }
+  /* ── Reusable in-app dialog ── */
+  .dialog-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 200; display: flex; align-items: flex-end; justify-content: center; animation: fadeIn 0.15s ease; }
+  @keyframes fadeIn { from{opacity:0} to{opacity:1} }
+  .dialog-sheet { background: var(--card); border-radius: 22px 22px 0 0; padding: 8px 0 calc(var(--safe-bottom) + 8px); width: 100%; max-width: 430px; animation: slideUp 0.2s ease; }
+  @keyframes slideUp { from{transform:translateY(40px);opacity:0} to{transform:translateY(0);opacity:1} }
+  .dialog-handle { width: 36px; height: 4px; background: var(--border-mid); border-radius: 2px; margin: 8px auto 16px; }
+  .dialog-icon { font-size: 36px; text-align: center; margin-bottom: 8px; }
+  .dialog-title { font-size: 18px; font-weight: 700; text-align: center; color: var(--text-primary); padding: 0 20px; margin-bottom: 6px; }
+  .dialog-sub { font-size: 14px; color: var(--text-secondary); text-align: center; padding: 0 24px; margin-bottom: 20px; line-height: 1.5; }
+  .dialog-actions { padding: 0 16px; display: flex; flex-direction: column; gap: 8px; }
+  .dialog-btn { display: flex; align-items: center; justify-content: center; width: 100%; padding: 15px; border-radius: var(--radius); border: none; font-size: 15px; font-weight: 600; cursor: pointer; transition: opacity 0.15s; }
+  .dialog-btn:active { opacity: 0.82; }
+  .dialog-btn-primary { background: var(--green-dark); color: #fff; }
+  .dialog-btn-blue { background: #1a3a6b; color: #fff; }
+  .dialog-btn-danger { background: #c0392b; color: #fff; }
+  .dialog-btn-secondary { background: var(--bg); color: var(--text-secondary); border: 0.5px solid var(--border-mid); }
+  .dialog-divider { height: 0.5px; background: var(--border); margin: 4px 0; }
+  /* Legacy aliases kept for In The Hole dialog */
   .dialog-btn-yes { background: var(--green-dark); color: #fff; }
   .dialog-btn-no { background: var(--bg); color: var(--text-secondary); border: 0.5px solid var(--border-mid); }
 
@@ -277,13 +289,14 @@
   </div>
 </div>
 
-<!-- In The Hole dialog -->
+<!-- In The Hole dialog (kept as named anchor; content injected by showDialog) -->
 <div id="dialog-overlay" class="dialog-overlay" style="display:none" onclick="closeDialogOutside(event)">
-  <div class="dialog-box">
-    <div class="dialog-title">In The Hole! &#127881;</div>
-    <div class="dialog-sub">Record the distance of your final shot?</div>
-    <button class="dialog-btn dialog-btn-yes" onclick="inTheHoleYes()">Yes — walk to the hole &amp; mark it</button>
-    <button class="dialog-btn dialog-btn-no" onclick="inTheHoleNo()">No — just record the club</button>
+  <div class="dialog-sheet" id="dialog-sheet" onclick="event.stopPropagation()">
+    <div class="dialog-handle"></div>
+    <div id="dialog-icon" class="dialog-icon"></div>
+    <div id="dialog-title" class="dialog-title"></div>
+    <div id="dialog-sub" class="dialog-sub"></div>
+    <div id="dialog-actions" class="dialog-actions"></div>
   </div>
 </div>
 
@@ -347,11 +360,26 @@ function showSumTab(t) {
 // ── New round ────────────────────────────────────────────────────────────────
 function newRound() {
   if (shots.length === 0 && currentHole === 1) { showToast('Nothing to clear'); return; }
-  if (confirm('Start a new round? This clears all current data.')) {
-    shots = []; holePars = {}; currentHole = 1;
-    selectedClub = null; teePosition = null; lastBallPosition = null; holeFinished = false;
-    persist(); renderHome(); showToast('New round started');
-  }
+  showDialog({
+    icon: '🏌️',
+    title: 'Start a New Round?',
+    sub: 'You have a round in progress. What would you like to do?',
+    buttons: [
+      { label: 'Save this round first', style: 'primary', action: () => {
+        saveRoundToHistory();
+        window.location.href = 'start.html';
+      }},
+      { label: 'Discard & start fresh', style: 'danger', action: () => {
+        shots = []; holePars = {}; currentHole = 1;
+        selectedClub = null; teePosition = null; lastBallPosition = null; holeFinished = false;
+        currentCourse = null;
+        localStorage.removeItem('golf-current-course');
+        persist();
+        window.location.href = 'start.html';
+      }},
+      { label: 'Cancel — keep playing', style: 'secondary', action: () => {} }
+    ]
+  });
 }
 
 // ── Home render ──────────────────────────────────────────────────────────────
@@ -565,14 +593,43 @@ function doRemeasure() {
 // ── In The Hole ──────────────────────────────────────────────────────────────
 function doInTheHole() {
   if (!selectedClub) { showToast('Select a club for your final shot first'); return; }
+  showDialog({
+    icon: '⛳',
+    title: 'In The Hole!',
+    sub: 'Do you want to record the distance of your final shot?',
+    buttons: [
+      { label: 'Yes — walk to the hole & mark it', style: 'primary', action: inTheHoleYes },
+      { label: 'No — just record the club', style: 'secondary', action: inTheHoleNo }
+    ]
+  });
+}
+// ── Reusable dialog engine ────────────────────────────────────────────────────
+function showDialog(opts) {
+  // opts: { icon, title, sub, buttons: [{label, style, action}] }
+  document.getElementById('dialog-icon').innerHTML = opts.icon || '';
+  document.getElementById('dialog-title').textContent = opts.title || '';
+  document.getElementById('dialog-sub').textContent = opts.sub || '';
+  const actions = document.getElementById('dialog-actions');
+  actions.innerHTML = opts.buttons.map((b,i) =>
+    '<button class="dialog-btn dialog-btn-' + (b.style||'secondary') + '" onclick="dialogAction(' + i + ')">' + b.label + '</button>'
+  ).join('');
+  window._dialogActions = opts.buttons.map(b => b.action);
   document.getElementById('dialog-overlay').style.display = 'flex';
 }
+
+function dialogAction(i) {
+  closeDialog();
+  if (window._dialogActions && window._dialogActions[i]) {
+    window._dialogActions[i]();
+  }
+}
+
 function closeDialogOutside(e) { if (e.target===document.getElementById('dialog-overlay')) closeDialog(); }
 function closeDialog() { document.getElementById('dialog-overlay').style.display='none'; }
 
-function inTheHoleYes() { closeDialog(); pendingShotClub=selectedClub; setStage('final-dist'); }
+function inTheHoleYes() { pendingShotClub=selectedClub; setStage('final-dist'); }
 function inTheHoleNo()  {
-  closeDialog(); recordShot(selectedClub, null);
+  recordShot(selectedClub, null);
   selectedClub=null; holeFinished=true; renderHome();
 }
 function doMarkFinal() {
@@ -600,7 +657,19 @@ function changeHole(dir) {
   if (dir>0) {
     const holeShots = shots.filter(s=>s.hole===currentHole);
     if (holeShots.length>0 && !holeFinished) {
-      if (!confirm('Hole '+currentHole+' is not finished. Save it and move to Hole '+next+'?')) return;
+      showDialog({
+        icon: '➡️',
+        title: 'Hole ' + currentHole + ' Not Finished',
+        sub: 'Move to Hole ' + next + ' anyway? Your shots so far will be saved.',
+        buttons: [
+          { label: 'Yes — move to Hole ' + next, style: 'primary', action: () => {
+            currentHole=next; selectedClub=null; teePosition=null; lastBallPosition=null; holeFinished=false;
+            renderHome(); showToast('Hole ' + currentHole);
+          }},
+          { label: 'Cancel — stay on Hole ' + currentHole, style: 'secondary', action: () => {} }
+        ]
+      });
+      return;
     }
     currentHole=next; selectedClub=null; teePosition=null; lastBallPosition=null; holeFinished=false;
   } else {
@@ -733,12 +802,22 @@ function changeCourse() {
 // ── Finish & Save Round ───────────────────────────────────────────────────────
 function finishRound() {
   if (shots.length === 0) { showToast('No shots to save'); return; }
-  if (!confirm('Save this round and start fresh?')) return;
+  const holesCount = [...new Set(shots.map(s=>s.hole))].length;
+  showDialog({
+    icon: '🏆',
+    title: 'Finish & Save Round?',
+    sub: 'Save ' + holesCount + ' hole' + (holesCount===1?'':'s') + ' and ' + shots.length + ' shots to your round history?',
+    buttons: [
+      { label: 'Save round', style: 'primary', action: () => { doFinishRound(); }},
+      { label: 'Cancel — keep playing', style: 'secondary', action: () => {} }
+    ]
+  });
+}
+function doFinishRound() {
 
   const holesPlayed = [...new Set(shots.map(s=>s.hole))].length;
   const totalDist = shots.reduce((a,s)=>a+(s.dist||0),0);
   const date = new Date();
-
   const round = {
     id: Date.now().toString(),
     date: date.toLocaleDateString('en-AU'),
@@ -751,21 +830,43 @@ function finishRound() {
     pars: {...holePars},
     shotData: [...shots]
   };
-
-  // Save to round history
   const history = JSON.parse(localStorage.getItem('golf-round-history') || '[]');
   history.unshift(round);
   localStorage.setItem('golf-round-history', JSON.stringify(history));
-
-  // Clear current round
   shots = []; holePars = {}; currentHole = 1;
   selectedClub = null; teePosition = null; lastBallPosition = null; holeFinished = false;
   currentCourse = null;
   localStorage.removeItem('golf-current-course');
   persist();
-
   showToast('Round saved!');
   setTimeout(() => window.location.href = 'index.html', 1200);
+}
+
+function saveRoundToHistory() {
+  if (shots.length === 0) return;
+  const holesPlayed = [...new Set(shots.map(s=>s.hole))].length;
+  const totalDist = shots.reduce((a,s)=>a+(s.dist||0),0);
+  const date = new Date();
+  const round = {
+    id: Date.now().toString(),
+    date: date.toLocaleDateString('en-AU'),
+    dateISO: date.toISOString(),
+    course: currentCourse ? currentCourse.name : 'Unknown Course',
+    suburb: currentCourse ? currentCourse.suburb : '',
+    holes: holesPlayed,
+    shots: shots.length,
+    totalDist: totalDist,
+    pars: {...holePars},
+    shotData: [...shots]
+  };
+  const history = JSON.parse(localStorage.getItem('golf-round-history') || '[]');
+  history.unshift(round);
+  localStorage.setItem('golf-round-history', JSON.stringify(history));
+  shots = []; holePars = {}; currentHole = 1;
+  selectedClub = null; teePosition = null; lastBallPosition = null; holeFinished = false;
+  currentCourse = null;
+  localStorage.removeItem('golf-current-course');
+  persist();
 }
 
 // Show finish button whenever there are shots

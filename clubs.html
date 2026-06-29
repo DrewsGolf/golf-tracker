@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#1a6b3a">
+<link rel="manifest" href="manifest.json">
+<title>My Clubs</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  :root {
+    --green-dark: #1a6b3a; --green-mid: #2d8a52; --green-light: #e8f5ed;
+    --text-primary: #1a1a1a; --text-secondary: #5a6a60; --text-muted: #94a89c;
+    --bg: #f5f7f5; --card: #ffffff; --border: rgba(0,0,0,0.08);
+    --radius: 16px; --safe-top: env(safe-area-inset-top, 0px); --safe-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  html, body { height: 100%; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg); color: var(--text-primary); }
+  .header { background: var(--green-dark); padding: calc(var(--safe-top) + 16px) 20px 16px; display: flex; align-items: center; gap: 12px; }
+  .back-btn { background: rgba(255,255,255,0.15); border: none; color: #fff; font-size: 20px; width: 36px; height: 36px; border-radius: 10px; display: flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0; }
+  .header-title { font-size: 20px; font-weight: 700; color: #fff; flex: 1; }
+  .content { padding: 60px 24px; text-align: center; max-width: 430px; margin: 0 auto; }
+  .coming-icon { font-size: 52px; margin-bottom: 20px; }
+  .coming-title { font-size: 22px; font-weight: 800; margin-bottom: 10px; }
+  .coming-desc { font-size: 15px; color: var(--text-secondary); line-height: 1.6; }
+  .coming-pill { display: inline-block; background: var(--green-light); color: var(--green-dark); font-size: 12px; font-weight: 700; border-radius: 20px; padding: 5px 14px; margin-top: 20px; letter-spacing: 0.03em; }
+  .coming-features { text-align: left; margin-top: 28px; background: var(--card); border-radius: var(--radius); border: 0.5px solid var(--border); padding: 18px 20px; display: flex; flex-direction: column; gap: 12px; }
+  .feature-item { display: flex; align-items: flex-start; gap: 12px; }
+  .feature-icon { font-size: 18px; flex-shrink: 0; margin-top: 1px; }
+  .feature-text { font-size: 14px; color: var(--text-secondary); line-height: 1.4; }
+  .feature-text strong { color: var(--text-primary); }
+</style>
+</head>
+<body>
+  <div class="header">
+    <button class="back-btn" onclick="window.location.href='index.html'">‹</button>
+    <div class="header-title">My Clubs</div>
+  </div>
+  <div class="content">
+    <div class="coming-icon">📏</div>
+    <div class="coming-title">My Clubs</div>
+    <div class="coming-desc">Your personal yardage card — average and best distances for every club in your bag, based on your real rounds.</div>
+    <div class="coming-pill">Coming soon</div>
+    <div class="coming-features">
+      <div class="feature-item">
+        <div class="feature-icon">📊</div>
+        <div class="feature-text"><strong>Average distance per club</strong> — based on your last 5 or 10 rounds</div>
+      </div>
+      <div class="feature-item">
+        <div class="feature-icon">🏆</div>
+        <div class="feature-text"><strong>Best distance</strong> — your personal best for each club</div>
+      </div>
+      <div class="feature-item">
+        <div class="feature-icon">🔄</div>
+        <div class="feature-text"><strong>Toggle 5 / 10 rounds</strong> — choose how much history to include</div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

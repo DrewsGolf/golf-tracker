@@ -19,7 +19,7 @@
     --radius: 16px; --safe-top: env(safe-area-inset-top, 0px); --safe-bottom: env(safe-area-inset-bottom, 0px);
   }
   html, body { height: 100%; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg); color: var(--text-primary); }
-  .app { display: flex; flex-direction: column; min-height: 100%; max-width: 430px; margin: 0 auto; padding: calc(var(--safe-top) + 0px) 0 0; }
+  .app { display: flex; flex-direction: column; min-height: 100%; max-width: 430px; margin: 0 auto; }
 
   /* Hero */
   .hero { background: var(--green-dark); padding: calc(var(--safe-top) + 48px) 24px 40px; text-align: center; }
@@ -33,28 +33,46 @@
   .bag-dot.empty { background: rgba(255,255,255,0.4); }
   .bag-status-text { font-size: 13px; color: rgba(255,255,255,0.85); }
 
-  /* Menu cards */
+  /* Menu */
   .menu { padding: 28px 20px calc(var(--safe-bottom) + 28px); display: flex; flex-direction: column; gap: 14px; }
-  .menu-card { background: var(--card); border-radius: var(--radius); border: 0.5px solid var(--border); padding: 22px 20px; display: flex; align-items: center; gap: 16px; cursor: pointer; transition: transform 0.12s, box-shadow 0.12s; text-decoration: none; }
-  .menu-card:active { transform: scale(0.98); }
-  .menu-card-icon { width: 52px; height: 52px; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 26px; flex-shrink: 0; }
+
+  /* Section labels */
+  .menu-section-label {
+    font-size: 11px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase;
+    color: var(--text-muted); padding: 4px 4px 0; margin-bottom: -4px;
+  }
+
+  .menu-card { background: var(--card); border-radius: var(--radius); border: 0.5px solid var(--border);
+    padding: 18px 20px; display: flex; align-items: center; gap: 16px;
+    text-decoration: none; color: inherit; transition: opacity 0.15s; }
+  .menu-card:active { opacity: 0.7; }
+  .menu-card.coming-soon { opacity: 0.55; pointer-events: none; }
+  .menu-card-icon { width: 44px; height: 44px; border-radius: 12px; display: flex; align-items: center;
+    justify-content: center; font-size: 22px; flex-shrink: 0; }
   .menu-card-icon.green { background: var(--green-light); }
   .menu-card-icon.blue { background: #e8f0fb; }
-  .menu-card-body { flex: 1; }
-  .menu-card-title { font-size: 17px; font-weight: 700; color: var(--text-primary); margin-bottom: 3px; }
-  .menu-card-desc { font-size: 13px; color: var(--text-muted); line-height: 1.4; }
-  .menu-card-arrow { font-size: 20px; color: var(--text-muted); }
+  .menu-card-icon.purple { background: #f0ebfb; }
+  .menu-card-icon.orange { background: #fff3e8; }
+  .menu-card-icon.teal { background: #e8f7f7; }
+  .menu-card-body { flex: 1; min-width: 0; }
+  .menu-card-title { font-size: 16px; font-weight: 700; margin-bottom: 2px; }
+  .menu-card-desc { font-size: 13px; color: var(--text-secondary); line-height: 1.35; }
+  .menu-card-arrow { font-size: 20px; color: var(--text-muted); flex-shrink: 0; }
+  .menu-card-badge {
+    font-size: 10px; font-weight: 700; background: #e8f0fb; color: #4a72c4;
+    border-radius: 6px; padding: 2px 7px; flex-shrink: 0; letter-spacing: 0.03em;
+  }
+  .menu-card-badge.soon { background: #f0ebfb; color: #7c5cbf; }
 
-  /* Stats strip */
-  .stats-strip { background: var(--card); border-radius: var(--radius); border: 0.5px solid var(--border); padding: 16px 20px; }
-  .stats-strip-title { font-size: 11px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 12px; }
-  .stats-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
-  .stat-item { text-align: center; }
-  .stat-num { font-size: 22px; font-weight: 700; color: var(--green-dark); line-height: 1; }
-  .stat-lbl { font-size: 11px; color: var(--text-muted); margin-top: 3px; }
+  /* Active round strip */
+  .stats-strip { background: var(--green-light); border-radius: var(--radius); padding: 14px 16px; }
+  .stats-strip-title { font-size: 12px; font-weight: 600; color: var(--green-mid); margin-bottom: 8px; letter-spacing: 0.02em; }
+  .stats-row { display: flex; gap: 0; }
+  .stat-item { flex: 1; text-align: center; }
+  .stat-num { font-size: 22px; font-weight: 800; color: var(--green-dark); }
+  .stat-lbl { font-size: 11px; color: var(--text-secondary); margin-top: 1px; }
 
-  /* Version */
-  .version { text-align: center; padding: 8px; font-size: 11px; color: var(--text-muted); }
+  .version { text-align: center; font-size: 11px; color: var(--text-muted); padding: 0 0 12px; }
 </style>
 </head>
 <body>
@@ -62,14 +80,18 @@
   <div class="hero">
     <span class="hero-icon">⛳</span>
     <div class="hero-title">Shot Tracker</div>
-    <div class="hero-sub">Your personal golf companion</div>
-    <div class="bag-status" id="bag-status">
-      <div class="bag-dot empty" id="bag-dot"></div>
-      <div class="bag-status-text" id="bag-status-text">No bag set up yet</div>
+    <div class="hero-sub">Your personal golf caddie</div>
+    <div class="bag-status">
+      <div class="bag-dot" id="bag-dot"></div>
+      <div class="bag-status-text" id="bag-status-text">Loading...</div>
     </div>
   </div>
 
   <div class="menu">
+
+    <!-- PLAY -->
+    <div class="menu-section-label">Play</div>
+
     <a class="menu-card" href="setup.html">
       <div class="menu-card-icon blue">🎒</div>
       <div class="menu-card-body">
@@ -83,35 +105,58 @@
       <div class="menu-card-icon green">🏌️</div>
       <div class="menu-card-body">
         <div class="menu-card-title">Play a Round</div>
-        <div class="menu-card-desc">Track shots, distances and clubs hole by hole</div>
+        <div class="menu-card-desc">Track shots and clubs hole by hole</div>
       </div>
       <div class="menu-card-arrow">›</div>
     </a>
 
     <a class="menu-card" href="find.html">
-      <div class="menu-card-icon" style="background:#fff3e8;">&#128205;</div>
+      <div class="menu-card-icon orange">📍</div>
       <div class="menu-card-body">
         <div class="menu-card-title">Find a Course</div>
-        <div class="menu-card-desc">Search 223 Victorian courses near you or a town</div>
+        <div class="menu-card-desc">Search 223 Victorian courses near you</div>
       </div>
       <div class="menu-card-arrow">›</div>
     </a>
 
+    <!-- STATS & HISTORY -->
+    <div class="menu-section-label">Stats &amp; History</div>
+
+    <a class="menu-card" href="history.html">
+      <div class="menu-card-icon purple">📋</div>
+      <div class="menu-card-body">
+        <div class="menu-card-title">Round History</div>
+        <div class="menu-card-desc">Browse past rounds, track your improvement</div>
+      </div>
+      <div class="menu-card-arrow">›</div>
+    </a>
+
+    <a class="menu-card" href="clubs.html">
+      <div class="menu-card-icon teal">📏</div>
+      <div class="menu-card-body">
+        <div class="menu-card-title">My Clubs</div>
+        <div class="menu-card-desc">Your average distances per club</div>
+      </div>
+      <div class="menu-card-arrow">›</div>
+    </a>
+
+    <!-- Active round strip -->
     <div class="stats-strip" id="stats-strip" style="display:none">
-      <div class="stats-strip-title">This round so far</div>
+      <div class="stats-strip-title">⚡ Round in progress</div>
       <div class="stats-row">
         <div class="stat-item"><div class="stat-num" id="stat-holes">0</div><div class="stat-lbl">Holes</div></div>
         <div class="stat-item"><div class="stat-num" id="stat-shots">0</div><div class="stat-lbl">Shots</div></div>
         <div class="stat-item"><div class="stat-num" id="stat-dist">0m</div><div class="stat-lbl">Distance</div></div>
       </div>
     </div>
+
   </div>
 
   <div class="version">Shot Tracker v2.0</div>
 </div>
 
 <script>
-// Show bag status
+// Bag status
 const bag = JSON.parse(localStorage.getItem('golf-bag-v1') || '[]');
 const dot = document.getElementById('bag-dot');
 const txt = document.getElementById('bag-status-text');
@@ -119,10 +164,11 @@ if (bag.length > 0) {
   dot.classList.remove('empty');
   txt.textContent = bag.length + ' clubs in your bag';
 } else {
+  dot.classList.add('empty');
   txt.textContent = 'Tap "Set Up Your Bag" to get started';
 }
 
-// Show round stats if there's an active round
+// Active round strip
 const shots = JSON.parse(localStorage.getItem('golf-shots-v3') || '[]');
 if (shots.length > 0) {
   document.getElementById('stats-strip').style.display = 'block';

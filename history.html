@@ -1,0 +1,592 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#1a6b3a">
+<link rel="manifest" href="manifest.json">
+<title>Round History</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  :root {
+    --green-dark: #1a6b3a; --green-mid: #2d8a52; --green-light: #e8f5ed; --green-pale: #f2faf5;
+    --text-primary: #1a1a1a; --text-secondary: #5a6a60; --text-muted: #94a89c;
+    --bg: #f5f7f5; --card: #ffffff; --border: rgba(0,0,0,0.08);
+    --radius: 16px; --safe-top: env(safe-area-inset-top, 0px); --safe-bottom: env(safe-area-inset-bottom, 0px);
+    --red: #c0392b; --red-light: #fdecea;
+  }
+  html, body { height: 100%; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg); color: var(--text-primary); }
+
+  /* Header */
+  .header { background: var(--green-dark); padding: calc(var(--safe-top) + 16px) 20px 16px; display: flex; align-items: center; gap: 12px; }
+  .back-btn { background: rgba(255,255,255,0.15); border: none; color: #fff; font-size: 20px; width: 36px; height: 36px; border-radius: 10px; display: flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0; }
+  .header-title { font-size: 20px; font-weight: 700; color: #fff; flex: 1; }
+  .header-action { background: rgba(255,255,255,0.15); border: none; color: #fff; font-size: 13px; font-weight: 600; padding: 7px 13px; border-radius: 10px; cursor: pointer; white-space: nowrap; }
+
+  /* Content */
+  .content { padding: 20px 16px calc(var(--safe-bottom) + 24px); display: flex; flex-direction: column; gap: 20px; max-width: 430px; margin: 0 auto; width: 100%; }
+
+  /* Empty state */
+  .empty-state { text-align: center; padding: 48px 24px; }
+  .empty-icon { font-size: 48px; margin-bottom: 16px; }
+  .empty-title { font-size: 18px; font-weight: 700; margin-bottom: 8px; }
+  .empty-desc { font-size: 14px; color: var(--text-secondary); line-height: 1.5; margin-bottom: 20px; }
+  .btn-primary { background: var(--green-dark); color: #fff; border: none; border-radius: 12px; padding: 14px 24px; font-size: 15px; font-weight: 700; cursor: pointer; width: 100%; }
+  .btn-primary:active { opacity: 0.8; }
+
+  /* Section label */
+  .section-label { font-size: 11px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-muted); padding: 0 4px; }
+
+  /* Progress chart */
+  .chart-card { background: var(--card); border-radius: var(--radius); border: 0.5px solid var(--border); padding: 18px 16px; }
+  .chart-title { font-size: 14px; font-weight: 700; margin-bottom: 14px; }
+  .chart-area { position: relative; height: 120px; }
+  svg.chart { width: 100%; height: 100%; overflow: visible; }
+
+  /* Round list */
+  .round-row { display: flex; align-items: center; gap: 0; border-radius: var(--radius); overflow: hidden; border: 0.5px solid var(--border); background: var(--card); }
+  .round-card { flex: 1; padding: 16px 18px; cursor: pointer; transition: opacity 0.15s; display: flex; align-items: center; gap: 14px; min-width: 0; }
+  .round-card:active { opacity: 0.7; }
+  .delete-btn { background: var(--red-light); border: none; color: var(--red); font-size: 18px; width: 52px; min-height: 100%; display: flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0; border-left: 0.5px solid rgba(192,57,43,0.15); }
+  .delete-btn:active { background: #f5c6c2; }
+  .round-score-badge { width: 52px; height: 52px; border-radius: 14px; display: flex; flex-direction: column; align-items: center; justify-content: center; flex-shrink: 0; }
+  .round-score-badge.over { background: var(--red-light); }
+  .round-score-badge.under { background: var(--green-light); }
+  .round-score-badge.even { background: #f0f0f0; }
+  .round-score-badge.nopar { background: #f5f5f5; }
+  .badge-diff { font-size: 18px; font-weight: 800; line-height: 1; }
+  .badge-diff.over { color: var(--red); }
+  .badge-diff.under { color: var(--green-dark); }
+  .badge-diff.even { color: #555; }
+  .badge-diff.nopar { color: var(--text-muted); font-size: 13px; }
+  .badge-label { font-size: 10px; font-weight: 600; color: var(--text-muted); margin-top: 1px; }
+  .round-info { flex: 1; min-width: 0; }
+  .round-course { font-size: 15px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .round-meta { font-size: 12px; color: var(--text-secondary); margin-top: 3px; }
+  .round-arrow { font-size: 20px; color: var(--text-muted); }
+
+  /* Detail view */
+  #detail-view { display: none; }
+  .detail-header { background: var(--green-dark); padding: calc(var(--safe-top) + 16px) 20px 20px; }
+  .detail-header-top { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; }
+  .detail-course { font-size: 18px; font-weight: 700; color: #fff; flex: 1; }
+  .detail-date { font-size: 13px; color: rgba(255,255,255,0.65); }
+  .detail-stats { display: flex; gap: 0; }
+  .detail-stat { flex: 1; text-align: center; }
+  .detail-stat-num { font-size: 24px; font-weight: 800; color: #fff; }
+  .detail-stat-lbl { font-size: 11px; color: rgba(255,255,255,0.6); margin-top: 1px; }
+
+  /* Scorecard */
+  .scorecard { background: var(--card); border-radius: var(--radius); border: 0.5px solid var(--border); overflow: hidden; }
+  .scorecard-table { width: 100%; border-collapse: collapse; font-size: 14px; }
+  .scorecard-table th { background: var(--green-dark); color: #fff; font-size: 11px; font-weight: 700; padding: 8px 10px; text-align: center; }
+  .scorecard-table th:first-child { text-align: left; padding-left: 14px; }
+  .scorecard-table td { padding: 10px 10px; text-align: center; border-bottom: 0.5px solid var(--border); }
+  .scorecard-table td:first-child { text-align: left; padding-left: 14px; font-weight: 600; }
+  .scorecard-table tr:last-child td { border-bottom: none; }
+  .scorecard-table tr.total-row td { background: var(--green-pale); font-weight: 700; }
+  .diff-over { color: var(--red); font-weight: 700; }
+  .diff-under { color: var(--green-dark); font-weight: 700; }
+  .diff-even { color: var(--text-muted); }
+
+  /* Comparison table */
+  .compare-card { background: var(--card); border-radius: var(--radius); border: 0.5px solid var(--border); overflow: hidden; }
+  .compare-title { font-size: 14px; font-weight: 700; padding: 14px 16px 10px; border-bottom: 0.5px solid var(--border); }
+  .compare-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .compare-table th { background: #f8f8f8; font-size: 11px; font-weight: 700; padding: 8px 10px; text-align: center; color: var(--text-secondary); }
+  .compare-table th:first-child { text-align: left; padding-left: 14px; }
+  .compare-table td { padding: 9px 10px; text-align: center; border-bottom: 0.5px solid var(--border); }
+  .compare-table td:first-child { text-align: left; padding-left: 14px; font-weight: 600; }
+  .compare-table tr:last-child td { border-bottom: none; }
+  .compare-table td.best { color: var(--green-dark); font-weight: 700; }
+
+  /* ── Bottom sheet ── */
+  .sheet-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.45); z-index: 50; }
+  .sheet-overlay.active { display: block; }
+  .bottom-sheet { position: fixed; bottom: 0; left: 0; right: 0; max-width: 430px; margin: 0 auto; background: #fff; border-radius: 20px 20px 0 0; padding: 0 0 calc(var(--safe-bottom) + 12px); z-index: 51; transform: translateY(100%); transition: transform 0.3s cubic-bezier(0.32,0.72,0,1); max-height: 90vh; overflow-y: auto; }
+  .bottom-sheet.open { transform: translateY(0); }
+  .sheet-handle { width: 36px; height: 4px; background: #ddd; border-radius: 2px; margin: 12px auto 4px; }
+  .sheet-title { font-size: 17px; font-weight: 700; padding: 12px 20px 16px; border-bottom: 0.5px solid var(--border); }
+
+  /* Add round form */
+  .form-body { padding: 16px 20px; display: flex; flex-direction: column; gap: 16px; }
+  .form-group { display: flex; flex-direction: column; gap: 6px; }
+  .form-label { font-size: 12px; font-weight: 700; color: var(--text-secondary); letter-spacing: 0.04em; text-transform: uppercase; }
+  .form-input { background: var(--bg); border: 1px solid var(--border); border-radius: 10px; padding: 12px 14px; font-size: 15px; font-family: inherit; color: var(--text-primary); width: 100%; -webkit-appearance: none; }
+  .form-input:focus { outline: none; border-color: var(--green-mid); }
+  .hole-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+  .hole-entry { background: var(--bg); border: 1px solid var(--border); border-radius: 10px; padding: 10px 8px; text-align: center; }
+  .hole-entry-label { font-size: 10px; font-weight: 700; color: var(--text-muted); margin-bottom: 6px; letter-spacing: 0.04em; }
+  .hole-entry-inputs { display: flex; gap: 4px; align-items: center; }
+  .hole-mini-input { flex: 1; background: #fff; border: 1px solid var(--border); border-radius: 7px; padding: 7px 4px; font-size: 14px; font-weight: 700; text-align: center; font-family: inherit; width: 0; -webkit-appearance: none; }
+  .hole-mini-input:focus { outline: none; border-color: var(--green-mid); }
+  .hole-sep { font-size: 11px; color: var(--text-muted); flex-shrink: 0; }
+  .hole-col-labels { display: flex; gap: 4px; justify-content: center; margin-bottom: 2px; }
+  .hole-col-label { flex: 1; font-size: 9px; color: var(--text-muted); text-align: center; font-weight: 600; letter-spacing: 0.03em; text-transform: uppercase; }
+  .holes-section-label { font-size: 13px; font-weight: 700; color: var(--text-primary); display: flex; align-items: center; justify-content: space-between; }
+  .holes-toggle { display: flex; gap: 0; background: var(--bg); border-radius: 10px; border: 1px solid var(--border); overflow: hidden; }
+  .holes-toggle button { flex: 1; background: none; border: none; padding: 8px 0; font-size: 13px; font-weight: 600; color: var(--text-secondary); cursor: pointer; }
+  .holes-toggle button.active { background: var(--green-dark); color: #fff; }
+  .form-actions { display: flex; gap: 10px; padding: 4px 20px 8px; }
+  .btn-save { flex: 1; background: var(--green-dark); color: #fff; border: none; border-radius: 12px; padding: 14px; font-size: 15px; font-weight: 700; cursor: pointer; }
+  .btn-cancel { background: #f0f0f0; color: var(--text-primary); border: none; border-radius: 12px; padding: 14px 20px; font-size: 15px; font-weight: 600; cursor: pointer; }
+  .btn-save:active { opacity: 0.8; }
+  .btn-cancel:active { opacity: 0.7; }
+
+  /* Confirm sheet */
+  .confirm-body { padding: 16px 20px 8px; }
+  .confirm-msg { font-size: 15px; color: var(--text-secondary); line-height: 1.5; margin-bottom: 20px; }
+  .confirm-actions { display: flex; gap: 10px; }
+  .btn-delete { flex: 1; background: var(--red); color: #fff; border: none; border-radius: 12px; padding: 14px; font-size: 15px; font-weight: 700; cursor: pointer; }
+  .btn-delete:active { opacity: 0.8; }
+</style>
+</head>
+<body>
+
+<!-- LIST VIEW -->
+<div id="list-view">
+  <div class="header">
+    <button class="back-btn" onclick="window.location.href='index.html'">‹</button>
+    <div class="header-title">Round History</div>
+    <button class="header-action" onclick="openAddSheet()">+ Add Round</button>
+  </div>
+  <div class="content" id="list-content"></div>
+</div>
+
+<!-- DETAIL VIEW -->
+<div id="detail-view">
+  <div class="detail-header">
+    <div class="detail-header-top">
+      <button class="back-btn" onclick="showList()">‹</button>
+      <div>
+        <div class="detail-course" id="detail-course-name">Course Name</div>
+        <div class="detail-date" id="detail-date">Date</div>
+      </div>
+    </div>
+    <div class="detail-stats">
+      <div class="detail-stat"><div class="detail-stat-num" id="detail-total-shots">–</div><div class="detail-stat-lbl">Shots</div></div>
+      <div class="detail-stat"><div class="detail-stat-num" id="detail-total-par">–</div><div class="detail-stat-lbl">Par</div></div>
+      <div class="detail-stat"><div class="detail-stat-num" id="detail-vs-par">–</div><div class="detail-stat-lbl">vs Par</div></div>
+    </div>
+  </div>
+  <div class="content" id="detail-content"></div>
+</div>
+
+<!-- SHEET OVERLAY -->
+<div class="sheet-overlay" id="sheet-overlay" onclick="closeSheet()"></div>
+
+<!-- ADD ROUND SHEET -->
+<div class="bottom-sheet" id="add-sheet">
+  <div class="sheet-handle"></div>
+  <div class="sheet-title">Add a Past Round</div>
+  <div class="form-body">
+    <div class="form-group">
+      <div class="form-label">Course Name</div>
+      <input class="form-input" id="f-course" type="text" placeholder="e.g. Warburton Golf Club" autocomplete="off">
+    </div>
+    <div class="form-group">
+      <div class="form-label">Date Played</div>
+      <input class="form-input" id="f-date" type="date">
+    </div>
+    <div class="form-group">
+      <div class="holes-section-label">
+        <span>Holes played</span>
+        <div class="holes-toggle">
+          <button id="btn-9" onclick="setHoles(9)">9</button>
+          <button id="btn-18" class="active" onclick="setHoles(18)">18</button>
+        </div>
+      </div>
+    </div>
+    <div class="form-group">
+      <div class="holes-section-label" style="margin-bottom:8px;">Scores per hole</div>
+      <div style="display:flex; gap:4px; padding: 0 2px 4px;">
+        <div class="hole-col-label" style="flex:1.2;">Hole</div>
+        <div class="hole-col-label" style="flex:1;">Par</div>
+        <div class="hole-col-label" style="flex:1;">Shots</div>
+      </div>
+      <div id="hole-rows" style="display:flex; flex-direction:column; gap:6px;"></div>
+    </div>
+  </div>
+  <div class="form-actions">
+    <button class="btn-cancel" onclick="closeSheet()">Cancel</button>
+    <button class="btn-save" onclick="saveManualRound()">Save Round</button>
+  </div>
+</div>
+
+<!-- DELETE CONFIRM SHEET -->
+<div class="bottom-sheet" id="confirm-sheet">
+  <div class="sheet-handle"></div>
+  <div class="sheet-title">Delete this round?</div>
+  <div class="confirm-body">
+    <div class="confirm-msg" id="confirm-msg">This will permanently remove this round from your history.</div>
+    <div class="confirm-actions">
+      <button class="btn-cancel" onclick="closeSheet()">Keep it</button>
+      <button class="btn-delete" onclick="confirmDelete()">Delete</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── Data ─────────────────────────────────────────────────────────────────────
+let history = JSON.parse(localStorage.getItem('golf-round-history') || '[]');
+let pendingDeleteIndex = null;
+let addHoleCount = 18;
+
+function saveHistory() {
+  localStorage.setItem('golf-round-history', JSON.stringify(history));
+}
+
+// ── Helpers ───────────────────────────────────────────────────────────────────
+function getShotsPerHole(round) {
+  const map = {};
+  // Manual rounds store shotsPerHole directly
+  if (round.shotsPerHole) return round.shotsPerHole;
+  if (!round.shotData) return map;
+  round.shotData.forEach(s => {
+    if (!map[s.hole]) map[s.hole] = 0;
+    map[s.hole]++;
+  });
+  return map;
+}
+
+function getTotalStrokes(round) {
+  const sph = getShotsPerHole(round);
+  return Object.values(sph).reduce((a,b) => a+b, 0);
+}
+
+function getTotalPar(round) {
+  if (!round.pars) return null;
+  const vals = Object.values(round.pars);
+  if (vals.length === 0) return null;
+  return vals.reduce((a,b) => a+b, 0);
+}
+
+function getVsPar(round) {
+  const strokes = getTotalStrokes(round);
+  const par = getTotalPar(round);
+  if (par === null || strokes === 0) return null;
+  return strokes - par;
+}
+
+function formatVsPar(diff) {
+  if (diff === null) return '–';
+  if (diff === 0) return 'E';
+  return diff > 0 ? '+' + diff : '' + diff;
+}
+
+function diffClass(diff) {
+  if (diff === null) return 'nopar';
+  if (diff === 0) return 'even';
+  return diff > 0 ? 'over' : 'under';
+}
+
+// ── Sheet helpers ─────────────────────────────────────────────────────────────
+function openSheet(id) {
+  document.getElementById('sheet-overlay').classList.add('active');
+  document.getElementById(id).classList.add('open');
+}
+
+function closeSheet() {
+  document.getElementById('sheet-overlay').classList.remove('active');
+  document.querySelectorAll('.bottom-sheet').forEach(s => s.classList.remove('open'));
+}
+
+// ── Delete ────────────────────────────────────────────────────────────────────
+function promptDelete(index, e) {
+  e.stopPropagation();
+  pendingDeleteIndex = index;
+  const r = history[index];
+  document.getElementById('confirm-msg').textContent =
+    'Remove the round at ' + (r.course || 'Unknown Course') + ' on ' + (r.date || 'unknown date') + '? This cannot be undone.';
+  openSheet('confirm-sheet');
+}
+
+function confirmDelete() {
+  if (pendingDeleteIndex === null) return;
+  history.splice(pendingDeleteIndex, 1);
+  saveHistory();
+  pendingDeleteIndex = null;
+  closeSheet();
+  renderList();
+}
+
+// ── Add Round Sheet ───────────────────────────────────────────────────────────
+function openAddSheet() {
+  // Set today's date as default
+  const today = new Date().toISOString().split('T')[0];
+  document.getElementById('f-date').value = today;
+  document.getElementById('f-course').value = '';
+  setHoles(18);
+  openSheet('add-sheet');
+}
+
+function setHoles(n) {
+  addHoleCount = n;
+  document.getElementById('btn-9').classList.toggle('active', n === 9);
+  document.getElementById('btn-18').classList.toggle('active', n === 18);
+  renderHoleRows(n);
+}
+
+function renderHoleRows(n) {
+  const container = document.getElementById('hole-rows');
+  let html = '';
+  for (let h = 1; h <= n; h++) {
+    html += `
+    <div style="display:flex; gap:8px; align-items:center;">
+      <div style="flex:1.2; font-size:13px; font-weight:700; color:var(--text-secondary); padding-left:4px;">Hole ${h}</div>
+      <input class="hole-mini-input" style="flex:1;" type="number" min="1" max="10" placeholder="–" id="par-${h}" inputmode="numeric">
+      <input class="hole-mini-input" style="flex:1;" type="number" min="1" max="20" placeholder="–" id="shots-${h}" inputmode="numeric">
+    </div>`;
+  }
+  container.innerHTML = html;
+}
+
+function saveManualRound() {
+  const course = document.getElementById('f-course').value.trim();
+  const dateVal = document.getElementById('f-date').value;
+
+  if (!course) { alert('Please enter a course name.'); return; }
+  if (!dateVal) { alert('Please enter a date.'); return; }
+
+  const pars = {};
+  const shotsPerHole = {};
+  let hasAnyData = false;
+
+  for (let h = 1; h <= addHoleCount; h++) {
+    const parVal = parseInt(document.getElementById('par-' + h).value);
+    const shotsVal = parseInt(document.getElementById('shots-' + h).value);
+    if (!isNaN(parVal) && parVal > 0) pars[h] = parVal;
+    if (!isNaN(shotsVal) && shotsVal > 0) { shotsPerHole[h] = shotsVal; hasAnyData = true; }
+  }
+
+  if (!hasAnyData) { alert('Please enter at least one hole score.'); return; }
+
+  // Format date for display
+  const dateObj = new Date(dateVal + 'T12:00:00');
+  const displayDate = dateObj.toLocaleDateString('en-AU');
+
+  const round = {
+    id: Date.now().toString(),
+    date: displayDate,
+    dateISO: dateObj.toISOString(),
+    course: course,
+    suburb: '',
+    holes: Object.keys(shotsPerHole).length,
+    shots: Object.values(shotsPerHole).reduce((a,b) => a+b, 0),
+    totalDist: 0,
+    pars: pars,
+    shotsPerHole: shotsPerHole,
+    manual: true
+  };
+
+  history.unshift(round);
+  saveHistory();
+  closeSheet();
+  renderList();
+}
+
+// ── List View ─────────────────────────────────────────────────────────────────
+function showList() {
+  document.getElementById('list-view').style.display = 'block';
+  document.getElementById('detail-view').style.display = 'none';
+  window.scrollTo(0,0);
+}
+
+function renderList() {
+  const container = document.getElementById('list-content');
+
+  if (history.length === 0) {
+    container.innerHTML = `
+      <div class="empty-state">
+        <div class="empty-icon">📋</div>
+        <div class="empty-title">No rounds yet</div>
+        <div class="empty-desc">Finish a tracked round or tap "+ Add Round" to enter a past round manually.</div>
+        <button class="btn-primary" onclick="openAddSheet()">+ Add a Past Round</button>
+      </div>`;
+    return;
+  }
+
+  let html = '';
+
+  // Progress chart — only if 2+ rounds with par data
+  const chartRounds = history.filter(r => getTotalPar(r) !== null).slice().reverse();
+  if (chartRounds.length >= 2) {
+    html += renderChartHTML(chartRounds);
+  }
+
+  html += `<div class="section-label">All Rounds</div>`;
+
+  history.forEach((r, i) => {
+    const strokes = getTotalStrokes(r);
+    const par = getTotalPar(r);
+    const diff = getVsPar(r);
+    const dc = diffClass(diff);
+    const diffLabel = diff === null ? '?' : formatVsPar(diff);
+    const holes = Object.keys(getShotsPerHole(r)).length;
+    const manualTag = r.manual ? ' · Manual entry' : '';
+
+    html += `
+    <div class="round-row">
+      <div class="round-card" onclick="showDetail(${i})">
+        <div class="round-score-badge ${dc}">
+          <div class="badge-diff ${dc}">${diffLabel}</div>
+          <div class="badge-label">${diff === null ? 'no par' : 'vs par'}</div>
+        </div>
+        <div class="round-info">
+          <div class="round-course">${r.course || 'Unknown Course'}</div>
+          <div class="round-meta">${r.date} &nbsp;·&nbsp; ${holes} holes &nbsp;·&nbsp; ${strokes} shots${par ? ' &nbsp;·&nbsp; Par ' + par : ''}${manualTag}</div>
+        </div>
+        <div class="round-arrow">›</div>
+      </div>
+      <button class="delete-btn" onclick="promptDelete(${i}, event)" title="Delete round">🗑</button>
+    </div>`;
+  });
+
+  container.innerHTML = html;
+}
+
+// ── Progress Chart ────────────────────────────────────────────────────────────
+function renderChartHTML(rounds) {
+  const W = 320, H = 100, PAD = 24;
+  const vals = rounds.map(r => { const d = getVsPar(r); return d === null ? 0 : d; });
+  const minV = Math.min(...vals, -2);
+  const maxV = Math.max(...vals, 2);
+  const range = maxV - minV || 1;
+  const xStep = (W - PAD*2) / Math.max(rounds.length - 1, 1);
+
+  const points = vals.map((v, i) => ({
+    x: PAD + i * xStep,
+    y: PAD + ((maxV - v) / range) * (H - PAD*2),
+    v
+  }));
+
+  const zeroY = PAD + ((maxV - 0) / range) * (H - PAD*2);
+  const path = points.map((p,i) => (i===0?'M':'L') + p.x.toFixed(1) + ' ' + p.y.toFixed(1)).join(' ');
+  const dots = points.map(p => {
+    const dc = p.v > 0 ? '#c0392b' : p.v < 0 ? '#1a6b3a' : '#888';
+    return `<circle cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="5" fill="${dc}" stroke="#fff" stroke-width="2"/>`;
+  }).join('');
+  let labels = '';
+  [0, points.length-1].forEach(i => {
+    const p = points[i];
+    const anchor = i === 0 ? 'start' : 'end';
+    labels += `<text x="${p.x.toFixed(1)}" y="${(p.y-10).toFixed(1)}" text-anchor="${anchor}" font-size="11" font-weight="700" fill="${p.v > 0 ? '#c0392b' : p.v < 0 ? '#1a6b3a' : '#888'}">${formatVsPar(p.v)}</text>`;
+  });
+
+  return `
+  <div class="section-label">Progress</div>
+  <div class="chart-card">
+    <div class="chart-title">Score vs Par over time</div>
+    <div class="chart-area">
+      <svg class="chart" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none">
+        <line x1="${PAD}" y1="${zeroY.toFixed(1)}" x2="${W-PAD}" y2="${zeroY.toFixed(1)}" stroke="#2d8a52" stroke-width="1" stroke-dasharray="4,3" opacity="0.5"/>
+        <text x="${PAD}" y="${(zeroY-4).toFixed(1)}" font-size="9" fill="#2d8a52" opacity="0.7">Par</text>
+        <path d="${path}" stroke="#1a6b3a" stroke-width="2.5" fill="none" stroke-linejoin="round" stroke-linecap="round"/>
+        ${dots}${labels}
+      </svg>
+    </div>
+  </div>`;
+}
+
+// ── Detail View ───────────────────────────────────────────────────────────────
+function showDetail(index) {
+  const round = history[index];
+  if (!round) return;
+
+  document.getElementById('list-view').style.display = 'none';
+  document.getElementById('detail-view').style.display = 'block';
+  window.scrollTo(0,0);
+
+  const sph = getShotsPerHole(round);
+  const totalStrokes = getTotalStrokes(round);
+  const totalPar = getTotalPar(round);
+  const diff = getVsPar(round);
+
+  document.getElementById('detail-course-name').textContent = round.course || 'Unknown Course';
+  document.getElementById('detail-date').textContent = round.date + (round.manual ? ' · Manual entry' : '');
+  document.getElementById('detail-total-shots').textContent = totalStrokes || '–';
+  document.getElementById('detail-total-par').textContent = totalPar || '–';
+  const vsParEl = document.getElementById('detail-vs-par');
+  vsParEl.textContent = formatVsPar(diff);
+  vsParEl.style.color = diff > 0 ? '#c0392b' : diff < 0 ? '#7dd39a' : '#fff';
+
+  const holes = Object.keys(sph).map(Number).sort((a,b) => a-b);
+  let content = '';
+
+  content += `<div class="scorecard"><table class="scorecard-table">
+    <thead><tr><th>Hole</th><th>Par</th><th>Shots</th><th>+/−</th></tr></thead><tbody>`;
+
+  holes.forEach(h => {
+    const shots = sph[h] || 0;
+    const par = round.pars && round.pars[h] ? round.pars[h] : null;
+    const d = par !== null ? shots - par : null;
+    const dStr = d === null ? '–' : (d === 0 ? 'E' : (d > 0 ? '+'+d : ''+d));
+    const dCls = d === null ? 'diff-even' : d > 0 ? 'diff-over' : d < 0 ? 'diff-under' : 'diff-even';
+    content += `<tr><td>${h}</td><td>${par !== null ? par : '–'}</td><td>${shots}</td><td class="${dCls}">${dStr}</td></tr>`;
+  });
+
+  if (totalPar !== null) {
+    const totalDiff = totalStrokes - totalPar;
+    const dStr = totalDiff === 0 ? 'E' : (totalDiff > 0 ? '+'+totalDiff : ''+totalDiff);
+    const dCls = totalDiff > 0 ? 'diff-over' : totalDiff < 0 ? 'diff-under' : 'diff-even';
+    content += `<tr class="total-row"><td>Total</td><td>${totalPar}</td><td>${totalStrokes}</td><td class="${dCls}">${dStr}</td></tr>`;
+  }
+
+  content += `</tbody></table></div>`;
+
+  // Same-course comparison
+  const sameRounds = history.filter((r, i) => i !== index && r.course && round.course &&
+    r.course.toLowerCase() === round.course.toLowerCase() && getTotalPar(r) !== null);
+  if (sameRounds.length > 0) {
+    content += renderComparison(round, sameRounds, holes);
+  }
+
+  document.getElementById('detail-content').innerHTML = content;
+}
+
+// ── Same-Course Comparison ────────────────────────────────────────────────────
+function renderComparison(thisRound, otherRounds, holes) {
+  const others = otherRounds.slice(0, 2);
+  let html = `
+  <div class="section-label">Compare at ${thisRound.course}</div>
+  <div class="compare-card">
+    <div class="compare-title">Hole by hole — previous rounds</div>
+    <table class="compare-table">
+      <thead><tr>
+        <th>Hole</th><th>Par</th><th>This round</th>
+        ${others.map(r => `<th>${r.date}</th>`).join('')}
+      </tr></thead><tbody>`;
+
+  holes.forEach(h => {
+    const thisSph = getShotsPerHole(thisRound);
+    const thisShots = thisSph[h] || '–';
+    const par = (thisRound.pars && thisRound.pars[h]) || null;
+    const allScores = [thisShots, ...others.map(r => getShotsPerHole(r)[h] || null)].filter(v => v !== null && v !== '–');
+    const best = allScores.length > 0 ? Math.min(...allScores) : null;
+
+    html += `<tr><td>${h}</td><td>${par !== null ? par : '–'}</td>`;
+    html += `<td class="${thisShots === best && best !== null ? 'best' : ''}">${thisShots}</td>`;
+    others.forEach(r => {
+      const s = getShotsPerHole(r)[h] || '–';
+      html += `<td class="${s === best && best !== null && s !== '–' ? 'best' : ''}">${s}</td>`;
+    });
+    html += `</tr>`;
+  });
+
+  const thisTotal = getTotalStrokes(thisRound);
+  html += `<tr style="font-weight:700; background:#f8f8f8;"><td>Total</td><td>${getTotalPar(thisRound) || '–'}</td><td>${thisTotal}</td>`;
+  others.forEach(r => { html += `<td>${getTotalStrokes(r)}</td>`; });
+  html += `</tr></tbody></table>
+  <div style="font-size:11px;color:#94a89c;padding:8px 14px 12px;">Green = best score for that hole</div>
+  </div>`;
+  return html;
+}
+
+// ── Init ──────────────────────────────────────────────────────────────────────
+renderList();
+showList();
+</script>
+</body>
+</html>

@@ -1,13 +1,13 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
+<!-- saved from url=(0043)file:///C:/Users/aande/Downloads/round.html -->
+<html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="theme-color" content="#1a6b3a">
-<link rel="manifest" href="manifest.json">
-<link rel="apple-touch-icon" href="icon-192.svg">
+<link rel="manifest" href="file:///C:/Users/aande/Downloads/manifest.json">
+<link rel="apple-touch-icon" href="file:///C:/Users/aande/Downloads/icon-192.svg">
 <title>Shot Tracker — Round</title>
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
@@ -140,6 +140,12 @@
   #toast { position: fixed; bottom: calc(var(--safe-bottom) + 24px); left: 50%; transform: translateX(-50%) translateY(20px); background: #1a1a1a; color: #fff; padding: 10px 20px; border-radius: 100px; font-size: 13px; font-weight: 500; opacity: 0; transition: opacity 0.25s, transform 0.25s; pointer-events: none; white-space: nowrap; z-index: 999; }
   #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 
+  /* Mark row — Mark Shot + Don't Record side by side */
+  .mark-row { display: flex; gap: 8px; margin-bottom: 8px; }
+  .mark-row .btn { margin-bottom: 0; flex: 1; }
+  .btn-norecord { background: #c0392b; color: #fff; }
+  .btn-norecord:active { opacity: 0.82; }
+
   /* Summary tab buttons */
   .sum-tabs { display: flex; gap: 6px; margin-bottom: 14px; }
   .sum-tab { flex: 1; padding: 9px; font-size: 13px; font-weight: 600; border-radius: var(--radius-sm); border: 0.5px solid var(--border-mid); background: var(--card); color: var(--text-secondary); cursor: pointer; text-align: center; }
@@ -149,24 +155,24 @@
 <body>
 <div id="app">
   <div class="topbar">
-    <a class="topbar-back" href="index.html" aria-label="Menu">&#8962;</a>
+    <a class="topbar-back" href="file:///C:/Users/aande/Downloads/index.html" aria-label="Menu">⌂</a>
     <h1 id="topbar-title">Shot Tracker</h1>
     <button class="topbar-action" onclick="newRound()">New Round</button>
   </div>
   <div class="tab-bar">
-    <button class="tab active" onclick="showTab('round')" id="tab-round">Round</button>
-    <button class="tab" onclick="showTab('summary')" id="tab-summary">Summary</button>
-    <button class="tab" onclick="showTab('scorecard')" id="tab-scorecard">Scorecard</button>
+    <button class="tab active" onclick="showTab(&#39;round&#39;)" id="tab-round">Round</button>
+    <button class="tab" onclick="showTab(&#39;summary&#39;)" id="tab-summary">Summary</button>
+    <button class="tab" onclick="showTab(&#39;scorecard&#39;)" id="tab-scorecard">Scorecard</button>
   </div>
   <div class="content">
 
     <!-- ROUND TAB -->
     <div class="screen active" id="screen-round">
-      <div id="no-bag-warning" style="display:none">
+      <div id="no-bag-warning" style="display: block;">
         <div class="no-bag-card">
-          <div class="no-bag-title">&#127921; No bag set up yet</div>
+          <div class="no-bag-title">🎱 No bag set up yet</div>
           <div class="no-bag-desc">Set up which clubs are in your bag first so they appear here during your round.</div>
-          <button class="btn btn-primary" onclick="window.location.href='setup.html'">Set Up My Bag</button>
+          <button class="btn btn-primary" onclick="window.location.href=&#39;setup.html&#39;">Set Up My Bag</button>
         </div>
       </div>
 
@@ -179,63 +185,69 @@
 
       <div class="hole-header-card">
         <div class="hole-title-row">
-          <button class="hole-nav-btn" id="hole-prev" onclick="changeHole(-1)" aria-label="Previous hole">&#8592;</button>
+          <button class="hole-nav-btn" id="hole-prev" onclick="changeHole(-1)" aria-label="Previous hole" disabled="">←</button>
           <div class="hole-title-text" id="hole-title">Hole 1</div>
-          <button class="hole-nav-btn" id="hole-next" onclick="changeHole(1)" aria-label="Next hole">&#8594;</button>
-          <div id="par-area"></div>
+          <button class="hole-nav-btn" id="hole-next" onclick="changeHole(1)" aria-label="Next hole">→</button>
+          <div id="par-area"><div class="par-row"><span class="par-label">Par</span><input class="par-input" type="number" id="par-input" min="3" max="6" inputmode="numeric" value="" placeholder="–"><button class="par-save-btn" onclick="savePar()">Save</button></div></div>
         </div>
         <div id="gps-status-bar" class="gps-status"></div>
 
         <div class="shot-list" id="home-shot-list"></div>
 
-        <div id="stage-teeup"><button class="btn btn-teeup" onclick="doTeeUp()">&#9971; Tee Up</button></div>
+        <div id="stage-teeup" style="display: block;"><button class="btn btn-teeup" onclick="doTeeUp()">⛳ Tee Up</button></div>
 
         <div id="stage-clubs" style="display:none">
           <div class="section-label">Select your club</div>
           <div class="club-grid" id="club-grid-main"></div>
           <div id="walk-inst-main" class="walk-instruction" style="display:none">Walk to your ball and mark it</div>
-          <button class="btn btn-primary" id="btn-mark-main" onclick="doMark()" style="display:none">Mark Shot</button>
-          <button class="btn btn-inthehole" id="btn-ith-main" onclick="doInTheHole()" style="display:none">&#9971; In The Hole</button>
+          <div class="mark-row" id="mark-row-main" style="display:none">
+            <button class="btn btn-norecord" id="btn-norecord-main" onclick="doNoRecord(&#39;main&#39;)">✗ Don't Record</button>
+            <button class="btn btn-primary" id="btn-mark-main" onclick="doMark()">Mark Shot</button>
+          </div>
+          <button class="btn btn-inthehole" id="btn-ith-main" onclick="doInTheHole()" style="display:none">⛳ In The Hole</button>
         </div>
 
         <div id="stage-next" style="display:none">
           <div class="remeasure-strip">
-            <span class="remeasure-label">&#9888; Last shot recorded</span>
+            <span class="remeasure-label">⚠ Last shot recorded</span>
             <button class="remeasure-btn" onclick="doRemeasure()">Remeasure</button>
           </div>
           <div class="section-label">Select club for next shot</div>
           <div class="club-grid" id="club-grid-next"></div>
           <div id="walk-inst-next" class="walk-instruction" style="display:none">Walk to your ball and mark it</div>
-          <button class="btn btn-primary" id="btn-mark-next" onclick="doMark()" style="display:none">Mark Shot</button>
-          <button class="btn btn-inthehole" id="btn-ith-next" onclick="doInTheHole()" style="display:none">&#9971; In The Hole</button>
+          <div class="mark-row" id="mark-row-next" style="display:none">
+            <button class="btn btn-norecord" id="btn-norecord-next" onclick="doNoRecord(&#39;next&#39;)">✗ Don't Record</button>
+            <button class="btn btn-primary" id="btn-mark-next" onclick="doMark()">Mark Shot</button>
+          </div>
+          <button class="btn btn-inthehole" id="btn-ith-next" onclick="doInTheHole()" style="display:none">⛳ In The Hole</button>
         </div>
 
         <div id="stage-final-dist" style="display:none">
           <div class="walk-instruction" style="display:block;margin-bottom:8px;">Walk to the hole and mark your final shot</div>
-          <button class="btn btn-primary" onclick="doMarkFinal()">&#9655; Mark Final Shot</button>
-          <button class="btn btn-secondary" onclick="cancelFinalDist()">&#8592; Cancel</button>
+          <button class="btn btn-primary" onclick="doMarkFinal()">▷ Mark Final Shot</button>
+          <button class="btn btn-secondary" onclick="cancelFinalDist()">← Cancel</button>
         </div>
 
         <div id="stage-save-hole" style="display:none">
-          <button class="btn btn-save-hole" onclick="doSaveHole()">&#10003; Save Hole &amp; Next Hole</button>
+          <button class="btn btn-save-hole" onclick="doSaveHole()">✓ Save Hole &amp; Next Hole</button>
         </div>
       </div>
 
       <div class="nav-btns">
-        <button class="nav-btn" onclick="showTab('summary')">&#9783; Summary</button>
-        <button class="nav-btn" onclick="showTab('scorecard')">&#9646; Scorecard</button>
+        <button class="nav-btn" onclick="showTab(&#39;summary&#39;)">☷ Summary</button>
+        <button class="nav-btn" onclick="showTab(&#39;scorecard&#39;)">▮ Scorecard</button>
       </div>
     </div>
 
     <!-- SUMMARY TAB -->
     <div class="screen" id="screen-summary">
       <div class="sum-tabs">
-        <button class="sum-tab active" onclick="showSumTab('holes')" id="sum-tab-holes">By hole</button>
-        <button class="sum-tab" onclick="showSumTab('clubs')" id="sum-tab-clubs">By club</button>
+        <button class="sum-tab active" onclick="showSumTab(&#39;holes&#39;)" id="sum-tab-holes">By hole</button>
+        <button class="sum-tab" onclick="showSumTab(&#39;clubs&#39;)" id="sum-tab-clubs">By club</button>
       </div>
       <div id="summary-content"></div>
-      <button class="btn btn-secondary" style="margin-top:4px" onclick="exportCSV()">&#8659; Download CSV</button>
-      <button class="btn btn-secondary" onclick="exportEmail()">&#9993; Email round</button>
+      <button class="btn btn-secondary" style="margin-top:4px" onclick="exportCSV()">⇓ Download CSV</button>
+      <button class="btn btn-secondary" onclick="exportEmail()">✉ Email round</button>
     </div>
 
     <!-- SCORECARD TAB -->
@@ -254,7 +266,7 @@
 <!-- In The Hole dialog -->
 <div id="dialog-overlay" class="dialog-overlay" style="display:none" onclick="closeDialogOutside(event)">
   <div class="dialog-box">
-    <div class="dialog-title">In The Hole! &#127881;</div>
+    <div class="dialog-title">In The Hole! 🎉</div>
     <div class="dialog-sub">Record the distance of your final shot?</div>
     <button class="dialog-btn dialog-btn-yes" onclick="inTheHoleYes()">Yes — walk to the hole &amp; mark it</button>
     <button class="dialog-btn dialog-btn-no" onclick="inTheHoleNo()">No — just record the club</button>
@@ -361,7 +373,7 @@ function renderHome() {
     '<div class="shot-item">' +
     '<div class="shot-bubble">'+(i+1)+'</div>' +
     '<div class="shot-club">'+(s.clubShort||s.club)+'</div>' +
-    '<div class="shot-dist">'+(s.dist?s.dist+'m':'&mdash;')+'</div>' +
+    '<div class="shot-dist">' + (s.noRecord ? '<span style="color:#c0392b;font-weight:700;">&#10007;</span>' : (s.dist ? s.dist+'m' : '&mdash;')) + '</div>' +
     '</div>'
   ).join('');
 
@@ -410,7 +422,7 @@ function updateMarkBtns(mode) {
   const suffix = mode==='main' ? '-main' : '-next';
   const holeCount = shots.filter(s=>s.hole===currentHole).length;
   document.getElementById('walk-inst'+suffix).style.display = hasSel?'block':'none';
-  document.getElementById('btn-mark'+suffix).style.display = hasSel?'flex':'none';
+  document.getElementById('mark-row'+suffix).style.display = hasSel?'flex':'none';
   document.getElementById('btn-ith'+suffix).style.display = hasSel?'flex':'none';
   if (hasSel) document.getElementById('btn-mark'+suffix).textContent = 'Mark ' + ordinal(holeCount+1) + ' Shot';
 }
@@ -662,5 +674,6 @@ function showToast(msg) {
 renderHome();
 if('serviceWorker' in navigator){navigator.serviceWorker.register('/sw.js').catch(()=>{});}
 </script>
-</body>
-</html>
+
+
+</body></html>

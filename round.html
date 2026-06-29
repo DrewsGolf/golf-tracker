@@ -92,6 +92,14 @@
   .btn-inthehole { background: #1a3a6b; color: #fff; }
   .btn-save-hole { background: #2d6b1a; color: #fff; font-size: 16px; padding: 17px; }
 
+  /* Course strip */
+  .course-strip { background: var(--green-dark); margin: -14px -14px 12px; padding: 8px 14px; display: flex; align-items: center; justify-content: space-between; cursor: pointer; }
+  .course-strip-name { font-size: 13px; font-weight: 600; color: #fff; flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .course-strip-change { font-size: 11px; color: rgba(255,255,255,0.65); white-space: nowrap; margin-left: 8px; }
+
+  /* Finish round button */
+  .btn-finish { background: #1a3a6b; color: #fff; }
+
   /* Nav buttons */
   .nav-btns { display: flex; gap: 8px; margin-top: 4px; }
   .nav-btn { flex: 1; padding: 11px 4px; background: var(--card); border: 0.5px solid var(--border-mid); border-radius: var(--radius-sm); font-size: 12px; font-weight: 600; color: var(--text-secondary); cursor: pointer; text-align: center; }
@@ -176,6 +184,11 @@
         </div>
       </div>
 
+      <div id="course-strip" class="course-strip" onclick="changeCourse()" style="display:none">
+        <span class="course-strip-name" id="course-strip-name">Unknown Course</span>
+        <span class="course-strip-change">Change ›</span>
+      </div>
+
       <div class="stat-row">
         <div class="stat-card"><div class="stat-label">Hole</div><div class="stat-value green" id="s-hole">1</div></div>
         <div class="stat-card"><div class="stat-label">This hole</div><div class="stat-value" id="s-hole-shots">0</div></div>
@@ -237,6 +250,7 @@
         <button class="nav-btn" onclick="showTab('summary')">&#9783; Summary</button>
         <button class="nav-btn" onclick="showTab('scorecard')">&#9646; Scorecard</button>
       </div>
+      <button class="btn btn-finish" id="btn-finish-round" onclick="finishRound()" style="display:none;margin-top:8px;">&#9646; Finish &amp; Save Round</button>
     </div>
 
     <!-- SUMMARY TAB -->
@@ -379,6 +393,7 @@ function renderHome() {
 
   renderStage();
   updateHoleArrows();
+  updateFinishBtn();
 }
 
 // ── Stage ────────────────────────────────────────────────────────────────────
@@ -697,8 +712,72 @@ function showToast(msg) {
   setTimeout(()=>t.classList.remove('show'),2200);
 }
 
+// ── Course ───────────────────────────────────────────────────────────────────
+let currentCourse = JSON.parse(localStorage.getItem('golf-current-course') || 'null');
+
+function renderCourseStrip() {
+  const strip = document.getElementById('course-strip');
+  const name = document.getElementById('course-strip-name');
+  if (currentCourse && currentCourse.name) {
+    strip.style.display = 'flex';
+    name.textContent = currentCourse.name + (currentCourse.suburb ? ' · ' + currentCourse.suburb : '');
+  } else {
+    strip.style.display = 'none';
+  }
+}
+
+function changeCourse() {
+  window.location.href = 'start.html';
+}
+
+// ── Finish & Save Round ───────────────────────────────────────────────────────
+function finishRound() {
+  if (shots.length === 0) { showToast('No shots to save'); return; }
+  if (!confirm('Save this round and start fresh?')) return;
+
+  const holesPlayed = [...new Set(shots.map(s=>s.hole))].length;
+  const totalDist = shots.reduce((a,s)=>a+(s.dist||0),0);
+  const date = new Date();
+
+  const round = {
+    id: Date.now().toString(),
+    date: date.toLocaleDateString('en-AU'),
+    dateISO: date.toISOString(),
+    course: currentCourse ? currentCourse.name : 'Unknown Course',
+    suburb: currentCourse ? currentCourse.suburb : '',
+    holes: holesPlayed,
+    shots: shots.length,
+    totalDist: totalDist,
+    pars: {...holePars},
+    shotData: [...shots]
+  };
+
+  // Save to round history
+  const history = JSON.parse(localStorage.getItem('golf-round-history') || '[]');
+  history.unshift(round);
+  localStorage.setItem('golf-round-history', JSON.stringify(history));
+
+  // Clear current round
+  shots = []; holePars = {}; currentHole = 1;
+  selectedClub = null; teePosition = null; lastBallPosition = null; holeFinished = false;
+  currentCourse = null;
+  localStorage.removeItem('golf-current-course');
+  persist();
+
+  showToast('Round saved!');
+  setTimeout(() => window.location.href = 'index.html', 1200);
+}
+
+// Show finish button whenever there are shots
+function updateFinishBtn() {
+  const btn = document.getElementById('btn-finish-round');
+  if (btn) btn.style.display = shots.length > 0 ? 'flex' : 'none';
+}
+
 // ── Init ─────────────────────────────────────────────────────────────────────
 renderHome();
+renderCourseStrip();
+updateFinishBtn();
 if('serviceWorker' in navigator){navigator.serviceWorker.register('/sw.js').catch(()=>{});}
 </script>
 </body>

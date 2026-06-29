@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#1a6b3a">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-192.svg">
+<title>Start Round</title>
+<script src="courses.js"></script>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  :root {
+    --green-dark: #1a6b3a; --green-mid: #2d8a52; --green-light: #e8f5ed; --green-pale: #f2faf5;
+    --text-primary: #1a1a1a; --text-secondary: #5a6a60; --text-muted: #94a89c;
+    --bg: #f5f7f5; --card: #ffffff; --border: rgba(0,0,0,0.08); --border-mid: rgba(0,0,0,0.14);
+    --radius: 14px; --radius-sm: 9px;
+    --safe-top: env(safe-area-inset-top, 0px); --safe-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  html, body { height: 100%; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg); color: var(--text-primary); }
+  #app { display: flex; flex-direction: column; height: 100%; max-width: 430px; margin: 0 auto; }
+
+  .topbar { background: var(--green-dark); color: #fff; padding: calc(var(--safe-top) + 14px) 16px 14px; display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
+  .topbar-back { background: rgba(255,255,255,0.18); border: none; border-radius: 8px; width: 34px; height: 34px; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 18px; cursor: pointer; text-decoration: none; flex-shrink: 0; }
+  .topbar h1 { font-size: 17px; font-weight: 600; flex: 1; }
+
+  .content { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; padding: 20px 16px calc(var(--safe-bottom) + 20px); }
+
+  /* Status card */
+  .status-card { background: var(--card); border: 0.5px solid var(--border); border-radius: var(--radius); padding: 20px; text-align: center; margin-bottom: 16px; }
+  .status-icon { font-size: 40px; margin-bottom: 10px; display: block; }
+  .status-title { font-size: 17px; font-weight: 700; color: var(--text-primary); margin-bottom: 6px; }
+  .status-sub { font-size: 14px; color: var(--text-secondary); line-height: 1.5; }
+  .gps-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: var(--green-mid); margin-right: 6px; }
+  .gps-dot.pulse { animation: pulse 1.2s infinite; }
+  @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.5;transform:scale(1.4)} }
+
+  /* Suggested course card */
+  .suggest-card { background: var(--green-light); border: 0.5px solid rgba(45,138,82,0.3); border-radius: var(--radius); padding: 16px; margin-bottom: 16px; }
+  .suggest-label { font-size: 11px; font-weight: 700; letter-spacing: 0.07em; text-transform: uppercase; color: var(--green-dark); margin-bottom: 8px; }
+  .suggest-name { font-size: 18px; font-weight: 700; color: var(--text-primary); margin-bottom: 4px; }
+  .suggest-detail { font-size: 13px; color: var(--text-secondary); margin-bottom: 12px; }
+  .suggest-btns { display: flex; gap: 8px; }
+  .suggest-btn-yes { flex: 2; padding: 13px; background: var(--green-dark); color: #fff; border: none; border-radius: var(--radius-sm); font-size: 14px; font-weight: 600; cursor: pointer; }
+  .suggest-btn-no { flex: 1; padding: 13px; background: var(--card); color: var(--text-secondary); border: 0.5px solid var(--border-mid); border-radius: var(--radius-sm); font-size: 14px; font-weight: 600; cursor: pointer; }
+
+  /* Nearby list */
+  .nearby-label { font-size: 11px; font-weight: 700; letter-spacing: 0.07em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 10px; }
+  .nearby-list { background: var(--card); border: 0.5px solid var(--border); border-radius: var(--radius); overflow: hidden; margin-bottom: 16px; }
+  .nearby-row { display: flex; align-items: center; padding: 13px 16px; border-bottom: 0.5px solid var(--border); cursor: pointer; gap: 12px; transition: background 0.1s; }
+  .nearby-row:last-child { border-bottom: none; }
+  .nearby-row:active { background: var(--green-pale); }
+  .nearby-dist { background: var(--green-dark); color: #fff; font-size: 11px; font-weight: 700; padding: 3px 8px; border-radius: 20px; white-space: nowrap; flex-shrink: 0; }
+  .nearby-info { flex: 1; }
+  .nearby-name { font-size: 14px; font-weight: 600; color: var(--text-primary); }
+  .nearby-suburb { font-size: 12px; color: var(--text-muted); margin-top: 1px; }
+  .nearby-arrow { color: var(--text-muted); font-size: 18px; }
+
+  /* Manual entry */
+  .manual-card { background: var(--card); border: 0.5px solid var(--border); border-radius: var(--radius); padding: 16px; margin-bottom: 16px; }
+  .manual-label { font-size: 13px; font-weight: 600; color: var(--text-secondary); margin-bottom: 10px; }
+  .manual-input-row { display: flex; gap: 8px; }
+  .manual-input { flex: 1; border: 0.5px solid var(--border-mid); border-radius: var(--radius-sm); padding: 12px 14px; font-size: 15px; color: var(--text-primary); background: var(--bg); outline: none; }
+  .manual-input:focus { border-color: var(--green-mid); }
+  .manual-search-btn { background: var(--green-dark); color: #fff; border: none; border-radius: var(--radius-sm); padding: 12px 14px; font-size: 13px; font-weight: 600; cursor: pointer; white-space: nowrap; }
+
+  /* Selected course confirmation */
+  .selected-card { background: var(--card); border: 2px solid var(--green-dark); border-radius: var(--radius); padding: 16px; margin-bottom: 16px; }
+  .selected-label { font-size: 11px; font-weight: 700; letter-spacing: 0.07em; text-transform: uppercase; color: var(--green-dark); margin-bottom: 6px; }
+  .selected-name { font-size: 18px; font-weight: 700; color: var(--text-primary); margin-bottom: 2px; }
+  .selected-detail { font-size: 13px; color: var(--text-secondary); }
+  .selected-change { font-size: 13px; color: var(--green-dark); font-weight: 600; cursor: pointer; margin-top: 10px; display: inline-block; }
+
+  /* Start button */
+  .btn-start { width: 100%; padding: 17px; background: var(--green-dark); color: #fff; border: none; border-radius: var(--radius); font-size: 17px; font-weight: 700; cursor: pointer; margin-bottom: 10px; }
+  .btn-start:active { opacity: 0.85; }
+  .btn-skip { width: 100%; padding: 13px; background: transparent; color: var(--text-muted); border: none; font-size: 13px; cursor: pointer; }
+
+  /* Section divider */
+  .or-divider { text-align: center; font-size: 12px; color: var(--text-muted); margin: 4px 0 12px; position: relative; }
+  .or-divider::before, .or-divider::after { content: ''; position: absolute; top: 50%; width: 42%; height: 0.5px; background: var(--border-mid); }
+  .or-divider::before { left: 0; } .or-divider::after { right: 0; }
+
+  /* Toast */
+  #toast { position: fixed; bottom: calc(var(--safe-bottom) + 24px); left: 50%; transform: translateX(-50%) translateY(20px); background: #1a1a1a; color: #fff; padding: 10px 20px; border-radius: 100px; font-size: 13px; font-weight: 500; opacity: 0; transition: opacity 0.25s, transform 0.25s; pointer-events: none; white-space: nowrap; z-index: 999; }
+  #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+</style>
+</head>
+<body>
+<div id="app">
+  <div class="topbar">
+    <a class="topbar-back" href="index.html">&#8592;</a>
+    <h1>Start Round</h1>
+  </div>
+  <div class="content" id="main-content">
+    <div class="status-card" id="status-card">
+      <span class="status-icon">📍</span>
+      <div class="status-title">Finding your course…</div>
+      <div class="status-sub"><span class="gps-dot pulse"></span>Getting your location</div>
+    </div>
+  </div>
+</div>
+<div id="toast"></div>
+
+<script>
+let chosenCourse = null;
+
+function haversine(lat1, lng1, lat2, lng2) {
+  const R = 6371000;
+  const f1 = lat1*Math.PI/180, f2 = lat2*Math.PI/180;
+  const df = (lat2-lat1)*Math.PI/180, dl = (lng2-lng1)*Math.PI/180;
+  const x = Math.sin(df/2)**2 + Math.cos(f1)*Math.cos(f2)*Math.sin(dl/2)**2;
+  return Math.round(2*R*Math.asin(Math.sqrt(x)));
+}
+
+function distKm(lat1, lng1, lat2, lng2) {
+  return haversine(lat1, lng1, lat2, lng2) / 1000;
+}
+
+function fmtDist(km) {
+  return km < 1 ? Math.round(km*1000)+'m' : km.toFixed(1)+'km';
+}
+
+// ── On load — get GPS ─────────────────────────────────────────────────────────
+window.addEventListener('load', () => {
+  if (!navigator.geolocation) { showManualOnly('GPS not available on this device'); return; }
+  navigator.geolocation.getCurrentPosition(pos => {
+    findNearby(pos.coords.latitude, pos.coords.longitude);
+  }, () => {
+    showManualOnly('Could not get your location — enter the course name below');
+  }, {enableHighAccuracy: true, timeout: 12000});
+});
+
+// ── Find nearby courses ───────────────────────────────────────────────────────
+function findNearby(lat, lng) {
+  // All courses with distance
+  const withDist = COURSES.map(c => ({...c, km: distKm(lat, lng, c.lat, c.lng)}))
+    .sort((a,b) => a.km - b.km);
+
+  const within3 = withDist.filter(c => c.km <= 3);
+  const within10 = withDist.filter(c => c.km <= 10);
+
+  if (within3.length > 0) {
+    // Suggest closest
+    showSuggestion(within3[0], within10);
+  } else if (within10.length > 0) {
+    // No match within 3km — show nearby list + manual
+    showNearbyList(within10, lat, lng);
+  } else {
+    // Nothing within 10km
+    showManualOnly('No courses found nearby — enter the course name below');
+  }
+}
+
+// ── Show suggestion ───────────────────────────────────────────────────────────
+function showSuggestion(course, nearby) {
+  const c = document.getElementById('main-content');
+  c.innerHTML =
+    '<div class="suggest-card">' +
+      '<div class="suggest-label">&#10003; Closest course found</div>' +
+      '<div class="suggest-name">' + course.name + '</div>' +
+      '<div class="suggest-detail">&#128205; ' + course.suburb + ' &nbsp;·&nbsp; ' + fmtDist(course.km) + ' away</div>' +
+      '<div class="suggest-btns">' +
+        '<button class="suggest-btn-yes" onclick="selectCourse(' + JSON.stringify(course).replace(/"/g,'&quot;') + ')">&#10003; Yes, that\'s it</button>' +
+        '<button class="suggest-btn-no" onclick="showNearbyFromSuggest()">No, find another</button>' +
+      '</div>' +
+    '</div>' +
+    manualEntryHTML();
+
+  // Store nearby for later
+  window._nearby = nearby;
+}
+
+function showNearbyFromSuggest() {
+  const c = document.getElementById('main-content');
+  c.innerHTML = nearbyListHTML(window._nearby) + manualEntryHTML();
+}
+
+// ── Show nearby list ──────────────────────────────────────────────────────────
+function showNearbyList(courses, lat, lng) {
+  window._nearby = courses;
+  const c = document.getElementById('main-content');
+  c.innerHTML =
+    '<div class="status-card" style="margin-bottom:16px;">' +
+      '<span class="status-icon">🔍</span>' +
+      '<div class="status-title">No course found within 3km</div>' +
+      '<div class="status-sub">Select from nearby courses or enter manually</div>' +
+    '</div>' +
+    nearbyListHTML(courses) +
+    manualEntryHTML();
+}
+
+function nearbyListHTML(courses) {
+  if (!courses || courses.length === 0) return '';
+  return '<div class="nearby-label">Courses within 10km</div>' +
+    '<div class="nearby-list">' +
+    courses.map(c =>
+      '<div class="nearby-row" onclick="selectCourse(' + JSON.stringify(c).replace(/"/g,'&quot;') + ')">' +
+        '<span class="nearby-dist">' + fmtDist(c.km) + '</span>' +
+        '<div class="nearby-info">' +
+          '<div class="nearby-name">' + c.name + '</div>' +
+          '<div class="nearby-suburb">' + c.suburb + ' &nbsp;·&nbsp; ' + c.access + '</div>' +
+        '</div>' +
+        '<span class="nearby-arrow">›</span>' +
+      '</div>'
+    ).join('') +
+    '</div>';
+}
+
+// ── Manual entry ──────────────────────────────────────────────────────────────
+function manualEntryHTML() {
+  return '<div class="or-divider">or enter manually</div>' +
+    '<div class="manual-card">' +
+      '<div class="manual-label">Type the course name</div>' +
+      '<div class="manual-input-row">' +
+        '<input class="manual-input" type="text" id="manual-input" placeholder="e.g. Royal Melbourne" autocomplete="off">' +
+        '<button class="manual-search-btn" onclick="searchManual()">Search</button>' +
+      '</div>' +
+      '<div id="manual-results" style="margin-top:10px;"></div>' +
+    '</div>';
+}
+
+function showManualOnly(msg) {
+  const c = document.getElementById('main-content');
+  c.innerHTML =
+    '<div class="status-card" style="margin-bottom:16px;">' +
+      '<span class="status-icon">📍</span>' +
+      '<div class="status-title">Course not found automatically</div>' +
+      '<div class="status-sub">' + msg + '</div>' +
+    '</div>' +
+    manualEntryHTML();
+}
+
+function searchManual() {
+  const val = document.getElementById('manual-input').value.trim().toLowerCase();
+  if (!val) return;
+  const matches = COURSES.filter(c =>
+    c.name.toLowerCase().includes(val) || c.suburb.toLowerCase().includes(val)
+  ).slice(0, 8);
+  const el = document.getElementById('manual-results');
+  if (matches.length === 0) {
+    el.innerHTML = '<div style="font-size:13px;color:var(--text-muted);padding:8px 0;">No matches found — you can still use the name you typed</div>' +
+      '<button style="width:100%;margin-top:8px;padding:12px;background:var(--green-dark);color:#fff;border:none;border-radius:9px;font-size:14px;font-weight:600;cursor:pointer;" ' +
+      'onclick="selectManual()">Use \'' + document.getElementById('manual-input').value.trim() + '\'</button>';
+    return;
+  }
+  el.innerHTML = '<div class="nearby-list">' +
+    matches.map(c =>
+      '<div class="nearby-row" onclick="selectCourse(' + JSON.stringify(c).replace(/"/g,'&quot;') + ')">' +
+        '<div class="nearby-info"><div class="nearby-name">' + c.name + '</div><div class="nearby-suburb">' + c.suburb + '</div></div>' +
+        '<span class="nearby-arrow">›</span>' +
+      '</div>'
+    ).join('') + '</div>';
+}
+
+function selectManual() {
+  const val = document.getElementById('manual-input').value.trim();
+  if (!val) { showToast('Please enter a course name'); return; }
+  selectCourse({name: val, suburb: '', access: 'Unknown', holes: 18, par: ''});
+}
+
+// Allow enter key
+document.addEventListener('keydown', e => {
+  if (e.key === 'Enter') {
+    const inp = document.getElementById('manual-input');
+    if (inp && document.activeElement === inp) searchManual();
+  }
+});
+
+// ── Select course ─────────────────────────────────────────────────────────────
+function selectCourse(course) {
+  chosenCourse = course;
+  const c = document.getElementById('main-content');
+  c.innerHTML =
+    '<div class="selected-card">' +
+      '<div class="selected-label">&#9971; Selected course</div>' +
+      '<div class="selected-name">' + course.name + '</div>' +
+      '<div class="selected-detail">' + (course.suburb ? '&#128205; ' + course.suburb : '') + (course.access && course.access !== 'Unknown' ? ' &nbsp;·&nbsp; ' + course.access : '') + '</div>' +
+      '<span class="selected-change" onclick="resetSearch()">&#8592; Change course</span>' +
+    '</div>' +
+    '<button class="btn-start" onclick="startRound()">&#9971; Start Round</button>' +
+    '<button class="btn-skip" onclick="startRound()">Continue without a course</button>';
+}
+
+function resetSearch() {
+  chosenCourse = null;
+  window.location.reload();
+}
+
+// ── Start round ───────────────────────────────────────────────────────────────
+function startRound() {
+  // Save chosen course to localStorage so round.html can read it
+  if (chosenCourse) {
+    localStorage.setItem('golf-current-course', JSON.stringify({
+      name: chosenCourse.name,
+      suburb: chosenCourse.suburb || '',
+      startedAt: new Date().toISOString()
+    }));
+  } else {
+    localStorage.removeItem('golf-current-course');
+  }
+  window.location.href = 'round.html';
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2200);
+}
+</script>
+</body>
+</html>

@@ -48,6 +48,7 @@
   .hole-title-row { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
   .hole-nav-btn { width: 34px; height: 34px; background: var(--green-light); border: none; border-radius: 8px; font-size: 17px; color: var(--green-dark); display: flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0; }
   .hole-nav-btn:disabled { opacity: 0.3; cursor: default; }
+  .hole-nav-btn.locked { opacity: 0.4; }
   .hole-title-text { font-size: 20px; font-weight: 700; color: var(--text-primary); flex: 1; text-align: center; }
   .par-row { display: flex; align-items: center; gap: 8px; }
   .par-label { font-size: 13px; color: var(--text-secondary); white-space: nowrap; }
@@ -685,40 +686,59 @@ function changeHole(dir) {
   const next = currentHole + dir;
   if (next<1||next>18) return;
 
-  // Does the hole we're MOVING TO already have shots logged?
-  const nextHoleHasShots = shots.filter(s=>s.hole===next).length > 0;
-
-  if (dir>0) {
-    const holeShots = shots.filter(s=>s.hole===currentHole);
-    if (holeShots.length>0 && !holeFinished) {
+  if (dir<0) {
+    // Backward navigation only allowed once the current hole is finished & saved
+    if (!holeFinished) {
       showDialog({
-        icon: '➡️',
-        title: 'Hole ' + currentHole + ' Not Finished',
-        sub: 'Move to Hole ' + next + ' anyway? Your shots so far will be saved.',
+        icon: '🔒',
+        title: 'Finish Hole ' + currentHole + ' First',
+        sub: 'You can look back at previous holes once you\'ve saved this one. Use "Save Hole & Next Hole" to finish up here.',
         buttons: [
-          { label: 'Yes — move to Hole ' + next, style: 'primary', action: () => {
-            currentHole=next; selectedClub=null; holeFinished=false;
-            if (!nextHoleHasShots) { teePosition=null; lastBallPosition=null; }
-            renderHome(); showToast('Hole ' + currentHole);
-          }},
-          { label: 'Cancel — stay on Hole ' + currentHole, style: 'secondary', action: () => {} }
+          { label: 'Got it', style: 'primary', action: () => {} }
         ]
       });
       return;
     }
-    currentHole=next; selectedClub=null; holeFinished=false;
-    if (!nextHoleHasShots) { teePosition=null; lastBallPosition=null; }
-  } else {
-    currentHole=next; selectedClub=null; holeFinished=true;
-    if (!nextHoleHasShots) { teePosition=null; lastBallPosition=null; }
+    currentHole = next;
+    selectedClub = null;
+    holeFinished = true;
+    renderHome();
+    showToast('Viewing Hole '+currentHole+' — read only');
+    return;
   }
+
+  // Does the hole we're MOVING TO already have shots logged?
+  const nextHoleHasShots = shots.filter(s=>s.hole===next).length > 0;
+
+  const holeShots = shots.filter(s=>s.hole===currentHole);
+  if (holeShots.length>0 && !holeFinished) {
+    showDialog({
+      icon: '➡️',
+      title: 'Hole ' + currentHole + ' Not Finished',
+      sub: 'Move to Hole ' + next + ' anyway? Your shots so far will be saved.',
+      buttons: [
+        { label: 'Yes — move to Hole ' + next, style: 'primary', action: () => {
+          currentHole=next; selectedClub=null; holeFinished=false;
+          if (!nextHoleHasShots) { teePosition=null; lastBallPosition=null; }
+          renderHome(); showToast('Hole ' + currentHole);
+        }},
+        { label: 'Cancel — stay on Hole ' + currentHole, style: 'secondary', action: () => {} }
+      ]
+    });
+    return;
+  }
+  currentHole=next; selectedClub=null; holeFinished=false;
+  if (!nextHoleHasShots) { teePosition=null; lastBallPosition=null; }
   renderHome();
-  showToast(dir<0 ? 'Viewing Hole '+currentHole+' — read only' : 'Hole '+currentHole);
+  showToast('Hole '+currentHole);
 }
 
 function updateHoleArrows() {
   const p=document.getElementById('hole-prev'), n=document.getElementById('hole-next');
-  if(p) p.disabled=currentHole===1;
+  if(p) {
+    p.disabled = currentHole===1;
+    p.classList.toggle('locked', currentHole>1 && !holeFinished);
+  }
   if(n) n.disabled=currentHole===18;
 }
 

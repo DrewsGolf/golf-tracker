@@ -27,12 +27,6 @@
   .hero-title { font-size: 32px; font-weight: 800; color: #fff; letter-spacing: -0.5px; margin-bottom: 6px; }
   .hero-sub { font-size: 15px; color: rgba(255,255,255,0.7); }
 
-  /* Bag status */
-  .bag-status { background: rgba(255,255,255,0.12); border-radius: 10px; margin: 16px 24px 0; padding: 10px 16px; display: flex; align-items: center; gap: 10px; }
-  .bag-dot { width: 8px; height: 8px; border-radius: 50%; background: #7dd39a; flex-shrink: 0; }
-  .bag-dot.empty { background: rgba(255,255,255,0.4); }
-  .bag-status-text { font-size: 13px; color: rgba(255,255,255,0.85); }
-
   /* Menu */
   .menu { padding: 28px 20px calc(var(--safe-bottom) + 28px); display: flex; flex-direction: column; gap: 14px; }
 
@@ -81,10 +75,6 @@
     <span class="hero-icon">⛳</span>
     <div class="hero-title">Shot Tracker</div>
     <div class="hero-sub">Your personal golf caddie</div>
-    <div class="bag-status">
-      <div class="bag-dot" id="bag-dot"></div>
-      <div class="bag-status-text" id="bag-status-text">Loading...</div>
-    </div>
   </div>
 
   <div class="menu">
@@ -157,17 +147,6 @@
 
 <script>
 // Bag status
-const bag = JSON.parse(localStorage.getItem('golf-bag-v1') || '[]');
-const dot = document.getElementById('bag-dot');
-const txt = document.getElementById('bag-status-text');
-if (bag.length > 0) {
-  dot.classList.remove('empty');
-  txt.textContent = bag.length + ' clubs in your bag';
-} else {
-  dot.classList.add('empty');
-  txt.textContent = 'Tap "Set Up Your Bag" to get started';
-}
-
 // Active round strip
 const shots = JSON.parse(localStorage.getItem('golf-shots-v3') || '[]');
 if (shots.length > 0) {

@@ -101,11 +101,11 @@
       <div class="menu-card-arrow">›</div>
     </a>
 
-    <a class="menu-card" href="start.html">
-      <div class="menu-card-icon green">🏌️</div>
+    <a class="menu-card" href="start.html" id="play-round-card">
+      <div class="menu-card-icon green" id="play-round-icon">🏌️</div>
       <div class="menu-card-body">
-        <div class="menu-card-title">Play a Round</div>
-        <div class="menu-card-desc">Track shots and clubs hole by hole</div>
+        <div class="menu-card-title" id="play-round-title">Play a Round</div>
+        <div class="menu-card-desc" id="play-round-desc">Track shots and clubs hole by hole</div>
       </div>
       <div class="menu-card-arrow">›</div>
     </a>
@@ -177,6 +177,18 @@ if (shots.length > 0) {
   document.getElementById('stat-holes').textContent = holes;
   document.getElementById('stat-shots').textContent = shots.length;
   document.getElementById('stat-dist').textContent = dist + 'm';
+}
+
+// Continue Round vs Play a Round
+const currentCourse = JSON.parse(localStorage.getItem('golf-current-course') || 'null');
+if (shots.length > 0 || currentCourse) {
+  const card = document.getElementById('play-round-card');
+  card.setAttribute('href', 'round.html');
+  document.getElementById('play-round-icon').textContent = '⛳';
+  document.getElementById('play-round-title').textContent = 'Continue Round';
+  document.getElementById('play-round-desc').textContent = currentCourse
+    ? currentCourse.name + (currentCourse.suburb ? ' · ' + currentCourse.suburb : '')
+    : 'Pick up where you left off';
 }
 
 if ('serviceWorker' in navigator) { navigator.serviceWorker.register('/sw.js').catch(()=>{}); }

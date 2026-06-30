@@ -45,11 +45,13 @@
   .location-input:focus { border-color: var(--green-mid); }
   .location-go-btn { background: var(--green-dark); color: #fff; border: none; border-radius: var(--radius-sm); padding: 12px 16px; font-size: 14px; font-weight: 600; cursor: pointer; white-space: nowrap; }
 
-  /* GPS button */
-  .gps-btn { width: 100%; padding: 13px; background: var(--green-light); border: 0.5px solid rgba(45,138,82,0.25); border-radius: var(--radius-sm); font-size: 14px; font-weight: 600; color: var(--green-dark); cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 14px; }
+  /* GPS status (passive — no longer a tappable primary button) */
+  .gps-status-row { display: flex; align-items: center; gap: 8px; padding: 13px 14px; background: var(--green-light); border: 0.5px solid rgba(45,138,82,0.25); border-radius: var(--radius-sm); margin-bottom: 10px; }
   .gps-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--green-mid); flex-shrink: 0; }
   .gps-dot.pulse { animation: pulse 1.2s infinite; }
+  .gps-dot.error { background: #c0392b; }
   @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.5;transform:scale(1.4)} }
+  .gps-retry-btn { width: 100%; padding: 11px; background: var(--bg); border: 0.5px solid var(--border-mid); border-radius: var(--radius-sm); font-size: 13px; font-weight: 600; color: var(--text-secondary); cursor: pointer; margin-bottom: 14px; }
 
   /* Radius selector */
   .radius-label { font-size: 13px; font-weight: 600; color: var(--text-secondary); margin-bottom: 8px; }
@@ -126,11 +128,11 @@
 
       <!-- GPS mode -->
       <div id="gps-section">
-        <button class="gps-btn" id="gps-btn" onclick="getMyLocation()">
-          <span class="gps-dot" id="gps-dot"></span>
-          <span id="gps-btn-label">Use my current location</span>
-        </button>
-        <div class="status-bar" id="gps-status"></div>
+        <div class="gps-status-row" id="gps-status-row">
+          <span class="gps-dot pulse" id="gps-dot"></span>
+          <span class="status-bar" id="gps-status" style="padding:0;text-align:left;min-height:auto;">Locating you…</span>
+        </div>
+        <button class="gps-retry-btn" id="gps-retry-btn" onclick="getMyLocation()" style="display:none;">&#8635; Try again</button>
       </div>
 
       <!-- Town mode -->
@@ -182,8 +184,20 @@ function setMode(m) {
   document.getElementById('mode-town').classList.toggle('active', m==='town');
   document.getElementById('gps-section').style.display = m==='gps' ? 'block' : 'none';
   document.getElementById('town-section').style.display = m==='town' ? 'block' : 'none';
-  searchLat = null; searchLng = null;
-  document.getElementById('search-btn').disabled = true;
+
+  if (m === 'gps') {
+    // Restore GPS fix if we already have one; otherwise try again
+    if (searchLat !== null && searchLabel === 'your location') {
+      document.getElementById('search-btn').disabled = false;
+    } else {
+      document.getElementById('search-btn').disabled = true;
+      getMyLocation();
+    }
+  } else {
+    // Switching to town mode — clear until they search a town
+    searchLat = null; searchLng = null;
+    document.getElementById('search-btn').disabled = true;
+  }
 }
 
 // ── Radius ────────────────────────────────────────────────────────────────────
@@ -202,28 +216,35 @@ function toggleFilter(btn, val) {
 
 // ── GPS location ─────────────────────────────────────────────────────────────
 function getMyLocation() {
-  if (!navigator.geolocation) { setGPSStatus('GPS not available on this device'); return; }
   const dot = document.getElementById('gps-dot');
-  const lbl = document.getElementById('gps-btn-label');
+  const retryBtn = document.getElementById('gps-retry-btn');
+  retryBtn.style.display = 'none';
+  if (!navigator.geolocation) {
+    dot.classList.remove('pulse'); dot.classList.add('error');
+    setGPSStatus('GPS not available on this device');
+    return;
+  }
+  dot.classList.remove('error');
   dot.classList.add('pulse');
-  lbl.textContent = 'Getting your location…';
   setGPSStatus('Locating you…');
   navigator.geolocation.getCurrentPosition(pos => {
     searchLat = pos.coords.latitude;
     searchLng = pos.coords.longitude;
     searchLabel = 'your location';
     dot.classList.remove('pulse');
-    lbl.textContent = '✓ Location found — tap Search';
-    setGPSStatus('Position locked (' + searchLat.toFixed(4) + ', ' + searchLng.toFixed(4) + ')');
-    document.getElementById('search-btn').disabled = false;
+    setGPSStatus('✓ Location found');
+    if (mode === 'gps') document.getElementById('search-btn').disabled = false;
   }, err => {
-    dot.classList.remove('pulse');
-    lbl.textContent = 'Use my current location';
+    dot.classList.remove('pulse'); dot.classList.add('error');
     setGPSStatus('Could not get location — check location permissions in Settings');
+    retryBtn.style.display = 'block';
   }, {enableHighAccuracy: true, timeout: 12000});
 }
 
 function setGPSStatus(msg) { document.getElementById('gps-status').textContent = msg; }
+
+// Kick off GPS lookup immediately on page load
+getMyLocation();
 
 // ── Town search ───────────────────────────────────────────────────────────────
 function searchByTown() {

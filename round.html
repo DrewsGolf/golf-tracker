@@ -64,7 +64,7 @@
   @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.5;transform:scale(1.4)} }
 
   /* Shot list */
-  .shot-list { display: flex; flex-direction: column; gap: 7px; margin-bottom: 12px; }
+  .shot-list { display: flex; flex-direction: column; gap: 7px; margin-top: 14px; margin-bottom: 12px; }
   .shot-item { background: var(--card); border: 0.5px solid var(--border); border-radius: var(--radius-sm); display: flex; align-items: center; padding: 11px 13px; gap: 11px; }
   .shot-bubble { width: 26px; height: 26px; border-radius: 50%; background: var(--green-light); font-size: 11px; font-weight: 700; color: var(--green-dark); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
   .shot-club { font-size: 14px; font-weight: 600; flex: 1; }
@@ -218,19 +218,17 @@
         </div>
         <div id="gps-status-bar" class="gps-status"></div>
 
-        <div class="shot-list" id="home-shot-list"></div>
-
         <div id="stage-teeup"><button class="btn btn-teeup" onclick="doTeeUp()">&#9971; Tee Up</button></div>
 
         <div id="stage-clubs" style="display:none">
-          <div class="section-label">Select your club</div>
-          <div class="club-grid" id="club-grid-main"></div>
           <div id="walk-inst-main" class="walk-instruction" style="display:none">Walk to your ball and mark it</div>
           <div class="mark-row" id="mark-row-main" style="display:none">
             <button class="btn btn-norecord" id="btn-norecord-main" onclick="doNoRecord('main')">&#10007; Don't Record</button>
             <button class="btn btn-primary" id="btn-mark-main" onclick="doMark()">Mark Shot</button>
           </div>
           <button class="btn btn-inthehole" id="btn-ith-main" onclick="doInTheHole()" style="display:none">&#9971; In The Hole</button>
+          <div class="section-label">Select your club</div>
+          <div class="club-grid" id="club-grid-main"></div>
         </div>
 
         <div id="stage-next" style="display:none">
@@ -238,15 +236,17 @@
             <span class="remeasure-label">&#9888; Last shot recorded</span>
             <button class="remeasure-btn" onclick="doRemeasure()">Remeasure</button>
           </div>
-          <div class="section-label">Select club for next shot</div>
-          <div class="club-grid" id="club-grid-next"></div>
           <div id="walk-inst-next" class="walk-instruction" style="display:none">Walk to your ball and mark it</div>
           <div class="mark-row" id="mark-row-next" style="display:none">
             <button class="btn btn-norecord" id="btn-norecord-next" onclick="doNoRecord('next')">&#10007; Don't Record</button>
             <button class="btn btn-primary" id="btn-mark-next" onclick="doMark()">Mark Shot</button>
           </div>
           <button class="btn btn-inthehole" id="btn-ith-next" onclick="doInTheHole()" style="display:none">&#9971; In The Hole</button>
+          <div class="section-label">Select club for next shot</div>
+          <div class="club-grid" id="club-grid-next"></div>
         </div>
+
+        <div class="shot-list" id="home-shot-list"></div>
 
         <div id="stage-final-dist" style="display:none">
           <div class="walk-instruction" style="display:block;margin-bottom:8px;">Walk to the hole and mark your final shot</div>

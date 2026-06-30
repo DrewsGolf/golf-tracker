@@ -258,6 +258,7 @@ function searchByTown() {
     searchLat = match.lat; searchLng = match.lng; searchLabel = val;
     document.getElementById('town-status').textContent = '✓ Found ' + val;
     document.getElementById('search-btn').disabled = false;
+    doSearch();
     return;
   }
 
@@ -272,6 +273,7 @@ function searchByTown() {
         searchLabel = val;
         document.getElementById('town-status').textContent = '✓ Found: ' + data[0].display_name.split(',')[0];
         document.getElementById('search-btn').disabled = false;
+        doSearch();
       } else {
         document.getElementById('town-status').textContent = 'Could not find "' + val + '" — try a nearby larger town';
       }

@@ -519,8 +519,26 @@ function doTeeUp() {
 function doMark() {
   if (!selectedClub) { showToast('Select a club first'); return; }
   pendingShotClub = selectedClub;
+  const holeShots = shots.filter(s => s.hole === currentHole);
   const startPos = lastBallPosition || teePosition;
-  if (!startPos) { showToast('Tap Tee Up first'); return; }
+
+  if (!startPos) {
+    if (holeShots.length > 0) {
+      // Safety net: hole already has shots but GPS state is missing.
+      // Re-anchor silently from the current position rather than blocking the user.
+      setGPS('Re-locating position...', true);
+      getPos(coords => {
+        lastBallPosition = coords;
+        showToast('Position re-acquired — tap Mark Shot again');
+        setGPS('Position locked', false);
+        setTimeout(clearGPS, 2000);
+      }, err => { setGPS(err, false); });
+      return;
+    }
+    showToast('Tap Tee Up first');
+    return;
+  }
+
   setGPS('Getting ball position...', true);
   getPos(coords => {
     const isPutter = selectedClub === 'putter';
@@ -547,8 +565,8 @@ function recordShot(id, dist) {
 // ── Don't Record ─────────────────────────────────────────────────────────────
 function doNoRecord(mode) {
   if (!selectedClub) { showToast('Select a club first'); return; }
-  const startPos = lastBallPosition || teePosition;
-  if (!startPos) { showToast('Tap Tee Up first'); return; }
+  // No-record shots don't need a starting position — they just log the club
+  // and capture the current GPS spot as the new "last position" for next time.
   const clubId = selectedClub;
   setGPS('Getting position...', true);
   getPos(coords => {
@@ -567,7 +585,19 @@ function doNoRecord(mode) {
     selectedClub = null;
     renderHome();
   }, err => {
+    // Even if GPS fails, still record the shot — just without a position fix
+    shots.push({
+      id: Date.now().toString(),
+      hole: currentHole,
+      club: ALL_CLUBS_FULL[clubId] || clubId,
+      clubShort: ALL_CLUBS_DEF[clubId] || clubId,
+      dist: null,
+      noRecord: true
+    });
+    persist();
     setGPS(err, false);
+    selectedClub = null;
+    renderHome();
   });
 }
 
@@ -654,6 +684,10 @@ function cancelFinalDist() {
 function changeHole(dir) {
   const next = currentHole + dir;
   if (next<1||next>18) return;
+
+  // Does the hole we're MOVING TO already have shots logged?
+  const nextHoleHasShots = shots.filter(s=>s.hole===next).length > 0;
+
   if (dir>0) {
     const holeShots = shots.filter(s=>s.hole===currentHole);
     if (holeShots.length>0 && !holeFinished) {
@@ -663,7 +697,8 @@ function changeHole(dir) {
         sub: 'Move to Hole ' + next + ' anyway? Your shots so far will be saved.',
         buttons: [
           { label: 'Yes — move to Hole ' + next, style: 'primary', action: () => {
-            currentHole=next; selectedClub=null; teePosition=null; lastBallPosition=null; holeFinished=false;
+            currentHole=next; selectedClub=null; holeFinished=false;
+            if (!nextHoleHasShots) { teePosition=null; lastBallPosition=null; }
             renderHome(); showToast('Hole ' + currentHole);
           }},
           { label: 'Cancel — stay on Hole ' + currentHole, style: 'secondary', action: () => {} }
@@ -671,9 +706,11 @@ function changeHole(dir) {
       });
       return;
     }
-    currentHole=next; selectedClub=null; teePosition=null; lastBallPosition=null; holeFinished=false;
+    currentHole=next; selectedClub=null; holeFinished=false;
+    if (!nextHoleHasShots) { teePosition=null; lastBallPosition=null; }
   } else {
-    currentHole=next; selectedClub=null; teePosition=null; lastBallPosition=null; holeFinished=true;
+    currentHole=next; selectedClub=null; holeFinished=true;
+    if (!nextHoleHasShots) { teePosition=null; lastBallPosition=null; }
   }
   renderHome();
   showToast(dir<0 ? 'Viewing Hole '+currentHole+' — read only' : 'Hole '+currentHole);

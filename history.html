@@ -126,8 +126,8 @@
   .hole-col-labels { display: flex; gap: 4px; justify-content: center; margin-bottom: 2px; }
   .hole-col-label { flex: 1; font-size: 9px; color: var(--text-muted); text-align: center; font-weight: 600; letter-spacing: 0.03em; text-transform: uppercase; }
   .holes-section-label { font-size: 13px; font-weight: 700; color: var(--text-primary); display: flex; align-items: center; justify-content: space-between; }
-  .holes-toggle { display: flex; gap: 0; background: var(--bg); border-radius: 10px; border: 1px solid var(--border); overflow: hidden; }
-  .holes-toggle button { flex: 1; background: none; border: none; padding: 8px 0; font-size: 13px; font-weight: 600; color: var(--text-secondary); cursor: pointer; }
+  .holes-toggle { display: flex; gap: 0; background: var(--bg); border-radius: 10px; border: 1px solid var(--border); overflow: hidden; width: 160px; flex-shrink: 0; }
+  .holes-toggle button { flex: 1; background: none; border: none; padding: 10px 0; font-size: 15px; font-weight: 700; color: var(--text-secondary); cursor: pointer; }
   .holes-toggle button.active { background: var(--green-dark); color: #fff; }
   .form-actions { display: flex; gap: 10px; padding: 4px 20px 8px; }
   .btn-save { flex: 1; background: var(--green-dark); color: #fff; border: none; border-radius: 12px; padding: 14px; font-size: 15px; font-weight: 700; cursor: pointer; }
@@ -141,6 +141,18 @@
   .confirm-actions { display: flex; gap: 10px; }
   .btn-delete { flex: 1; background: var(--red); color: #fff; border: none; border-radius: 12px; padding: 14px; font-size: 15px; font-weight: 700; cursor: pointer; }
   .btn-delete:active { opacity: 0.8; }
+
+  /* Course picker dropdown */
+  .course-suggestions { background: #fff; border: 1px solid var(--border); border-radius: 10px; margin-top: 4px; overflow: hidden; display: none; }
+  .course-suggestion-item { padding: 11px 14px; font-size: 14px; cursor: pointer; border-bottom: 0.5px solid var(--border); }
+  .course-suggestion-item:last-child { border-bottom: none; }
+  .course-suggestion-item:active { background: var(--green-light); }
+  .course-suggestion-name { font-weight: 600; color: var(--text-primary); }
+  .course-suggestion-suburb { font-size: 12px; color: var(--text-secondary); margin-top: 1px; }
+
+  /* Edit button on round rows */
+  .edit-btn { background: #f0f0f0; border: none; color: var(--text-secondary); font-size: 16px; width: 44px; min-height: 100%; display: flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0; border-left: 0.5px solid var(--border); }
+  .edit-btn:active { background: #e0e0e0; }
 </style>
 </head>
 <body>
@@ -177,14 +189,15 @@
 <!-- SHEET OVERLAY -->
 <div class="sheet-overlay" id="sheet-overlay" onclick="closeSheet()"></div>
 
-<!-- ADD ROUND SHEET -->
+<!-- ADD / EDIT ROUND SHEET -->
 <div class="bottom-sheet" id="add-sheet">
   <div class="sheet-handle"></div>
-  <div class="sheet-title">Add a Past Round</div>
+  <div class="sheet-title" id="add-sheet-title">Add a Past Round</div>
   <div class="form-body">
     <div class="form-group">
       <div class="form-label">Course Name</div>
-      <input class="form-input" id="f-course" type="text" placeholder="e.g. Warburton Golf Club" autocomplete="off">
+      <input class="form-input" id="f-course" type="text" placeholder="e.g. Warburton Golf Club" autocomplete="off" oninput="onCourseInput(this.value)">
+      <div class="course-suggestions" id="course-suggestions"></div>
     </div>
     <div class="form-group">
       <div class="form-label">Date Played</div>
@@ -232,6 +245,8 @@
 // ── Data ─────────────────────────────────────────────────────────────────────
 let history = JSON.parse(localStorage.getItem('golf-round-history') || '[]');
 let pendingDeleteIndex = null;
+let editingIndex = null;
+let selectedCourseSuburb = '';
 let addHoleCount = 18;
 
 function saveHistory() {
@@ -312,13 +327,47 @@ function confirmDelete() {
   renderList();
 }
 
-// ── Add Round Sheet ───────────────────────────────────────────────────────────
+// ── Add / Edit Round Sheet ────────────────────────────────────────────────────
 function openAddSheet() {
-  // Set today's date as default
+  editingIndex = null;
+  selectedCourseSuburb = '';
+  document.getElementById('add-sheet-title').textContent = 'Add a Past Round';
   const today = new Date().toISOString().split('T')[0];
   document.getElementById('f-date').value = today;
   document.getElementById('f-course').value = '';
+  hideSuggestions();
   setHoles(18);
+  openSheet('add-sheet');
+}
+
+function openEditSheet(index, e) {
+  e.stopPropagation();
+  editingIndex = index;
+  selectedCourseSuburb = '';
+  const r = history[index];
+  document.getElementById('add-sheet-title').textContent = 'Edit Round';
+  // Populate course
+  document.getElementById('f-course').value = r.course || '';
+  selectedCourseSuburb = r.suburb || '';
+  hideSuggestions();
+  // Populate date — convert display date back to ISO for the date input
+  if (r.dateISO) {
+    document.getElementById('f-date').value = r.dateISO.split('T')[0];
+  } else {
+    document.getElementById('f-date').value = '';
+  }
+  // Work out hole count and set toggle
+  const sph = getShotsPerHole(r);
+  const holeNums = Object.keys(sph).map(Number);
+  const holeCount = holeNums.length > 9 ? 18 : 9;
+  setHoles(holeCount);
+  // Pre-fill scores — after setHoles renders the rows
+  holeNums.forEach(h => {
+    const parEl = document.getElementById('par-' + h);
+    const shotsEl = document.getElementById('shots-' + h);
+    if (parEl && r.pars && r.pars[h]) parEl.value = r.pars[h];
+    if (shotsEl && sph[h]) shotsEl.value = sph[h];
+  });
   openSheet('add-sheet');
 }
 
@@ -343,6 +392,42 @@ function renderHoleRows(n) {
   container.innerHTML = html;
 }
 
+// ── Course picker ─────────────────────────────────────────────────────────────
+function onCourseInput(val) {
+  selectedCourseSuburb = '';
+  const box = document.getElementById('course-suggestions');
+  if (!val || val.length < 2) { hideSuggestions(); return; }
+  // COURSES is defined in courses.js
+  const matches = (typeof COURSES !== 'undefined' ? COURSES : [])
+    .filter(c => c.name.toLowerCase().includes(val.toLowerCase()) ||
+                 (c.suburb && c.suburb.toLowerCase().includes(val.toLowerCase())))
+    .slice(0, 6);
+  if (matches.length === 0) { hideSuggestions(); return; }
+  box.innerHTML = matches.map((c, i) =>
+    `<div class="course-suggestion-item" data-name="${c.name.replace(/"/g,'&quot;')}" data-suburb="${(c.suburb||'').replace(/"/g,'&quot;')}" onclick="selectCourseFromEl(this)">
+      <div class="course-suggestion-name">${c.name}</div>
+      <div class="course-suggestion-suburb">${c.suburb || ''}</div>
+    </div>`
+  ).join('');
+  box.style.display = 'block';
+}
+
+function selectCourseFromEl(el) {
+  selectCourse(el.dataset.name, el.dataset.suburb);
+}
+
+function selectCourse(name, suburb) {
+  document.getElementById('f-course').value = name;
+  selectedCourseSuburb = suburb;
+  hideSuggestions();
+}
+
+function hideSuggestions() {
+  const box = document.getElementById('course-suggestions');
+  box.style.display = 'none';
+  box.innerHTML = '';
+}
+
 function saveManualRound() {
   const course = document.getElementById('f-course').value.trim();
   const dateVal = document.getElementById('f-date').value;
@@ -363,25 +448,38 @@ function saveManualRound() {
 
   if (!hasAnyData) { alert('Please enter at least one hole score.'); return; }
 
-  // Format date for display
   const dateObj = new Date(dateVal + 'T12:00:00');
   const displayDate = dateObj.toLocaleDateString('en-AU');
 
-  const round = {
-    id: Date.now().toString(),
-    date: displayDate,
-    dateISO: dateObj.toISOString(),
-    course: course,
-    suburb: '',
-    holes: Object.keys(shotsPerHole).length,
-    shots: Object.values(shotsPerHole).reduce((a,b) => a+b, 0),
-    totalDist: 0,
-    pars: pars,
-    shotsPerHole: shotsPerHole,
-    manual: true
-  };
+  if (editingIndex !== null) {
+    // Editing — update the existing round, preserve non-manual fields like shotData
+    const existing = history[editingIndex];
+    existing.course = course;
+    existing.suburb = selectedCourseSuburb || existing.suburb || '';
+    existing.date = displayDate;
+    existing.dateISO = dateObj.toISOString();
+    existing.pars = pars;
+    existing.shotsPerHole = shotsPerHole;
+    existing.holes = Object.keys(shotsPerHole).length;
+    existing.shots = Object.values(shotsPerHole).reduce((a,b) => a+b, 0);
+    existing.manual = existing.manual !== undefined ? existing.manual : true;
+  } else {
+    const round = {
+      id: Date.now().toString(),
+      date: displayDate,
+      dateISO: dateObj.toISOString(),
+      course: course,
+      suburb: selectedCourseSuburb || '',
+      holes: Object.keys(shotsPerHole).length,
+      shots: Object.values(shotsPerHole).reduce((a,b) => a+b, 0),
+      totalDist: 0,
+      pars: pars,
+      shotsPerHole: shotsPerHole,
+      manual: true
+    };
+    history.unshift(round);
+  }
 
-  history.unshift(round);
   saveHistory();
   closeSheet();
   renderList();
@@ -440,6 +538,7 @@ function renderList() {
         </div>
         <div class="round-arrow">›</div>
       </div>
+      <button class="edit-btn" onclick="openEditSheet(${i}, event)" title="Edit round">✏️</button>
       <button class="delete-btn" onclick="promptDelete(${i}, event)" title="Delete round">🗑</button>
     </div>`;
   });
@@ -588,5 +687,6 @@ function renderComparison(thisRound, otherRounds, holes) {
 renderList();
 showList();
 </script>
+<script src="courses.js"></script>
 </body>
 </html>

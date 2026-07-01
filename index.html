@@ -6,168 +6,580 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Shot Tracker">
-<meta name="theme-color" content="#1a6b3a">
+<meta name="theme-color" content="#0D0D0D">
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icon-192.svg">
 <title>Shot Tracker</title>
 <style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap');
+
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
   :root {
-    --green-dark: #1a6b3a; --green-mid: #2d8a52; --green-light: #e8f5ed; --green-pale: #f2faf5;
-    --text-primary: #1a1a1a; --text-secondary: #5a6a60; --text-muted: #94a89c;
-    --bg: #f5f7f5; --card: #ffffff; --border: rgba(0,0,0,0.08);
-    --radius: 16px; --safe-top: env(safe-area-inset-top, 0px); --safe-bottom: env(safe-area-inset-bottom, 0px);
-  }
-  html, body { height: 100%; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg); color: var(--text-primary); }
-  .app { display: flex; flex-direction: column; min-height: 100%; max-width: 430px; margin: 0 auto; }
-
-  /* Hero */
-  .hero { background: var(--green-dark); padding: calc(var(--safe-top) + 48px) 24px 40px; text-align: center; }
-  .hero-icon { font-size: 56px; margin-bottom: 12px; display: block; }
-  .hero-title { font-size: 32px; font-weight: 800; color: #fff; letter-spacing: -0.5px; margin-bottom: 6px; }
-  .hero-sub { font-size: 15px; color: rgba(255,255,255,0.7); }
-
-  /* Menu */
-  .menu { padding: 28px 20px calc(var(--safe-bottom) + 28px); display: flex; flex-direction: column; gap: 14px; }
-
-  /* Section labels */
-  .menu-section-label {
-    font-size: 11px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase;
-    color: var(--text-muted); padding: 4px 4px 0; margin-bottom: -4px;
+    --bg-primary:   #0D0D0D;
+    --bg-secondary: #151515;
+    --bg-card:      #1C1C1C;
+    --gold:         #C8A96A;
+    --gold-hi:      #D9B878;
+    --gold-muted:   #9A7C47;
+    --text-primary: #F2F2F2;
+    --text-secondary: #BDBDBD;
+    --text-muted:   #7A7A7A;
+    --success:      #758B69;
+    --warning:      #D8A04B;
+    --error:        #8E4B4B;
+    --radius:       20px;
+    --radius-sm:    12px;
+    --safe-top:     env(safe-area-inset-top, 0px);
+    --safe-bottom:  env(safe-area-inset-bottom, 0px);
   }
 
-  .menu-card { background: var(--card); border-radius: var(--radius); border: 0.5px solid var(--border);
-    padding: 18px 20px; display: flex; align-items: center; gap: 16px;
-    text-decoration: none; color: inherit; transition: opacity 0.15s; }
-  .menu-card:active { opacity: 0.7; }
-  .menu-card.coming-soon { opacity: 0.55; pointer-events: none; }
-  .menu-card-icon { width: 44px; height: 44px; border-radius: 12px; display: flex; align-items: center;
-    justify-content: center; font-size: 22px; flex-shrink: 0; }
-  .menu-card-icon.green { background: var(--green-light); }
-  .menu-card-icon.blue { background: #e8f0fb; }
-  .menu-card-icon.purple { background: #f0ebfb; }
-  .menu-card-icon.orange { background: #fff3e8; }
-  .menu-card-icon.teal { background: #e8f7f7; }
-  .menu-card-body { flex: 1; min-width: 0; }
-  .menu-card-title { font-size: 16px; font-weight: 700; margin-bottom: 2px; }
-  .menu-card-desc { font-size: 13px; color: var(--text-secondary); line-height: 1.35; }
-  .menu-card-arrow { font-size: 20px; color: var(--text-muted); flex-shrink: 0; }
-  .menu-card-badge {
-    font-size: 10px; font-weight: 700; background: #e8f0fb; color: #4a72c4;
-    border-radius: 6px; padding: 2px 7px; flex-shrink: 0; letter-spacing: 0.03em;
+  html, body {
+    height: 100%;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    overflow-x: hidden;
   }
-  .menu-card-badge.soon { background: #f0ebfb; color: #7c5cbf; }
 
-  /* Active round strip */
-  .stats-strip { background: var(--green-light); border-radius: var(--radius); padding: 14px 16px; }
-  .stats-strip-title { font-size: 12px; font-weight: 600; color: var(--green-mid); margin-bottom: 8px; letter-spacing: 0.02em; }
-  .stats-row { display: flex; gap: 0; }
-  .stat-item { flex: 1; text-align: center; }
-  .stat-num { font-size: 22px; font-weight: 800; color: var(--green-dark); }
-  .stat-lbl { font-size: 11px; color: var(--text-secondary); margin-top: 1px; }
+  .app {
+    display: flex;
+    flex-direction: column;
+    min-height: 100%;
+    max-width: 430px;
+    margin: 0 auto;
+    position: relative;
+  }
 
-  .version { text-align: center; font-size: 11px; color: var(--text-muted); padding: 0 0 12px; }
+  /* ── Hero ───────────────────────────────────────────────────── */
+  .hero {
+    position: relative;
+    height: 58vh;
+    min-height: 340px;
+    overflow: hidden;
+    flex-shrink: 0;
+  }
+
+  .hero-img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center 30%;
+  }
+
+  /* Dark gradient overlay — heavier at bottom to let content sit on it */
+  .hero-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      to bottom,
+      rgba(13,13,13,0.35) 0%,
+      rgba(13,13,13,0.10) 35%,
+      rgba(13,13,13,0.55) 70%,
+      rgba(13,13,13,0.95) 100%
+    );
+  }
+
+  .hero-content {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 0 28px 28px;
+  }
+
+  .hero-eyebrow {
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 10px;
+  }
+
+  .hero-title {
+    font-size: 34px;
+    font-weight: 300;
+    color: var(--text-primary);
+    letter-spacing: -0.01em;
+    line-height: 1.1;
+    margin-bottom: 14px;
+  }
+
+  .hero-divider {
+    width: 32px;
+    height: 1px;
+    background: var(--gold);
+    margin-bottom: 14px;
+    opacity: 0.8;
+  }
+
+  .hero-sub {
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--text-secondary);
+  }
+
+  /* ── Stats strip ────────────────────────────────────────────── */
+  .stats-strip {
+    background: var(--bg-secondary);
+    border-bottom: 0.5px solid rgba(200,169,106,0.15);
+    padding: 20px 28px;
+    display: flex;
+    gap: 0;
+  }
+
+  .stat-item {
+    flex: 1;
+    text-align: center;
+    position: relative;
+  }
+
+  .stat-item + .stat-item::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 0.5px;
+    height: 28px;
+    background: rgba(200,169,106,0.2);
+  }
+
+  .stat-num {
+    font-size: 26px;
+    font-weight: 300;
+    color: var(--text-primary);
+    letter-spacing: -0.02em;
+    line-height: 1;
+    margin-bottom: 5px;
+  }
+
+  .stat-num.gold { color: var(--gold); }
+
+  .stat-lbl {
+    font-size: 9px;
+    font-weight: 500;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+  }
+
+  /* ── Scroll body ────────────────────────────────────────────── */
+  .body {
+    flex: 1;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    padding: 28px 20px calc(var(--safe-bottom) + 80px);
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
+    background: var(--bg-primary);
+  }
+
+  /* ── Section ────────────────────────────────────────────────── */
+  .section-label {
+    font-size: 9px;
+    font-weight: 500;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--gold-muted);
+    margin-bottom: 14px;
+    padding-left: 2px;
+  }
+
+  /* ── Action card (Play / Continue) ─────────────────────────── */
+  .action-card {
+    background: var(--bg-card);
+    border-radius: var(--radius);
+    border: 0.5px solid rgba(200,169,106,0.18);
+    overflow: hidden;
+    text-decoration: none;
+    display: block;
+    transition: border-color 0.2s;
+  }
+  .action-card:active { opacity: 0.85; }
+
+  .action-card-inner {
+    padding: 22px 24px;
+    display: flex;
+    align-items: center;
+    gap: 18px;
+  }
+
+  .action-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    border: 0.5px solid rgba(200,169,106,0.25);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    flex-shrink: 0;
+    background: rgba(200,169,106,0.06);
+  }
+
+  .action-body { flex: 1; min-width: 0; }
+
+  .action-title {
+    font-size: 15px;
+    font-weight: 500;
+    color: var(--text-primary);
+    margin-bottom: 3px;
+    letter-spacing: 0.01em;
+  }
+
+  .action-desc {
+    font-size: 12px;
+    color: var(--text-muted);
+    letter-spacing: 0.01em;
+  }
+
+  .action-arrow {
+    font-size: 16px;
+    color: var(--gold-muted);
+    flex-shrink: 0;
+  }
+
+  /* Gold divider between cards in a group */
+  .card-group {
+    background: var(--bg-card);
+    border-radius: var(--radius);
+    border: 0.5px solid rgba(200,169,106,0.18);
+    overflow: hidden;
+  }
+
+  .card-group-item {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    padding: 20px 24px;
+    text-decoration: none;
+    color: inherit;
+    transition: background 0.15s;
+    border-bottom: 0.5px solid rgba(200,169,106,0.1);
+  }
+
+  .card-group-item:last-child { border-bottom: none; }
+  .card-group-item:active { background: rgba(200,169,106,0.04); }
+
+  /* ── Active round strip ─────────────────────────────────────── */
+  .round-strip {
+    background: var(--bg-card);
+    border-radius: var(--radius);
+    border: 0.5px solid rgba(200,169,106,0.3);
+    padding: 18px 24px;
+    display: none;
+  }
+
+  .round-strip-label {
+    font-size: 9px;
+    font-weight: 500;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 12px;
+  }
+
+  .round-strip-stats {
+    display: flex;
+    gap: 0;
+  }
+
+  .round-strip-stat {
+    flex: 1;
+    text-align: center;
+  }
+
+  .round-strip-stat + .round-strip-stat {
+    border-left: 0.5px solid rgba(200,169,106,0.15);
+  }
+
+  .round-strip-num {
+    font-size: 22px;
+    font-weight: 300;
+    color: var(--text-primary);
+    letter-spacing: -0.02em;
+    line-height: 1;
+    margin-bottom: 4px;
+  }
+
+  .round-strip-lbl {
+    font-size: 9px;
+    font-weight: 500;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+  }
+
+  /* ── Bottom nav ─────────────────────────────────────────────── */
+  .bottom-nav {
+    position: fixed;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100%;
+    max-width: 430px;
+    background: var(--bg-secondary);
+    border-top: 0.5px solid rgba(200,169,106,0.12);
+    padding: 10px 0 calc(var(--safe-bottom) + 10px);
+    display: flex;
+    z-index: 100;
+  }
+
+  .nav-item {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    text-decoration: none;
+    padding: 6px 0;
+    cursor: pointer;
+    background: none;
+    border: none;
+    position: relative;
+  }
+
+  .nav-icon {
+    font-size: 20px;
+    line-height: 1;
+    transition: color 0.2s;
+  }
+
+  .nav-label {
+    font-size: 9px;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    transition: color 0.2s;
+    color: var(--text-muted);
+  }
+
+  .nav-item.active .nav-label { color: var(--gold); }
+
+  /* Gold underline on active tab */
+  .nav-item.active::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 20px;
+    height: 1.5px;
+    background: var(--gold);
+    border-radius: 1px;
+  }
+
+  /* Version */
+  .version {
+    text-align: center;
+    font-size: 10px;
+    color: #3a3a3a;
+    letter-spacing: 0.08em;
+    padding-bottom: 4px;
+  }
 </style>
 </head>
 <body>
 <div class="app">
+
+  <!-- Hero -->
   <div class="hero">
-    <span class="hero-icon">⛳</span>
-    <div class="hero-title">Shot Tracker</div>
-    <div class="hero-sub">Your personal golf caddie</div>
+    <img class="hero-img" src="Hero_Shot.png" alt="">
+    <div class="hero-overlay"></div>
+    <div class="hero-content">
+      <div class="hero-eyebrow">Shot Tracker</div>
+      <div class="hero-title">Your game.<br>Measured.</div>
+      <div class="hero-divider"></div>
+      <div class="hero-sub">Track · Analyse · Improve</div>
+    </div>
   </div>
 
-  <div class="menu">
+  <!-- Stats strip -->
+  <div class="stats-strip" id="stats-strip">
+    <div class="stat-item">
+      <div class="stat-num" id="stat-rounds">—</div>
+      <div class="stat-lbl">Rounds</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-num" id="stat-avg">—</div>
+      <div class="stat-lbl">Avg Score</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-num gold" id="stat-best">—</div>
+      <div class="stat-lbl">Best</div>
+    </div>
+  </div>
 
-    <!-- PLAY -->
-    <div class="menu-section-label">Play</div>
+  <!-- Body -->
+  <div class="body">
 
-    <a class="menu-card" href="setup.html">
-      <div class="menu-card-icon blue">🎒</div>
-      <div class="menu-card-body">
-        <div class="menu-card-title">Set Up Your Bag</div>
-        <div class="menu-card-desc">Choose which clubs are in your bag</div>
-      </div>
-      <div class="menu-card-arrow">›</div>
-    </a>
+    <!-- Play section -->
+    <div>
+      <div class="section-label">Play</div>
 
-    <a class="menu-card" href="start.html" id="play-round-card">
-      <div class="menu-card-icon green" id="play-round-icon">🏌️</div>
-      <div class="menu-card-body">
-        <div class="menu-card-title" id="play-round-title">Play a Round</div>
-        <div class="menu-card-desc" id="play-round-desc">Track shots and clubs hole by hole</div>
-      </div>
-      <div class="menu-card-arrow">›</div>
-    </a>
+      <!-- Play / Continue round — swapped by JS -->
+      <a class="action-card" href="start.html" id="play-card" style="margin-bottom: 10px;">
+        <div class="action-card-inner">
+          <div class="action-icon">⛳</div>
+          <div class="action-body">
+            <div class="action-title" id="play-title">Play a Round</div>
+            <div class="action-desc" id="play-desc">Track shots and clubs hole by hole</div>
+          </div>
+          <div class="action-arrow">›</div>
+        </div>
+      </a>
 
-    <a class="menu-card" href="find.html">
-      <div class="menu-card-icon orange">📍</div>
-      <div class="menu-card-body">
-        <div class="menu-card-title">Find a Course</div>
-        <div class="menu-card-desc">Search 223 Victorian courses near you</div>
-      </div>
-      <div class="menu-card-arrow">›</div>
-    </a>
-
-    <!-- STATS & HISTORY -->
-    <div class="menu-section-label">Stats &amp; History</div>
-
-    <a class="menu-card" href="history.html">
-      <div class="menu-card-icon purple">📋</div>
-      <div class="menu-card-body">
-        <div class="menu-card-title">Round History</div>
-        <div class="menu-card-desc">Browse past rounds, track your improvement</div>
-      </div>
-      <div class="menu-card-arrow">›</div>
-    </a>
-
-    <a class="menu-card" href="clubs.html">
-      <div class="menu-card-icon teal">📏</div>
-      <div class="menu-card-body">
-        <div class="menu-card-title">My Clubs</div>
-        <div class="menu-card-desc">Your average distances per club</div>
-      </div>
-      <div class="menu-card-arrow">›</div>
-    </a>
-
-    <!-- Active round strip -->
-    <div class="stats-strip" id="stats-strip" style="display:none">
-      <div class="stats-strip-title">⚡ Round in progress</div>
-      <div class="stats-row">
-        <div class="stat-item"><div class="stat-num" id="stat-holes">0</div><div class="stat-lbl">Holes</div></div>
-        <div class="stat-item"><div class="stat-num" id="stat-shots">0</div><div class="stat-lbl">Shots</div></div>
-        <div class="stat-item"><div class="stat-num" id="stat-dist">0m</div><div class="stat-lbl">Distance</div></div>
+      <!-- Active round strip -->
+      <div class="round-strip" id="round-strip">
+        <div class="round-strip-label">Round in progress</div>
+        <div class="round-strip-stats">
+          <div class="round-strip-stat">
+            <div class="round-strip-num" id="rip-holes">0</div>
+            <div class="round-strip-lbl">Holes</div>
+          </div>
+          <div class="round-strip-stat">
+            <div class="round-strip-num" id="rip-shots">0</div>
+            <div class="round-strip-lbl">Shots</div>
+          </div>
+          <div class="round-strip-stat">
+            <div class="round-strip-num" id="rip-dist">0m</div>
+            <div class="round-strip-lbl">Distance</div>
+          </div>
+        </div>
       </div>
     </div>
 
+    <!-- Tools section -->
+    <div>
+      <div class="section-label">Tools</div>
+      <div class="card-group">
+        <a class="card-group-item" href="setup.html">
+          <div class="action-icon">🎒</div>
+          <div class="action-body">
+            <div class="action-title">Set Up Your Bag</div>
+            <div class="action-desc">Choose which clubs you're carrying</div>
+          </div>
+          <div class="action-arrow">›</div>
+        </a>
+        <a class="card-group-item" href="find.html">
+          <div class="action-icon">📍</div>
+          <div class="action-body">
+            <div class="action-title">Find a Course</div>
+            <div class="action-desc">223 Victorian courses near you</div>
+          </div>
+          <div class="action-arrow">›</div>
+        </a>
+      </div>
+    </div>
+
+    <!-- Stats section -->
+    <div>
+      <div class="section-label">Performance</div>
+      <div class="card-group">
+        <a class="card-group-item" href="history.html">
+          <div class="action-icon">📋</div>
+          <div class="action-body">
+            <div class="action-title">Round History</div>
+            <div class="action-desc">Browse past rounds and trends</div>
+          </div>
+          <div class="action-arrow">›</div>
+        </a>
+        <a class="card-group-item" href="clubs.html">
+          <div class="action-icon">📏</div>
+          <div class="action-body">
+            <div class="action-title">My Clubs</div>
+            <div class="action-desc">Average distances per club</div>
+          </div>
+          <div class="action-arrow">›</div>
+        </a>
+      </div>
+    </div>
+
+    <div class="version">Shot Tracker v2.0</div>
+
   </div>
 
-  <div class="version">Shot Tracker v2.0</div>
+  <!-- Bottom nav -->
+  <nav class="bottom-nav">
+    <a class="nav-item active" href="index.html">
+      <span class="nav-icon">⌂</span>
+      <span class="nav-label">Home</span>
+    </a>
+    <a class="nav-item" href="start.html" id="nav-play">
+      <span class="nav-icon">⛳</span>
+      <span class="nav-label">Play</span>
+    </a>
+    <a class="nav-item" href="history.html">
+      <span class="nav-icon">◎</span>
+      <span class="nav-label">History</span>
+    </a>
+    <a class="nav-item" href="find.html">
+      <span class="nav-icon">◈</span>
+      <span class="nav-label">Courses</span>
+    </a>
+    <a class="nav-item" href="clubs.html">
+      <span class="nav-icon">◐</span>
+      <span class="nav-label">Clubs</span>
+    </a>
+  </nav>
+
 </div>
 
 <script>
-// Bag status
-// Active round strip
-const shots = JSON.parse(localStorage.getItem('golf-shots-v3') || '[]');
-if (shots.length > 0) {
-  document.getElementById('stats-strip').style.display = 'block';
-  const holes = new Set(shots.map(s => s.hole)).size;
-  const dist = shots.reduce((a,s) => a+(s.dist||0), 0);
-  document.getElementById('stat-holes').textContent = holes;
-  document.getElementById('stat-shots').textContent = shots.length;
-  document.getElementById('stat-dist').textContent = dist + 'm';
+// ── Stats from history ────────────────────────────────────────────────────────
+const roundHistory = JSON.parse(localStorage.getItem('golf-round-history') || '[]');
+if (roundHistory.length > 0) {
+  document.getElementById('stat-rounds').textContent = roundHistory.length;
+
+  const scored = roundHistory.filter(r => {
+    const tp = Object.values(r.pars || {}).reduce((a,b) => a+b, 0);
+    return r.shots > 0 && tp > 0;
+  });
+
+  if (scored.length > 0) {
+    const avgs = scored.map(r => {
+      const tp = Object.values(r.pars).reduce((a,b) => a+b, 0);
+      return r.shots - tp;
+    });
+    const avg = Math.round(avgs.reduce((a,b) => a+b, 0) / avgs.length);
+    const best = Math.min(...avgs);
+    document.getElementById('stat-avg').textContent = (avg >= 0 ? '+' : '') + avg;
+    document.getElementById('stat-best').textContent = (best >= 0 ? '+' : '') + best;
+  }
 }
 
-// Continue Round vs Play a Round
+// ── Active round ──────────────────────────────────────────────────────────────
+const shots = JSON.parse(localStorage.getItem('golf-shots-v3') || '[]');
 const currentCourse = JSON.parse(localStorage.getItem('golf-current-course') || 'null');
+
 if (shots.length > 0 || currentCourse) {
-  const card = document.getElementById('play-round-card');
+  // Swap Play card to Continue
+  const card = document.getElementById('play-card');
   card.setAttribute('href', 'round.html');
-  document.getElementById('play-round-icon').textContent = '⛳';
-  document.getElementById('play-round-title').textContent = 'Continue Round';
-  document.getElementById('play-round-desc').textContent = currentCourse
+  document.getElementById('play-title').textContent = 'Continue Round';
+  document.getElementById('play-desc').textContent = currentCourse
     ? currentCourse.name + (currentCourse.suburb ? ' · ' + currentCourse.suburb : '')
     : 'Pick up where you left off';
+
+  // Nav play tab points to round too
+  document.getElementById('nav-play').setAttribute('href', 'round.html');
+
+  // Show in-progress strip
+  if (shots.length > 0) {
+    document.getElementById('round-strip').style.display = 'block';
+    const holes = new Set(shots.map(s => s.hole)).size;
+    const dist = shots.reduce((a,s) => a+(s.dist||0), 0);
+    document.getElementById('rip-holes').textContent = holes;
+    document.getElementById('rip-shots').textContent = shots.length;
+    document.getElementById('rip-dist').textContent = dist + 'm';
+  }
 }
 
 if ('serviceWorker' in navigator) { navigator.serviceWorker.register('/sw.js').catch(()=>{}); }

@@ -196,7 +196,7 @@
   <div class="form-body">
     <div class="form-group">
       <div class="form-label">Course Name</div>
-      <input class="form-input" id="f-course" type="text" placeholder="e.g. Warburton Golf Club" autocomplete="off" oninput="onCourseInput(this.value)">
+      <input class="form-input" id="f-course" type="text" placeholder="e.g. Warburton Golf Club" autocomplete="off" oninput="onCourseInput(this.value)" onblur="onCourseBlur(this.value)">
       <div class="course-suggestions" id="course-suggestions"></div>
     </div>
     <div class="form-group">
@@ -248,6 +248,55 @@ let pendingDeleteIndex = null;
 let editingIndex = null;
 let selectedCourseSuburb = '';
 let addHoleCount = 18;
+
+// ── golf-course-pars store ────────────────────────────────────────────────────
+function getCourseParsStore() {
+  return JSON.parse(localStorage.getItem('golf-course-pars') || '{}');
+}
+
+function saveCourseParsStore(store) {
+  localStorage.setItem('golf-course-pars', JSON.stringify(store));
+}
+
+function writeCoursePars(courseName, pars) {
+  if (!courseName || !pars || Object.keys(pars).length === 0) return;
+  const store = getCourseParsStore();
+  if (!store[courseName]) store[courseName] = {};
+  Object.assign(store[courseName], pars);
+  saveCourseParsStore(store);
+}
+
+// ── Par lookup (priority chain) ───────────────────────────────────────────────
+function lookupCoursePars(courseName) {
+  if (!courseName) return null;
+  const key = courseName.trim().toLowerCase();
+
+  // 1. courses.js holePars
+  if (typeof COURSES !== 'undefined') {
+    const match = COURSES.find(c => c.name.trim().toLowerCase() === key);
+    if (match && match.holePars && match.holePars.length > 0) {
+      const result = {};
+      match.holePars.forEach((p, i) => { if (p) result[i + 1] = p; });
+      return result;
+    }
+  }
+
+  // 2. golf-course-pars localStorage
+  const store = getCourseParsStore();
+  const storeMatch = Object.keys(store).find(k => k.trim().toLowerCase() === key);
+  if (storeMatch && Object.keys(store[storeMatch]).length > 0) {
+    return store[storeMatch];
+  }
+
+  // 3. Round history — most recent round at this course with par data
+  const historyMatch = history.find(r =>
+    r.course && r.course.trim().toLowerCase() === key &&
+    r.pars && Object.keys(r.pars).length > 0
+  );
+  if (historyMatch) return { ...historyMatch.pars };
+
+  return null;
+}
 
 function saveHistory() {
   localStorage.setItem('golf-round-history', JSON.stringify(history));
@@ -376,6 +425,9 @@ function setHoles(n) {
   document.getElementById('btn-9').classList.toggle('active', n === 9);
   document.getElementById('btn-18').classList.toggle('active', n === 18);
   renderHoleRows(n);
+  // Re-apply autofill after rows are rendered
+  const courseName = document.getElementById('f-course').value.trim();
+  if (courseName) applyParAutofill(courseName);
 }
 
 function renderHoleRows(n) {
@@ -414,6 +466,22 @@ function onCourseInput(val) {
 
 function selectCourseFromEl(el) {
   selectCourse(el.dataset.name, el.dataset.suburb);
+  applyParAutofill(el.dataset.name);
+}
+
+function onCourseBlur(val) {
+  hideSuggestions();
+  if (val && val.trim().length > 1) applyParAutofill(val.trim());
+}
+
+function applyParAutofill(courseName) {
+  const pars = lookupCoursePars(courseName);
+  if (!pars) return;
+  // Only fill holes that are currently rendered and have an empty par input
+  for (let h = 1; h <= addHoleCount; h++) {
+    const el = document.getElementById('par-' + h);
+    if (el && !el.value && pars[h]) el.value = pars[h];
+  }
 }
 
 function selectCourse(name, suburb) {
@@ -481,6 +549,8 @@ function saveManualRound() {
   }
 
   saveHistory();
+  // Write par data to golf-course-pars store so future rounds at this course auto-fill
+  writeCoursePars(course, pars);
   closeSheet();
   renderList();
 }

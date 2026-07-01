@@ -340,6 +340,52 @@ function persist() {
   localStorage.setItem('golf-pars-v1', JSON.stringify(holePars));
 }
 
+// ── golf-course-pars store ────────────────────────────────────────────────────
+function getCourseParsStore() {
+  return JSON.parse(localStorage.getItem('golf-course-pars') || '{}');
+}
+
+function writeCoursePars(courseName, pars) {
+  if (!courseName || !pars || Object.keys(pars).length === 0) return;
+  const store = getCourseParsStore();
+  if (!store[courseName]) store[courseName] = {};
+  Object.assign(store[courseName], pars);
+  localStorage.setItem('golf-course-pars', JSON.stringify(store));
+}
+
+// ── Par lookup (priority chain) ───────────────────────────────────────────────
+function lookupCoursePars(courseName) {
+  if (!courseName) return null;
+  const key = courseName.trim().toLowerCase();
+
+  // 1. courses.js holePars
+  if (typeof COURSES !== 'undefined') {
+    const match = COURSES.find(c => c.name.trim().toLowerCase() === key);
+    if (match && match.holePars && match.holePars.length > 0) {
+      const result = {};
+      match.holePars.forEach((p, i) => { if (p) result[i + 1] = p; });
+      return result;
+    }
+  }
+
+  // 2. golf-course-pars localStorage
+  const store = getCourseParsStore();
+  const storeMatch = Object.keys(store).find(k => k.trim().toLowerCase() === key);
+  if (storeMatch && Object.keys(store[storeMatch]).length > 0) {
+    return store[storeMatch];
+  }
+
+  // 3. Round history — most recent round at this course with par data
+  const history = JSON.parse(localStorage.getItem('golf-round-history') || '[]');
+  const historyMatch = history.find(r =>
+    r.course && r.course.trim().toLowerCase() === key &&
+    r.pars && Object.keys(r.pars).length > 0
+  );
+  if (historyMatch) return { ...historyMatch.pars };
+
+  return null;
+}
+
 // ── Tabs ─────────────────────────────────────────────────────────────────────
 function showTab(t) {
   activeTab = t;
@@ -395,8 +441,16 @@ function renderHome() {
   document.getElementById('s-dist').textContent = shots.reduce((a,s)=>a+(s.dist||0),0) + 'm';
   document.getElementById('hole-title').textContent = 'Hole ' + currentHole;
 
-  // Par area
-  const savedPar = holePars[currentHole];
+  // Par area — auto-fill from lookup if not yet saved for this hole
+  let savedPar = holePars[currentHole];
+  if (!savedPar && !holeFinished && currentCourse && currentCourse.name) {
+    const lookup = lookupCoursePars(currentCourse.name);
+    if (lookup && lookup[currentHole]) {
+      savedPar = lookup[currentHole];
+      holePars[currentHole] = savedPar;
+      persist();
+    }
+  }
   const parArea = document.getElementById('par-area');
   if (holeFinished && savedPar) {
     parArea.innerHTML = '<span class="par-saved-badge">Par ' + savedPar + '</span>';
@@ -501,7 +555,13 @@ function savePar() {
   if (!inp) return;
   const v = parseInt(inp.value);
   if (!v||v<3||v>6) { showToast('Par must be 3–6'); return; }
-  holePars[currentHole] = v; persist(); showToast('Par '+v+' saved');
+  holePars[currentHole] = v;
+  persist();
+  // Write to golf-course-pars store for future rounds at this course
+  if (currentCourse && currentCourse.name) {
+    writeCoursePars(currentCourse.name, { [currentHole]: v });
+  }
+  showToast('Par '+v+' saved');
 }
 
 // ── Tee Up ───────────────────────────────────────────────────────────────────
@@ -938,5 +998,6 @@ renderCourseStrip();
 updateFinishBtn();
 if('serviceWorker' in navigator){navigator.serviceWorker.register('/sw.js').catch(()=>{});}
 </script>
+<script src="courses.js"></script>
 </body>
 </html>

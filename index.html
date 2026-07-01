@@ -54,8 +54,8 @@
   /* ── Hero ───────────────────────────────────────────────────── */
   .hero {
     position: relative;
-    height: 58vh;
-    min-height: 340px;
+    height: 65vh;
+    min-height: 380px;
     overflow: hidden;
     flex-shrink: 0;
   }
@@ -66,19 +66,19 @@
     width: 100%;
     height: 100%;
     object-fit: cover;
-    object-position: center 30%;
+    object-position: center 15%;
   }
 
-  /* Dark gradient overlay — heavier at bottom to let content sit on it */
+  /* Dark gradient overlay — transparent at top (logo already in image), heavy at bottom */
   .hero-overlay {
     position: absolute;
     inset: 0;
     background: linear-gradient(
       to bottom,
-      rgba(13,13,13,0.35) 0%,
-      rgba(13,13,13,0.10) 35%,
-      rgba(13,13,13,0.55) 70%,
-      rgba(13,13,13,0.95) 100%
+      rgba(13,13,13,0.0)  0%,
+      rgba(13,13,13,0.0)  40%,
+      rgba(13,13,13,0.5)  70%,
+      rgba(13,13,13,0.97) 100%
     );
   }
 
@@ -391,14 +391,9 @@
 
   <!-- Hero -->
   <div class="hero">
-    <img class="hero-img" src="Hero_Shot.png" alt="">
+    <img class="hero-img" src="Background_with_logo.png" alt="">
     <div class="hero-overlay"></div>
-    <div class="hero-content">
-      <div class="hero-eyebrow">Shot Tracker</div>
-      <div class="hero-title">Your game.<br>Measured.</div>
-      <div class="hero-divider"></div>
-      <div class="hero-sub">Track · Analyse · Improve</div>
-    </div>
+    <!-- Logo and title are part of the image itself -->
   </div>
 
   <!-- Stats strip -->

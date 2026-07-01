@@ -113,51 +113,6 @@
     color: var(--text-secondary);
   }
 
-  /* ── Stats strip ────────────────────────────────────────────── */
-  .stats-strip {
-    background: var(--bg-secondary);
-    border-bottom: 0.5px solid rgba(200,169,106,0.15);
-    padding: 20px 28px;
-    display: flex;
-    gap: 0;
-  }
-
-  .stat-item {
-    flex: 1;
-    text-align: center;
-    position: relative;
-  }
-
-  .stat-item + .stat-item::before {
-    content: '';
-    position: absolute;
-    left: 0;
-    top: 50%;
-    transform: translateY(-50%);
-    width: 0.5px;
-    height: 28px;
-    background: rgba(200,169,106,0.2);
-  }
-
-  .stat-num {
-    font-size: 26px;
-    font-weight: 300;
-    color: var(--text-primary);
-    letter-spacing: -0.02em;
-    line-height: 1;
-    margin-bottom: 5px;
-  }
-
-  .stat-num.gold { color: var(--gold); }
-
-  .stat-lbl {
-    font-size: 9px;
-    font-weight: 500;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    color: var(--text-muted);
-  }
-
   /* ── Scroll body ────────────────────────────────────────────── */
   .body {
     flex: 1;
@@ -380,24 +335,8 @@
 
   <!-- Hero -->
   <div class="hero">
-    <img class="hero-img" src="Background_with_logo.png" alt="">
+    <img class="hero-img" src="Background_with_logo_and_tag.png" alt="">
     <!-- Logo and title are part of the image itself -->
-  </div>
-
-  <!-- Stats strip -->
-  <div class="stats-strip" id="stats-strip">
-    <div class="stat-item">
-      <div class="stat-num" id="stat-rounds">—</div>
-      <div class="stat-lbl">Rounds</div>
-    </div>
-    <div class="stat-item">
-      <div class="stat-num" id="stat-avg">—</div>
-      <div class="stat-lbl">Avg Score</div>
-    </div>
-    <div class="stat-item">
-      <div class="stat-num gold" id="stat-best">—</div>
-      <div class="stat-lbl">Best</div>
-    </div>
   </div>
 
   <!-- Body -->
@@ -516,28 +455,6 @@
 </div>
 
 <script>
-// ── Stats from history ────────────────────────────────────────────────────────
-const roundHistory = JSON.parse(localStorage.getItem('golf-round-history') || '[]');
-if (roundHistory.length > 0) {
-  document.getElementById('stat-rounds').textContent = roundHistory.length;
-
-  const scored = roundHistory.filter(r => {
-    const tp = Object.values(r.pars || {}).reduce((a,b) => a+b, 0);
-    return r.shots > 0 && tp > 0;
-  });
-
-  if (scored.length > 0) {
-    const avgs = scored.map(r => {
-      const tp = Object.values(r.pars).reduce((a,b) => a+b, 0);
-      return r.shots - tp;
-    });
-    const avg = Math.round(avgs.reduce((a,b) => a+b, 0) / avgs.length);
-    const best = Math.min(...avgs);
-    document.getElementById('stat-avg').textContent = (avg >= 0 ? '+' : '') + avg;
-    document.getElementById('stat-best').textContent = (best >= 0 ? '+' : '') + best;
-  }
-}
-
 // ── Active round ──────────────────────────────────────────────────────────────
 const shots = JSON.parse(localStorage.getItem('golf-shots-v3') || '[]');
 const currentCourse = JSON.parse(localStorage.getItem('golf-current-course') || 'null');

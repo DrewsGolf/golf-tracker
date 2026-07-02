@@ -40,34 +40,10 @@
     margin: 0 auto;
   }
 
-  /* ── Header ─────────────────────────────────────────────────── */
-  .header {
-    padding: calc(var(--safe-top) + 20px) 24px 20px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 7px;
-    border-bottom: 0.5px solid rgba(200,169,106,0.15);
-  }
-
-  .header-logo {
-    height: 90px;
-    object-fit: contain;
-  }
-
-  .header-rule {
-    width: 100%;
-    height: 0.5px;
-    background: rgba(200,169,106,0.2);
-  }
-
-  .header-title {
-    font-size: 11px;
-    font-weight: 500;
-    letter-spacing: 0.18em;
-    text-transform: uppercase;
-    color: var(--text-muted);
-  }
+  /* Header */
+  .header { padding: calc(var(--safe-top) + 20px) 24px 20px; display: flex; align-items: center; gap: 16px; border-bottom: 0.5px solid rgba(200,169,106,0.12); }
+  .header-logo { height: 32px; object-fit: contain; }
+  .header-title { font-size: 13px; font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-muted); }
 
   /* ── Content ─────────────────────────────────────────────────── */
   .content {
@@ -196,10 +172,8 @@
 <body>
 <div class="page">
 
-  <!-- Header -->
   <div class="header">
-    <img class="header-logo" src="Logo_1.png" alt="Shot Tracker">
-    <div class="header-rule"></div>
+    <img class="header-logo" src="Logo.png" alt="Shot Tracker">
     <div class="header-title">Settings</div>
   </div>
 

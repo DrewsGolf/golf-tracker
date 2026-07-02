@@ -12,28 +12,121 @@
   @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap');
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
   :root {
-    --bg-primary: #0D0D0D; --bg-card: #1C1C1C;
-    --gold: #C8A96A; --gold-muted: #9A7C47;
-    --text-primary: #F2F2F2; --text-muted: #7A7A7A;
-    --safe-top: env(safe-area-inset-top, 0px); --safe-bottom: env(safe-area-inset-bottom, 0px);
+    --bg:        #0D0D0D;
+    --bg-card:   #1C1C1C;
+    --bg-input:  #151515;
+    --gold:      #C8A96A;
+    --gold-hi:   #D9B878;
+    --gold-muted:#9A7C47;
+    --text:      #F2F2F2;
+    --text-sec:  #BDBDBD;
+    --text-muted:#7A7A7A;
+    --success:   #758B69;
+    --border:    rgba(200,169,106,0.15);
+    --radius:    16px;
+    --safe-top:  env(safe-area-inset-top, 0px);
+    --safe-bottom: env(safe-area-inset-bottom, 0px);
   }
-  html, body { height: 100%; font-family: 'Inter', -apple-system, sans-serif; background: var(--bg-primary); color: var(--text-primary); }
+  html, body { height: 100%; font-family: 'Inter', -apple-system, sans-serif; background: var(--bg); color: var(--text); overflow-x: hidden; }
   .page { display: flex; flex-direction: column; min-height: 100%; max-width: 430px; margin: 0 auto; }
 
-  /* Header */
-  .header { padding: calc(var(--safe-top) + 20px) 24px 20px; display: flex; align-items: center; gap: 16px; border-bottom: 0.5px solid rgba(200,169,106,0.12); }
+  /* ── Header ── */
+  .header { padding: calc(var(--safe-top) + 20px) 24px 20px; display: flex; align-items: center; gap: 16px; border-bottom: 0.5px solid var(--border); flex-shrink: 0; }
   .header-logo { height: 40px; object-fit: contain; }
-  .header-title { font-size: 13px; font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-muted); }
+  .header-title { font-size: 13px; font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-muted); flex: 1; }
+  .header-btn { background: transparent; border: 0.5px solid rgba(200,169,106,0.4); color: var(--gold); font-size: 12px; font-weight: 500; padding: 7px 14px; border-radius: 20px; cursor: pointer; letter-spacing: 0.06em; white-space: nowrap; font-family: inherit; }
+  .header-btn:active { opacity: 0.7; }
 
-  /* Content */
-  .content { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 48px 32px calc(var(--safe-bottom) + 110px); text-align: center; gap: 20px; }
-  .placeholder-icon { width: 110px; height: 110px; object-fit: contain; opacity: 0.75; }
-  .placeholder-title { font-size: 24px; font-weight: 300; color: var(--text-primary); letter-spacing: 0.04em; }
-  .placeholder-divider { width: 32px; height: 1px; background: var(--gold); opacity: 0.6; }
-  .placeholder-desc { font-size: 13px; color: var(--text-muted); line-height: 1.8; letter-spacing: 0.02em; max-width: 260px; }
-  .placeholder-pill { font-size: 10px; font-weight: 500; letter-spacing: 0.16em; text-transform: uppercase; color: var(--gold-muted); border: 0.5px solid rgba(200,169,106,0.3); border-radius: 20px; padding: 7px 18px; }
+  /* ── Scrollable body ── */
+  .body { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; padding: 24px 20px calc(var(--safe-bottom) + 110px); }
 
-  /* Nav */
+  /* ── Section label ── */
+  .section-label { font-size: 9px; font-weight: 500; letter-spacing: 0.16em; text-transform: uppercase; color: var(--gold-muted); margin-bottom: 12px; padding-left: 2px; }
+
+  /* ── Session cards ── */
+  .session-card { background: var(--bg-card); border: 0.5px solid var(--border); border-radius: var(--radius); padding: 18px 20px; margin-bottom: 10px; display: flex; align-items: center; gap: 16px; cursor: pointer; transition: border-color 0.2s; }
+  .session-card:active { opacity: 0.8; }
+  .session-card-body { flex: 1; }
+  .session-card-date { font-size: 15px; font-weight: 500; color: var(--text); margin-bottom: 3px; }
+  .session-card-meta { font-size: 12px; color: var(--text-muted); letter-spacing: 0.02em; }
+  .session-card-arrow { font-size: 18px; color: var(--gold-muted); }
+  .session-card-delete { background: none; border: none; color: var(--text-muted); font-size: 18px; padding: 4px 8px; cursor: pointer; }
+  .session-card-delete:active { color: #8E4B4B; }
+
+  /* ── Empty state ── */
+  .empty-state { text-align: center; padding: 60px 32px; display: flex; flex-direction: column; align-items: center; gap: 16px; }
+  .empty-icon { width: 80px; height: 80px; object-fit: contain; opacity: 0.4; }
+  .empty-title { font-size: 18px; font-weight: 300; color: var(--text); letter-spacing: 0.02em; }
+  .empty-desc { font-size: 13px; color: var(--text-muted); line-height: 1.7; max-width: 240px; }
+
+  /* ── New session button ── */
+  .btn-new-session { width: 100%; padding: 16px; background: transparent; border: 0.5px solid var(--gold); border-radius: var(--radius); color: var(--gold); font-size: 14px; font-weight: 500; letter-spacing: 0.08em; cursor: pointer; font-family: inherit; margin-bottom: 24px; transition: background 0.2s; }
+  .btn-new-session:active { background: rgba(200,169,106,0.08); }
+
+  /* ── Club grid ── */
+  .club-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 20px; }
+  .club-btn { background: var(--bg-card); border: 0.5px solid var(--border); border-radius: 12px; padding: 14px 6px; display: flex; flex-direction: column; align-items: center; gap: 5px; cursor: pointer; transition: border-color 0.15s, background 0.15s; position: relative; }
+  .club-btn:active { opacity: 0.8; }
+  .club-btn.done { border-color: var(--gold); background: rgba(200,169,106,0.06); }
+  .club-btn.active { border-color: var(--gold); background: rgba(200,169,106,0.12); }
+  .club-badge { font-size: 14px; font-weight: 600; color: var(--gold); letter-spacing: 0.02em; }
+  .club-name-sm { font-size: 9px; color: var(--text-muted); letter-spacing: 0.04em; text-align: center; line-height: 1.3; }
+  .club-tick { position: absolute; top: 5px; right: 6px; font-size: 10px; color: var(--gold); }
+
+  /* ── Finish session btn ── */
+  .btn-finish { width: 100%; padding: 16px; background: var(--gold); border: none; border-radius: var(--radius); color: #0D0D0D; font-size: 14px; font-weight: 600; letter-spacing: 0.08em; cursor: pointer; font-family: inherit; margin-top: 8px; }
+  .btn-finish:active { opacity: 0.85; }
+  .btn-finish:disabled { opacity: 0.3; cursor: default; }
+
+  /* ── Distance entry ── */
+  .distance-header { display: flex; align-items: center; gap: 12px; margin-bottom: 24px; }
+  .distance-back { background: none; border: none; color: var(--text-muted); font-size: 13px; font-weight: 500; letter-spacing: 0.06em; cursor: pointer; font-family: inherit; padding: 0; }
+  .distance-back:active { color: var(--gold); }
+  .distance-club-name { font-size: 22px; font-weight: 300; color: var(--text); letter-spacing: 0.02em; }
+  .distance-club-badge { font-size: 12px; color: var(--gold); letter-spacing: 0.08em; }
+  .distance-divider { width: 32px; height: 1px; background: var(--gold); opacity: 0.5; margin: 12px 0 24px; }
+
+  .distance-slots { display: flex; flex-direction: column; gap: 10px; margin-bottom: 28px; }
+  .distance-slot { display: flex; align-items: center; gap: 14px; }
+  .slot-num { font-size: 11px; font-weight: 500; color: var(--text-muted); letter-spacing: 0.08em; width: 20px; text-align: right; flex-shrink: 0; }
+  .slot-input { flex: 1; background: var(--bg-input); border: 0.5px solid rgba(200,169,106,0.2); border-radius: 10px; padding: 12px 16px; font-size: 16px; font-weight: 300; color: var(--text); font-family: inherit; outline: none; transition: border-color 0.2s; }
+  .slot-input:focus { border-color: var(--gold); }
+  .slot-input::placeholder { color: var(--text-muted); }
+  .slot-unit { font-size: 12px; color: var(--text-muted); letter-spacing: 0.06em; width: 20px; flex-shrink: 0; }
+
+  .btn-save-club { width: 100%; padding: 16px; background: transparent; border: 0.5px solid var(--gold); border-radius: var(--radius); color: var(--gold); font-size: 14px; font-weight: 500; letter-spacing: 0.08em; cursor: pointer; font-family: inherit; }
+  .btn-save-club:active { background: rgba(200,169,106,0.08); }
+
+  /* ── Session date edit ── */
+  .session-date-row { display: flex; align-items: center; gap: 10px; margin-bottom: 20px; padding: 14px 16px; background: var(--bg-card); border: 0.5px solid var(--border); border-radius: 12px; }
+  .session-date-label { font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-muted); flex: 1; }
+  .session-date-input { background: none; border: none; color: var(--gold); font-size: 14px; font-weight: 500; font-family: inherit; cursor: pointer; outline: none; }
+
+  /* ── Session detail view ── */
+  .session-detail-club { background: var(--bg-card); border: 0.5px solid var(--border); border-radius: 12px; padding: 16px 20px; margin-bottom: 10px; }
+  .session-detail-club-header { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; }
+  .session-detail-badge { font-size: 16px; font-weight: 600; color: var(--gold); width: 36px; }
+  .session-detail-name { font-size: 14px; font-weight: 500; color: var(--text); flex: 1; }
+  .session-detail-avg { font-size: 13px; color: var(--text-muted); }
+  .session-detail-shots { display: flex; flex-wrap: wrap; gap: 6px; }
+  .session-shot-pill { background: var(--bg-input); border: 0.5px solid var(--border); border-radius: 8px; padding: 4px 10px; font-size: 12px; color: var(--text-sec); }
+
+  /* ── Dialog / bottom sheet ── */
+  .dialog-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 200; opacity: 0; pointer-events: none; transition: opacity 0.25s; }
+  .dialog-overlay.open { opacity: 1; pointer-events: auto; }
+  .dialog-sheet { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%) translateY(100%); width: 100%; max-width: 430px; background: #1C1C1C; border-radius: 20px 20px 0 0; border-top: 0.5px solid var(--border); padding: 20px 24px calc(var(--safe-bottom) + 24px); z-index: 201; transition: transform 0.3s cubic-bezier(0.4,0,0.2,1); }
+  .dialog-sheet.open { transform: translateX(-50%) translateY(0); }
+  .dialog-handle { width: 36px; height: 3px; background: rgba(200,169,106,0.3); border-radius: 2px; margin: 0 auto 20px; }
+  .dialog-title { font-size: 16px; font-weight: 500; color: var(--text); margin-bottom: 8px; }
+  .dialog-sub { font-size: 13px; color: var(--text-muted); margin-bottom: 20px; line-height: 1.6; }
+  .dialog-btns { display: flex; flex-direction: column; gap: 10px; }
+  .dialog-btn { width: 100%; padding: 14px; border: none; border-radius: 12px; font-size: 14px; font-weight: 500; cursor: pointer; font-family: inherit; letter-spacing: 0.04em; }
+  .dialog-btn.primary { background: var(--gold); color: #0D0D0D; }
+  .dialog-btn.danger { background: #8E4B4B; color: #F2F2F2; }
+  .dialog-btn.secondary { background: rgba(255,255,255,0.06); color: var(--text-muted); }
+  .dialog-btn:active { opacity: 0.8; }
+
+  /* ── Nav ── */
   .nav-shell { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 430px; z-index: 100; }
   .nav-row { display: flex; background: rgba(13,13,13,0.95); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
   .nav-primary { border-top: 0.5px solid rgba(200,169,106,0.2); padding-bottom: calc(var(--safe-bottom) + 6px); position: relative; z-index: 2; transform: translateY(0); transition: transform 350ms cubic-bezier(0.4,0,0.2,1); }
@@ -50,40 +143,391 @@
 <body>
 <div class="page">
 
+  <!-- Header -->
   <div class="header">
     <img class="header-logo" src="Logo.png" alt="Shot Tracker">
-    <div class="header-title">Driving Range</div>
+    <div class="header-title" id="header-title">Driving Range</div>
+    <button class="header-btn" id="header-btn" onclick="startNewSession()" style="display:none">+ New Session</button>
   </div>
 
-  <div class="content">
-    <img class="placeholder-icon" src="Range_1.png" alt="Range">
-    <div class="placeholder-title">Driving Range</div>
-    <div class="placeholder-divider"></div>
-    <div class="placeholder-desc">Track your range sessions, measure distances and monitor your practice performance.</div>
-    <div class="placeholder-pill">Coming Soon</div>
-  </div>
-
-  <div class="nav-overlay" id="nav-overlay" onclick="closeDrawer()"></div>
-  <div class="nav-shell">
-    <div class="nav-row nav-primary" id="nav-primary">
-      <a class="nav-item" href="index.html"><img src="Home_2.png" alt="Home"></a>
-      <a class="nav-item" href="start.html"><img src="Play_2.png" alt="Play"></a>
-      <a class="nav-item" href="range.html"><img src="Range_1.png" alt="Range"></a>
-      <button class="nav-item" id="btn-more" onclick="openDrawer()"><img src="More.png" alt="More" id="icon-more"></button>
-    </div>
-    <div class="nav-row nav-secondary" id="nav-secondary">
-      <a class="nav-item" href="history.html"><img src="History_2.png" alt="History"></a>
-      <a class="nav-item" href="clubs.html"><img src="Clubs_2.png" alt="Clubs"></a>
-      <a class="nav-item" href="suggest.html"><img src="Suggets_2.png" alt="Suggest"></a>
-      <button class="nav-item" onclick="closeDrawer()"><img src="Back.png" alt="Back"></button>
-    </div>
+  <!-- Body -->
+  <div class="body" id="main-body">
+    <!-- Content injected by JS -->
   </div>
 
 </div>
+
+<!-- Dialog / bottom sheet -->
+<div class="dialog-overlay" id="dialog-overlay" onclick="closeDialog()"></div>
+<div class="dialog-sheet" id="dialog-sheet">
+  <div class="dialog-handle"></div>
+  <div class="dialog-title" id="dialog-title"></div>
+  <div class="dialog-sub" id="dialog-sub"></div>
+  <div class="dialog-btns" id="dialog-btns"></div>
+</div>
+
+<!-- Nav overlay -->
+<div class="nav-overlay" id="nav-overlay" onclick="closeDrawer()"></div>
+
+<!-- Bottom nav -->
+<div class="nav-shell">
+  <div class="nav-row nav-primary" id="nav-primary">
+    <a class="nav-item" href="index.html"><img src="Home_2.png" alt="Home"></a>
+    <a class="nav-item" href="start.html"><img src="Play_2.png" alt="Play"></a>
+    <a class="nav-item" href="range.html"><img src="Range_1.png" alt="Range"></a>
+    <button class="nav-item" id="btn-more" onclick="openDrawer()"><img src="More.png" alt="More" id="icon-more"></button>
+  </div>
+  <div class="nav-row nav-secondary" id="nav-secondary">
+    <a class="nav-item" href="history.html"><img src="History_2.png" alt="History"></a>
+    <a class="nav-item" href="clubs.html"><img src="Clubs_2.png" alt="Clubs"></a>
+    <a class="nav-item" href="suggest.html"><img src="Suggets_2.png" alt="Suggest"></a>
+    <button class="nav-item" onclick="closeDrawer()"><img src="Back.png" alt="Back"></button>
+  </div>
+</div>
+
 <script>
-const primary=document.getElementById('nav-primary'),secondary=document.getElementById('nav-secondary'),overlay=document.getElementById('nav-overlay'),btnMore=document.getElementById('btn-more'),iconMore=document.getElementById('icon-more');
-function openDrawer(){primary.classList.add('raised');secondary.classList.add('open');overlay.classList.add('open');iconMore.src='Courses_2.png';iconMore.alt='Courses';btnMore.onclick=()=>window.location.href='find.html';}
-function closeDrawer(){primary.classList.remove('raised');secondary.classList.remove('open');overlay.classList.remove('open');iconMore.src='More.png';iconMore.alt='More';btnMore.onclick=openDrawer;}
+// ── Club master list (same as setup.html) ─────────────────────────────────────
+const ALL_CLUBS = [
+  { id: 'driver',  name: 'Driver',        cat: 'Woods',   badge: '1W' },
+  { id: '3wood',   name: '3-Wood',        cat: 'Woods',   badge: '3W' },
+  { id: '4wood',   name: '4-Wood',        cat: 'Woods',   badge: '4W' },
+  { id: '5wood',   name: '5-Wood',        cat: 'Woods',   badge: '5W' },
+  { id: '7wood',   name: '7-Wood',        cat: 'Woods',   badge: '7W' },
+  { id: '9wood',   name: '9-Wood',        cat: 'Woods',   badge: '9W' },
+  { id: '2hybrid', name: '2-Hybrid',      cat: 'Hybrids', badge: '2H' },
+  { id: '3hybrid', name: '3-Hybrid',      cat: 'Hybrids', badge: '3H' },
+  { id: '4hybrid', name: '4-Hybrid',      cat: 'Hybrids', badge: '4H' },
+  { id: '5hybrid', name: '5-Hybrid',      cat: 'Hybrids', badge: '5H' },
+  { id: '6hybrid', name: '6-Hybrid',      cat: 'Hybrids', badge: '6H' },
+  { id: '2iron',   name: '2-Iron',        cat: 'Irons',   badge: '2i' },
+  { id: '3iron',   name: '3-Iron',        cat: 'Irons',   badge: '3i' },
+  { id: '4iron',   name: '4-Iron',        cat: 'Irons',   badge: '4i' },
+  { id: '5iron',   name: '5-Iron',        cat: 'Irons',   badge: '5i' },
+  { id: '6iron',   name: '6-Iron',        cat: 'Irons',   badge: '6i' },
+  { id: '7iron',   name: '7-Iron',        cat: 'Irons',   badge: '7i' },
+  { id: '8iron',   name: '8-Iron',        cat: 'Irons',   badge: '8i' },
+  { id: '9iron',   name: '9-Iron',        cat: 'Irons',   badge: '9i' },
+  { id: 'pw',      name: 'Pitching Wedge',cat: 'Wedges',  badge: 'PW' },
+  { id: 'gw',      name: 'Gap Wedge',     cat: 'Wedges',  badge: 'GW' },
+  { id: 'sw',      name: 'Sand Wedge',    cat: 'Wedges',  badge: 'SW' },
+  { id: 'lw',      name: 'Lob Wedge',     cat: 'Wedges',  badge: 'LW' },
+  { id: 'putter',  name: 'Putter',        cat: 'Putter',  badge: 'PT' },
+];
+
+// ── State ─────────────────────────────────────────────────────────────────────
+let sessions = JSON.parse(localStorage.getItem('golf-range-sessions') || '[]');
+let activeSession = null;   // session object being built
+let activeClubId  = null;   // club currently being entered
+let viewState     = 'history'; // 'history' | 'session' | 'entry' | 'detail'
+
+// ── Persist ───────────────────────────────────────────────────────────────────
+function persist() {
+  localStorage.setItem('golf-range-sessions', JSON.stringify(sessions));
+}
+
+// ── Routing ───────────────────────────────────────────────────────────────────
+function showHistory() {
+  viewState = 'history';
+  activeSession = null;
+  activeClubId = null;
+  document.getElementById('header-title').textContent = 'Driving Range';
+  document.getElementById('header-btn').style.display = 'none';
+  renderHistory();
+}
+
+function showSession() {
+  viewState = 'session';
+  activeClubId = null;
+  document.getElementById('header-title').textContent = 'New Session';
+  document.getElementById('header-btn').style.display = 'none';
+  renderSession();
+}
+
+function showEntry(clubId) {
+  viewState = 'entry';
+  activeClubId = clubId;
+  document.getElementById('header-title').textContent = 'Driving Range';
+  document.getElementById('header-btn').style.display = 'none';
+  renderEntry();
+}
+
+function showDetail(sessionId) {
+  viewState = 'detail';
+  document.getElementById('header-title').textContent = 'Session Detail';
+  document.getElementById('header-btn').style.display = 'none';
+  renderDetail(sessionId);
+}
+
+// ── Get user's bag ────────────────────────────────────────────────────────────
+function getBag() {
+  const saved = JSON.parse(localStorage.getItem('golf-bag-v1') || '[]');
+  if (saved.length === 0) return null;
+  return ALL_CLUBS.filter(c => saved.includes(c.id));
+}
+
+// ── Render: history view ──────────────────────────────────────────────────────
+function renderHistory() {
+  const body = document.getElementById('main-body');
+  if (sessions.length === 0) {
+    body.innerHTML = `
+      <div style="margin-bottom:20px">
+        <button class="btn-new-session" onclick="startNewSession()">+ New Session</button>
+      </div>
+      <div class="empty-state">
+        <img class="empty-icon" src="Range_1.png" alt="">
+        <div class="empty-title">No sessions yet</div>
+        <div class="empty-desc">Hit the range and start building your club distance data.</div>
+      </div>`;
+    return;
+  }
+  let html = `<button class="btn-new-session" onclick="startNewSession()">+ New Session</button>`;
+  html += `<div class="section-label">Past Sessions</div>`;
+  sessions.slice().reverse().forEach(s => {
+    const clubCount = Object.keys(s.clubs || {}).length;
+    html += `
+    <div class="session-card" onclick="showDetail('${s.id}')">
+      <div class="session-card-body">
+        <div class="session-card-date">${s.date}</div>
+        <div class="session-card-meta">${clubCount} club${clubCount !== 1 ? 's' : ''} logged</div>
+      </div>
+      <div class="session-card-arrow">›</div>
+      <button class="session-card-delete" onclick="promptDelete('${s.id}', event)">🗑</button>
+    </div>`;
+  });
+  body.innerHTML = html;
+}
+
+// ── Render: session view (club grid) ──────────────────────────────────────────
+function renderSession() {
+  const bag = getBag();
+  const body = document.getElementById('main-body');
+
+  if (!bag) {
+    body.innerHTML = `
+      <div class="empty-state">
+        <div class="empty-title">No clubs set up</div>
+        <div class="empty-desc">Set up your bag first so we know which clubs to show you.</div>
+        <a href="setup.html" style="color:var(--gold);font-size:13px;letter-spacing:0.06em;">Set Up Bag →</a>
+      </div>`;
+    return;
+  }
+
+  const logged = Object.keys(activeSession.clubs || {});
+  const cats = [...new Set(bag.map(c => c.cat))];
+
+  let html = `
+    <div class="session-date-row">
+      <div class="session-date-label">Session Date</div>
+      <input class="session-date-input" type="date" id="session-date-input" value="${activeSession.dateISO}" onchange="updateSessionDate(this.value)">
+    </div>
+    <div class="section-label">Select a Club</div>
+    <div class="club-grid">`;
+
+  bag.forEach(c => {
+    const isDone = logged.includes(c.id);
+    html += `
+      <div class="club-btn${isDone ? ' done' : ''}" onclick="showEntry('${c.id}')">
+        ${isDone ? '<span class="club-tick">✓</span>' : ''}
+        <span class="club-badge">${c.badge}</span>
+        <span class="club-name-sm">${c.name}</span>
+      </div>`;
+  });
+
+  html += `</div>
+    <button class="btn-finish" onclick="finishSession()" ${logged.length === 0 ? 'disabled' : ''}>
+      Finish Session
+    </button>`;
+
+  body.innerHTML = html;
+}
+
+// ── Render: distance entry view ───────────────────────────────────────────────
+function renderEntry() {
+  const club = ALL_CLUBS.find(c => c.id === activeClubId);
+  const existing = (activeSession.clubs[activeClubId] || []);
+  const body = document.getElementById('main-body');
+
+  let slotsHtml = '';
+  for (let i = 0; i < 10; i++) {
+    const val = existing[i] || '';
+    slotsHtml += `
+      <div class="distance-slot">
+        <span class="slot-num">${i + 1}</span>
+        <input class="slot-input" type="number" inputmode="numeric" placeholder="—" value="${val}" id="slot-${i}" min="1" max="400">
+        <span class="slot-unit">m</span>
+      </div>`;
+  }
+
+  body.innerHTML = `
+    <div class="distance-header">
+      <button class="distance-back" onclick="showSession()">‹ Back</button>
+    </div>
+    <div class="distance-club-badge">${club.badge} · ${club.cat}</div>
+    <div class="distance-club-name">${club.name}</div>
+    <div class="distance-divider"></div>
+    <div class="distance-slots">${slotsHtml}</div>
+    <button class="btn-save-club" onclick="saveClub()">Save Club</button>`;
+
+  // Focus first empty slot
+  for (let i = 0; i < 10; i++) {
+    const el = document.getElementById('slot-' + i);
+    if (!el.value) { el.focus(); break; }
+  }
+}
+
+// ── Render: session detail view ───────────────────────────────────────────────
+function renderDetail(sessionId) {
+  const session = sessions.find(s => s.id === sessionId);
+  if (!session) { showHistory(); return; }
+  const body = document.getElementById('main-body');
+
+  let html = `
+    <button class="distance-back" onclick="showHistory()" style="margin-bottom:20px;display:block;">‹ All Sessions</button>
+    <div style="font-size:20px;font-weight:300;color:var(--text);margin-bottom:4px;">${session.date}</div>
+    <div style="font-size:12px;color:var(--text-muted);letter-spacing:0.04em;margin-bottom:24px;">${Object.keys(session.clubs).length} clubs logged</div>
+    <div class="section-label">Club Data</div>`;
+
+  Object.entries(session.clubs).forEach(([clubId, distances]) => {
+    const club = ALL_CLUBS.find(c => c.id === clubId);
+    if (!club) return;
+    const valid = distances.filter(d => d > 0);
+    const avg = valid.length ? Math.round(valid.reduce((a, b) => a + b, 0) / valid.length) : null;
+    const max = valid.length ? Math.max(...valid) : null;
+
+    html += `
+      <div class="session-detail-club">
+        <div class="session-detail-club-header">
+          <span class="session-detail-badge">${club.badge}</span>
+          <span class="session-detail-name">${club.name}</span>
+          ${avg ? `<span class="session-detail-avg">Avg ${avg}m · Best ${max}m</span>` : ''}
+        </div>
+        <div class="session-detail-shots">
+          ${valid.map(d => `<span class="session-shot-pill">${d}m</span>`).join('')}
+        </div>
+      </div>`;
+  });
+
+  body.innerHTML = html;
+}
+
+// ── Actions ───────────────────────────────────────────────────────────────────
+function startNewSession() {
+  const now = new Date();
+  const dateISO = now.toISOString().split('T')[0];
+  const displayDate = now.toLocaleDateString('en-AU', { weekday: 'short', day: 'numeric', month: 'long', year: 'numeric' });
+  activeSession = {
+    id: Date.now().toString(),
+    date: displayDate,
+    dateISO: dateISO,
+    clubs: {}
+  };
+  showSession();
+}
+
+function updateSessionDate(val) {
+  if (!val) return;
+  const d = new Date(val + 'T12:00:00');
+  activeSession.dateISO = val;
+  activeSession.date = d.toLocaleDateString('en-AU', { weekday: 'short', day: 'numeric', month: 'long', year: 'numeric' });
+}
+
+function saveClub() {
+  const distances = [];
+  for (let i = 0; i < 10; i++) {
+    const el = document.getElementById('slot-' + i);
+    const val = el ? parseFloat(el.value) : NaN;
+    distances.push(!isNaN(val) && val > 0 ? val : 0);
+  }
+  const hasData = distances.some(d => d > 0);
+  if (!hasData) {
+    showDialog('No distances entered', 'Enter at least one distance to save this club.', [
+      { label: 'OK', style: 'primary', action: closeDialog }
+    ]);
+    return;
+  }
+  activeSession.clubs[activeClubId] = distances;
+  showSession();
+}
+
+function finishSession() {
+  const logged = Object.keys(activeSession.clubs);
+  if (logged.length === 0) return;
+  showDialog(
+    'Finish Session?',
+    `Save this session with ${logged.length} club${logged.length !== 1 ? 's' : ''} logged?`,
+    [
+      { label: 'Save Session', style: 'primary', action: () => {
+        sessions.unshift(activeSession);
+        persist();
+        closeDialog();
+        showHistory();
+      }},
+      { label: 'Keep Editing', style: 'secondary', action: closeDialog }
+    ]
+  );
+}
+
+function promptDelete(sessionId, e) {
+  e.stopPropagation();
+  showDialog(
+    'Delete Session?',
+    'This session will be permanently removed.',
+    [
+      { label: 'Delete', style: 'danger', action: () => {
+        sessions = sessions.filter(s => s.id !== sessionId);
+        persist();
+        closeDialog();
+        renderHistory();
+      }},
+      { label: 'Cancel', style: 'secondary', action: closeDialog }
+    ]
+  );
+}
+
+// ── Dialog ────────────────────────────────────────────────────────────────────
+function showDialog(title, sub, buttons) {
+  document.getElementById('dialog-title').textContent = title;
+  document.getElementById('dialog-sub').textContent = sub;
+  document.getElementById('dialog-btns').innerHTML = buttons.map((b, i) =>
+    `<button class="dialog-btn ${b.style}" onclick="dialogActions[${i}]()">${b.label}</button>`
+  ).join('');
+  window.dialogActions = buttons.map(b => b.action);
+  document.getElementById('dialog-overlay').classList.add('open');
+  document.getElementById('dialog-sheet').classList.add('open');
+}
+
+function closeDialog() {
+  document.getElementById('dialog-overlay').classList.remove('open');
+  document.getElementById('dialog-sheet').classList.remove('open');
+}
+
+// ── Nav drawer ────────────────────────────────────────────────────────────────
+const navPrimary   = document.getElementById('nav-primary');
+const navSecondary = document.getElementById('nav-secondary');
+const navOverlay   = document.getElementById('nav-overlay');
+const btnMore      = document.getElementById('btn-more');
+const iconMore     = document.getElementById('icon-more');
+
+function openDrawer() {
+  navPrimary.classList.add('raised');
+  navSecondary.classList.add('open');
+  navOverlay.classList.add('open');
+  iconMore.src = 'Courses_2.png';
+  iconMore.alt = 'Courses';
+  btnMore.onclick = () => window.location.href = 'find.html';
+}
+
+function closeDrawer() {
+  navPrimary.classList.remove('raised');
+  navSecondary.classList.remove('open');
+  navOverlay.classList.remove('open');
+  iconMore.src = 'More.png';
+  iconMore.alt = 'More';
+  btnMore.onclick = openDrawer;
+}
+
+// ── Init ──────────────────────────────────────────────────────────────────────
+showHistory();
 </script>
 </body>
 </html>

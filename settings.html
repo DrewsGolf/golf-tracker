@@ -10,49 +10,255 @@
 <title>Settings — Shot Tracker</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap');
+
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
   :root {
-    --bg-primary: #0D0D0D; --bg-card: #1C1C1C;
-    --gold: #C8A96A; --gold-muted: #9A7C47;
-    --text-primary: #F2F2F2; --text-secondary: #BDBDBD; --text-muted: #7A7A7A;
-    --safe-top: env(safe-area-inset-top, 0px); --safe-bottom: env(safe-area-inset-bottom, 0px);
+    --bg-primary:   #0D0D0D;
+    --bg-card:      #1C1C1C;
+    --gold:         #C8A96A;
+    --gold-muted:   #9A7C47;
+    --text-primary: #F2F2F2;
+    --text-secondary: #BDBDBD;
+    --text-muted:   #7A7A7A;
+    --safe-top:     env(safe-area-inset-top, 0px);
+    --safe-bottom:  env(safe-area-inset-bottom, 0px);
   }
-  html, body { height: 100%; font-family: 'Inter', -apple-system, sans-serif; background: var(--bg-primary); color: var(--text-primary); }
-  .page { display: flex; flex-direction: column; min-height: 100%; max-width: 430px; margin: 0 auto; }
 
-  /* Header */
-  .header { padding: calc(var(--safe-top) + 20px) 24px 20px; display: flex; align-items: center; gap: 16px; border-bottom: 0.5px solid rgba(200,169,106,0.12); }
-  .header-logo { height: 32px; object-fit: contain; }
-  .header-title { font-size: 13px; font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-muted); }
-  .header-back { margin-left: auto; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; text-decoration: none; opacity: 0.6; }
-  .header-back img { width: 28px; height: 28px; object-fit: contain; }
+  html, body {
+    height: 100%;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: var(--bg-primary);
+    color: var(--text-primary);
+  }
 
-  /* Content */
-  .content { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 48px 32px calc(var(--safe-bottom) + 32px); text-align: center; gap: 20px; }
-  .placeholder-icon { width: 100px; height: 100px; object-fit: contain; opacity: 0.6; }
-  .placeholder-title { font-size: 22px; font-weight: 300; color: var(--text-primary); letter-spacing: 0.02em; }
-  .placeholder-divider { width: 32px; height: 1px; background: var(--gold); opacity: 0.6; }
-  .placeholder-desc { font-size: 13px; color: var(--text-muted); line-height: 1.7; letter-spacing: 0.02em; max-width: 280px; }
-  .placeholder-pill { font-size: 10px; font-weight: 500; letter-spacing: 0.14em; text-transform: uppercase; color: var(--gold-muted); border: 0.5px solid rgba(200,169,106,0.3); border-radius: 20px; padding: 6px 16px; }
+  .page {
+    display: flex;
+    flex-direction: column;
+    min-height: 100%;
+    max-width: 430px;
+    margin: 0 auto;
+  }
+
+  /* ── Header ─────────────────────────────────────────────────── */
+  .header {
+    padding: calc(var(--safe-top) + 20px) 24px 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 14px;
+    border-bottom: 0.5px solid rgba(200,169,106,0.15);
+  }
+
+  .header-logo {
+    height: 40px;
+    object-fit: contain;
+  }
+
+  .header-rule {
+    width: 100%;
+    height: 0.5px;
+    background: rgba(200,169,106,0.2);
+  }
+
+  .header-title {
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+  }
+
+  /* ── Content ─────────────────────────────────────────────────── */
+  .content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 48px 32px calc(var(--safe-bottom) + 110px);
+    text-align: center;
+    gap: 20px;
+  }
+
+  .placeholder-icon {
+    width: 110px;
+    height: 110px;
+    object-fit: contain;
+    opacity: 0.75;
+  }
+
+  .placeholder-title {
+    font-size: 24px;
+    font-weight: 300;
+    color: var(--text-primary);
+    letter-spacing: 0.04em;
+  }
+
+  .placeholder-divider {
+    width: 32px;
+    height: 1px;
+    background: var(--gold);
+    opacity: 0.6;
+  }
+
+  .placeholder-desc {
+    font-size: 13px;
+    color: var(--text-muted);
+    line-height: 1.8;
+    letter-spacing: 0.02em;
+    max-width: 260px;
+  }
+
+  .placeholder-pill {
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--gold-muted);
+    border: 0.5px solid rgba(200,169,106,0.3);
+    border-radius: 20px;
+    padding: 7px 18px;
+  }
+
+  /* ── Bottom nav shell ───────────────────────────────────────── */
+  .nav-shell {
+    position: fixed;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100%;
+    max-width: 430px;
+    z-index: 100;
+  }
+
+  .nav-row {
+    display: flex;
+    background: rgba(13,13,13,0.95);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+  }
+
+  .nav-primary {
+    border-top: 0.5px solid rgba(200,169,106,0.2);
+    padding-bottom: calc(var(--safe-bottom) + 6px);
+    position: relative;
+    z-index: 2;
+    transform: translateY(0);
+    transition: transform 350ms cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .nav-primary.raised { transform: translateY(-100%); }
+
+  .nav-secondary {
+    border-top: 0.5px solid rgba(200,169,106,0.12);
+    padding-bottom: calc(var(--safe-bottom) + 6px);
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    transform: translateY(100%);
+    transition: transform 350ms cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 1;
+  }
+
+  .nav-secondary.open { transform: translateY(0); }
+
+  .nav-item {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px 4px 6px;
+    text-decoration: none;
+    background: none;
+    border: none;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .nav-item:active { opacity: 0.7; }
+  .nav-item img { width: 70px; height: 70px; object-fit: contain; display: block; }
+
+  /* Overlay */
+  .nav-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 350ms ease;
+    z-index: 90;
+  }
+  .nav-overlay.open { opacity: 1; pointer-events: auto; }
 </style>
 </head>
 <body>
 <div class="page">
+
+  <!-- Header -->
   <div class="header">
     <img class="header-logo" src="Logo.png" alt="Shot Tracker">
+    <div class="header-rule"></div>
     <div class="header-title">Settings</div>
-    <a class="header-back" href="index.html">
-      <img src="Back.png" alt="Back">
-    </a>
   </div>
 
+  <!-- Content -->
   <div class="content">
-    <img class="placeholder-icon" src="Settings_2.png" alt="Settings">
+    <img class="placeholder-icon" src="Settings_1.png" alt="Settings">
     <div class="placeholder-title">Settings</div>
     <div class="placeholder-divider"></div>
     <div class="placeholder-desc">Manage your profile, preferences and app configuration.</div>
     <div class="placeholder-pill">Coming Soon</div>
   </div>
+
+  <!-- Overlay -->
+  <div class="nav-overlay" id="nav-overlay" onclick="closeDrawer()"></div>
+
+  <!-- Bottom nav -->
+  <div class="nav-shell">
+    <div class="nav-row nav-primary" id="nav-primary">
+      <a class="nav-item" href="index.html"><img src="Home_2.png" alt="Home"></a>
+      <a class="nav-item" href="start.html"><img src="Play_2.png" alt="Play"></a>
+      <a class="nav-item" href="range.html"><img src="Range_2.png" alt="Range"></a>
+      <button class="nav-item" id="btn-more" onclick="openDrawer()">
+        <img src="More.png" alt="More" id="icon-more">
+      </button>
+    </div>
+    <div class="nav-row nav-secondary" id="nav-secondary">
+      <a class="nav-item" href="history.html"><img src="History_2.png" alt="History"></a>
+      <a class="nav-item" href="clubs.html"><img src="Clubs_2.png" alt="Clubs"></a>
+      <a class="nav-item" href="suggest.html"><img src="Suggets_2.png" alt="Suggest"></a>
+      <button class="nav-item" onclick="closeDrawer()"><img src="Back.png" alt="Back"></button>
+    </div>
+  </div>
+
 </div>
+
+<script>
+const primary   = document.getElementById('nav-primary');
+const secondary = document.getElementById('nav-secondary');
+const overlay   = document.getElementById('nav-overlay');
+const btnMore   = document.getElementById('btn-more');
+const iconMore  = document.getElementById('icon-more');
+
+function openDrawer() {
+  primary.classList.add('raised');
+  secondary.classList.add('open');
+  overlay.classList.add('open');
+  iconMore.src = 'Courses_2.png';
+  iconMore.alt = 'Courses';
+  btnMore.onclick = () => window.location.href = 'find.html';
+}
+
+function closeDrawer() {
+  primary.classList.remove('raised');
+  secondary.classList.remove('open');
+  overlay.classList.remove('open');
+  iconMore.src = 'More.png';
+  iconMore.alt = 'More';
+  btnMore.onclick = openDrawer;
+}
+</script>
 </body>
 </html>

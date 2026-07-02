@@ -1,4 +1,4 @@
-const CACHE = 'golf-tracker-v7';
+const CACHE = 'golf-tracker-v8';
 const FILES = [
   '/',
   '/index.html',
@@ -8,10 +8,24 @@ const FILES = [
   '/find.html',
   '/history.html',
   '/clubs.html',
+  '/range.html',
+  '/settings.html',
   '/courses.js',
   '/manifest.json',
   '/icon-192.svg',
-  '/icon-512.svg'
+  '/icon-512.svg',
+  '/Logo.png',
+  '/Background_with_logo_and_tag.png',
+  '/Home_1.png', '/Home_2.png',
+  '/Play_1.png', '/Play_2.png',
+  '/Range_1.png', '/Range_2.png',
+  '/More_1.png',
+  '/History_1_1.png', '/History_2.png',
+  '/Clubs_1.png', '/Clubs_2.png',
+  '/Courses_1.png', '/Courses_2.png',
+  '/Suggest_1.png', '/Suggets_2.png',
+  '/Settings_1.png', '/Settings_2.png',
+  '/Back.png'
 ];
 
 self.addEventListener('install', e => {

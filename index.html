@@ -20,18 +20,12 @@
     --bg-secondary: #151515;
     --bg-card:      #1C1C1C;
     --gold:         #C8A96A;
-    --gold-hi:      #D9B878;
     --gold-muted:   #9A7C47;
     --text-primary: #F2F2F2;
-    --text-secondary: #BDBDBD;
     --text-muted:   #7A7A7A;
-    --success:      #758B69;
-    --warning:      #D8A04B;
-    --error:        #8E4B4B;
-    --radius:       20px;
-    --radius-sm:    12px;
     --safe-top:     env(safe-area-inset-top, 0px);
     --safe-bottom:  env(safe-area-inset-bottom, 0px);
+    --nav-height:   72px;
   }
 
   html, body {
@@ -39,181 +33,220 @@
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
     background: var(--bg-primary);
     color: var(--text-primary);
-    overflow-x: hidden;
+    overflow: hidden;
   }
 
   .app {
-    display: flex;
-    flex-direction: column;
-    min-height: 100%;
+    position: relative;
+    width: 100%;
+    height: 100%;
     max-width: 430px;
     margin: 0 auto;
-    position: relative;
-  }
-
-  /* ── Hero ───────────────────────────────────────────────────── */
-  .hero {
-    position: relative;
-    height: 100vh;
-    width: 100%;
     overflow: hidden;
-    flex-shrink: 0;
   }
 
-  .hero-img {
+  /* ── Full screen hero ───────────────────────────────────────── */
+  .hero {
     position: absolute;
     inset: 0;
     width: 100%;
     height: 100%;
-    object-fit: cover;
-    object-position: center 15%;
   }
 
-  /* No overlay — image has its own natural dark fade at the bottom */
+  .hero-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center 15%;
+    display: block;
+  }
 
-  .hero-content {
+  /* ── Settings button — top left ─────────────────────────────── */
+  .settings-btn {
+    position: absolute;
+    top: calc(var(--safe-top) + 16px);
+    left: 20px;
+    width: 44px;
+    height: 44px;
+    background: rgba(13,13,13,0.55);
+    border: 0.5px solid rgba(200,169,106,0.25);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 50;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    text-decoration: none;
+  }
+
+  .settings-btn img {
+    width: 26px;
+    height: 26px;
+    object-fit: contain;
+  }
+
+  .settings-btn:active { opacity: 0.7; }
+
+  /* ── Bottom nav shell ───────────────────────────────────────── */
+  .nav-shell {
     position: absolute;
     bottom: 0;
     left: 0;
     right: 0;
-    padding: 0 28px 28px;
-  }
-
-  .hero-eyebrow {
-    font-size: 10px;
-    font-weight: 500;
-    letter-spacing: 0.18em;
-    text-transform: uppercase;
-    color: var(--gold);
-    margin-bottom: 10px;
-  }
-
-  .hero-title {
-    font-size: 34px;
-    font-weight: 300;
-    color: var(--text-primary);
-    letter-spacing: -0.01em;
-    line-height: 1.1;
-    margin-bottom: 14px;
-  }
-
-  .hero-divider {
-    width: 32px;
-    height: 1px;
-    background: var(--gold);
-    margin-bottom: 14px;
-    opacity: 0.8;
-  }
-
-  .hero-sub {
-    font-size: 11px;
-    font-weight: 500;
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
-    color: var(--text-secondary);
-  }
-
-  /* ── Bottom nav ─────────────────────────────────────────────── */
-  .bottom-nav {
-    position: fixed;
-    bottom: 0;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 100%;
-    max-width: 430px;
-    background: var(--bg-secondary);
-    border-top: 0.5px solid rgba(200,169,106,0.12);
-    padding: 10px 0 calc(var(--safe-bottom) + 10px);
-    display: flex;
     z-index: 100;
   }
 
+  /* Secondary row — slides up from below */
+  .nav-secondary {
+    display: flex;
+    background: rgba(13,13,13,0.92);
+    border-top: 0.5px solid rgba(200,169,106,0.15);
+    transform: translateY(100%);
+    transition: transform 350ms cubic-bezier(0.4, 0, 0.2, 1);
+    will-change: transform;
+  }
+
+  .nav-secondary.open {
+    transform: translateY(0);
+  }
+
+  /* Primary row */
+  .nav-primary {
+    display: flex;
+    background: rgba(13,13,13,0.92);
+    border-top: 0.5px solid rgba(200,169,106,0.2);
+    padding-bottom: calc(var(--safe-bottom) + 6px);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+  }
+
+  /* Nav items */
   .nav-item {
     flex: 1;
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 4px;
-    text-decoration: none;
-    padding: 6px 0;
+    justify-content: center;
+    padding: 10px 4px 6px;
     cursor: pointer;
+    text-decoration: none;
     background: none;
     border: none;
-    position: relative;
+    -webkit-tap-highlight-color: transparent;
+    transition: opacity 0.15s;
   }
 
-  .nav-icon {
-    font-size: 20px;
-    line-height: 1;
-    transition: color 0.2s;
+  .nav-item:active { opacity: 0.7; }
+
+  .nav-item img {
+    width: 56px;
+    height: 56px;
+    object-fit: contain;
+    display: block;
   }
 
-  .nav-label {
-    font-size: 9px;
-    font-weight: 500;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    transition: color 0.2s;
-    color: var(--text-muted);
-  }
-
-  .nav-item.active .nav-label { color: var(--gold); }
-
-  /* Gold underline on active tab */
-  .nav-item.active::after {
-    content: '';
+  /* Overlay — dims hero when drawer is open */
+  .nav-overlay {
     position: absolute;
-    bottom: -2px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 20px;
-    height: 1.5px;
-    background: var(--gold);
-    border-radius: 1px;
+    inset: 0;
+    bottom: var(--nav-height);
+    background: rgba(0,0,0,0.45);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 350ms ease;
+    z-index: 90;
   }
 
+  .nav-overlay.open {
+    opacity: 1;
+    pointer-events: auto;
+  }
 </style>
 </head>
 <body>
 <div class="app">
 
-  <!-- Hero -->
+  <!-- Full screen hero image -->
   <div class="hero">
     <img class="hero-img" src="Background_with_logo_and_tag.png" alt="">
-    <!-- Logo and title are part of the image itself -->
   </div>
 
-  <!-- Bottom nav -->
-  <nav class="bottom-nav">
-    <a class="nav-item active" href="index.html">
-      <span class="nav-icon">⌂</span>
-      <span class="nav-label">Home</span>
-    </a>
-    <a class="nav-item" href="start.html" id="nav-play">
-      <span class="nav-icon">⛳</span>
-      <span class="nav-label">Play</span>
-    </a>
-    <a class="nav-item" href="history.html">
-      <span class="nav-icon">◎</span>
-      <span class="nav-label">History</span>
-    </a>
-    <a class="nav-item" href="find.html">
-      <span class="nav-icon">◈</span>
-      <span class="nav-label">Courses</span>
-    </a>
-    <a class="nav-item" href="clubs.html">
-      <span class="nav-icon">◐</span>
-      <span class="nav-label">Clubs</span>
-    </a>
-  </nav>
+  <!-- Settings — top left -->
+  <a class="settings-btn" href="settings.html">
+    <img src="Settings_1.png" alt="Settings">
+  </a>
+
+  <!-- Overlay (dims when drawer open) -->
+  <div class="nav-overlay" id="nav-overlay" onclick="closeDrawer()"></div>
+
+  <!-- Nav shell -->
+  <div class="nav-shell">
+
+    <!-- Secondary row (slides up on More) -->
+    <div class="nav-secondary" id="nav-secondary">
+      <a class="nav-item" href="history.html">
+        <img src="History_1_1.png" alt="History">
+      </a>
+      <a class="nav-item" href="clubs.html">
+        <img src="Clubs_1.png" alt="Clubs">
+      </a>
+      <a class="nav-item" href="suggest.html">
+        <img src="Suggest_1.png" alt="Suggest">
+      </a>
+      <button class="nav-item" onclick="closeDrawer()">
+        <img src="Back.png" alt="Back">
+      </button>
+    </div>
+
+    <!-- Primary row -->
+    <div class="nav-primary">
+      <a class="nav-item" href="index.html">
+        <img src="Home_2.png" alt="Home" id="icon-home">
+      </a>
+      <a class="nav-item" href="start.html" id="nav-play">
+        <img src="Play_1.png" alt="Play">
+      </a>
+      <a class="nav-item" href="range.html">
+        <img src="Range_1.png" alt="Range">
+      </a>
+      <button class="nav-item" id="btn-more" onclick="openDrawer()">
+        <img src="More_1.png" alt="More" id="icon-more">
+      </button>
+    </div>
+
+  </div>
 
 </div>
 
 <script>
-// ── Active round — swap nav Play tab to round.html if in progress ─────────────
+// ── Drawer ────────────────────────────────────────────────────────────────────
+const secondary = document.getElementById('nav-secondary');
+const overlay   = document.getElementById('nav-overlay');
+const btnMore   = document.getElementById('btn-more');
+const iconMore  = document.getElementById('icon-more');
+
+function openDrawer() {
+  secondary.classList.add('open');
+  overlay.classList.add('open');
+  // Swap More icon to Courses when drawer is open
+  iconMore.src = 'Courses_1.png';
+  iconMore.alt = 'Courses';
+  btnMore.onclick = () => window.location.href = 'find.html';
+}
+
+function closeDrawer() {
+  secondary.classList.remove('open');
+  overlay.classList.remove('open');
+  iconMore.src = 'More_1.png';
+  iconMore.alt = 'More';
+  btnMore.onclick = openDrawer;
+}
+
+// ── Continue round — swap Play to round.html if in progress ───────────────────
 const shots = JSON.parse(localStorage.getItem('golf-shots-v3') || '[]');
 const currentCourse = JSON.parse(localStorage.getItem('golf-current-course') || 'null');
-
 if (shots.length > 0 || currentCourse) {
   document.getElementById('nav-play').setAttribute('href', 'round.html');
 }

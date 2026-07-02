@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#0D0D0D">
+<link rel="manifest" href="manifest.json">
+<title>Settings — Shot Tracker</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap');
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  :root {
+    --bg-primary: #0D0D0D; --bg-card: #1C1C1C;
+    --gold: #C8A96A; --gold-muted: #9A7C47;
+    --text-primary: #F2F2F2; --text-secondary: #BDBDBD; --text-muted: #7A7A7A;
+    --safe-top: env(safe-area-inset-top, 0px); --safe-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  html, body { height: 100%; font-family: 'Inter', -apple-system, sans-serif; background: var(--bg-primary); color: var(--text-primary); }
+  .page { display: flex; flex-direction: column; min-height: 100%; max-width: 430px; margin: 0 auto; }
+
+  /* Header */
+  .header { padding: calc(var(--safe-top) + 20px) 24px 20px; display: flex; align-items: center; gap: 16px; border-bottom: 0.5px solid rgba(200,169,106,0.12); }
+  .header-logo { height: 32px; object-fit: contain; }
+  .header-title { font-size: 13px; font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-muted); }
+  .header-back { margin-left: auto; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; text-decoration: none; opacity: 0.6; }
+  .header-back img { width: 28px; height: 28px; object-fit: contain; }
+
+  /* Content */
+  .content { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 48px 32px calc(var(--safe-bottom) + 32px); text-align: center; gap: 20px; }
+  .placeholder-icon { width: 100px; height: 100px; object-fit: contain; opacity: 0.6; }
+  .placeholder-title { font-size: 22px; font-weight: 300; color: var(--text-primary); letter-spacing: 0.02em; }
+  .placeholder-divider { width: 32px; height: 1px; background: var(--gold); opacity: 0.6; }
+  .placeholder-desc { font-size: 13px; color: var(--text-muted); line-height: 1.7; letter-spacing: 0.02em; max-width: 280px; }
+  .placeholder-pill { font-size: 10px; font-weight: 500; letter-spacing: 0.14em; text-transform: uppercase; color: var(--gold-muted); border: 0.5px solid rgba(200,169,106,0.3); border-radius: 20px; padding: 6px 16px; }
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="header">
+    <img class="header-logo" src="Logo.png" alt="Shot Tracker">
+    <div class="header-title">Settings</div>
+    <a class="header-back" href="index.html">
+      <img src="Back.png" alt="Back">
+    </a>
+  </div>
+
+  <div class="content">
+    <img class="placeholder-icon" src="Settings_2.png" alt="Settings">
+    <div class="placeholder-title">Settings</div>
+    <div class="placeholder-divider"></div>
+    <div class="placeholder-desc">Manage your profile, preferences and app configuration.</div>
+    <div class="placeholder-pill">Coming Soon</div>
+  </div>
+</div>
+</body>
+</html>

@@ -187,7 +187,7 @@
     <!-- Secondary row (slides up on More) -->
     <div class="nav-secondary" id="nav-secondary">
       <a class="nav-item" href="history.html">
-        <img src="History_1_1.png" alt="History">
+        <img src="History_1.png" alt="History">
       </a>
       <a class="nav-item" href="clubs.html">
         <img src="Clubs_1.png" alt="Clubs">
@@ -212,7 +212,7 @@
         <img src="Range_1.png" alt="Range">
       </a>
       <button class="nav-item" id="btn-more" onclick="openDrawer()">
-        <img src="More_1.png" alt="More" id="icon-more">
+        <img src="More.png" alt="More" id="icon-more">
       </button>
     </div>
 
@@ -239,7 +239,7 @@ function openDrawer() {
 function closeDrawer() {
   secondary.classList.remove('open');
   overlay.classList.remove('open');
-  iconMore.src = 'More_1.png';
+  iconMore.src = 'More.png';
   iconMore.alt = 'More';
   btnMore.onclick = openDrawer;
 }

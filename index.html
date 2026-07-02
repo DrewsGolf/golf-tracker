@@ -193,13 +193,13 @@
     <!-- Primary row — slides UP when drawer opens, More becomes Courses -->
     <div class="nav-row nav-primary" id="nav-primary">
       <a class="nav-item" href="index.html">
-        <img src="Home_2.png" alt="Home">
+        <img src="Home_1.png" alt="Home">
       </a>
       <a class="nav-item" href="start.html" id="nav-play">
-        <img src="Play_1.png" alt="Play">
+        <img src="Play_2.png" alt="Play">
       </a>
       <a class="nav-item" href="range.html">
-        <img src="Range_1.png" alt="Range">
+        <img src="Range_2.png" alt="Range">
       </a>
       <button class="nav-item" id="btn-more" onclick="openDrawer()">
         <img src="More.png" alt="More" id="icon-more">
@@ -209,13 +209,13 @@
     <!-- Secondary row — slides up UNDERNEATH primary when drawer opens -->
     <div class="nav-row nav-secondary" id="nav-secondary">
       <a class="nav-item" href="history.html">
-        <img src="History_1.png" alt="History">
+        <img src="History_2.png" alt="History">
       </a>
       <a class="nav-item" href="clubs.html">
-        <img src="Clubs_1.png" alt="Clubs">
+        <img src="Clubs_2.png" alt="Clubs">
       </a>
       <a class="nav-item" href="suggest.html">
-        <img src="Suggest_1.png" alt="Suggest">
+        <img src="Suggets_2.png" alt="Suggest">
       </a>
       <button class="nav-item" onclick="closeDrawer()">
         <img src="Back.png" alt="Back">
@@ -241,7 +241,7 @@ function openDrawer() {
   secondary.classList.add('open');
   overlay.classList.add('open');
   // More becomes Courses
-  iconMore.src = 'Courses_1.png';
+  iconMore.src = 'Courses_2.png';
   iconMore.alt = 'Courses';
   btnMore.onclick = () => window.location.href = 'find.html';
 }

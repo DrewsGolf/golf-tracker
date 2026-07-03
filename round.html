@@ -32,7 +32,8 @@
   /* Topbar */
   .topbar { background: transparent; border-bottom: 0.5px solid rgba(200,169,106,0.2); padding: calc(var(--safe-top) + 14px) 16px 14px; display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
   .topbar-back { background: rgba(200,169,106,0.12); border: 0.5px solid rgba(200,169,106,0.3); border-radius: 8px; width: 34px; height: 34px; display: flex; align-items: center; justify-content: center; color: var(--gold); font-size: 18px; cursor: pointer; flex-shrink: 0; text-decoration: none; }
-  .topbar h1 { font-size: 17px; font-weight: 500; flex: 1; color: var(--text-primary); letter-spacing: 0.04em; }
+  .header-logo { height: 40px; object-fit: contain; flex-shrink: 0; }
+  .topbar h1 { font-size: 13px; font-weight: 500; flex: 1; color: var(--text-muted); letter-spacing: 0.12em; text-transform: uppercase; }
   .topbar-action { background: transparent; border: 0.5px solid rgba(200,169,106,0.4); border-radius: 8px; padding: 6px 12px; color: var(--gold); font-size: 13px; font-weight: 500; cursor: pointer; white-space: nowrap; font-family: inherit; }
 
   /* Tab bar */
@@ -193,8 +194,8 @@
 </div>
 <div id="app">
   <div class="topbar">
-    <a class="topbar-back" href="index.html" aria-label="Menu">&#8962;</a>
-    <h1 id="topbar-title">Shot Tracker</h1>
+    <img class="header-logo" src="Logo.png" alt="Shot Tracker">
+    <h1 id="topbar-title">Round</h1>
     <button class="topbar-action" onclick="newRound()">New Round</button>
   </div>
   <div class="tab-bar">

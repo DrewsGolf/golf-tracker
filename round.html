@@ -5,57 +5,64 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="theme-color" content="#1a6b3a">
+<meta name="theme-color" content="#0D0D0D">
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icon-192.svg">
 <title>Shot Tracker — Round</title>
 <style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap');
+
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
   :root {
-    --green-dark: #1a6b3a; --green-mid: #2d8a52; --green-light: #e8f5ed; --green-pale: #f2faf5;
-    --text-primary: #1a1a1a; --text-secondary: #5a6a60; --text-muted: #94a89c;
-    --bg: #f5f7f5; --card: #ffffff; --border: rgba(0,0,0,0.08); --border-mid: rgba(0,0,0,0.14);
+    --green-dark: #C8A96A; --green-mid: #D9B878; --green-light: rgba(200,169,106,0.12); --green-pale: rgba(200,169,106,0.06);
+    --text-primary: #F2F2F2; --text-secondary: #BDBDBD; --text-muted: #9A9A9A;
+    --bg: #0D0D0D; --card: #1C1C1C; --border: rgba(200,169,106,0.15); --border-mid: rgba(200,169,106,0.25);
+    --gold: #C8A96A; --gold-muted: #9A7C47;
     --radius: 14px; --radius-sm: 9px;
     --safe-top: env(safe-area-inset-top, 0px); --safe-bottom: env(safe-area-inset-bottom, 0px);
   }
-  html, body { height: 100%; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg); color: var(--text-primary); overflow: hidden; }
-  #app { display: flex; flex-direction: column; height: 100%; max-width: 430px; margin: 0 auto; }
+  html, body { height: 100%; font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; background: var(--bg); color: var(--text-primary); overflow: hidden; }
+  .app { position: relative; width: 100%; height: 100%; max-width: 430px; margin: 0 auto; overflow: hidden; }
+  #app { display: flex; flex-direction: column; height: 100%; position: relative; z-index: 5; }
+  /* Background */
+  .hero { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 0; }
+  .hero-img { width: 100%; height: 100%; object-fit: cover; object-position: center; display: block; }
+  .hero-overlay { position: absolute; inset: 0; background: rgba(13,13,13,0.88); }
 
   /* Topbar */
-  .topbar { background: var(--green-dark); color: #fff; padding: calc(var(--safe-top) + 14px) 16px 14px; display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
-  .topbar-back { background: rgba(255,255,255,0.18); border: none; border-radius: 8px; width: 34px; height: 34px; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 18px; cursor: pointer; flex-shrink: 0; text-decoration: none; }
-  .topbar h1 { font-size: 17px; font-weight: 600; flex: 1; }
-  .topbar-action { background: rgba(255,255,255,0.18); border: none; border-radius: 8px; padding: 6px 12px; color: #fff; font-size: 13px; font-weight: 500; cursor: pointer; white-space: nowrap; }
+  .topbar { background: transparent; border-bottom: 0.5px solid rgba(200,169,106,0.2); padding: calc(var(--safe-top) + 14px) 16px 14px; display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
+  .topbar-back { background: rgba(200,169,106,0.12); border: 0.5px solid rgba(200,169,106,0.3); border-radius: 8px; width: 34px; height: 34px; display: flex; align-items: center; justify-content: center; color: var(--gold); font-size: 18px; cursor: pointer; flex-shrink: 0; text-decoration: none; }
+  .topbar h1 { font-size: 17px; font-weight: 500; flex: 1; color: var(--text-primary); letter-spacing: 0.04em; }
+  .topbar-action { background: transparent; border: 0.5px solid rgba(200,169,106,0.4); border-radius: 8px; padding: 6px 12px; color: var(--gold); font-size: 13px; font-weight: 500; cursor: pointer; white-space: nowrap; font-family: inherit; }
 
   /* Tab bar */
-  .tab-bar { background: var(--green-dark); padding: 0 16px 12px; display: flex; gap: 6px; flex-shrink: 0; }
-  .tab { flex: 1; padding: 8px; font-size: 13px; font-weight: 600; text-align: center; border-radius: 8px; border: none; cursor: pointer; background: rgba(255,255,255,0.12); color: rgba(255,255,255,0.75); }
-  .tab.active { background: #fff; color: var(--green-dark); }
+  .tab-bar { background: transparent; border-bottom: 0.5px solid rgba(200,169,106,0.15); padding: 0 16px 12px; display: flex; gap: 6px; flex-shrink: 0; }
+  .tab { flex: 1; padding: 8px; font-size: 13px; font-weight: 500; text-align: center; border-radius: 8px; border: 0.5px solid rgba(200,169,106,0.15); cursor: pointer; background: rgba(200,169,106,0.06); color: var(--text-muted); font-family: inherit; }
+  .tab.active { background: var(--gold); color: #0D0D0D; border-color: var(--gold); }
 
   /* Content */
-  .content { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; padding: 14px 14px calc(var(--safe-bottom) + 14px); }
+  .content { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; padding: 14px 14px calc(var(--safe-bottom) + 110px); }
   .screen { display: none; } .screen.active { display: block; }
 
   /* Stat cards */
   .stat-row { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 12px; }
-  .stat-card { background: var(--card); border-radius: var(--radius); border: 0.5px solid var(--border); padding: 12px 14px; }
-  .stat-label { font-size: 11px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 4px; }
-  .stat-value { font-size: 26px; font-weight: 700; color: var(--text-primary); line-height: 1; }
-  .stat-value.green { color: var(--green-dark); }
+  .stat-card { background: rgba(28,28,28,0.85); border-radius: var(--radius); border: 0.5px solid var(--border); padding: 12px 14px; backdrop-filter: blur(8px); }
+  .stat-label { font-size: 9px; font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 4px; }
+  .stat-value { font-size: 26px; font-weight: 300; color: var(--text-primary); line-height: 1; letter-spacing: -0.02em; }
+  .stat-value.green { color: var(--gold); }
 
   /* Hole header card */
-  .hole-header-card { background: var(--card); border: 0.5px solid var(--border); border-radius: var(--radius); padding: 12px 14px; margin-bottom: 12px; }
+  .hole-header-card { background: rgba(28,28,28,0.85); border: 0.5px solid var(--border); border-radius: var(--radius); padding: 12px 14px; margin-bottom: 12px; backdrop-filter: blur(8px); }
   .hole-title-row { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
-  .hole-nav-btn { width: 34px; height: 34px; background: var(--green-light); border: none; border-radius: 8px; font-size: 17px; color: var(--green-dark); display: flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0; }
+  .hole-nav-btn { width: 34px; height: 34px; background: rgba(200,169,106,0.12); border: 0.5px solid rgba(200,169,106,0.25); border-radius: 8px; font-size: 17px; color: var(--gold); display: flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0; }
   .hole-nav-btn:disabled { opacity: 0.3; cursor: default; }
-  .hole-nav-btn.locked { opacity: 0.4; }
-  .hole-title-text { font-size: 20px; font-weight: 700; color: var(--text-primary); flex: 1; text-align: center; }
+  .hole-title-text { font-size: 20px; font-weight: 300; color: var(--text-primary); flex: 1; text-align: center; letter-spacing: 0.04em; }
   .par-row { display: flex; align-items: center; gap: 8px; }
   .par-label { font-size: 13px; color: var(--text-secondary); white-space: nowrap; }
-  .par-input { width: 50px; border: 0.5px solid var(--border-mid); border-radius: 8px; padding: 7px 8px; font-size: 16px; font-weight: 700; text-align: center; color: var(--text-primary); background: var(--bg); -moz-appearance: textfield; }
+  .par-input { width: 50px; border: 0.5px solid rgba(200,169,106,0.3); border-radius: 8px; padding: 7px 8px; font-size: 16px; font-weight: 300; text-align: center; color: var(--text-primary); background: rgba(13,13,13,0.7); -moz-appearance: textfield; font-family: inherit; }
   .par-input::-webkit-outer-spin-button, .par-input::-webkit-inner-spin-button { -webkit-appearance: none; }
-  .par-save-btn { background: var(--green-dark); color: #fff; border: none; border-radius: 8px; padding: 7px 12px; font-size: 13px; font-weight: 600; cursor: pointer; white-space: nowrap; }
-  .par-saved-badge { background: var(--green-light); color: var(--green-dark); font-size: 12px; font-weight: 700; padding: 5px 10px; border-radius: 20px; white-space: nowrap; }
+  .par-save-btn { background: transparent; color: var(--gold); border: 0.5px solid var(--gold); border-radius: 8px; padding: 7px 12px; font-size: 13px; font-weight: 500; cursor: pointer; white-space: nowrap; font-family: inherit; }
+  .par-saved-badge { background: rgba(200,169,106,0.12); color: var(--gold); font-size: 12px; font-weight: 500; padding: 5px 10px; border-radius: 20px; white-space: nowrap; border: 0.5px solid rgba(200,169,106,0.25); }
 
   /* GPS status */
   .gps-status { display: flex; align-items: center; font-size: 12px; color: var(--text-secondary); margin-bottom: 10px; min-height: 18px; }
@@ -64,82 +71,82 @@
   @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.5;transform:scale(1.4)} }
 
   /* Shot list */
-  .shot-list { display: flex; flex-direction: column; gap: 7px; margin-top: 14px; margin-bottom: 12px; }
-  .shot-item { background: var(--card); border: 0.5px solid var(--border); border-radius: var(--radius-sm); display: flex; align-items: center; padding: 11px 13px; gap: 11px; }
-  .shot-bubble { width: 26px; height: 26px; border-radius: 50%; background: var(--green-light); font-size: 11px; font-weight: 700; color: var(--green-dark); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .shot-list { display: flex; flex-direction: column; gap: 7px; margin-bottom: 12px; }
+  .shot-item { background: rgba(28,28,28,0.7); border: 0.5px solid var(--border); border-radius: var(--radius-sm); display: flex; align-items: center; padding: 11px 13px; gap: 11px; }
+  .shot-bubble { width: 26px; height: 26px; border-radius: 50%; background: rgba(200,169,106,0.15); font-size: 11px; font-weight: 600; color: var(--gold); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
   .shot-club { font-size: 14px; font-weight: 600; flex: 1; }
   .shot-dist { font-size: 13px; color: var(--text-secondary); font-weight: 500; }
 
   /* Stages */
   .section-label { font-size: 11px; font-weight: 700; letter-spacing: 0.07em; text-transform: uppercase; color: var(--text-muted); margin: 0 0 8px; }
   .walk-instruction { text-align: center; padding: 8px 0 4px; font-size: 14px; color: var(--text-secondary); font-style: italic; margin-bottom: 6px; }
-  .remeasure-strip { display: flex; align-items: center; justify-content: space-between; background: #fffbf0; border: 0.5px solid #f0d890; border-radius: var(--radius-sm); padding: 10px 13px; margin-bottom: 12px; }
-  .remeasure-label { font-size: 13px; color: #b8820a; font-weight: 500; }
-  .remeasure-btn { background: #b8820a; color: #fff; border: none; border-radius: 8px; padding: 7px 12px; font-size: 13px; font-weight: 600; cursor: pointer; }
+  .remeasure-strip { display: flex; align-items: center; justify-content: space-between; background: rgba(200,169,106,0.08); border: 0.5px solid rgba(200,169,106,0.25); border-radius: var(--radius-sm); padding: 10px 13px; margin-bottom: 12px; }
+  .remeasure-label { font-size: 13px; color: var(--gold); font-weight: 500; }
+  .remeasure-btn { background: transparent; color: var(--gold); border: 0.5px solid var(--gold); border-radius: 8px; padding: 7px 12px; font-size: 13px; font-weight: 500; cursor: pointer; font-family: inherit; }
 
   /* Club grid */
   .club-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 7px; margin-bottom: 12px; }
-  .club-btn { background: var(--card); border: 0.5px solid var(--border-mid); border-radius: var(--radius-sm); padding: 12px 4px; font-size: 13px; font-weight: 500; color: var(--text-primary); cursor: pointer; text-align: center; }
+  .club-btn { background: rgba(28,28,28,0.85); border: 0.5px solid rgba(200,169,106,0.2); border-radius: var(--radius-sm); padding: 12px 4px; font-size: 13px; font-weight: 500; color: var(--text-primary); cursor: pointer; text-align: center; font-family: inherit; }
   .club-btn:active { transform: scale(0.96); }
-  .club-btn.sel { background: var(--green-dark); color: #fff; border-color: var(--green-dark); }
+  .club-btn.sel { background: var(--gold); color: #0D0D0D; border-color: var(--gold); font-weight: 600; }
 
   /* Buttons */
-  .btn { display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; padding: 14px; border-radius: var(--radius); border: none; font-size: 15px; font-weight: 600; cursor: pointer; transition: opacity 0.15s, transform 0.1s; margin-bottom: 8px; }
+  .btn { display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; padding: 14px; border-radius: var(--radius); border: none; font-size: 15px; font-weight: 500; cursor: pointer; transition: opacity 0.15s, transform 0.1s; margin-bottom: 8px; font-family: inherit; letter-spacing: 0.03em; }
   .btn:last-child { margin-bottom: 0; }
   .btn:active { opacity: 0.82; transform: scale(0.985); }
-  .btn-primary { background: var(--green-dark); color: #fff; }
-  .btn-teeup { background: var(--green-dark); color: #fff; font-size: 16px; padding: 17px; }
-  .btn-secondary { background: var(--card); color: var(--text-secondary); border: 0.5px solid var(--border-mid); }
-  .btn-inthehole { background: #1a3a6b; color: #fff; }
-  .btn-save-hole { background: #2d6b1a; color: #fff; font-size: 16px; padding: 17px; }
+  .btn-primary { background: var(--gold); color: #0D0D0D; }
+  .btn-teeup { background: var(--gold); color: #0D0D0D; font-size: 16px; padding: 17px; }
+  .btn-secondary { background: rgba(28,28,28,0.85); color: var(--text-muted); border: 0.5px solid var(--border); }
+  .btn-inthehole { background: transparent; color: var(--gold); border: 0.5px solid var(--gold); }
+  .btn-save-hole { background: var(--gold); color: #0D0D0D; font-size: 16px; padding: 17px; }
 
   /* Course strip */
-  .course-strip { background: var(--green-dark); margin: -14px -14px 12px; padding: 8px 14px; display: flex; align-items: center; justify-content: space-between; cursor: pointer; }
-  .course-strip-name { font-size: 13px; font-weight: 600; color: #fff; flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .course-strip-change { font-size: 11px; color: rgba(255,255,255,0.65); white-space: nowrap; margin-left: 8px; }
+  .course-strip { background: rgba(200,169,106,0.08); border: 0.5px solid rgba(200,169,106,0.2); border-radius: var(--radius-sm); margin-bottom: 12px; padding: 8px 14px; display: flex; align-items: center; justify-content: space-between; cursor: pointer; }
+  .course-strip-name { font-size: 13px; font-weight: 500; color: var(--gold); flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .course-strip-change { font-size: 11px; color: var(--gold-muted); white-space: nowrap; margin-left: 8px; }
 
   /* Finish round button */
-  .btn-finish { background: #1a3a6b; color: #fff; }
+  .btn-finish { background: transparent; color: var(--gold); border: 0.5px solid var(--gold); }
 
   /* Nav buttons */
   .nav-btns { display: flex; gap: 8px; margin-top: 4px; }
-  .nav-btn { flex: 1; padding: 11px 4px; background: var(--card); border: 0.5px solid var(--border-mid); border-radius: var(--radius-sm); font-size: 12px; font-weight: 600; color: var(--text-secondary); cursor: pointer; text-align: center; }
+  .nav-btn { flex: 1; padding: 11px 4px; background: rgba(28,28,28,0.85); border: 0.5px solid var(--border); border-radius: var(--radius-sm); font-size: 12px; font-weight: 500; color: var(--text-muted); cursor: pointer; text-align: center; font-family: inherit; }
 
   /* Summary / Scorecard */
-  .summary-card { background: var(--card); border: 0.5px solid var(--border); border-radius: var(--radius); overflow: hidden; margin-bottom: 12px; }
-  .sum-header { background: var(--green-dark); padding: 10px 14px; display: flex; align-items: center; justify-content: space-between; }
-  .sum-header-title { font-size: 15px; font-weight: 700; color: #fff; }
-  .sum-header-sub { font-size: 13px; color: rgba(255,255,255,0.75); }
+  .summary-card { background: rgba(28,28,28,0.85); border: 0.5px solid var(--border); border-radius: var(--radius); overflow: hidden; margin-bottom: 12px; }
+  .sum-header { background: rgba(200,169,106,0.12); border-bottom: 0.5px solid rgba(200,169,106,0.2); padding: 10px 14px; display: flex; align-items: center; justify-content: space-between; }
+  .sum-header-title { font-size: 15px; font-weight: 500; color: var(--gold); }
+  .sum-header-sub { font-size: 13px; color: var(--text-muted); }
   .sum-row { display: flex; align-items: center; gap: 10px; padding: 10px 14px; border-bottom: 0.5px solid rgba(0,0,0,0.07); }
   .sum-row:last-child { border-bottom: none; }
   .sum-bubble { width: 24px; height: 24px; border-radius: 50%; background: var(--green-light); font-size: 11px; font-weight: 700; color: var(--green-dark); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
   .sum-club { flex: 1; font-size: 14px; font-weight: 500; }
   .sum-dist { font-size: 14px; color: var(--text-secondary); }
-  .sum-footer { display: flex; align-items: center; justify-content: space-between; padding: 10px 14px; background: var(--green-pale); }
+  .sum-footer { display: flex; align-items: center; justify-content: space-between; padding: 10px 14px; background: rgba(200,169,106,0.06); border-top: 0.5px solid var(--border); }
   .sum-footer-label { font-size: 13px; font-weight: 600; color: var(--text-secondary); }
-  .sum-footer-val { font-size: 15px; font-weight: 700; color: var(--green-dark); }
+  .sum-footer-val { font-size: 15px; font-weight: 500; color: var(--gold); }
 
   .score-table { width: 100%; border-collapse: collapse; font-size: 13px; }
-  .score-table th { background: var(--green-dark); color: #fff; padding: 9px 6px; text-align: center; font-weight: 600; }
+  .score-table th { background: rgba(200,169,106,0.12); color: var(--gold); padding: 9px 6px; text-align: center; font-weight: 500; letter-spacing: 0.06em; }
   .score-table th:first-child { text-align: left; padding-left: 14px; }
   .score-table td { padding: 10px 6px; text-align: center; border-bottom: 0.5px solid var(--border); }
   .score-table td:first-child { font-weight: 600; text-align: left; padding-left: 14px; }
-  .score-table tr:last-child td { border-bottom: none; font-weight: 700; background: var(--green-pale); }
-  .score-table-wrap { background: var(--card); border: 0.5px solid var(--border); border-radius: var(--radius); overflow: hidden; margin-bottom: 14px; }
+  .score-table tr:last-child td { border-bottom: none; font-weight: 600; background: rgba(200,169,106,0.06); }
+  .score-table-wrap { background: rgba(28,28,28,0.85); border: 0.5px solid var(--border); border-radius: var(--radius); overflow: hidden; margin-bottom: 14px; }
 
   /* Empty state */
   .empty-state { text-align: center; padding: 32px 16px; color: var(--text-muted); font-size: 14px; line-height: 1.6; }
   .empty-icon { font-size: 36px; margin-bottom: 8px; display: block; }
 
   /* No bag warning */
-  .no-bag-card { background: #fffbf0; border: 0.5px solid #f0d890; border-radius: var(--radius); padding: 20px; text-align: center; margin-bottom: 14px; }
-  .no-bag-title { font-size: 16px; font-weight: 700; color: #b8820a; margin-bottom: 6px; }
-  .no-bag-desc { font-size: 13px; color: #8a6010; margin-bottom: 14px; }
+  .no-bag-card { background: rgba(200,169,106,0.08); border: 0.5px solid rgba(200,169,106,0.25); border-radius: var(--radius); padding: 20px; text-align: center; margin-bottom: 14px; }
+  .no-bag-title { font-size: 16px; font-weight: 500; color: var(--gold); margin-bottom: 6px; }
+  .no-bag-desc { font-size: 13px; color: var(--text-muted); margin-bottom: 14px; }
 
   /* ── Reusable in-app dialog ── */
   .dialog-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 200; display: flex; align-items: flex-end; justify-content: center; animation: fadeIn 0.15s ease; }
   @keyframes fadeIn { from{opacity:0} to{opacity:1} }
-  .dialog-sheet { background: var(--card); border-radius: 22px 22px 0 0; padding: 8px 0 calc(var(--safe-bottom) + 8px); width: 100%; max-width: 430px; animation: slideUp 0.2s ease; }
+  .dialog-sheet { background: #1C1C1C; border-top: 0.5px solid rgba(200,169,106,0.2); border-radius: 22px 22px 0 0; padding: 8px 0 calc(var(--safe-bottom) + 8px); width: 100%; max-width: 430px; animation: slideUp 0.2s ease; }
   @keyframes slideUp { from{transform:translateY(40px);opacity:0} to{transform:translateY(0);opacity:1} }
   .dialog-handle { width: 36px; height: 4px; background: var(--border-mid); border-radius: 2px; margin: 8px auto 16px; }
   .dialog-icon { font-size: 36px; text-align: center; margin-bottom: 8px; }
@@ -148,32 +155,48 @@
   .dialog-actions { padding: 0 16px; display: flex; flex-direction: column; gap: 8px; }
   .dialog-btn { display: flex; align-items: center; justify-content: center; width: 100%; padding: 15px; border-radius: var(--radius); border: none; font-size: 15px; font-weight: 600; cursor: pointer; transition: opacity 0.15s; }
   .dialog-btn:active { opacity: 0.82; }
-  .dialog-btn-primary { background: var(--green-dark); color: #fff; }
+  .dialog-btn-primary { background: var(--gold); color: #0D0D0D; }
   .dialog-btn-blue { background: #1a3a6b; color: #fff; }
   .dialog-btn-danger { background: #c0392b; color: #fff; }
-  .dialog-btn-secondary { background: var(--bg); color: var(--text-secondary); border: 0.5px solid var(--border-mid); }
+  .dialog-btn-secondary { background: rgba(28,28,28,0.85); color: var(--text-muted); border: 0.5px solid var(--border); }
   .dialog-divider { height: 0.5px; background: var(--border); margin: 4px 0; }
   /* Legacy aliases kept for In The Hole dialog */
-  .dialog-btn-yes { background: var(--green-dark); color: #fff; }
-  .dialog-btn-no { background: var(--bg); color: var(--text-secondary); border: 0.5px solid var(--border-mid); }
+  .dialog-btn-yes { background: var(--gold); color: #0D0D0D; }
+  .dialog-btn-no { background: rgba(28,28,28,0.85); color: var(--text-muted); border: 0.5px solid var(--border); }
 
   /* Toast */
-  #toast { position: fixed; bottom: calc(var(--safe-bottom) + 24px); left: 50%; transform: translateX(-50%) translateY(20px); background: #1a1a1a; color: #fff; padding: 10px 20px; border-radius: 100px; font-size: 13px; font-weight: 500; opacity: 0; transition: opacity 0.25s, transform 0.25s; pointer-events: none; white-space: nowrap; z-index: 999; }
+  #toast { position: fixed; bottom: calc(var(--safe-bottom) + 120px); left: 50%; transform: translateX(-50%) translateY(20px); background: rgba(28,28,28,0.95); color: var(--text-primary); border: 0.5px solid var(--border); padding: 10px 20px; border-radius: 100px; font-size: 13px; font-weight: 500; opacity: 0; transition: opacity 0.25s, transform 0.25s; pointer-events: none; white-space: nowrap; z-index: 999; }
   #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 
   /* Mark row — Mark Shot + Don't Record side by side */
   .mark-row { display: flex; gap: 8px; margin-bottom: 8px; }
   .mark-row .btn { margin-bottom: 0; flex: 1; }
-  .btn-norecord { background: #c0392b; color: #fff; }
+  .btn-norecord { background: rgba(142,75,75,0.4); color: #F2F2F2; border: 0.5px solid rgba(142,75,75,0.6); }
   .btn-norecord:active { opacity: 0.82; }
 
-  /* Summary tab buttons */
-  .sum-tabs { display: flex; gap: 6px; margin-bottom: 14px; }
-  .sum-tab { flex: 1; padding: 9px; font-size: 13px; font-weight: 600; border-radius: var(--radius-sm); border: 0.5px solid var(--border-mid); background: var(--card); color: var(--text-secondary); cursor: pointer; text-align: center; }
-  .sum-tab.active { background: var(--green-dark); color: #fff; border-color: var(--green-dark); }
+  /* ── Locked nav btn ── */
+  .hole-nav-btn.locked { opacity: 0.4; }
+
+  /* ── Bottom nav ── */
+  .nav-shell-round { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 430px; z-index: 150; }
+  .nav-row-round { display: flex; background: rgba(13,13,13,0.95); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
+  .nav-primary-r { border-top: 0.5px solid rgba(200,169,106,0.2); padding-bottom: calc(var(--safe-bottom) + 6px); transform: translateY(0); transition: transform 350ms cubic-bezier(0.4,0,0.2,1); will-change: transform; position: relative; z-index: 2; }
+  .nav-primary-r.raised { transform: translateY(-100%); }
+  .nav-secondary-r { border-top: 0.5px solid rgba(200,169,106,0.12); padding-bottom: calc(var(--safe-bottom) + 6px); position: absolute; bottom: 0; left: 0; right: 0; transform: translateY(100%); transition: transform 350ms cubic-bezier(0.4,0,0.2,1); will-change: transform; z-index: 1; }
+  .nav-secondary-r.open { transform: translateY(0); }
+  .nav-item-round { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 10px 4px 6px; cursor: pointer; text-decoration: none; background: none; border: none; -webkit-tap-highlight-color: transparent; transition: opacity 0.15s; }
+  .nav-item-round:active { opacity: 0.7; }
+  .nav-item-round img { width: 70px; height: 70px; object-fit: contain; display: block; }
+  .nav-overlay-round { position: fixed; inset: 0; background: rgba(0,0,0,0.5); opacity: 0; pointer-events: none; transition: opacity 350ms ease; z-index: 140; }
+  .nav-overlay-round.open { opacity: 1; pointer-events: auto; }
 </style>
 </head>
 <body>
+<div class="app">
+<div class="hero">
+  <img class="hero-img" src="Back_ground_New.jpg" alt="">
+  <div class="hero-overlay"></div>
+</div>
 <div id="app">
   <div class="topbar">
     <a class="topbar-back" href="index.html" aria-label="Menu">&#8962;</a>
@@ -218,17 +241,19 @@
         </div>
         <div id="gps-status-bar" class="gps-status"></div>
 
+        <div class="shot-list" id="home-shot-list"></div>
+
         <div id="stage-teeup"><button class="btn btn-teeup" onclick="doTeeUp()">&#9971; Tee Up</button></div>
 
         <div id="stage-clubs" style="display:none">
+          <div class="section-label">Select your club</div>
+          <div class="club-grid" id="club-grid-main"></div>
           <div id="walk-inst-main" class="walk-instruction" style="display:none">Walk to your ball and mark it</div>
           <div class="mark-row" id="mark-row-main" style="display:none">
             <button class="btn btn-norecord" id="btn-norecord-main" onclick="doNoRecord('main')">&#10007; Don't Record</button>
             <button class="btn btn-primary" id="btn-mark-main" onclick="doMark()">Mark Shot</button>
           </div>
           <button class="btn btn-inthehole" id="btn-ith-main" onclick="doInTheHole()" style="display:none">&#9971; In The Hole</button>
-          <div class="section-label">Select your club</div>
-          <div class="club-grid" id="club-grid-main"></div>
         </div>
 
         <div id="stage-next" style="display:none">
@@ -236,17 +261,15 @@
             <span class="remeasure-label">&#9888; Last shot recorded</span>
             <button class="remeasure-btn" onclick="doRemeasure()">Remeasure</button>
           </div>
+          <div class="section-label">Select club for next shot</div>
+          <div class="club-grid" id="club-grid-next"></div>
           <div id="walk-inst-next" class="walk-instruction" style="display:none">Walk to your ball and mark it</div>
           <div class="mark-row" id="mark-row-next" style="display:none">
             <button class="btn btn-norecord" id="btn-norecord-next" onclick="doNoRecord('next')">&#10007; Don't Record</button>
             <button class="btn btn-primary" id="btn-mark-next" onclick="doMark()">Mark Shot</button>
           </div>
           <button class="btn btn-inthehole" id="btn-ith-next" onclick="doInTheHole()" style="display:none">&#9971; In The Hole</button>
-          <div class="section-label">Select club for next shot</div>
-          <div class="club-grid" id="club-grid-next"></div>
         </div>
-
-        <div class="shot-list" id="home-shot-list"></div>
 
         <div id="stage-final-dist" style="display:none">
           <div class="walk-instruction" style="display:block;margin-bottom:8px;">Walk to the hole and mark your final shot</div>
@@ -340,52 +363,6 @@ function persist() {
   localStorage.setItem('golf-pars-v1', JSON.stringify(holePars));
 }
 
-// ── golf-course-pars store ────────────────────────────────────────────────────
-function getCourseParsStore() {
-  return JSON.parse(localStorage.getItem('golf-course-pars') || '{}');
-}
-
-function writeCoursePars(courseName, pars) {
-  if (!courseName || !pars || Object.keys(pars).length === 0) return;
-  const store = getCourseParsStore();
-  if (!store[courseName]) store[courseName] = {};
-  Object.assign(store[courseName], pars);
-  localStorage.setItem('golf-course-pars', JSON.stringify(store));
-}
-
-// ── Par lookup (priority chain) ───────────────────────────────────────────────
-function lookupCoursePars(courseName) {
-  if (!courseName) return null;
-  const key = courseName.trim().toLowerCase();
-
-  // 1. courses.js holePars
-  if (typeof COURSES !== 'undefined') {
-    const match = COURSES.find(c => c.name.trim().toLowerCase() === key);
-    if (match && match.holePars && match.holePars.length > 0) {
-      const result = {};
-      match.holePars.forEach((p, i) => { if (p) result[i + 1] = p; });
-      return result;
-    }
-  }
-
-  // 2. golf-course-pars localStorage
-  const store = getCourseParsStore();
-  const storeMatch = Object.keys(store).find(k => k.trim().toLowerCase() === key);
-  if (storeMatch && Object.keys(store[storeMatch]).length > 0) {
-    return store[storeMatch];
-  }
-
-  // 3. Round history — most recent round at this course with par data
-  const history = JSON.parse(localStorage.getItem('golf-round-history') || '[]');
-  const historyMatch = history.find(r =>
-    r.course && r.course.trim().toLowerCase() === key &&
-    r.pars && Object.keys(r.pars).length > 0
-  );
-  if (historyMatch) return { ...historyMatch.pars };
-
-  return null;
-}
-
 // ── Tabs ─────────────────────────────────────────────────────────────────────
 function showTab(t) {
   activeTab = t;
@@ -441,16 +418,8 @@ function renderHome() {
   document.getElementById('s-dist').textContent = shots.reduce((a,s)=>a+(s.dist||0),0) + 'm';
   document.getElementById('hole-title').textContent = 'Hole ' + currentHole;
 
-  // Par area — auto-fill from lookup if not yet saved for this hole
-  let savedPar = holePars[currentHole];
-  if (!savedPar && !holeFinished && currentCourse && currentCourse.name) {
-    const lookup = lookupCoursePars(currentCourse.name);
-    if (lookup && lookup[currentHole]) {
-      savedPar = lookup[currentHole];
-      holePars[currentHole] = savedPar;
-      persist();
-    }
-  }
+  // Par area
+  const savedPar = holePars[currentHole];
   const parArea = document.getElementById('par-area');
   if (holeFinished && savedPar) {
     parArea.innerHTML = '<span class="par-saved-badge">Par ' + savedPar + '</span>';
@@ -555,13 +524,7 @@ function savePar() {
   if (!inp) return;
   const v = parseInt(inp.value);
   if (!v||v<3||v>6) { showToast('Par must be 3–6'); return; }
-  holePars[currentHole] = v;
-  persist();
-  // Write to golf-course-pars store for future rounds at this course
-  if (currentCourse && currentCourse.name) {
-    writeCoursePars(currentCourse.name, { [currentHole]: v });
-  }
-  showToast('Par '+v+' saved');
+  holePars[currentHole] = v; persist(); showToast('Par '+v+' saved');
 }
 
 // ── Tee Up ───────────────────────────────────────────────────────────────────
@@ -746,59 +709,40 @@ function changeHole(dir) {
   const next = currentHole + dir;
   if (next<1||next>18) return;
 
-  if (dir<0) {
-    // Backward navigation only allowed once the current hole is finished & saved
-    if (!holeFinished) {
+  // Does the hole we're MOVING TO already have shots logged?
+  const nextHoleHasShots = shots.filter(s=>s.hole===next).length > 0;
+
+  if (dir>0) {
+    const holeShots = shots.filter(s=>s.hole===currentHole);
+    if (holeShots.length>0 && !holeFinished) {
       showDialog({
-        icon: '🔒',
-        title: 'Finish Hole ' + currentHole + ' First',
-        sub: 'You can look back at previous holes once you\'ve saved this one. Use "Save Hole & Next Hole" to finish up here.',
+        icon: '➡️',
+        title: 'Hole ' + currentHole + ' Not Finished',
+        sub: 'Move to Hole ' + next + ' anyway? Your shots so far will be saved.',
         buttons: [
-          { label: 'Got it', style: 'primary', action: () => {} }
+          { label: 'Yes — move to Hole ' + next, style: 'primary', action: () => {
+            currentHole=next; selectedClub=null; holeFinished=false;
+            if (!nextHoleHasShots) { teePosition=null; lastBallPosition=null; }
+            renderHome(); showToast('Hole ' + currentHole);
+          }},
+          { label: 'Cancel — stay on Hole ' + currentHole, style: 'secondary', action: () => {} }
         ]
       });
       return;
     }
-    currentHole = next;
-    selectedClub = null;
-    holeFinished = true;
-    renderHome();
-    showToast('Viewing Hole '+currentHole+' — read only');
-    return;
+    currentHole=next; selectedClub=null; holeFinished=false;
+    if (!nextHoleHasShots) { teePosition=null; lastBallPosition=null; }
+  } else {
+    currentHole=next; selectedClub=null; holeFinished=true;
+    if (!nextHoleHasShots) { teePosition=null; lastBallPosition=null; }
   }
-
-  // Does the hole we're MOVING TO already have shots logged?
-  const nextHoleHasShots = shots.filter(s=>s.hole===next).length > 0;
-
-  const holeShots = shots.filter(s=>s.hole===currentHole);
-  if (holeShots.length>0 && !holeFinished) {
-    showDialog({
-      icon: '➡️',
-      title: 'Hole ' + currentHole + ' Not Finished',
-      sub: 'Move to Hole ' + next + ' anyway? Your shots so far will be saved.',
-      buttons: [
-        { label: 'Yes — move to Hole ' + next, style: 'primary', action: () => {
-          currentHole=next; selectedClub=null; holeFinished=false;
-          if (!nextHoleHasShots) { teePosition=null; lastBallPosition=null; }
-          renderHome(); showToast('Hole ' + currentHole);
-        }},
-        { label: 'Cancel — stay on Hole ' + currentHole, style: 'secondary', action: () => {} }
-      ]
-    });
-    return;
-  }
-  currentHole=next; selectedClub=null; holeFinished=false;
-  if (!nextHoleHasShots) { teePosition=null; lastBallPosition=null; }
   renderHome();
-  showToast('Hole '+currentHole);
+  showToast(dir<0 ? 'Viewing Hole '+currentHole+' — read only' : 'Hole '+currentHole);
 }
 
 function updateHoleArrows() {
   const p=document.getElementById('hole-prev'), n=document.getElementById('hole-next');
-  if(p) {
-    p.disabled = currentHole===1;
-    p.classList.toggle('locked', currentHole>1 && !holeFinished);
-  }
+  if(p) p.disabled=currentHole===1;
   if(n) n.disabled=currentHole===18;
 }
 
@@ -994,10 +938,24 @@ function updateFinishBtn() {
 
 // ── Init ─────────────────────────────────────────────────────────────────────
 renderHome();
+// ── Nav drawer ────────────────────────────────────────────────────────────────
+function openNavDrawer() {
+  document.getElementById('nav-primary').classList.add('raised');
+  document.getElementById('nav-secondary').classList.add('open');
+  document.getElementById('nav-overlay').classList.add('open');
+  document.getElementById('icon-more').src = 'Courses_2.png';
+  document.getElementById('btn-more').onclick = () => window.location.href = 'find.html';
+}
+function closeDrawer() {
+  document.getElementById('nav-primary').classList.remove('raised');
+  document.getElementById('nav-secondary').classList.remove('open');
+  document.getElementById('nav-overlay').classList.remove('open');
+  document.getElementById('icon-more').src = 'More.png';
+  document.getElementById('btn-more').onclick = openNavDrawer;
+}
 renderCourseStrip();
 updateFinishBtn();
 if('serviceWorker' in navigator){navigator.serviceWorker.register('/sw.js').catch(()=>{});}
 </script>
-<script src="courses.js"></script>
 </body>
 </html>

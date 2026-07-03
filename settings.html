@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#0D0D0D">
+<link rel="manifest" href="manifest.json">
+<title>Settings — Shot Tracker</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap');
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+  :root {
+    --bg-primary:    #0D0D0D;
+    --bg-card:       #1C1C1C;
+    --gold:          #C8A96A;
+    --gold-muted:    #9A7C47;
+    --text-primary:  #F2F2F2;
+    --text-muted:    #7A7A7A;
+    --safe-top:      env(safe-area-inset-top, 0px);
+    --safe-bottom:   env(safe-area-inset-bottom, 0px);
+  }
+
+  html, body {
+    height: 100%;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: var(--bg-primary);
+    overflow: hidden;
+  }
+
+  /* ── App container — identical to index.html ── */
+  .app {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    max-width: 430px;
+    margin: 0 auto;
+    overflow: hidden;
+  }
+
+  /* ── Background image ── */
+  .hero {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+  }
+
+  .hero-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+    display: block;
+  }
+
+  /* ── Dark overlay on background ── */
+  .hero-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(13,13,13,0.65);
+  }
+
+  /* ── Header ── */
+  .header {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    padding: calc(var(--safe-top) + 20px) 24px 20px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    border-bottom: 0.5px solid rgba(200,169,106,0.2);
+    z-index: 10;
+  }
+
+  .header-logo { height: 40px; object-fit: contain; }
+  .header-title { font-size: 13px; font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-muted); }
+
+  /* ── Settings content ── */
+  .settings-content {
+    position: absolute;
+    top: calc(var(--safe-top) + 100px);
+    left: 0;
+    right: 0;
+    padding: 0 20px;
+    z-index: 10;
+  }
+
+  .settings-card {
+    background: rgba(28,28,28,0.85);
+    border: 0.5px solid var(--gold);
+    border-radius: 16px;
+    overflow: hidden;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+  }
+
+  .settings-item {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 18px 20px;
+    text-decoration: none;
+    color: inherit;
+    border-bottom: 0.5px solid rgba(200,169,106,0.1);
+    transition: background 0.15s;
+  }
+
+  .settings-item:last-child { border-bottom: none; }
+  .settings-item:active { background: rgba(200,169,106,0.08); }
+
+  .settings-item-icon { width: 36px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .settings-item-body { flex: 1; }
+  .settings-item-title { font-size: 15px; font-weight: 500; color: var(--gold); margin-bottom: 2px; }
+  .settings-item-desc { font-size: 12px; color: var(--text-muted); letter-spacing: 0.01em; }
+  .settings-item-arrow { font-size: 18px; color: var(--gold-muted); }
+
+  /* ── Nav — identical to index.html ── */
+  .nav-shell {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 100;
+  }
+
+  .nav-row {
+    display: flex;
+    background: rgba(13,13,13,0.92);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+  }
+
+  .nav-primary {
+    border-top: 0.5px solid rgba(200,169,106,0.2);
+    padding-bottom: calc(var(--safe-bottom) + 6px);
+    transform: translateY(0);
+    transition: transform 350ms cubic-bezier(0.4, 0, 0.2, 1);
+    will-change: transform;
+    position: relative;
+    z-index: 2;
+  }
+
+  .nav-primary.raised { transform: translateY(-100%); }
+
+  .nav-secondary {
+    border-top: 0.5px solid rgba(200,169,106,0.12);
+    padding-bottom: calc(var(--safe-bottom) + 6px);
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    transform: translateY(100%);
+    transition: transform 350ms cubic-bezier(0.4, 0, 0.2, 1);
+    will-change: transform;
+    z-index: 1;
+  }
+
+  .nav-secondary.open { transform: translateY(0); }
+
+  .nav-item {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 10px 4px 6px;
+    cursor: pointer;
+    text-decoration: none;
+    background: none;
+    border: none;
+    -webkit-tap-highlight-color: transparent;
+    transition: opacity 0.15s;
+  }
+
+  .nav-item:active { opacity: 0.7; }
+  .nav-item img { width: 70px; height: 70px; object-fit: contain; display: block; }
+
+  .nav-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 350ms ease;
+    z-index: 90;
+  }
+
+  .nav-overlay.open { opacity: 1; pointer-events: auto; }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- Background image -->
+  <div class="hero">
+    <img class="hero-img" src="Back_ground_New.jpg" alt="">
+    <div class="hero-overlay"></div>
+  </div>
+
+  <!-- Header -->
+  <div class="header">
+    <img class="header-logo" src="Logo.png" alt="Shot Tracker">
+    <div class="header-title">Settings</div>
+  </div>
+
+  <!-- Settings content -->
+  <div class="settings-content">
+    <div class="settings-card">
+      <a class="settings-item" href="setup.html">
+        <div class="settings-item-icon">
+          <img src="Clubs_image.png" style="width:32px;height:32px;object-fit:contain;display:block;">
+        </div>
+        <div class="settings-item-body">
+          <div class="settings-item-title">Set Up Your Clubs</div>
+          <div class="settings-item-desc">Choose which clubs are in your bag</div>
+        </div>
+        <div class="settings-item-arrow">›</div>
+      </a>
+    </div>
+  </div>
+
+  <!-- Overlay -->
+  <div class="nav-overlay" id="nav-overlay" onclick="closeDrawer()"></div>
+
+  <!-- Nav shell — identical structure to index.html -->
+  <div class="nav-shell">
+    <div class="nav-row nav-primary" id="nav-primary">
+      <a class="nav-item" href="index.html"><img src="Home_2.png" alt="Home"></a>
+      <a class="nav-item" href="start.html"><img src="Play_2.png" alt="Play"></a>
+      <a class="nav-item" href="range.html"><img src="Range_2.png" alt="Range"></a>
+      <button class="nav-item" id="btn-more" onclick="openDrawer()">
+        <img src="More.png" alt="More" id="icon-more">
+      </button>
+    </div>
+    <div class="nav-row nav-secondary" id="nav-secondary">
+      <a class="nav-item" href="history.html"><img src="History_2.png" alt="History"></a>
+      <a class="nav-item" href="clubs.html"><img src="Clubs_2.png" alt="Clubs"></a>
+      <a class="nav-item" href="suggest.html"><img src="Suggets_2.png" alt="Suggest"></a>
+      <button class="nav-item" onclick="closeDrawer()"><img src="Back.png" alt="Back"></button>
+    </div>
+  </div>
+
+</div>
+
+<script>
+const primary   = document.getElementById('nav-primary');
+const secondary = document.getElementById('nav-secondary');
+const overlay   = document.getElementById('nav-overlay');
+const btnMore   = document.getElementById('btn-more');
+const iconMore  = document.getElementById('icon-more');
+
+function openDrawer() {
+  primary.classList.add('raised');
+  secondary.classList.add('open');
+  overlay.classList.add('open');
+  iconMore.src = 'Courses_2.png';
+  iconMore.alt = 'Courses';
+  btnMore.onclick = () => window.location.href = 'find.html';
+}
+
+function closeDrawer() {
+  primary.classList.remove('raised');
+  secondary.classList.remove('open');
+  overlay.classList.remove('open');
+  iconMore.src = 'More.png';
+  iconMore.alt = 'More';
+  btnMore.onclick = openDrawer;
+}
+</script>
+</body>
+</html>

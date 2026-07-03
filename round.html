@@ -109,9 +109,6 @@
   .btn-finish { background: transparent; color: var(--gold); border: 0.5px solid var(--gold); }
 
   /* Nav buttons */
-  .nav-btns { display: flex; gap: 8px; margin-top: 4px; }
-  .nav-btn { flex: 1; padding: 11px 4px; background: rgba(28,28,28,0.85); border: 0.5px solid var(--border); border-radius: var(--radius-sm); font-size: 12px; font-weight: 500; color: var(--text-muted); cursor: pointer; text-align: center; font-family: inherit; }
-
   /* Summary / Scorecard */
   .summary-card { background: rgba(28,28,28,0.85); border: 0.5px solid var(--border); border-radius: var(--radius); overflow: hidden; margin-bottom: 12px; }
   .sum-header { background: rgba(200,169,106,0.12); border-bottom: 0.5px solid rgba(200,169,106,0.2); padding: 10px 14px; display: flex; align-items: center; justify-content: space-between; }
@@ -246,14 +243,14 @@
         <div id="stage-teeup"><button class="btn btn-teeup" onclick="doTeeUp()">&#9971; Tee Up</button></div>
 
         <div id="stage-clubs" style="display:none">
-          <div class="section-label">Select your club</div>
-          <div class="club-grid" id="club-grid-main"></div>
           <div id="walk-inst-main" class="walk-instruction" style="display:none">Walk to your ball and mark it</div>
           <div class="mark-row" id="mark-row-main" style="display:none">
             <button class="btn btn-norecord" id="btn-norecord-main" onclick="doNoRecord('main')">&#10007; Don't Record</button>
             <button class="btn btn-primary" id="btn-mark-main" onclick="doMark()">Mark Shot</button>
           </div>
           <button class="btn btn-inthehole" id="btn-ith-main" onclick="doInTheHole()" style="display:none">&#9971; In The Hole</button>
+          <div class="section-label">Select your club</div>
+          <div class="club-grid" id="club-grid-main"></div>
         </div>
 
         <div id="stage-next" style="display:none">
@@ -261,14 +258,14 @@
             <span class="remeasure-label">&#9888; Last shot recorded</span>
             <button class="remeasure-btn" onclick="doRemeasure()">Remeasure</button>
           </div>
-          <div class="section-label">Select club for next shot</div>
-          <div class="club-grid" id="club-grid-next"></div>
           <div id="walk-inst-next" class="walk-instruction" style="display:none">Walk to your ball and mark it</div>
           <div class="mark-row" id="mark-row-next" style="display:none">
             <button class="btn btn-norecord" id="btn-norecord-next" onclick="doNoRecord('next')">&#10007; Don't Record</button>
             <button class="btn btn-primary" id="btn-mark-next" onclick="doMark()">Mark Shot</button>
           </div>
           <button class="btn btn-inthehole" id="btn-ith-next" onclick="doInTheHole()" style="display:none">&#9971; In The Hole</button>
+          <div class="section-label">Select club for next shot</div>
+          <div class="club-grid" id="club-grid-next"></div>
         </div>
 
         <div id="stage-final-dist" style="display:none">
@@ -282,10 +279,6 @@
         </div>
       </div>
 
-      <div class="nav-btns">
-        <button class="nav-btn" onclick="showTab('summary')">&#9783; Summary</button>
-        <button class="nav-btn" onclick="showTab('scorecard')">&#9646; Scorecard</button>
-      </div>
       <button class="btn btn-finish" id="btn-finish-round" onclick="finishRound()" style="display:none;margin-top:8px;">&#9646; Finish &amp; Save Round</button>
     </div>
 

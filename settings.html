@@ -60,13 +60,13 @@
   /* Settings menu */
   .settings-menu { padding: 24px 20px; display: flex; flex-direction: column; gap: 10px; }
   .settings-section-label { font-size: 9px; font-weight: 500; letter-spacing: 0.16em; text-transform: uppercase; color: var(--gold-muted); margin-bottom: 4px; padding-left: 2px; }
-  .settings-card { background: var(--bg-card); border: 0.5px solid rgba(200,169,106,0.18); border-radius: 16px; overflow: hidden; }
+  .settings-card { background: var(--bg-card); border: 0.5px solid var(--gold); border-radius: 16px; overflow: hidden; }
   .settings-item { display: flex; align-items: center; gap: 16px; padding: 18px 20px; text-decoration: none; color: inherit; border-bottom: 0.5px solid rgba(200,169,106,0.1); transition: background 0.15s; }
   .settings-item:last-child { border-bottom: none; }
   .settings-item:active { background: rgba(200,169,106,0.05); }
   .settings-item-icon { font-size: 20px; width: 36px; text-align: center; flex-shrink: 0; }
   .settings-item-body { flex: 1; }
-  .settings-item-title { font-size: 15px; font-weight: 500; color: var(--text-primary); margin-bottom: 2px; }
+  .settings-item-title { font-size: 15px; font-weight: 500; color: var(--gold); margin-bottom: 2px; }
   .settings-item-desc { font-size: 12px; color: var(--text-muted); letter-spacing: 0.01em; }
   .settings-item-arrow { font-size: 18px; color: var(--gold-muted); }
 
@@ -195,7 +195,7 @@
     <div class="settings-section-label">My Bag</div>
     <div class="settings-card">
       <a class="settings-item" href="setup.html">
-        <div class="settings-item-icon">🎒</div>
+        <div class="settings-item-icon"><img src="Clubs_image.png" style="width:32px;height:32px;object-fit:contain;display:block;"></div>
         <div class="settings-item-body">
           <div class="settings-item-title">Set Up Your Clubs</div>
           <div class="settings-item-desc">Choose which clubs are in your bag</div>
@@ -207,6 +207,7 @@
 
   <!-- Placeholder -->
   <div class="content">
+    <img class="placeholder-icon" src="Clubs_image.png" alt="Clubs">
     <div class="placeholder-divider"></div>
     <div class="placeholder-desc">More settings coming soon.</div>
     <div class="placeholder-pill">Coming Soon</div>

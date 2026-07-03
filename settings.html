@@ -37,16 +37,7 @@
   .header-title { font-size: 13px; font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-muted); }
 
   /* ── Content ─────────────────────────────────────────────────── */
-  .content {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 48px 32px calc(var(--safe-bottom) + 110px);
-    text-align: center;
-    gap: 20px;
-  }
+  .content { flex: 1; }
 
   /* Settings menu */
   .settings-menu { padding: 24px 20px; display: flex; flex-direction: column; gap: 10px; }
@@ -60,46 +51,6 @@
   .settings-item-title { font-size: 15px; font-weight: 500; color: var(--gold); margin-bottom: 2px; }
   .settings-item-desc { font-size: 12px; color: var(--text-muted); letter-spacing: 0.01em; }
   .settings-item-arrow { font-size: 18px; color: var(--gold-muted); }
-
-  .placeholder-icon {
-    width: 110px;
-    height: 110px;
-    object-fit: contain;
-    opacity: 0.75;
-  }
-
-  .placeholder-title {
-    font-size: 24px;
-    font-weight: 300;
-    color: var(--text-primary);
-    letter-spacing: 0.04em;
-  }
-
-  .placeholder-divider {
-    width: 32px;
-    height: 1px;
-    background: var(--gold);
-    opacity: 0.6;
-  }
-
-  .placeholder-desc {
-    font-size: 13px;
-    color: var(--text-muted);
-    line-height: 1.8;
-    letter-spacing: 0.02em;
-    max-width: 260px;
-  }
-
-  .placeholder-pill {
-    font-size: 10px;
-    font-weight: 500;
-    letter-spacing: 0.16em;
-    text-transform: uppercase;
-    color: var(--gold-muted);
-    border: 0.5px solid rgba(200,169,106,0.3);
-    border-radius: 20px;
-    padding: 7px 18px;
-  }
 
   /* ── Bottom nav shell ───────────────────────────────────────── */
   .nav-shell {
@@ -185,7 +136,6 @@
 
   <!-- Settings menu -->
   <div class="settings-menu">
-    <div class="settings-section-label">My Bag</div>
     <div class="settings-card">
       <a class="settings-item" href="setup.html">
         <div class="settings-item-icon"><img src="Clubs_image.png" style="width:32px;height:32px;object-fit:contain;display:block;"></div>
@@ -196,14 +146,6 @@
         <div class="settings-item-arrow">›</div>
       </a>
     </div>
-  </div>
-
-  <!-- Placeholder -->
-  <div class="content">
-    <img class="placeholder-icon" src="Clubs_image.png" alt="Clubs">
-    <div class="placeholder-divider"></div>
-    <div class="placeholder-desc">More settings coming soon.</div>
-    <div class="placeholder-pill">Coming Soon</div>
   </div>
 
   <!-- Overlay -->

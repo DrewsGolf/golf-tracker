@@ -84,9 +84,18 @@
   .btn:disabled { opacity: 0.4; cursor: default; }
   .post-save { display: none; flex-direction: column; gap: 8px; }
 
+  /* ── Bottom sheet dialog ── */
+  .dialog-overlay { position: absolute; inset: 0; background: rgba(0,0,0,0.6); z-index: 200; opacity: 0; pointer-events: none; transition: opacity 0.25s; }
+  .dialog-overlay.open { opacity: 1; pointer-events: auto; }
+  .dialog-sheet { position: absolute; bottom: 0; left: 0; right: 0; background: #1C1C1C; border-radius: 20px 20px 0 0; border-top: 0.5px solid rgba(200,169,106,0.2); padding: 20px 24px calc(var(--safe-bottom) + 24px); z-index: 201; transform: translateY(100%); transition: transform 0.3s cubic-bezier(0.4,0,0.2,1); }
+  .dialog-sheet.open { transform: translateY(0); }
+  .dialog-handle { width: 36px; height: 3px; background: rgba(200,169,106,0.3); border-radius: 2px; margin: 0 auto 20px; }
+  .dialog-title { font-size: 17px; font-weight: 500; color: var(--text-primary); margin-bottom: 8px; letter-spacing: 0.01em; }
+  .dialog-sub { font-size: 13px; color: var(--text-muted); margin-bottom: 20px; line-height: 1.6; }
+  .dialog-btn { width: 100%; padding: 14px; border: none; border-radius: 12px; font-size: 14px; font-weight: 500; cursor: pointer; font-family: inherit; letter-spacing: 0.04em; background: var(--gold); color: #0D0D0D; }
+  .dialog-btn:active { opacity: 0.8; }
+
   /* ── Toast ── */
-  #toast { position: fixed; bottom: calc(var(--safe-bottom) + 160px); left: 50%; transform: translateX(-50%) translateY(20px); background: rgba(28,28,28,0.95); color: var(--text-primary); border: 0.5px solid var(--border); padding: 10px 20px; border-radius: 100px; font-size: 13px; font-weight: 500; opacity: 0; transition: opacity 0.25s, transform 0.25s; pointer-events: none; white-space: nowrap; z-index: 999; }
-  #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 
   /* ── Nav — identical to index.html ── */
   .nav-shell { position: absolute; bottom: 0; left: 0; right: 0; z-index: 100; }
@@ -141,8 +150,17 @@
     </div>
     <div class="post-save" id="post-save">
       <button class="btn btn-round" onclick="window.location.href='start.html'">&#9971; Start a Round</button>
-      <button class="btn btn-secondary" onclick="window.location.href='index.html'">&#8592; Return to Home</button>
+      <button class="btn btn-round" onclick="window.location.href='range.html'">&#9873; Driving Range</button>
     </div>
+  </div>
+
+  <!-- Bottom sheet dialog -->
+  <div class="dialog-overlay" id="dialog-overlay" onclick="closeDialog()"></div>
+  <div class="dialog-sheet" id="dialog-sheet">
+    <div class="dialog-handle"></div>
+    <div class="dialog-title" id="dialog-title"></div>
+    <div class="dialog-sub" id="dialog-sub"></div>
+    <button class="dialog-btn" onclick="closeDialog()" id="dialog-btn">Got it</button>
   </div>
 
   <!-- Overlay -->
@@ -168,7 +186,6 @@
 
 </div>
 
-<div id="toast"></div>
 
 <script>
 const ALL_CLUBS = [
@@ -226,7 +243,7 @@ function render() {
 function toggle(id) {
   if (saved) { saved = false; document.getElementById('pre-save').style.display = 'block'; document.getElementById('post-save').style.display = 'none'; }
   if (selected.has(id)) { selected.delete(id); }
-  else { if (selected.size >= 14) { showToast('Maximum 14 clubs allowed'); return; } selected.add(id); }
+  else { if (selected.size >= 14) { showDialog('Maximum Clubs Reached', 'You can carry a maximum of 14 clubs. Remove one before adding another.'); return; } selected.add(id); }
   render();
 }
 
@@ -239,19 +256,24 @@ function updateCounter() {
 }
 
 function saveBag() {
-  if (selected.size === 0) { showToast('Select at least one club'); return; }
+  if (selected.size === 0) { showDialog('No Clubs Selected', 'Select at least one club to save your bag.'); return; }
   const ordered = ALL_CLUBS.filter(c => selected.has(c.id)).map(c => c.id);
   localStorage.setItem('golf-bag-v1', JSON.stringify(ordered));
   saved = true;
-  showToast('Bag saved — ' + selected.size + ' clubs');
   document.getElementById('pre-save').style.display = 'none';
   document.getElementById('post-save').style.display = 'flex';
 }
 
-function showToast(msg) {
-  const t = document.getElementById('toast');
-  t.textContent = msg; t.classList.add('show');
-  setTimeout(() => t.classList.remove('show'), 2200);
+function showDialog(title, sub) {
+  document.getElementById('dialog-title').textContent = title;
+  document.getElementById('dialog-sub').textContent = sub;
+  document.getElementById('dialog-overlay').classList.add('open');
+  document.getElementById('dialog-sheet').classList.add('open');
+}
+
+function closeDialog() {
+  document.getElementById('dialog-overlay').classList.remove('open');
+  document.getElementById('dialog-sheet').classList.remove('open');
 }
 
 // ── Nav drawer ──

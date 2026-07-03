@@ -947,5 +947,22 @@ renderCourseStrip();
 updateFinishBtn();
 if('serviceWorker' in navigator){navigator.serviceWorker.register('/sw.js').catch(()=>{});}
 </script>
+
+<!-- NAV -->
+<div class="nav-overlay-round" id="nav-overlay" onclick="closeDrawer()"></div>
+<div class="nav-shell-round">
+  <div class="nav-row-round nav-primary-r" id="nav-primary">
+    <a class="nav-item-round" href="index.html"><img src="Home_2.png" alt="Home"></a>
+    <a class="nav-item-round" href="round.html"><img src="Play_1.png" alt="Play"></a>
+    <a class="nav-item-round" href="range.html"><img src="Range_2.png" alt="Range"></a>
+    <button class="nav-item-round" id="btn-more" onclick="openNavDrawer()"><img src="More.png" alt="More" id="icon-more"></button>
+  </div>
+  <div class="nav-row-round nav-secondary-r" id="nav-secondary">
+    <a class="nav-item-round" href="history.html"><img src="History_2.png" alt="History"></a>
+    <a class="nav-item-round" href="clubs.html"><img src="Clubs_2.png" alt="Clubs"></a>
+    <a class="nav-item-round" href="suggest.html"><img src="Suggets_2.png" alt="Suggest"></a>
+    <button class="nav-item-round" onclick="closeDrawer()"><img src="Back.png" alt="Back"></button>
+  </div>
+</div>
 </body>
 </html>

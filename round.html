@@ -85,11 +85,17 @@
   .remeasure-label { font-size: 13px; color: var(--gold); font-weight: 500; }
   .remeasure-btn { background: transparent; color: var(--gold); border: 0.5px solid var(--gold); border-radius: 8px; padding: 7px 12px; font-size: 13px; font-weight: 500; cursor: pointer; font-family: inherit; }
 
-  /* Club dropdown */
-  .club-select-wrap { position: relative; margin-bottom: 12px; }
-  .club-select { width: 100%; background: #1C1C1C; border: 0.5px solid rgba(200,169,106,0.35); border-radius: var(--radius-sm); padding: 14px 40px 14px 16px; font-size: 15px; font-weight: 500; color: var(--gold); font-family: inherit; cursor: pointer; appearance: none; -webkit-appearance: none; outline: none; }
-  .club-select option { background: #1C1C1C; color: #F2F2F2; }
-  .club-select-arrow { position: absolute; right: 14px; top: 50%; transform: translateY(-50%); pointer-events: none; color: var(--gold); font-size: 14px; }
+  /* Custom club dropdown — replaces native select for full iOS styling control */
+  .club-dropdown { position: relative; margin-bottom: 12px; }
+  .club-dropdown-trigger { width: 100%; background: #1C1C1C; border: 0.5px solid rgba(200,169,106,0.35); border-radius: var(--radius-sm); padding: 14px 40px 14px 16px; font-size: 15px; font-weight: 500; color: var(--gold); font-family: inherit; cursor: pointer; display: flex; align-items: center; justify-content: space-between; text-align: left; user-select: none; -webkit-user-select: none; }
+  .club-dropdown-trigger.placeholder { color: var(--text-muted); }
+  .club-dropdown-arrow { font-size: 14px; color: var(--gold); flex-shrink: 0; margin-left: 8px; transition: transform 0.2s; }
+  .club-dropdown.open .club-dropdown-arrow { transform: rotate(180deg); }
+  .club-dropdown-list { position: absolute; top: calc(100% + 4px); left: 0; right: 0; background: #1C1C1C; border: 0.5px solid rgba(200,169,106,0.35); border-radius: var(--radius-sm); z-index: 50; max-height: 260px; overflow-y: auto; -webkit-overflow-scrolling: touch; display: none; box-shadow: 0 8px 24px rgba(0,0,0,0.6); }
+  .club-dropdown.open .club-dropdown-list { display: block; }
+  .club-dropdown-item { padding: 13px 16px; font-size: 15px; font-weight: 400; color: #F2F2F2; cursor: pointer; border-bottom: 0.5px solid rgba(200,169,106,0.08); font-family: inherit; }
+  .club-dropdown-item:last-child { border-bottom: none; }
+  .club-dropdown-item:active, .club-dropdown-item.selected { background: rgba(200,169,106,0.12); color: var(--gold); }
 
   /* Buttons */
   .btn { display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; padding: 14px; border-radius: var(--radius); border: none; font-size: 15px; font-weight: 500; cursor: pointer; transition: opacity 0.15s, transform 0.1s; margin-bottom: 8px; font-family: inherit; letter-spacing: 0.03em; }
@@ -251,9 +257,12 @@
           </div>
           <button class="btn btn-inthehole" id="btn-ith-main" onclick="doInTheHole()" style="display:none">&#9971; In The Hole</button>
           <div class="section-label">Select your club</div>
-          <div class="club-select-wrap">
-            <select class="club-select" id="club-grid-main" onchange="selectClub(this.value,'main')"></select>
-            <span class="club-select-arrow">▾</span>
+          <div class="club-dropdown" id="club-grid-main">
+            <div class="club-dropdown-trigger placeholder" onclick="toggleDropdown('club-grid-main')">
+              <span class="club-dropdown-label">— Select a club —</span>
+              <span class="club-dropdown-arrow">▾</span>
+            </div>
+            <div class="club-dropdown-list"></div>
           </div>
         </div>
 
@@ -269,9 +278,12 @@
           </div>
           <button class="btn btn-inthehole" id="btn-ith-next" onclick="doInTheHole()" style="display:none">&#9971; In The Hole</button>
           <div class="section-label">Select club for next shot</div>
-          <div class="club-select-wrap">
-            <select class="club-select" id="club-grid-next" onchange="selectClub(this.value,'next')"></select>
-            <span class="club-select-arrow">▾</span>
+          <div class="club-dropdown" id="club-grid-next">
+            <div class="club-dropdown-trigger placeholder" onclick="toggleDropdown('club-grid-next')">
+              <span class="club-dropdown-label">— Select a club —</span>
+              <span class="club-dropdown-arrow">▾</span>
+            </div>
+            <div class="club-dropdown-list"></div>
           </div>
         </div>
 
@@ -470,18 +482,42 @@ function renderStage() {
 }
 
 function renderClubGrid(gridId, mode) {
-  const sel = document.getElementById(gridId);
-  if (!sel) return;
-  sel.innerHTML = '<option value="">— Select a club —</option>' +
-    BAG.map(id => '<option value="'+id+'"'+(selectedClub===id?' selected':'')+'>'+
-      (ALL_CLUBS_FULL[id]||id)+'</option>'
-    ).join('');
+  const wrap = document.getElementById(gridId);
+  if (!wrap) return;
+  const list = wrap.querySelector('.club-dropdown-list');
+  const trigger = wrap.querySelector('.club-dropdown-trigger');
+  const label = wrap.querySelector('.club-dropdown-label');
+  if (!list) return;
+  list.innerHTML = BAG.map(id =>
+    '<div class="club-dropdown-item' + (selectedClub===id?' selected':'') + '" onclick="selectClub(\''+id+'\',\''+mode+'\')">' +
+    (ALL_CLUBS_FULL[id]||id) + '</div>'
+  ).join('');
+  // Update trigger label
+  if (selectedClub && BAG.includes(selectedClub)) {
+    label.textContent = ALL_CLUBS_FULL[selectedClub] || selectedClub;
+    trigger.classList.remove('placeholder');
+  } else {
+    label.textContent = '— Select a club —';
+    trigger.classList.add('placeholder');
+  }
   updateMarkBtns(mode);
+}
+
+function toggleDropdown(gridId) {
+  const wrap = document.getElementById(gridId);
+  const isOpen = wrap.classList.contains('open');
+  closeAllDropdowns();
+  if (!isOpen) wrap.classList.add('open');
+}
+
+function closeAllDropdowns() {
+  document.querySelectorAll('.club-dropdown.open').forEach(d => d.classList.remove('open'));
 }
 
 function selectClub(id, mode) {
   selectedClub = id || null;
-  updateMarkBtns(mode);
+  closeAllDropdowns();
+  renderClubGrid(mode==='main'?'club-grid-main':'club-grid-next', mode);
 }
 
 function updateMarkBtns(mode) {
@@ -953,6 +989,11 @@ function closeDrawer() {
   document.getElementById('icon-more').src = 'More.png';
   document.getElementById('btn-more').onclick = openNavDrawer;
 }
+// Close dropdowns when tapping outside
+document.addEventListener('click', e => {
+  if (!e.target.closest('.club-dropdown')) closeAllDropdowns();
+});
+
 renderCourseStrip();
 updateFinishBtn();
 if('serviceWorker' in navigator){navigator.serviceWorker.register('/sw.js').catch(()=>{});}

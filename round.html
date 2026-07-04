@@ -477,7 +477,7 @@ function renderHome() {
     parArea.innerHTML = '<span class="par-saved-badge">Par ' + savedPar + '</span>';
   } else {
     parArea.innerHTML = '<div class="par-row"><span class="par-label">Par</span>' +
-      '<input class="par-input" type="number" id="par-input" min="3" max="6" inputmode="numeric" value="' + (savedPar||'') + '" placeholder="–">' +
+      '<input class="par-input" type="number" id="par-input" min="3" max="5" inputmode="numeric" value="' + (savedPar||'') + '" placeholder="–">' +
       '</div><button class="par-save-btn" onclick="savePar()" style="margin-top:6px;">Save</button>';
   }
 
@@ -682,8 +682,21 @@ function savePar() {
   const inp = document.getElementById('par-input');
   if (!inp) return;
   const v = parseInt(inp.value);
-  if (!v||v<3||v>6) { showToast('Par must be 3–6'); return; }
-  holePars[currentHole] = v; persist(); showToast('Par '+v+' saved');
+  if (v !== 3 && v !== 4 && v !== 5) {
+    showDialog({
+      icon: '⛳',
+      title: 'Invalid Par',
+      sub: 'Par can only be 3, 4 or 5. Please enter a valid value.',
+      buttons: [{ label: 'Got it', style: 'primary', action: () => {} }]
+    });
+    return;
+  }
+  holePars[currentHole] = v;
+  persist();
+  if (currentCourse && currentCourse.name) {
+    writeCoursePars(currentCourse.name, { [currentHole]: v });
+  }
+  renderHome();
 }
 
 // ── Tee Up ───────────────────────────────────────────────────────────────────

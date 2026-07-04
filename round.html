@@ -436,7 +436,7 @@ function newRound() {
       }},
       { label: 'Discard & start fresh', style: 'danger', action: () => {
         shots = []; holePars = {}; currentHole = 1;
-        selectedClub = null; teePosition = null; lastBallPosition = null; teeUpDone = false; holeFinished = false;
+        selectedClub = null; teePosition = null; lastBallPosition = null; teeUpDone = false; teeGpsInProgress = false; holeFinished = false;
         currentCourse = null;
         localStorage.removeItem('golf-current-course');
         persist();
@@ -563,12 +563,14 @@ function selectClub(id, mode) {
 
 function updateMarkBtns(mode) {
   const hasSel = !!selectedClub;
+  const gpsStillRunning = teeGpsInProgress && shots.filter(s=>s.hole===currentHole).length === 0;
+  const show = hasSel && !gpsStillRunning;
   const suffix = mode==='main' ? '-main' : '-next';
   const holeCount = shots.filter(s=>s.hole===currentHole).length;
-  document.getElementById('walk-inst'+suffix).style.display = hasSel?'block':'none';
-  document.getElementById('mark-row'+suffix).style.display = hasSel?'flex':'none';
-  document.getElementById('btn-ith'+suffix).style.display = hasSel?'flex':'none';
-  if (hasSel) document.getElementById('btn-mark'+suffix).textContent = 'Mark ' + ordinal(holeCount+1) + ' Shot';
+  document.getElementById('walk-inst'+suffix).style.display = show?'block':'none';
+  document.getElementById('mark-row'+suffix).style.display = show?'flex':'none';
+  document.getElementById('btn-ith'+suffix).style.display = show?'flex':'none';
+  if (show) document.getElementById('btn-mark'+suffix).textContent = 'Mark ' + ordinal(holeCount+1) + ' Shot';
 }
 
 function ordinal(n) {
@@ -698,14 +700,59 @@ function savePar() {
   holePars[currentHole] = v; persist(); showToast('Par '+v+' saved');
 }
 
-// ── Tee Up ───────────────────────────────────────────────────────────────────
 let teeUpDone = false;
+let teeGpsInProgress = false;
 
 function doTeeUp() {
   teePosition = null; lastBallPosition = null; selectedClub = null;
   teeUpDone = true;
   setStage('clubs');
   renderClubGrid('club-grid-main', 'main');
+  acquireTeePosition();
+}
+
+function acquireTeePosition() {
+  if (!navigator.geolocation) return;
+  const readings = [];
+  let dotIndex = 0;
+  let readingCount = 0;
+  teeGpsInProgress = true;
+
+  // Reset dots and show
+  for (let i = 0; i < 10; i++) {
+    const d = document.getElementById('gdot-' + i);
+    if (d) { d.textContent = '◎'; d.classList.remove('filled'); }
+  }
+  document.getElementById('gps-progress-label').textContent = 'Acquiring position';
+  document.getElementById('gps-progress').style.display = 'block';
+
+  // Visual dots every 2s
+  const dotTimer = setInterval(() => {
+    const d = document.getElementById('gdot-' + dotIndex);
+    if (d) { d.textContent = '◉'; d.classList.add('filled'); }
+    dotIndex++;
+    if (dotIndex >= 10) clearInterval(dotTimer);
+  }, 2000);
+
+  // GPS: 5s settle, then 3 readings every 5s
+  const teeTimeout = setTimeout(() => {
+    const readingTimer = setInterval(() => {
+      navigator.geolocation.getCurrentPosition(pos => {
+        readings.push(pos.coords);
+      }, () => {}, { enableHighAccuracy: true, timeout: 4500, maximumAge: 0 });
+
+      readingCount++;
+      if (readingCount >= 3) {
+        clearInterval(readingTimer);
+        clearInterval(dotTimer);
+        document.getElementById('gps-progress').style.display = 'none';
+        teeGpsInProgress = false;
+        if (readings.length > 0) teePosition = bestCoords(readings);
+        // Refresh buttons now GPS is done
+        if (selectedClub) updateMarkBtns('main');
+      }
+    }, 5000);
+  }, 5000);
 }
 
 // ── Mark ─────────────────────────────────────────────────────────────────────
@@ -864,7 +911,7 @@ function changeHole(dir) {
         buttons: [
           { label: 'Yes — move to Hole ' + next, style: 'primary', action: () => {
             currentHole=next; selectedClub=null; holeFinished=false;
-            if (!nextHoleHasShots) { teePosition=null; lastBallPosition=null; teeUpDone=false; }
+            if (!nextHoleHasShots) { teePosition=null; lastBallPosition=null; teeUpDone=false; teeGpsInProgress=false; }
             renderHome(); showToast('Hole ' + currentHole);
           }},
           { label: 'Cancel — stay on Hole ' + currentHole, style: 'secondary', action: () => {} }
@@ -873,10 +920,10 @@ function changeHole(dir) {
       return;
     }
     currentHole=next; selectedClub=null; holeFinished=false;
-    if (!nextHoleHasShots) { teePosition=null; lastBallPosition=null; teeUpDone=false; }
+    if (!nextHoleHasShots) { teePosition=null; lastBallPosition=null; teeUpDone=false; teeGpsInProgress=false; }
   } else {
     currentHole=next; selectedClub=null; holeFinished=true;
-    if (!nextHoleHasShots) { teePosition=null; lastBallPosition=null; teeUpDone=false; }
+    if (!nextHoleHasShots) { teePosition=null; lastBallPosition=null; teeUpDone=false; teeGpsInProgress=false; }
   }
   renderHome();
   showToast(dir<0 ? 'Viewing Hole '+currentHole+' — read only' : 'Hole '+currentHole);
@@ -891,7 +938,7 @@ function updateHoleArrows() {
 // ── Save hole ────────────────────────────────────────────────────────────────
 function doSaveHole() {
   if (currentHole>=18) { showToast('Round complete! Great round ⛳'); return; }
-  currentHole++; selectedClub=null; teePosition=null; lastBallPosition=null; teeUpDone=false; holeFinished=false;
+  currentHole++; selectedClub=null; teePosition=null; lastBallPosition=null; teeUpDone=false; teeGpsInProgress=false; holeFinished=false;
   renderHome(); showToast('Hole saved — Hole '+currentHole);
 }
 
@@ -1037,7 +1084,7 @@ function doFinishRound() {
   history.unshift(round);
   localStorage.setItem('golf-round-history', JSON.stringify(history));
   shots = []; holePars = {}; currentHole = 1;
-  selectedClub = null; teePosition = null; lastBallPosition = null; teeUpDone = false; holeFinished = false;
+  selectedClub = null; teePosition = null; lastBallPosition = null; teeUpDone = false; teeGpsInProgress = false; holeFinished = false;
   currentCourse = null;
   localStorage.removeItem('golf-current-course');
   persist();
@@ -1066,7 +1113,7 @@ function saveRoundToHistory() {
   history.unshift(round);
   localStorage.setItem('golf-round-history', JSON.stringify(history));
   shots = []; holePars = {}; currentHole = 1;
-  selectedClub = null; teePosition = null; lastBallPosition = null; teeUpDone = false; holeFinished = false;
+  selectedClub = null; teePosition = null; lastBallPosition = null; teeUpDone = false; teeGpsInProgress = false; holeFinished = false;
   currentCourse = null;
   localStorage.removeItem('golf-current-course');
   persist();

@@ -73,6 +73,12 @@
   @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.5;transform:scale(1.4)} }
 
   /* Shot list */
+  /* Last shot panel */
+  .last-shot-label { font-size: 9px; font-weight: 500; letter-spacing: 0.14em; text-transform: uppercase; color: var(--gold-muted); margin-bottom: 4px; margin-top: 10px; }
+  .last-shot-detail { display: flex; align-items: baseline; gap: 10px; padding: 10px 0 6px; border-top: 0.5px solid rgba(200,169,106,0.12); }
+  .last-shot-club { font-size: 16px; font-weight: 500; color: var(--text-primary); flex: 1; }
+  .last-shot-dist { font-size: 22px; font-weight: 300; color: var(--gold); letter-spacing: -0.02em; }
+
   .shot-list { display: flex; flex-direction: column; gap: 7px; margin-bottom: 12px; }
   .shot-item { background: rgba(28,28,28,0.7); border: 0.5px solid var(--border); border-radius: var(--radius-sm); display: flex; align-items: center; padding: 11px 13px; gap: 11px; }
   .shot-bubble { width: 26px; height: 26px; border-radius: 50%; background: rgba(200,169,106,0.15); font-size: 11px; font-weight: 600; color: var(--gold); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
@@ -243,8 +249,6 @@
       <div class="stat-row">
         <div class="stat-card"><div class="stat-label">Hole</div><div class="stat-value green" id="s-hole">1</div></div>
         <div class="stat-card"><div class="stat-label">This hole</div><div class="stat-value" id="s-hole-shots">0</div></div>
-        <div class="stat-card"><div class="stat-label">Total shots</div><div class="stat-value" id="s-total">0</div></div>
-        <div class="stat-card"><div class="stat-label">Total distance</div><div class="stat-value" id="s-dist">0m</div></div>
       </div>
 
       <div class="hole-header-card">
@@ -270,7 +274,13 @@
           </div>
         </div>
 
-        <div class="shot-list" id="home-shot-list"></div>
+        <div id="last-shot-panel" style="display:none">
+          <div class="last-shot-label">Last Shot</div>
+          <div class="last-shot-detail">
+            <span class="last-shot-club" id="last-shot-club">—</span>
+            <span class="last-shot-dist" id="last-shot-dist">—</span>
+          </div>
+        </div>
 
         <div id="stage-teeup"><button class="btn btn-teeup" onclick="doTeeUp()">&#9971; Tee Up</button></div>
 
@@ -445,8 +455,17 @@ function renderHome() {
   const holeShots = shots.filter(s => s.hole === currentHole);
   document.getElementById('s-hole').textContent = currentHole;
   document.getElementById('s-hole-shots').textContent = holeShots.length;
-  document.getElementById('s-total').textContent = shots.length;
-  document.getElementById('s-dist').textContent = shots.reduce((a,s)=>a+(s.dist||0),0) + 'm';
+
+  // Last shot panel — show the most recent shot on this hole
+  const lastShotPanel = document.getElementById('last-shot-panel');
+  if (holeShots.length > 0) {
+    const last = holeShots[holeShots.length - 1];
+    document.getElementById('last-shot-club').textContent = last.club || last.clubShort || '—';
+    document.getElementById('last-shot-dist').textContent = last.noRecord ? 'No distance' : (last.dist ? last.dist + 'm' : '—');
+    lastShotPanel.style.display = 'block';
+  } else {
+    lastShotPanel.style.display = 'none';
+  }
   document.getElementById('hole-title').textContent = 'Hole ' + currentHole;
 
   // Par area
@@ -463,16 +482,6 @@ function renderHome() {
   // Arrow states
   document.getElementById('hole-prev').disabled = currentHole === 1;
   document.getElementById('hole-next').disabled = currentHole === 18;
-
-  // Shot list
-  const list = document.getElementById('home-shot-list');
-  list.innerHTML = holeShots.length === 0 ? '' : holeShots.map((s,i) =>
-    '<div class="shot-item">' +
-    '<div class="shot-bubble">'+(i+1)+'</div>' +
-    '<div class="shot-club">'+(s.clubShort||s.club)+'</div>' +
-    '<div class="shot-dist">' + (s.noRecord ? '<span style="color:#c0392b;font-weight:700;">&#10007;</span>' : (s.dist ? s.dist+'m' : '&mdash;')) + '</div>' +
-    '</div>'
-  ).join('');
 
   renderStage();
   updateHoleArrows();

@@ -1,4 +1,4 @@
-const CACHE = 'golf-tracker-v13';
+const CACHE = 'golf-tracker-v14';
 const FILES = [
   '/',
   '/index.html',
@@ -16,6 +16,7 @@ const FILES = [
   '/icon-192.svg',
   '/icon-512.svg',
   '/Logo.png',
+  '/Header.webp',
   '/Clubs_image.png',
   '/Back_ground_New.jpg',
   '/Background_with_logo_and_tag.png',

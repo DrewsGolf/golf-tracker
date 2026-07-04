@@ -81,6 +81,12 @@
 
   /* Stages */
   .section-label { font-size: 11px; font-weight: 700; letter-spacing: 0.07em; text-transform: uppercase; color: var(--text-muted); margin: 0 0 8px; }
+  /* GPS progress dots */
+  .gps-progress-label { font-size: 11px; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase; color: var(--gold-muted); text-align: center; margin-bottom: 6px; margin-top: 8px; }
+  .gps-dots { display: flex; justify-content: center; gap: 6px; margin-bottom: 10px; }
+  .gps-dot-pip { font-size: 18px; color: rgba(200,169,106,0.25); transition: color 0.3s; }
+  .gps-dot-pip.filled { color: var(--gold); }
+
   .walk-instruction { text-align: center; padding: 8px 0 4px; font-size: 14px; color: var(--text-secondary); font-style: italic; margin-bottom: 6px; }
   .remeasure-strip { display: flex; align-items: center; justify-content: space-between; background: rgba(200,169,106,0.08); border: 0.5px solid rgba(200,169,106,0.25); border-radius: var(--radius-sm); padding: 10px 13px; margin-bottom: 12px; }
   .remeasure-label { font-size: 13px; color: var(--gold); font-weight: 500; }
@@ -248,7 +254,21 @@
           <button class="hole-nav-btn" id="hole-next" onclick="changeHole(1)" aria-label="Next hole">&#8594;</button>
           <div id="par-area"></div>
         </div>
-        <div id="gps-status-bar" class="gps-status"></div>
+        <div id="gps-progress" style="display:none">
+          <div class="gps-progress-label" id="gps-progress-label">Acquiring position</div>
+          <div class="gps-dots" id="gps-dots">
+            <span class="gps-dot-pip" id="gdot-0">◎</span>
+            <span class="gps-dot-pip" id="gdot-1">◎</span>
+            <span class="gps-dot-pip" id="gdot-2">◎</span>
+            <span class="gps-dot-pip" id="gdot-3">◎</span>
+            <span class="gps-dot-pip" id="gdot-4">◎</span>
+            <span class="gps-dot-pip" id="gdot-5">◎</span>
+            <span class="gps-dot-pip" id="gdot-6">◎</span>
+            <span class="gps-dot-pip" id="gdot-7">◎</span>
+            <span class="gps-dot-pip" id="gdot-8">◎</span>
+            <span class="gps-dot-pip" id="gdot-9">◎</span>
+          </div>
+        </div>
 
         <div class="shot-list" id="home-shot-list"></div>
 
@@ -537,23 +557,108 @@ function ordinal(n) {
   return n+(s[(v-20)%10]||s[v]||s[0]);
 }
 
-// ── GPS ──────────────────────────────────────────────────────────────────────
-function setGPS(msg, pulse) {
-  document.getElementById('gps-status-bar').innerHTML =
-    '<span class="gps-dot'+(pulse?' pulse':'')+'"></span>'+msg;
-}
-function clearGPS() { document.getElementById('gps-status-bar').innerHTML=''; }
+// ── GPS progress ──────────────────────────────────────────────────────────────
+let gpsDotTimer = null;
+let gpsReadingTimer = null;
+let gpsReadings = [];
+let gpsResolve = null;
 
-function getPos(ok, fail) {
-  if (!navigator.geolocation) { fail('GPS not available'); return; }
-  navigator.geolocation.getCurrentPosition(p=>ok(p.coords), ()=>fail('Could not get GPS'), {enableHighAccuracy:true,timeout:12000});
+function startGPSProgress(onComplete) {
+  gpsReadings = [];
+  gpsResolve = onComplete;
+
+  // Reset all 10 dots
+  for (let i = 0; i < 10; i++) {
+    const d = document.getElementById('gdot-' + i);
+    if (d) { d.textContent = '◎'; d.classList.remove('filled'); }
+  }
+  document.getElementById('gps-progress-label').textContent = 'Acquiring position';
+  document.getElementById('gps-progress').style.display = 'block';
+
+  // ── Visual dots: fill one every 2 seconds (purely cosmetic) ──
+  let dotIndex = 0;
+  gpsDotTimer = setInterval(() => {
+    const d = document.getElementById('gdot-' + dotIndex);
+    if (d) { d.textContent = '◉'; d.classList.add('filled'); }
+    dotIndex++;
+    if (dotIndex >= 10) { clearInterval(gpsDotTimer); gpsDotTimer = null; }
+  }, 2000);
+
+  // ── GPS: wait 5s to settle, then take 3 readings every 5s ──
+  setTimeout(() => {
+    let readingCount = 0;
+    gpsReadingTimer = setInterval(() => {
+      navigator.geolocation.getCurrentPosition(pos => {
+        gpsReadings.push(pos.coords);
+      }, () => {
+        // Failed reading — still count it so we finish on time
+      }, { enableHighAccuracy: true, timeout: 4500, maximumAge: 0 });
+
+      readingCount++;
+      if (readingCount >= 3) {
+        clearInterval(gpsReadingTimer);
+        gpsReadingTimer = null;
+        finishGPSProgress();
+      }
+    }, 5000);
+  }, 5000);
 }
 
-function haversine(a,b) {
-  const R=6371000, f1=a.latitude*Math.PI/180, f2=b.latitude*Math.PI/180;
-  const df=(b.latitude-a.latitude)*Math.PI/180, dl=(b.longitude-a.longitude)*Math.PI/180;
-  const x=Math.sin(df/2)**2+Math.cos(f1)*Math.cos(f2)*Math.sin(dl/2)**2;
-  return Math.round(2*R*Math.asin(Math.sqrt(x)));
+function finishGPSProgress() {
+  if (gpsDotTimer) { clearInterval(gpsDotTimer); gpsDotTimer = null; }
+  if (gpsReadingTimer) { clearInterval(gpsReadingTimer); gpsReadingTimer = null; }
+  document.getElementById('gps-progress').style.display = 'none';
+
+  if (gpsReadings.length === 0) {
+    showToast('Could not get GPS position');
+    gpsResolve = null;
+    return;
+  }
+
+  // Best-2-of-n: find the pair of readings closest to each other, average them
+  const coords = bestCoords(gpsReadings);
+  if (gpsResolve) { gpsResolve(coords); gpsResolve = null; }
+}
+
+function bestCoords(readings) {
+  if (readings.length === 1) return readings[0];
+  if (readings.length === 2) {
+    return {
+      latitude:  (readings[0].latitude  + readings[1].latitude)  / 2,
+      longitude: (readings[0].longitude + readings[1].longitude) / 2
+    };
+  }
+  // Find the pair with smallest distance between them
+  let bestDist = Infinity, bestA = 0, bestB = 1;
+  for (let i = 0; i < readings.length; i++) {
+    for (let j = i + 1; j < readings.length; j++) {
+      const d = haversine(readings[i], readings[j]);
+      if (d < bestDist) { bestDist = d; bestA = i; bestB = j; }
+    }
+  }
+  return {
+    latitude:  (readings[bestA].latitude  + readings[bestB].latitude)  / 2,
+    longitude: (readings[bestA].longitude + readings[bestB].longitude) / 2
+  };
+}
+
+function stopGPSProgress() {
+  if (gpsDotTimer) { clearInterval(gpsDotTimer); gpsDotTimer = null; }
+  if (gpsReadingTimer) { clearInterval(gpsReadingTimer); gpsReadingTimer = null; }
+  for (let i = 0; i < 10; i++) {
+    const d = document.getElementById('gdot-' + i);
+    if (d) { d.textContent = '◎'; d.classList.remove('filled'); }
+  }
+  document.getElementById('gps-progress').style.display = 'none';
+  gpsResolve = null;
+}
+
+function haversine(a, b) {
+  const R = 6371000, f1 = a.latitude * Math.PI/180, f2 = b.latitude * Math.PI/180;
+  const df = (b.latitude - a.latitude) * Math.PI/180;
+  const dl = (b.longitude - a.longitude) * Math.PI/180;
+  const x = Math.sin(df/2)**2 + Math.cos(f1)*Math.cos(f2)*Math.sin(dl/2)**2;
+  return Math.round(2 * R * Math.asin(Math.sqrt(x)));
 }
 
 // ── Par ──────────────────────────────────────────────────────────────────────
@@ -567,51 +672,48 @@ function savePar() {
 
 // ── Tee Up ───────────────────────────────────────────────────────────────────
 function doTeeUp() {
-  setGPS('Getting tee position...', true);
-  getPos(coords => {
-    teePosition = coords; lastBallPosition = null; selectedClub = null;
-    setGPS('Tee position locked', false);
-    setTimeout(clearGPS, 2000);
-    setStage('clubs');
-    renderClubGrid('club-grid-main','main');
-  }, err => setGPS(err+' — try again', false));
+  if (!navigator.geolocation) { showToast('GPS not available'); return; }
+  teePosition = null; lastBallPosition = null; selectedClub = null;
+  // Show club picker immediately — GPS runs in parallel
+  setStage('clubs');
+  renderClubGrid('club-grid-main', 'main');
+  // Start GPS averaging in background
+  startGPSProgress(coords => {
+    teePosition = coords;
+  });
 }
 
 // ── Mark ─────────────────────────────────────────────────────────────────────
+let pendingMarkCoords = null;
+let pendingMarkWaiting = false;
+
 function doMark() {
   if (!selectedClub) { showToast('Select a club first'); return; }
   pendingShotClub = selectedClub;
-  const holeShots = shots.filter(s => s.hole === currentHole);
+  pendingMarkCoords = null;
+  pendingMarkWaiting = true;
+
+  // Start GPS averaging — club already selected, record when done
+  startGPSProgress(coords => {
+    pendingMarkCoords = coords;
+    pendingMarkWaiting = false;
+    commitMark();
+  });
+}
+
+function commitMark() {
+  if (!pendingShotClub) return;
   const startPos = lastBallPosition || teePosition;
-
-  if (!startPos) {
-    if (holeShots.length > 0) {
-      // Safety net: hole already has shots but GPS state is missing.
-      // Re-anchor silently from the current position rather than blocking the user.
-      setGPS('Re-locating position...', true);
-      getPos(coords => {
-        lastBallPosition = coords;
-        showToast('Position re-acquired — tap Mark Shot again');
-        setGPS('Position locked', false);
-        setTimeout(clearGPS, 2000);
-      }, err => { setGPS(err, false); });
-      return;
-    }
-    showToast('Tap Tee Up first');
-    return;
-  }
-
-  setGPS('Getting ball position...', true);
-  getPos(coords => {
-    const isPutter = selectedClub === 'putter';
-    const dist = isPutter ? null : haversine(startPos, coords);
-    recordShot(pendingShotClub, dist);
-    lastBallPosition = coords;
-    setGPS('Shot recorded', false);
-    setTimeout(clearGPS, 2000);
-    selectedClub = null; pendingShotClub = null;
-    renderHome();
-  }, err => { setGPS(err, false); pendingShotClub = null; });
+  const isPutter = pendingShotClub === 'putter';
+  const dist = (startPos && pendingMarkCoords && !isPutter)
+    ? haversine(startPos, pendingMarkCoords)
+    : null;
+  recordShot(pendingShotClub, dist);
+  lastBallPosition = pendingMarkCoords;
+  pendingMarkCoords = null;
+  pendingShotClub = null;
+  selectedClub = null;
+  renderHome();
 }
 
 function recordShot(id, dist) {
@@ -627,40 +729,21 @@ function recordShot(id, dist) {
 // ── Don't Record ─────────────────────────────────────────────────────────────
 function doNoRecord(mode) {
   if (!selectedClub) { showToast('Select a club first'); return; }
-  // No-record shots don't need a starting position — they just log the club
-  // and capture the current GPS spot as the new "last position" for next time.
   const clubId = selectedClub;
-  setGPS('Getting position...', true);
-  getPos(coords => {
-    shots.push({
-      id: Date.now().toString(),
-      hole: currentHole,
-      club: ALL_CLUBS_FULL[clubId] || clubId,
-      clubShort: ALL_CLUBS_DEF[clubId] || clubId,
-      dist: null,
-      noRecord: true
-    });
-    persist();
-    lastBallPosition = coords;
-    setGPS('Position saved', false);
-    setTimeout(clearGPS, 2000);
-    selectedClub = null;
-    renderHome();
-  }, err => {
-    // Even if GPS fails, still record the shot — just without a position fix
-    shots.push({
-      id: Date.now().toString(),
-      hole: currentHole,
-      club: ALL_CLUBS_FULL[clubId] || clubId,
-      clubShort: ALL_CLUBS_DEF[clubId] || clubId,
-      dist: null,
-      noRecord: true
-    });
-    persist();
-    setGPS(err, false);
-    selectedClub = null;
-    renderHome();
+  // Record the shot immediately with no distance
+  shots.push({
+    id: Date.now().toString(),
+    hole: currentHole,
+    club: ALL_CLUBS_FULL[clubId] || clubId,
+    clubShort: ALL_CLUBS_DEF[clubId] || clubId,
+    dist: null,
+    noRecord: true
   });
+  persist();
+  selectedClub = null;
+  renderHome();
+  // GPS averages in background just to update position anchor for next shot
+  startGPSProgress(coords => { lastBallPosition = coords; });
 }
 
 // ── Remeasure ────────────────────────────────────────────────────────────────
@@ -719,23 +802,20 @@ function dialogAction(i) {
 function closeDialogOutside(e) { if (e.target===document.getElementById('dialog-overlay')) closeDialog(); }
 function closeDialog() { document.getElementById('dialog-overlay').style.display='none'; }
 
-function inTheHoleYes() { pendingShotClub=selectedClub; setStage('final-dist'); }
+function inTheHoleYes() { pendingShotClub = selectedClub; setStage('final-dist'); }
 function inTheHoleNo()  {
   recordShot(selectedClub, null);
-  selectedClub=null; holeFinished=true; renderHome();
+  selectedClub = null; holeFinished = true; renderHome();
 }
 function doMarkFinal() {
-  const startPos = lastBallPosition||teePosition;
-  if (!startPos) { recordShot(pendingShotClub,null); pendingShotClub=null; selectedClub=null; holeFinished=true; renderHome(); return; }
-  setGPS('Getting final position...', true);
-  getPos(coords => {
-    const dist = pendingShotClub==='putter' ? null : haversine(startPos, coords);
+  startGPSProgress(coords => {
+    const startPos = lastBallPosition || teePosition;
+    const dist = (startPos && pendingShotClub !== 'putter')
+      ? haversine(startPos, coords)
+      : null;
     recordShot(pendingShotClub, dist);
-    pendingShotClub=null; selectedClub=null; holeFinished=true;
-    setGPS('Final shot recorded', false); setTimeout(clearGPS,2000); renderHome();
-  }, err => {
-    setGPS(err, false); recordShot(pendingShotClub,null);
-    pendingShotClub=null; selectedClub=null; holeFinished=true; renderHome();
+    pendingShotClub = null; selectedClub = null; holeFinished = true;
+    renderHome();
   });
 }
 function cancelFinalDist() {

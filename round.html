@@ -152,13 +152,17 @@
   .sum-footer-label { font-size: 13px; font-weight: 600; color: var(--text-secondary); }
   .sum-footer-val { font-size: 15px; font-weight: 500; color: var(--gold); }
 
-  .score-table { width: 100%; border-collapse: collapse; font-size: 13px; }
-  .score-table th { background: rgba(200,169,106,0.12); color: var(--gold); padding: 9px 6px; text-align: center; font-weight: 500; letter-spacing: 0.06em; }
+  .score-table { width: 100%; border-collapse: collapse; font-size: 16px; }
+  .score-table th { background: rgba(200,169,106,0.12); color: var(--gold); padding: 11px 6px; text-align: center; font-weight: 500; letter-spacing: 0.06em; font-size: 14px; }
   .score-table th:first-child { text-align: left; padding-left: 14px; }
-  .score-table td { padding: 10px 6px; text-align: center; border-bottom: 0.5px solid var(--border); }
+  .score-table td { padding: 12px 6px; text-align: center; border-bottom: 0.5px solid var(--border); }
   .score-table td:first-child { font-weight: 600; text-align: left; padding-left: 14px; }
   .score-table tr:last-child td { border-bottom: none; font-weight: 600; background: rgba(200,169,106,0.06); }
   .score-table-wrap { background: rgba(28,28,28,0.85); border: 0.5px solid var(--border); border-radius: var(--radius); overflow: hidden; margin-bottom: 14px; }
+  .sc-input { width: 44px; background: rgba(13,13,13,0.7); border: 0.5px solid rgba(200,169,106,0.3); border-radius: 6px; padding: 4px 6px; font-size: 15px; font-weight: 500; color: var(--gold); text-align: center; font-family: inherit; -moz-appearance: textfield; }
+  .sc-input::-webkit-outer-spin-button, .sc-input::-webkit-inner-spin-button { -webkit-appearance: none; }
+  .sc-input:focus { outline: none; border-color: var(--gold); }
+  .sc-save-btn { background: transparent; border: 0.5px solid var(--gold); color: var(--gold); border-radius: 6px; padding: 3px 10px; font-size: 11px; font-weight: 500; cursor: pointer; font-family: inherit; margin-top: 4px; display: flex; align-items: center; justify-content: center; }
 
   /* Empty state */
   .empty-state { text-align: center; padding: 32px 16px; color: var(--text-muted); font-size: 14px; line-height: 1.6; }
@@ -917,21 +921,77 @@ function renderSummary() {
 
 // ── Scorecard ────────────────────────────────────────────────────────────────
 function renderScorecard() {
-  const tbody=document.getElementById('scorecard-body');
-  let ts=0,td=0,tp=0; const rows=[];
-  for(let h=1;h<=18;h++){
-    const hs=shots.filter(s=>s.hole===h);
-    if(hs.length>0){
-      const dist=hs.reduce((a,s)=>a+(s.dist||0),0), par=holePars[h];
-      const diff=par?hs.length-par:null;
-      const ds=diff===null?'&mdash;':(diff===0?'E':(diff>0?'+'+diff:diff));
-      ts+=hs.length; td+=dist; if(par)tp+=par;
-      rows.push('<tr><td>'+h+'</td><td>'+(par||'&mdash;')+'</td><td>'+hs.length+'</td><td>'+ds+'</td><td>'+(dist||'&mdash;')+'</td></tr>');
+  const tbody = document.getElementById('scorecard-body');
+  let ts=0, td=0, tp=0;
+  const rows = [];
+
+  for (let h = 1; h <= 18; h++) {
+    const hs = shots.filter(s => s.hole === h);
+    if (hs.length > 0) {
+      const dist = hs.reduce((a,s) => a+(s.dist||0), 0);
+      const par = holePars[h];
+      const diff = par ? hs.length - par : null;
+      const ds = diff===null ? '&mdash;' : (diff===0 ? 'E' : (diff>0 ? '+'+diff : diff));
+      ts += hs.length; td += dist; if (par) tp += par;
+      rows.push(
+        '<tr>' +
+        '<td>' + h + '</td>' +
+        '<td><input class="sc-input" type="number" min="3" max="5" inputmode="numeric" value="' + (par||'') + '" placeholder="–" onchange="scSavePar(' + h + ',this.value)"></td>' +
+        '<td><input class="sc-input" type="number" min="1" max="30" inputmode="numeric" value="' + hs.length + '" onchange="scSaveShots(' + h + ',this.value)"></td>' +
+        '<td>' + ds + '</td>' +
+        '<td>' + (dist||'&mdash;') + '</td>' +
+        '</tr>'
+      );
     }
   }
-  if(!rows.length){tbody.innerHTML='<tr><td colspan="5" style="text-align:center;color:#94a89c;padding:24px">No shots yet</td></tr>';return;}
-  const tdiff=tp?(ts-tp):null, tds=tdiff===null?'&mdash;':(tdiff===0?'E':(tdiff>0?'+'+tdiff:tdiff));
-  tbody.innerHTML=rows.join('')+'<tr><td>Total</td><td>'+(tp||'&mdash;')+'</td><td>'+ts+'</td><td>'+tds+'</td><td>'+td+'</td></tr>';
+
+  if (!rows.length) {
+    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:#94a89c;padding:24px">No shots yet</td></tr>';
+    return;
+  }
+
+  const tdiff = tp ? (ts-tp) : null;
+  const tds = tdiff===null ? '&mdash;' : (tdiff===0 ? 'E' : (tdiff>0 ? '+'+tdiff : tdiff));
+
+  tbody.innerHTML = rows.join('') +
+    '<tr>' +
+    '<td>Total<br><button class="sc-save-btn" onclick="scSaveAll()">Save</button></td>' +
+    '<td>' + (tp||'&mdash;') + '</td>' +
+    '<td>' + ts + '</td>' +
+    '<td>' + tds + '</td>' +
+    '<td>' + td + '</td>' +
+    '</tr>';
+}
+
+function scSavePar(hole, val) {
+  const v = parseInt(val);
+  if (v === 3 || v === 4 || v === 5) {
+    holePars[hole] = v;
+    if (currentCourse && currentCourse.name) writeCoursePars(currentCourse.name, { [hole]: v });
+  }
+}
+
+function scSaveShots(hole, val) {
+  const v = parseInt(val);
+  if (isNaN(v) || v < 1) return;
+  const holeShots = shots.filter(s => s.hole === hole);
+  const diff = v - holeShots.length;
+  if (diff > 0) {
+    // Add blank shots
+    for (let i = 0; i < diff; i++) {
+      shots.push({ id: Date.now().toString() + i, hole: hole, club: 'Manual', clubShort: 'Man', dist: null });
+    }
+  } else if (diff < 0) {
+    // Remove shots from end
+    const toRemove = holeShots.slice(diff);
+    toRemove.forEach(s => { shots = shots.filter(x => x.id !== s.id); });
+  }
+}
+
+function scSaveAll() {
+  persist();
+  renderScorecard();
+  showToast('Scorecard saved');
 }
 
 // ── Export ───────────────────────────────────────────────────────────────────

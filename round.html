@@ -32,7 +32,8 @@
   /* Topbar */
   .topbar { background: transparent; border-bottom: 0.5px solid rgba(200,169,106,0.2); padding: calc(var(--safe-top) + 14px) 16px 14px; display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
   .topbar-back { background: rgba(200,169,106,0.12); border: 0.5px solid rgba(200,169,106,0.3); border-radius: 8px; width: 34px; height: 34px; display: flex; align-items: center; justify-content: center; color: var(--gold); font-size: 18px; cursor: pointer; flex-shrink: 0; text-decoration: none; }
-  .header-logo { height: 80px; object-fit: contain; flex-shrink: 0; }
+  .header-img-wrap { position: relative; z-index: 10; width: 100%; flex-shrink: 0; }
+  .header-img { width: 100%; height: auto; display: block; }
   .topbar h1 { font-size: 13px; font-weight: 500; flex: 1; color: var(--text-muted); letter-spacing: 0.12em; text-transform: uppercase; }
   .topbar-action { background: transparent; border: 0.5px solid rgba(200,169,106,0.4); border-radius: 8px; padding: 6px 12px; color: var(--gold); font-size: 13px; font-weight: 500; cursor: pointer; white-space: nowrap; font-family: inherit; }
 
@@ -207,10 +208,9 @@
   <div class="hero-overlay"></div>
 </div>
 <div id="app">
-  <div class="topbar">
-    <img class="header-logo" src="Logo.png" alt="Shot Tracker">
-    
-    <button class="topbar-action" onclick="newRound()">New Round</button>
+  <div class="header-img-wrap" style="position:relative;z-index:10;">
+    <img class="header-img" src="Header.webp" alt="Shot Tracker">
+    <button class="topbar-action" onclick="newRound()" style="position:absolute;right:14px;bottom:10px;">New Round</button>
   </div>
   <div class="tab-bar">
     <button class="tab active" onclick="showTab('round')" id="tab-round">Round</button>

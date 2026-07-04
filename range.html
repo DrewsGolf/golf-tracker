@@ -37,7 +37,8 @@
   .hero-overlay { position: absolute; inset: 0; background: rgba(13,13,13,0.82); }
 
   .header { position: relative; z-index: 10; padding: calc(var(--safe-top) + 20px) 24px 20px; display: flex; align-items: center; gap: 16px; border-bottom: 0.5px solid rgba(200,169,106,0.2); flex-shrink: 0; }
-  .header-logo { height: 80px; object-fit: contain; }
+  .header-img-wrap { position: relative; z-index: 10; width: 100%; flex-shrink: 0; }
+  .header-img { width: 100%; height: auto; display: block; }
   .header-title { font-size: 13px; font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-muted); flex: 1; }
   .header-btn { background: transparent; border: 0.5px solid rgba(200,169,106,0.4); color: var(--gold); font-size: 12px; font-weight: 500; padding: 7px 14px; border-radius: 20px; cursor: pointer; letter-spacing: 0.06em; white-space: nowrap; font-family: inherit; }
   .header-btn:active { opacity: 0.7; }
@@ -156,10 +157,8 @@
 
 
   <!-- Header -->
-  <div class="header">
-    <img class="header-logo" src="Logo.png" alt="Shot Tracker">
-    
-    <button class="header-btn" id="header-btn" onclick="startNewSession()" style="display:none">+ New Session</button>
+  <div class="header-img-wrap">
+    <img class="header-img" src="Header.webp" alt="Shot Tracker">
   </div>
 
   <!-- Body -->

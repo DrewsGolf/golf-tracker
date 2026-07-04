@@ -707,6 +707,11 @@ function doTeeUp() {
   teePosition = null; lastBallPosition = null; selectedClub = null;
   teeUpDone = true;
   teeGpsInProgress = true;
+  // Explicitly hide action buttons before anything else runs
+  ['walk-inst-main','mark-row-main','btn-ith-main'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.style.display = 'none';
+  });
   setStage('clubs');
   renderClubGrid('club-grid-main', 'main');
   acquireTeePosition();
@@ -748,8 +753,8 @@ function acquireTeePosition() {
         document.getElementById('gps-progress').style.display = 'none';
         teeGpsInProgress = false;
         if (readings.length > 0) teePosition = bestCoords(readings);
-        // Refresh buttons now GPS is done
-        if (selectedClub) updateMarkBtns('main');
+        // Re-evaluate buttons now GPS is done — will show only if club already selected
+        updateMarkBtns('main');
       }
     }, 5000);
   }, 5000);

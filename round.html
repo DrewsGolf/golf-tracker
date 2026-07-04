@@ -953,9 +953,21 @@ function renderScorecard() {
   const tdiff = tp ? (ts-tp) : null;
   const tds = tdiff===null ? '&mdash;' : (tdiff===0 ? 'E' : (tdiff>0 ? '+'+tdiff : tdiff));
 
+  // Work out highest hole with shots for Next Hole logic
+  const maxHole = rows.length > 0 ? Math.max(...Array.from({length:18},(_,i)=>i+1).filter(h=>shots.filter(s=>s.hole===h).length>0)) : 0;
+  const canAddHole = maxHole < 18;
+
   tbody.innerHTML = rows.join('') +
     '<tr>' +
-    '<td>Total<br><button class="sc-save-btn" onclick="scSaveAll()">Save</button></td>' +
+    '<td colspan="5" style="padding:10px 14px;">' +
+    '<div style="display:flex;gap:8px;">' +
+    '<button class="sc-save-btn" style="flex:1;" onclick="scSaveAll()">Save</button>' +
+    (canAddHole ? '<button class="sc-save-btn" style="flex:1;" onclick="scNextHole(' + (maxHole+1) + ')">+ Hole ' + (maxHole+1) + '</button>' : '') +
+    '</div>' +
+    '</td>' +
+    '</tr>' +
+    '<tr style="background:rgba(200,169,106,0.06);">' +
+    '<td style="font-weight:600;padding-left:14px;">Total</td>' +
     '<td>' + (tp||'&mdash;') + '</td>' +
     '<td>' + ts + '</td>' +
     '<td>' + tds + '</td>' +
@@ -986,6 +998,14 @@ function scSaveShots(hole, val) {
     const toRemove = holeShots.slice(diff);
     toRemove.forEach(s => { shots = shots.filter(x => x.id !== s.id); });
   }
+}
+
+function scNextHole(hole) {
+  if (hole > 18) return;
+  // Add a single blank shot for this hole so it appears in the scorecard
+  shots.push({ id: Date.now().toString(), hole: hole, club: 'Manual', clubShort: 'Man', dist: null });
+  persist();
+  renderScorecard();
 }
 
 function scSaveAll() {

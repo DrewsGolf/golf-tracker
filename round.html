@@ -716,6 +716,16 @@ function doMark() {
   });
 }
 
+function recordShot(id, dist) {
+  shots.push({
+    id: Date.now().toString(), hole: currentHole,
+    club: ALL_CLUBS_FULL[id]||id,
+    clubShort: ALL_CLUBS_DEF[id]||id,
+    dist: dist||null
+  });
+  persist();
+}
+
 // ── Don't Record ────────────────────────────────────────────────────────────
 function doNoRecord(mode) {
   if (!selectedClub) { showToast('Select a club first'); return; }

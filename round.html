@@ -706,17 +706,17 @@ let teeGpsInProgress = false;
 function doTeeUp() {
   teePosition = null; lastBallPosition = null; selectedClub = null;
   teeUpDone = true;
+  teeGpsInProgress = true;
   setStage('clubs');
   renderClubGrid('club-grid-main', 'main');
   acquireTeePosition();
 }
 
 function acquireTeePosition() {
-  if (!navigator.geolocation) return;
+  if (!navigator.geolocation) { teeGpsInProgress = false; return; }
   const readings = [];
   let dotIndex = 0;
   let readingCount = 0;
-  teeGpsInProgress = true;
 
   // Reset dots and show
   for (let i = 0; i < 10; i++) {

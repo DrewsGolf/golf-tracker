@@ -32,7 +32,7 @@
   /* Topbar */
   .topbar { background: transparent; border-bottom: 0.5px solid rgba(200,169,106,0.2); padding: calc(var(--safe-top) + 14px) 16px 14px; display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
   .topbar-back { background: rgba(200,169,106,0.12); border: 0.5px solid rgba(200,169,106,0.3); border-radius: 8px; width: 34px; height: 34px; display: flex; align-items: center; justify-content: center; color: var(--gold); font-size: 18px; cursor: pointer; flex-shrink: 0; text-decoration: none; }
-  .header-logo { height: 40px; object-fit: contain; flex-shrink: 0; }
+  .header-logo { height: 80px; object-fit: contain; flex-shrink: 0; }
   .topbar h1 { font-size: 13px; font-weight: 500; flex: 1; color: var(--text-muted); letter-spacing: 0.12em; text-transform: uppercase; }
   .topbar-action { background: transparent; border: 0.5px solid rgba(200,169,106,0.4); border-radius: 8px; padding: 6px 12px; color: var(--gold); font-size: 13px; font-weight: 500; cursor: pointer; white-space: nowrap; font-family: inherit; }
 
@@ -158,7 +158,7 @@
   .dialog-sheet { background: #1C1C1C; border-top: 0.5px solid rgba(200,169,106,0.2); border-radius: 22px 22px 0 0; padding: 8px 0 calc(var(--safe-bottom) + 8px); width: 100%; max-width: 430px; animation: slideUp 0.2s ease; }
   @keyframes slideUp { from{transform:translateY(40px);opacity:0} to{transform:translateY(0);opacity:1} }
   .dialog-handle { width: 36px; height: 4px; background: var(--border-mid); border-radius: 2px; margin: 8px auto 16px; }
-  .dialog-icon { font-size: 36px; text-align: center; margin-bottom: 8px; }
+  .dialog-icon { text-align: center; margin-bottom: 8px; min-height: 36px; display: flex; align-items: center; justify-content: center; font-size: 36px; }
   .dialog-title { font-size: 18px; font-weight: 700; text-align: center; color: var(--text-primary); padding: 0 20px; margin-bottom: 6px; }
   .dialog-sub { font-size: 14px; color: var(--text-secondary); text-align: center; padding: 0 24px; margin-bottom: 20px; line-height: 1.5; }
   .dialog-actions { padding: 0 16px; display: flex; flex-direction: column; gap: 8px; }
@@ -209,7 +209,7 @@
 <div id="app">
   <div class="topbar">
     <img class="header-logo" src="Logo.png" alt="Shot Tracker">
-    <h1 id="topbar-title">Round</h1>
+    
     <button class="topbar-action" onclick="newRound()">New Round</button>
   </div>
   <div class="tab-bar">
@@ -396,7 +396,7 @@ function showSumTab(t) {
 function newRound() {
   if (shots.length === 0 && currentHole === 1) { showToast('Nothing to clear'); return; }
   showDialog({
-    icon: '🏌️',
+    icon: '<img src="dialog_new_round.png" alt="" style="width:72px;height:72px;object-fit:contain;opacity:0.9;" onerror="this.style.display=\'none\'">',
     title: 'Start a New Round?',
     sub: 'You have a round in progress. What would you like to do?',
     buttons: [

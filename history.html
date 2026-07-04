@@ -31,7 +31,7 @@
 
     /* Header */
   .header { background: var(--bg-primary); padding: calc(var(--safe-top) + 20px) 24px 20px; display: flex; align-items: center; gap: 16px; border-bottom: 0.5px solid rgba(200,169,106,0.12); }
-  .header-logo { height: 40px; object-fit: contain; }
+  .header-logo { height: 80px; object-fit: contain; }
   .header-title { font-size: 13px; font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-muted); flex: 1; }
   .back-btn { display: none; }
   .header-action { background: transparent; border: 0.5px solid rgba(200,169,106,0.4); color: var(--gold); font-size: 12px; font-weight: 500; padding: 7px 14px; border-radius: 20px; cursor: pointer; white-space: nowrap; letter-spacing: 0.06em; }
@@ -193,7 +193,7 @@
 <div id="list-view">
   <div class="header">
     <img class="header-logo" src="Logo.png" alt="Shot Tracker">
-    <div class="header-title">Round History</div>
+    
     <button class="header-action" onclick="openAddSheet()">+ Add Round</button>
   </div>
   <div class="content" id="list-content"></div>

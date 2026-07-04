@@ -37,7 +37,7 @@
   .hero-overlay { position: absolute; inset: 0; background: rgba(13,13,13,0.82); }
 
   .header { position: relative; z-index: 10; padding: calc(var(--safe-top) + 20px) 24px 20px; display: flex; align-items: center; gap: 16px; border-bottom: 0.5px solid rgba(200,169,106,0.2); flex-shrink: 0; }
-  .header-logo { height: 40px; object-fit: contain; }
+  .header-logo { height: 80px; object-fit: contain; }
   .header-title { font-size: 13px; font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-muted); flex: 1; }
   .header-btn { background: transparent; border: 0.5px solid rgba(200,169,106,0.4); color: var(--gold); font-size: 12px; font-weight: 500; padding: 7px 14px; border-radius: 20px; cursor: pointer; letter-spacing: 0.06em; white-space: nowrap; font-family: inherit; }
   .header-btn:active { opacity: 0.7; }
@@ -158,7 +158,7 @@
   <!-- Header -->
   <div class="header">
     <img class="header-logo" src="Logo.png" alt="Shot Tracker">
-    <div class="header-title" id="header-title">Driving Range</div>
+    
     <button class="header-btn" id="header-btn" onclick="startNewSession()" style="display:none">+ New Session</button>
   </div>
 
@@ -242,31 +242,23 @@ function showHistory() {
   viewState = 'history';
   activeSession = null;
   activeClubId = null;
-  document.getElementById('header-title').textContent = 'Driving Range';
-  document.getElementById('header-btn').style.display = 'none';
   renderHistory();
 }
 
 function showSession() {
   viewState = 'session';
   activeClubId = null;
-  document.getElementById('header-title').textContent = 'New Session';
-  document.getElementById('header-btn').style.display = 'none';
   renderSession();
 }
 
 function showEntry(clubId) {
   viewState = 'entry';
   activeClubId = clubId;
-  document.getElementById('header-title').textContent = 'Driving Range';
-  document.getElementById('header-btn').style.display = 'none';
   renderEntry();
 }
 
 function showDetail(sessionId) {
   viewState = 'detail';
-  document.getElementById('header-title').textContent = 'Session Detail';
-  document.getElementById('header-btn').style.display = 'none';
   renderDetail(sessionId);
 }
 

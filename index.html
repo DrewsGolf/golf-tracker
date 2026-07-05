@@ -176,7 +176,7 @@
 
   <!-- Full screen hero image -->
   <div class="hero">
-    <img class="hero-img" src="images/Background_with_logo_and_tag.webp" alt="">
+    <img class="hero-img" src="Background_with_logo_and_tag.png" alt="">
   </div>
 
   <!-- Settings — top left, same size as nav icons -->
@@ -195,7 +195,7 @@
       <a class="nav-item" href="index.html">
         <img src="Home_1.png" alt="Home">
       </a>
-      <a class="nav-item" href="start.html" id="nav-play">
+      <a class="nav-item" href="play.html" id="nav-play">
         <img src="Play_2.png" alt="Play">
       </a>
       <a class="nav-item" href="range.html">
@@ -256,10 +256,10 @@ function closeDrawer() {
 }
 
 // ── Continue round — swap Play to round.html if in progress ──────────────────
-const shots = JSON.parse(localStorage.getItem('golf-shots-v3') || '[]');
+const shots = JSON.parse(localStorage.getItem('play-round-v1') || '[]');
 const currentCourse = JSON.parse(localStorage.getItem('golf-current-course') || 'null');
 if (shots.length > 0 || currentCourse) {
-  document.getElementById('nav-play').setAttribute('href', 'round.html');
+  document.getElementById('nav-play').setAttribute('href', 'play.html');
 }
 
 if ('serviceWorker' in navigator) { navigator.serviceWorker.register('/sw.js').catch(()=>{}); }

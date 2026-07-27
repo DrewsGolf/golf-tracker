@@ -72,8 +72,9 @@
   .score-row { display: flex; align-items: center; width: 100%; }
   .score-btn { width: 64px; height: 64px; border-radius: var(--radius); background: rgba(200,169,106,0.1); border: 0.5px solid rgba(200,169,106,0.25); color: var(--gold); font-size: 32px; font-weight: 300; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-family: inherit; line-height: 1; }
   .score-btn:active { background: rgba(200,169,106,0.22); transform: scale(0.94); }
-  .score-display { flex: 1; display: flex; align-items: center; justify-content: center; }
+  .score-display { display: flex; align-items: center; justify-content: center; }
   .score-number { font-size: 80px; font-weight: 300; color: var(--text-primary); line-height: 1; letter-spacing: -0.04em; }
+  .score-spacer { flex: 1; }
   .score-diff-zone { flex: 1; display: flex; align-items: center; justify-content: flex-start; padding-left: 8px; }
   .score-diff { font-size: 18px; font-weight: 500; }
   .score-diff.over  { color: #e74c3c; }
@@ -88,9 +89,6 @@
   .btn-outline { background: transparent; color: var(--gold); border: 0.5px solid var(--gold); }
 
   /* Summary */
-  .sum-tabs { display: flex; gap: 6px; margin-bottom: 12px; }
-  .sum-tab { flex: 1; padding: 8px; font-size: 13px; font-weight: 500; text-align: center; border-radius: 8px; border: 0.5px solid rgba(200,169,106,0.15); cursor: pointer; background: rgba(200,169,106,0.06); color: var(--text-muted); font-family: inherit; }
-  .sum-tab.active { background: var(--gold); color: #0D0D0D; border-color: var(--gold); }
   .summary-card { background: var(--card); border: 0.5px solid var(--border); border-radius: var(--radius); overflow: hidden; margin-bottom: 12px; }
   .sum-header { background: rgba(200,169,106,0.12); border-bottom: 0.5px solid rgba(200,169,106,0.2); padding: 10px 14px; display: flex; align-items: center; justify-content: space-between; }
   .sum-header-title { font-size: 15px; font-weight: 500; color: var(--gold); }
@@ -100,6 +98,9 @@
   .sum-bubble { width: 24px; height: 24px; border-radius: 50%; background: rgba(200,169,106,0.12); font-size: 11px; font-weight: 700; color: var(--gold); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
   .sum-club { flex: 1; font-size: 14px; font-weight: 500; }
   .sum-dist { font-size: 14px; color: var(--text-secondary); }
+  .sum-stats { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0; border-top: 0.5px solid rgba(200,169,106,0.12); }
+  .sum-stat { display: flex; align-items: center; justify-content: center; padding: 10px 6px; border-right: 0.5px solid rgba(200,169,106,0.12); font-size: 15px; font-weight: 500; color: var(--text-primary); }
+  .sum-stat:last-child { border-right: none; }
   .sum-footer { display: flex; align-items: center; justify-content: space-between; padding: 10px 14px; background: rgba(200,169,106,0.06); border-top: 0.5px solid var(--border); }
   .sum-footer-label { font-size: 13px; font-weight: 600; color: var(--text-secondary); }
   .sum-footer-val { font-size: 15px; font-weight: 500; color: var(--gold); }
@@ -196,6 +197,7 @@
         <span class="score-card-label">This Hole</span>
         <div class="score-row">
           <button class="score-btn" onclick="adjustScore(-1)" aria-label="Decrease">&#8722;</button>
+          <div class="score-spacer"></div>
           <div class="score-display">
             <span class="score-number" id="score-number">0</span>
           </div>
@@ -211,9 +213,11 @@
         <span class="score-card-label">Putts</span>
         <div class="score-row">
           <button class="score-btn" onclick="adjustPutts(-1)" aria-label="Decrease putts">&#8722;</button>
+          <div class="score-spacer"></div>
           <div class="score-display">
             <span class="score-number" id="putts-number">0</span>
           </div>
+          <div class="score-diff-zone"></div>
           <button class="score-btn" onclick="adjustPutts(1)" aria-label="Increase putts">+</button>
         </div>
       </div>
@@ -225,10 +229,6 @@
 
     <!-- SUMMARY TAB -->
     <div class="screen" id="screen-summary">
-      <div class="sum-tabs">
-        <button class="sum-tab active" onclick="showSumTab('holes')" id="sum-tab-holes">By hole</button>
-        <button class="sum-tab" onclick="showSumTab('clubs')" id="sum-tab-clubs">By club</button>
-      </div>
       <div id="summary-content"></div>
       <button class="btn btn-outline" style="margin-top:4px" onclick="exportCSV()">&#8659; Download CSV</button>
       <button class="btn btn-outline" onclick="exportEmail()">&#9993; Email round</button>
@@ -269,7 +269,6 @@ let holePutts    = JSON.parse(localStorage.getItem('golf-putts-v1')   || '{}');
 // Legacy shot data — kept so Summary tab can show old shot-by-shot rounds
 let shots        = JSON.parse(localStorage.getItem('golf-shots-v3')  || '[]');
 let currentCourse = JSON.parse(localStorage.getItem('golf-current-course') || 'null');
-let activeSumTab = 'holes';
 
 function persist() {
   localStorage.setItem('golf-scores-v1', JSON.stringify(holeScores));
@@ -283,15 +282,8 @@ function showTab(t) {
     document.getElementById('screen-'+id).classList.toggle('active', id===t);
     document.getElementById('tab-'+id).classList.toggle('active', id===t);
   });
-  if (t==='summary')   renderSummary();
+  if (t==='summary') renderSummary();
   if (t==='scorecard') renderScorecard();
-}
-
-function showSumTab(t) {
-  activeSumTab = t;
-  document.getElementById('sum-tab-holes').classList.toggle('active', t==='holes');
-  document.getElementById('sum-tab-clubs').classList.toggle('active', t==='clubs');
-  renderSummary();
 }
 
 // ── New round ─────────────────────────────────────────────────────────────────
@@ -517,14 +509,17 @@ function renderSummary() {
     const par   = holePars[h];
     if (score) {
       const diff = par ? score - par : null;
-      const diffStr = diff===null ? '' : (diff===0 ? ' &middot; E' : (diff>0 ? ' &middot; +'+diff : ' &middot; '+diff));
-      const diffCol = diff===null ? '' : (diff>0 ? 'color:#e74c3c' : diff<0 ? 'color:var(--gold)' : 'color:var(--text-muted)');
-      const putts = holePutts[h];
-      const puttsStr = putts ? ' &middot; ' + putts + ' putt' + (putts===1?'':'s') : '';
-      return '<div class="summary-card"><div class="sum-header">' +
-        '<span class="sum-header-title">Hole ' + h + (par?' &middot; Par '+par:'') + '</span>' +
-        '<span class="sum-header-sub" style="' + diffCol + '">' + score + ' shots' + diffStr + puttsStr + '</span>' +
-        '</div></div>';
+      const diffStr = diff===null ? '&#8212;' : (diff===0 ? 'E' : (diff>0 ? '+'+diff : ''+diff));
+      const diffCol = diff===null ? 'color:var(--text-muted)' : (diff>0 ? 'color:#e74c3c' : diff<0 ? 'color:var(--gold)' : 'color:var(--text-muted)');
+      const putts = holePutts[h] || 0;
+      return '<div class="summary-card">' +
+        '<div class="sum-header"><span class="sum-header-title">Hole ' + h + (par?' &middot; Par '+par:'') + '</span></div>' +
+        '<div class="sum-stats">' +
+          '<div class="sum-stat">' + score + ' shots</div>' +
+          '<div class="sum-stat" style="' + diffCol + '">' + diffStr + '</div>' +
+          '<div class="sum-stat">' + (putts||'&#8212;') + ' putts</div>' +
+        '</div>' +
+        '</div>';
     } else {
       const hs = shots.filter(s => s.hole === h);
       const td = hs.reduce((a,s) => a+(s.dist||0), 0);

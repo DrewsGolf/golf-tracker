@@ -44,9 +44,6 @@
   .screen { display: none; } .screen.active { display: block; }
 
   /* Course strip */
-  .course-strip { background: rgba(200,169,106,0.08); border: 0.5px solid rgba(200,169,106,0.2); border-radius: var(--radius-sm); margin-bottom: 12px; padding: 8px 14px; display: flex; align-items: center; justify-content: space-between; cursor: pointer; }
-  .course-strip-name { font-size: 13px; font-weight: 500; color: var(--gold); flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .course-strip-change { font-size: 11px; color: var(--gold-muted); white-space: nowrap; margin-left: 8px; }
 
   /* Top row: Hole nav | Par */
   .top-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
@@ -67,13 +64,13 @@
   .par-save-btn:active { opacity: 0.75; }
 
   /* Score card */
-  .score-card { background: var(--card); border: 0.5px solid var(--border); border-radius: var(--radius); backdrop-filter: blur(8px); padding: 18px 14px 20px; margin-bottom: 12px; display: flex; flex-direction: column; align-items: center; }
-  .score-card-label { font-size: 10px; font-weight: 500; letter-spacing: 0.14em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 10px; }
+  .score-card { background: var(--card); border: 0.5px solid var(--border); border-radius: var(--radius); backdrop-filter: blur(8px); padding: 12px 14px 14px; margin-bottom: 12px; display: flex; flex-direction: column; align-items: center; }
+  .score-card-label { font-size: 10px; font-weight: 500; letter-spacing: 0.14em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 6px; }
   .score-row { display: flex; align-items: center; width: 100%; }
-  .score-btn { width: 64px; height: 64px; border-radius: var(--radius); background: rgba(200,169,106,0.1); border: 0.5px solid rgba(200,169,106,0.25); color: var(--gold); font-size: 32px; font-weight: 300; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-family: inherit; line-height: 1; }
+  .score-btn { width: 45px; height: 45px; border-radius: var(--radius); background: rgba(200,169,106,0.1); border: 0.5px solid rgba(200,169,106,0.25); color: var(--gold); font-size: 24px; font-weight: 300; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-family: inherit; line-height: 1; }
   .score-btn:active { background: rgba(200,169,106,0.22); transform: scale(0.94); }
   .score-display { display: flex; align-items: center; justify-content: center; }
-  .score-number { font-size: 80px; font-weight: 300; color: var(--text-primary); line-height: 1; letter-spacing: -0.04em; }
+  .score-number { font-size: 56px; font-weight: 300; color: var(--text-primary); line-height: 1; letter-spacing: -0.04em; }
   .score-spacer { flex: 1; }
   .score-diff-zone { flex: 1; display: flex; align-items: center; justify-content: flex-start; padding-left: 8px; }
   .score-diff { font-size: 18px; font-weight: 500; }
@@ -174,11 +171,6 @@
 
     <!-- ROUND TAB -->
     <div class="screen active" id="screen-round">
-
-      <div id="course-strip" class="course-strip" onclick="changeCourse()" style="display:none">
-        <span class="course-strip-name" id="course-strip-name">Unknown Course</span>
-        <span class="course-strip-change">Change &#8250;</span>
-      </div>
 
       <!-- Row 1: Hole nav | Par -->
       <div class="top-row">
@@ -618,17 +610,6 @@ function showToast(msg) {
   setTimeout(()=>t.classList.remove('show'),2200);
 }
 
-// ── Course strip ──────────────────────────────────────────────────────────────
-function renderCourseStrip() {
-  const strip=document.getElementById('course-strip');
-  const name=document.getElementById('course-strip-name');
-  if (currentCourse && currentCourse.name) {
-    strip.style.display='flex';
-    name.textContent=currentCourse.name+(currentCourse.suburb?' \u00b7 '+currentCourse.suburb:'');
-  } else { strip.style.display='none'; }
-}
-function changeCourse() { window.location.href='start.html'; }
-
 // ── Nav drawer ────────────────────────────────────────────────────────────────
 function openNavDrawer() {
   document.getElementById('nav-primary').classList.add('raised');
@@ -647,7 +628,6 @@ function closeDrawer() {
 
 // ── Init ──────────────────────────────────────────────────────────────────────
 renderRound();
-renderCourseStrip();
 updateFinishBtn();
 if('serviceWorker' in navigator){navigator.serviceWorker.register('/sw.js').catch(()=>{});}
 </script>

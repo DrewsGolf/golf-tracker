@@ -389,7 +389,21 @@ function updateScoreDiff() {
 
 // ── Putts ───────────────────────────────────────────────────────────────────
 function adjustPutts(delta) {
-  const next = Math.max(0, (holePutts[currentHole] || 0) + delta);
+  const score = holeScores[currentHole] || 0;
+  const max   = score > 0 ? score - 1 : 0;
+  const next  = Math.max(0, (holePutts[currentHole] || 0) + delta);
+  if (next > max && max > 0) {
+    holePutts[currentHole] = max;
+    persist();
+    updatePuttsDisplay();
+    showDialog({
+      icon: '&#9971;',
+      title: 'Too Many Putts',
+      sub: '',
+      buttons: [{ label: 'OK', style: 'primary', action: () => {} }]
+    });
+    return;
+  }
   holePutts[currentHole] = next;
   persist();
   updatePuttsDisplay();

@@ -7,103 +7,118 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="theme-color" content="#0D0D0D">
 <link rel="manifest" href="manifest.json">
-<title>My Clubs — Shot Tracker</title>
+<link rel="apple-touch-icon" href="icon-192.svg">
+<title>Shot Tracker — Clubs</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap');
 
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-
   :root {
-    --bg-primary:   #0D0D0D;
-    --bg-card:      #1C1C1C;
-    --gold:         #C8A96A;
-    --gold-muted:   #9A7C47;
-    --text-primary: #F2F2F2;
-    --text-secondary: #BDBDBD;
-    --text-muted:   #9A9A9A;
-    --safe-top:     env(safe-area-inset-top, 0px);
-    --safe-bottom:  env(safe-area-inset-bottom, 0px);
+    --gold: #C8A96A; --gold-muted: #9A7C47;
+    --text-primary: #F2F2F2; --text-secondary: #BDBDBD; --text-muted: #9A9A9A;
+    --bg: #0D0D0D; --card: rgba(28,28,28,0.85); --border: rgba(200,169,106,0.15); --border-mid: rgba(200,169,106,0.25);
+    --radius: 14px; --radius-sm: 9px;
+    --safe-bottom: env(safe-area-inset-bottom, 0px);
   }
+  html, body { height: 100%; font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; background: var(--bg); color: var(--text-primary); overflow: hidden; }
+  .app { position: relative; width: 100%; height: 100%; max-width: 430px; margin: 0 auto; overflow: hidden; }
+  #app { display: flex; flex-direction: column; height: 100%; position: relative; z-index: 5; }
 
-  html, body {
-    height: 100%;
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-    background: var(--bg-primary);
-    overflow: hidden;
-  }
-
-  .app {
-    position: relative;
-    width: 100%;
-    height: 100%;
-    max-width: 430px;
-    margin: 0 auto;
-    overflow: hidden;
-  }
-
-  /* ── Background ── */
-  .hero { position: absolute; inset: 0; width: 100%; height: 100%; }
+  /* Background */
+  .hero { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 0; }
   .hero-img { width: 100%; height: 100%; object-fit: cover; object-position: center; display: block; }
-  .hero-overlay { position: absolute; inset: 0; background: rgba(13,13,13,0.72); }
+  .hero-overlay { position: absolute; inset: 0; background: rgba(13,13,13,0.88); }
 
-  /* ── Header ── */
-  .header {
-    position: absolute;
-    top: 0; left: 0; right: 0;
-    padding: calc(var(--safe-top) + 20px) 24px 20px;
-    display: flex;
-    align-items: center;
-    gap: 16px;
-    border-bottom: 0.5px solid rgba(200,169,106,0.2);
-    z-index: 10;
-  }
+  /* Header */
   .header-img-wrap { position: relative; z-index: 10; width: 100%; flex-shrink: 0; }
   .header-img { width: 100%; height: auto; display: block; }
-  .header-title { font-size: 13px; font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-muted); }
 
-  /* ── Scrollable content area ── */
-  .page-content {
-    position: absolute;
-    top: 130px;
-    left: 0; right: 0;
-    bottom: 0;
-    overflow-y: auto;
-    -webkit-overflow-scrolling: touch;
-    padding: 24px 20px calc(var(--safe-bottom) + 110px);
-    z-index: 10;
-  }
+  /* Content */
+  .content { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; padding: 14px 14px calc(var(--safe-bottom) + 110px); position: relative; z-index: 5; }
 
-  /* ── Coming soon content ── */
-  .coming-title { font-size: 24px; font-weight: 300; color: var(--text-primary); letter-spacing: 0.04em; margin-bottom: 12px; }
-  .coming-desc { font-size: 14px; color: var(--text-muted); line-height: 1.7; letter-spacing: 0.01em; margin-bottom: 20px; }
-  .coming-pill { display: inline-block; border: 0.5px solid rgba(200,169,106,0.4); color: var(--gold-muted); font-size: 10px; font-weight: 500; border-radius: 20px; padding: 6px 16px; margin-bottom: 28px; letter-spacing: 0.14em; text-transform: uppercase; }
+  /* Cards */
+  .card { background: var(--card); border: 0.5px solid var(--border); border-radius: var(--radius); backdrop-filter: blur(8px); padding: 16px 14px; margin-bottom: 12px; }
+  .card-label { font-size: 10px; font-weight: 500; letter-spacing: 0.14em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 10px; }
 
-  /* ── Feature cards ── */
-  .coming-features {
-    background: rgba(28,28,28,0.85);
-    border: 0.5px solid rgba(200,169,106,0.2);
-    border-radius: 16px;
-    padding: 4px 0;
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
-    display: flex;
-    flex-direction: column;
-  }
-  .feature-item {
-    display: flex;
-    align-items: flex-start;
-    gap: 16px;
-    padding: 18px 20px;
-    border-bottom: 0.5px solid rgba(200,169,106,0.1);
-  }
-  .feature-item:last-child { border-bottom: none; }
-  .feature-icon { font-size: 20px; flex-shrink: 0; margin-top: 1px; }
-  .feature-text { font-size: 13px; color: var(--text-muted); line-height: 1.5; }
-  .feature-text strong { color: var(--gold); font-weight: 500; }
+  /* Club picker trigger */
+  .club-picker-trigger { width: 100%; background: rgba(13,13,13,0.7); border: 0.5px solid rgba(200,169,106,0.35); border-radius: var(--radius-sm); padding: 14px 16px; font-size: 17px; font-weight: 500; color: var(--gold); font-family: inherit; cursor: pointer; display: flex; align-items: center; justify-content: space-between; text-align: left; }
+  .club-picker-trigger.placeholder { color: var(--text-muted); font-size: 15px; }
+  .club-picker-arrow { font-size: 14px; color: var(--gold); flex-shrink: 0; }
 
-  /* ── Nav — identical to index.html ── */
-  .nav-shell { position: absolute; bottom: 0; left: 0; right: 0; z-index: 100; }
-  .nav-row { display: flex; background: rgba(13,13,13,0.92); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
+  /* Club picker bottom sheet */
+  .club-picker-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 300; opacity: 0; pointer-events: none; transition: opacity 0.25s; }
+  .club-picker-overlay.open { opacity: 1; pointer-events: auto; }
+  .club-picker-sheet { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%) translateY(100%); width: 100%; max-width: 430px; background: #1C1C1C; border-radius: 20px 20px 0 0; border-top: 0.5px solid rgba(200,169,106,0.2); z-index: 301; transition: transform 0.3s cubic-bezier(0.4,0,0.2,1); max-height: 70vh; display: flex; flex-direction: column; }
+  .club-picker-sheet.open { transform: translateX(-50%) translateY(0); }
+  .club-picker-handle { width: 36px; height: 3px; background: rgba(200,169,106,0.3); border-radius: 2px; margin: 12px auto 4px; flex-shrink: 0; }
+  .club-picker-title { font-size: 12px; font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-muted); text-align: center; padding: 8px 0 12px; border-bottom: 0.5px solid rgba(200,169,106,0.12); flex-shrink: 0; }
+  .club-picker-list { overflow-y: auto; -webkit-overflow-scrolling: touch; padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 16px); }
+  .club-picker-item { padding: 16px 24px; font-size: 16px; font-weight: 400; color: #F2F2F2; cursor: pointer; border-bottom: 0.5px solid rgba(200,169,106,0.08); font-family: inherit; display: flex; align-items: center; justify-content: space-between; }
+  .club-picker-item:last-child { border-bottom: none; }
+  .club-picker-item:active { background: rgba(200,169,106,0.08); }
+  .club-picker-item.selected { color: var(--gold); }
+  .club-picker-item.selected::after { content: '✓'; font-size: 14px; color: var(--gold); }
+
+  /* GPS progress */
+  .gps-progress { display: none; text-align: center; padding: 10px 0 4px; }
+  .gps-progress-label { font-size: 11px; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase; color: var(--gold-muted); margin-bottom: 8px; }
+  .gps-dots { display: flex; justify-content: center; gap: 6px; }
+  .gps-dot-pip { font-size: 18px; color: rgba(200,169,106,0.25); transition: color 0.3s; }
+  .gps-dot-pip.filled { color: var(--gold); }
+
+  /* Stage instruction */
+  .stage-instruction { text-align: center; font-size: 14px; color: var(--text-secondary); font-style: italic; padding: 6px 0 10px; }
+
+  /* Result display */
+  .result-card { background: rgba(200,169,106,0.08); border: 0.5px solid rgba(200,169,106,0.3); border-radius: var(--radius); padding: 18px 14px; margin-bottom: 12px; text-align: center; }
+  .result-dist { font-size: 56px; font-weight: 300; color: var(--gold); line-height: 1; letter-spacing: -0.04em; }
+  .result-unit { font-size: 18px; font-weight: 400; color: var(--gold-muted); margin-left: 4px; }
+  .result-club { font-size: 15px; font-weight: 500; color: var(--text-secondary); margin-top: 6px; }
+
+  /* Buttons */
+  .btn { display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; padding: 15px; border-radius: var(--radius); border: none; font-size: 15px; font-weight: 500; cursor: pointer; transition: opacity 0.15s, transform 0.1s; margin-bottom: 10px; font-family: inherit; letter-spacing: 0.03em; }
+  .btn:last-child { margin-bottom: 0; }
+  .btn:active { opacity: 0.82; transform: scale(0.985); }
+  .btn-primary { background: var(--gold); color: #0D0D0D; }
+  .btn-outline { background: transparent; color: var(--gold); border: 0.5px solid var(--gold); }
+  .btn-danger { background: rgba(142,75,75,0.3); color: #F2F2F2; border: 0.5px solid rgba(142,75,75,0.5); }
+  .btn:disabled { opacity: 0.35; cursor: default; }
+
+  /* History */
+  .history-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+  .history-title { font-size: 13px; font-weight: 600; color: var(--gold); letter-spacing: 0.06em; text-transform: uppercase; }
+  .history-clear { background: transparent; border: none; color: var(--text-muted); font-size: 12px; cursor: pointer; font-family: inherit; }
+  .shot-list { display: flex; flex-direction: column; gap: 7px; }
+  .shot-item { background: rgba(28,28,28,0.7); border: 0.5px solid var(--border); border-radius: var(--radius-sm); display: flex; align-items: center; padding: 11px 13px; gap: 11px; }
+  .shot-bubble { width: 26px; height: 26px; border-radius: 50%; background: rgba(200,169,106,0.15); font-size: 11px; font-weight: 600; color: var(--gold); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .shot-club { font-size: 14px; font-weight: 600; flex: 1; color: var(--text-primary); }
+  .shot-dist { font-size: 15px; font-weight: 500; color: var(--gold); }
+  .shot-avg { font-size: 12px; color: var(--text-muted); }
+  .empty-state { text-align: center; padding: 24px 16px; color: var(--text-muted); font-size: 14px; }
+  .empty-icon { font-size: 32px; margin-bottom: 8px; display: block; }
+
+  /* Dialog */
+  .dialog-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 200; display: flex; align-items: flex-end; justify-content: center; animation: fadeIn 0.15s ease; }
+  @keyframes fadeIn { from{opacity:0} to{opacity:1} }
+  .dialog-sheet { background: #1C1C1C; border-top: 0.5px solid rgba(200,169,106,0.2); border-radius: 22px 22px 0 0; padding: 8px 0 calc(var(--safe-bottom) + 8px); width: 100%; max-width: 430px; animation: slideUp 0.2s ease; }
+  @keyframes slideUp { from{transform:translateY(40px);opacity:0} to{transform:translateY(0);opacity:1} }
+  .dialog-handle { width: 36px; height: 4px; background: var(--border-mid); border-radius: 2px; margin: 8px auto 16px; }
+  .dialog-icon { text-align: center; margin-bottom: 8px; min-height: 36px; display: flex; align-items: center; justify-content: center; font-size: 36px; }
+  .dialog-title { font-size: 18px; font-weight: 700; text-align: center; color: var(--text-primary); padding: 0 20px; margin-bottom: 6px; }
+  .dialog-sub { font-size: 14px; color: var(--text-secondary); text-align: center; padding: 0 24px; margin-bottom: 20px; line-height: 1.5; }
+  .dialog-actions { padding: 0 16px; display: flex; flex-direction: column; gap: 8px; }
+  .dialog-btn { display: flex; align-items: center; justify-content: center; width: 100%; padding: 15px; border-radius: var(--radius); border: none; font-size: 15px; font-weight: 600; cursor: pointer; font-family: inherit; }
+  .dialog-btn-primary { background: var(--gold); color: #0D0D0D; }
+  .dialog-btn-danger { background: #c0392b; color: #fff; }
+  .dialog-btn-secondary { background: rgba(28,28,28,0.85); color: var(--text-muted); border: 0.5px solid var(--border); }
+
+  /* Toast */
+  #toast { position: fixed; bottom: calc(var(--safe-bottom) + 120px); left: 50%; transform: translateX(-50%) translateY(20px); background: rgba(28,28,28,0.95); color: var(--text-primary); border: 0.5px solid var(--border); padding: 10px 20px; border-radius: 100px; font-size: 13px; font-weight: 500; opacity: 0; transition: opacity 0.25s, transform 0.25s; pointer-events: none; white-space: nowrap; z-index: 999; }
+  #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  /* Bottom nav */
+  .nav-shell { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 430px; z-index: 150; }
+  .nav-row { display: flex; background: rgba(13,13,13,0.95); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
   .nav-primary { border-top: 0.5px solid rgba(200,169,106,0.2); padding-bottom: calc(var(--safe-bottom) + 6px); transform: translateY(0); transition: transform 350ms cubic-bezier(0.4,0,0.2,1); will-change: transform; position: relative; z-index: 2; }
   .nav-primary.raised { transform: translateY(-100%); }
   .nav-secondary { border-top: 0.5px solid rgba(200,169,106,0.12); padding-bottom: calc(var(--safe-bottom) + 6px); position: absolute; bottom: 0; left: 0; right: 0; transform: translateY(100%); transition: transform 350ms cubic-bezier(0.4,0,0.2,1); will-change: transform; z-index: 1; }
@@ -111,92 +126,395 @@
   .nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 10px 4px 6px; cursor: pointer; text-decoration: none; background: none; border: none; -webkit-tap-highlight-color: transparent; transition: opacity 0.15s; }
   .nav-item:active { opacity: 0.7; }
   .nav-item img { width: 70px; height: 70px; object-fit: contain; display: block; }
-  .nav-overlay { position: absolute; inset: 0; background: rgba(0,0,0,0.5); opacity: 0; pointer-events: none; transition: opacity 350ms ease; z-index: 90; }
+  .nav-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); opacity: 0; pointer-events: none; transition: opacity 350ms ease; z-index: 140; }
   .nav-overlay.open { opacity: 1; pointer-events: auto; }
 </style>
 </head>
 <body>
 <div class="app">
-
-  <!-- Background -->
-  <div class="hero">
-    <img class="hero-img" src="Back_ground_New.jpg" alt="">
-    <div class="hero-overlay"></div>
-  </div>
-
-  <!-- Header -->
+<div class="hero">
+  <img class="hero-img" src="Back_ground_New.jpg" alt="">
+  <div class="hero-overlay"></div>
+</div>
+<div id="app">
   <div class="header-img-wrap">
     <img class="header-img" src="Header.webp" alt="Shot Tracker">
   </div>
+  <div class="content">
 
-  <!-- Page content -->
-  <div class="page-content">
-    <div class="coming-title">My Clubs</div>
-    <div class="coming-desc">Your personal yardage card — average and best distances for every club in your bag, based on your real rounds.</div>
-    <div class="coming-pill">Coming Soon</div>
-    <div class="coming-features">
-      <div class="feature-item">
-        <div class="feature-icon">📊</div>
-        <div class="feature-text"><strong>Average distance per club</strong> — based on your last 5 or 10 rounds</div>
-      </div>
-      <div class="feature-item">
-        <div class="feature-icon">🏆</div>
-        <div class="feature-text"><strong>Best distance</strong> — your personal best for each club</div>
-      </div>
-      <div class="feature-item">
-        <div class="feature-icon">🔄</div>
-        <div class="feature-text"><strong>Toggle 5 / 10 rounds</strong> — choose how much history to include</div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Overlay -->
-  <div class="nav-overlay" id="nav-overlay" onclick="closeDrawer()"></div>
-
-  <!-- Nav shell -->
-  <div class="nav-shell">
-    <div class="nav-row nav-primary" id="nav-primary">
-      <a class="nav-item" href="index.html"><img src="Home_2.png" alt="Home"></a>
-      <a class="nav-item" href="start.html"><img src="Play_2.png" alt="Play"></a>
-      <a class="nav-item" href="range.html"><img src="Range_2.png" alt="Range"></a>
-      <button class="nav-item" id="btn-more" onclick="openDrawer()">
-        <img src="More.png" alt="More" id="icon-more">
+    <!-- CLUB SELECTOR -->
+    <div class="card">
+      <div class="card-label">Select Club</div>
+      <button class="club-picker-trigger placeholder" id="club-trigger" onclick="openClubPicker()">
+        <span id="club-label">— Choose a club —</span>
+        <span class="club-picker-arrow">&#9662;</span>
       </button>
     </div>
-    <div class="nav-row nav-secondary" id="nav-secondary">
-      <a class="nav-item" href="history.html"><img src="History_2.png" alt="History"></a>
-      <a class="nav-item" href="clubs.html"><img src="Clubs_1.png" alt="Clubs"></a>
-      <a class="nav-item" href="suggest.html"><img src="Suggets_2.png" alt="Suggest"></a>
-      <button class="nav-item" onclick="closeDrawer()"><img src="Back.png" alt="Back"></button>
-    </div>
-  </div>
 
+    <!-- SHOT TRACKER -->
+    <div class="card" id="tracker-card">
+      <div class="card-label" id="tracker-label">Ready</div>
+
+      <!-- GPS progress dots -->
+      <div class="gps-progress" id="gps-progress">
+        <div class="gps-progress-label" id="gps-progress-label">Acquiring position</div>
+        <div class="gps-dots">
+          <span class="gps-dot-pip" id="gdot-0">&#9678;</span>
+          <span class="gps-dot-pip" id="gdot-1">&#9678;</span>
+          <span class="gps-dot-pip" id="gdot-2">&#9678;</span>
+          <span class="gps-dot-pip" id="gdot-3">&#9678;</span>
+          <span class="gps-dot-pip" id="gdot-4">&#9678;</span>
+          <span class="gps-dot-pip" id="gdot-5">&#9678;</span>
+          <span class="gps-dot-pip" id="gdot-6">&#9678;</span>
+          <span class="gps-dot-pip" id="gdot-7">&#9678;</span>
+          <span class="gps-dot-pip" id="gdot-8">&#9678;</span>
+          <span class="gps-dot-pip" id="gdot-9">&#9678;</span>
+        </div>
+      </div>
+
+      <!-- Stage: idle -->
+      <div id="stage-idle">
+        <p class="stage-instruction">Select a club, stand at the ball, then tap Start Shot</p>
+        <button class="btn btn-primary" id="btn-start" onclick="startShot()" disabled>&#9679; Start Shot</button>
+      </div>
+
+      <!-- Stage: walking -->
+      <div id="stage-walking" style="display:none">
+        <p class="stage-instruction">Walk to where your ball landed and tap Mark Landing</p>
+        <button class="btn btn-primary" onclick="markLanding()">&#9655; Mark Landing</button>
+        <button class="btn btn-danger" onclick="cancelShot()">&#10007; Cancel</button>
+      </div>
+
+      <!-- Stage: result -->
+      <div id="stage-result" style="display:none">
+        <div class="result-card">
+          <span class="result-dist" id="result-dist">—</span><span class="result-unit">m</span>
+          <div class="result-club" id="result-club"></div>
+        </div>
+        <button class="btn btn-primary" onclick="saveShot()">&#10003; Save This Shot</button>
+        <button class="btn btn-outline" onclick="retakeShot()">&#8635; Retake</button>
+      </div>
+    </div>
+
+    <!-- HISTORY -->
+    <div class="card">
+      <div class="history-header">
+        <span class="history-title">Recorded Shots</span>
+        <button class="history-clear" onclick="confirmClearAll()">Clear all</button>
+      </div>
+      <div id="shot-history"></div>
+    </div>
+
+  </div>
+</div>
+
+<!-- Dialog -->
+<div id="dialog-overlay" class="dialog-overlay" style="display:none" onclick="closeDialogOutside(event)">
+  <div class="dialog-sheet" onclick="event.stopPropagation()">
+    <div class="dialog-handle"></div>
+    <div id="dialog-icon" class="dialog-icon"></div>
+    <div id="dialog-title" class="dialog-title"></div>
+    <div id="dialog-sub" class="dialog-sub"></div>
+    <div id="dialog-actions" class="dialog-actions"></div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<!-- Club picker bottom sheet -->
+<div class="club-picker-overlay" id="club-picker-overlay" onclick="closeClubPicker()"></div>
+<div class="club-picker-sheet" id="club-picker-sheet">
+  <div class="club-picker-handle"></div>
+  <div class="club-picker-title">Select Club</div>
+  <div class="club-picker-list" id="club-picker-list"></div>
 </div>
 
 <script>
-const primary   = document.getElementById('nav-primary');
-const secondary = document.getElementById('nav-secondary');
-const overlay   = document.getElementById('nav-overlay');
-const btnMore   = document.getElementById('btn-more');
-const iconMore  = document.getElementById('icon-more');
+// ── Club definitions ──────────────────────────────────────────────────────────
+const ALL_CLUBS_FULL = {
+  'driver':'Driver','3wood':'3-Wood','4wood':'4-Wood','5wood':'5-Wood','7wood':'7-Wood','9wood':'9-Wood',
+  '2hybrid':'2-Hybrid','3hybrid':'3-Hybrid','4hybrid':'4-Hybrid','5hybrid':'5-Hybrid','6hybrid':'6-Hybrid',
+  '2iron':'2-Iron','3iron':'3-Iron','4iron':'4-Iron','5iron':'5-Iron','6iron':'6-Iron',
+  '7iron':'7-Iron','8iron':'8-Iron','9iron':'9-Iron',
+  'pw':'Pitching Wedge','gw':'Gap Wedge','sw':'Sand Wedge','lw':'Lob Wedge','putter':'Putter'
+};
 
-function openDrawer() {
-  primary.classList.add('raised');
-  secondary.classList.add('open');
-  overlay.classList.add('open');
-  iconMore.src = 'Courses_2.png';
-  iconMore.alt = 'Courses';
-  btnMore.onclick = () => window.location.href = 'find.html';
+const savedBag = JSON.parse(localStorage.getItem('golf-bag-v1') || 'null');
+const BAG = savedBag || ['driver','3wood','5wood','4hybrid','5iron','6iron','7iron','8iron','9iron','pw','gw','sw','lw','putter'];
+
+// ── State ─────────────────────────────────────────────────────────────────────
+let selectedClub   = null;
+let startPosition  = null;
+let pendingDist    = null;
+let pendingClub    = null;
+
+// Distances stored: { 'driver': [220, 215, 230], '7iron': [145, 150], ... }
+let clubDistances = JSON.parse(localStorage.getItem('golf-club-distances') || '{}');
+
+function persist() {
+  localStorage.setItem('golf-club-distances', JSON.stringify(clubDistances));
 }
 
+// ── Club picker ───────────────────────────────────────────────────────────────
+function openClubPicker() {
+  const list = document.getElementById('club-picker-list');
+  list.innerHTML = BAG.map(id =>
+    '<div class="club-picker-item' + (selectedClub===id?' selected':'') + '" onclick="selectClub(\''+id+'\')">' +
+    (ALL_CLUBS_FULL[id]||id) + '</div>'
+  ).join('');
+  document.getElementById('club-picker-overlay').classList.add('open');
+  document.getElementById('club-picker-sheet').classList.add('open');
+}
+
+function closeClubPicker() {
+  document.getElementById('club-picker-overlay').classList.remove('open');
+  document.getElementById('club-picker-sheet').classList.remove('open');
+}
+
+function selectClub(id) {
+  selectedClub = id;
+  closeClubPicker();
+  const trigger = document.getElementById('club-trigger');
+  document.getElementById('club-label').textContent = ALL_CLUBS_FULL[id] || id;
+  trigger.classList.remove('placeholder');
+  document.getElementById('btn-start').disabled = false;
+}
+
+// ── GPS ───────────────────────────────────────────────────────────────────────
+let gpsDotTimer    = null;
+let gpsReadingTimer = null;
+
+function startGPS(onDone) {
+  if (gpsDotTimer)     { clearInterval(gpsDotTimer);     gpsDotTimer = null; }
+  if (gpsReadingTimer) { clearInterval(gpsReadingTimer); gpsReadingTimer = null; }
+
+  const readings = [];
+  let dotIndex   = 0;
+
+  for (let i = 0; i < 10; i++) {
+    const d = document.getElementById('gdot-' + i);
+    if (d) { d.textContent = '\u25ce'; d.classList.remove('filled'); }
+  }
+  document.getElementById('gps-progress-label').textContent = 'Acquiring position';
+  document.getElementById('gps-progress').style.display = 'block';
+
+  gpsDotTimer = setInterval(() => {
+    const d = document.getElementById('gdot-' + dotIndex);
+    if (d) { d.textContent = '\u25c9'; d.classList.add('filled'); }
+    dotIndex++;
+    if (dotIndex >= 10) { clearInterval(gpsDotTimer); gpsDotTimer = null; }
+  }, 2000);
+
+  // Settle 5s, then 3 readings at 5s intervals
+  setTimeout(() => {
+    let count = 0;
+    gpsReadingTimer = setInterval(() => {
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          pos => readings.push(pos.coords),
+          () => {},
+          { enableHighAccuracy: true, timeout: 4500, maximumAge: 0 }
+        );
+      }
+      count++;
+      if (count >= 3) {
+        clearInterval(gpsReadingTimer); gpsReadingTimer = null;
+        if (gpsDotTimer) { clearInterval(gpsDotTimer); gpsDotTimer = null; }
+        document.getElementById('gps-progress').style.display = 'none';
+        const coords = readings.length > 0 ? bestCoords(readings) : null;
+        onDone(coords);
+      }
+    }, 5000);
+  }, 5000);
+}
+
+function bestCoords(readings) {
+  if (readings.length === 1) return readings[0];
+  if (readings.length === 2) return {
+    latitude:  (readings[0].latitude  + readings[1].latitude)  / 2,
+    longitude: (readings[0].longitude + readings[1].longitude) / 2
+  };
+  let best = Infinity, a = 0, b = 1;
+  for (let i = 0; i < readings.length; i++)
+    for (let j = i+1; j < readings.length; j++) {
+      const d = haversine(readings[i], readings[j]);
+      if (d < best) { best = d; a = i; b = j; }
+    }
+  return {
+    latitude:  (readings[a].latitude  + readings[b].latitude)  / 2,
+    longitude: (readings[a].longitude + readings[b].longitude) / 2
+  };
+}
+
+function haversine(a, b) {
+  const R = 6371000, f1 = a.latitude*Math.PI/180, f2 = b.latitude*Math.PI/180;
+  const df = (b.latitude-a.latitude)*Math.PI/180;
+  const dl = (b.longitude-a.longitude)*Math.PI/180;
+  const x  = Math.sin(df/2)**2 + Math.cos(f1)*Math.cos(f2)*Math.sin(dl/2)**2;
+  return Math.round(2*R*Math.asin(Math.sqrt(x)));
+}
+
+// ── Shot flow ─────────────────────────────────────────────────────────────────
+function setStage(name) {
+  ['idle','walking','result'].forEach(s => {
+    document.getElementById('stage-'+s).style.display = s===name ? 'block' : 'none';
+  });
+}
+
+function startShot() {
+  if (!selectedClub) { showToast('Select a club first'); return; }
+  document.getElementById('tracker-label').textContent = 'Marking start position\u2026';
+  setStage('idle');
+  document.getElementById('btn-start').disabled = true;
+  document.getElementById('stage-idle').querySelector('p').textContent = 'Getting your start position\u2026';
+
+  startGPS(coords => {
+    if (!coords) { showToast('Could not get GPS position — try again'); resetTracker(); return; }
+    startPosition = coords;
+    document.getElementById('tracker-label').textContent = 'Walk to your ball';
+    setStage('walking');
+    showToast('Start marked \u2014 walk to your ball');
+  });
+}
+
+function markLanding() {
+  document.getElementById('tracker-label').textContent = 'Marking landing position\u2026';
+  startGPS(coords => {
+    if (!coords) { showToast('Could not get GPS position — try again'); return; }
+    const dist = haversine(startPosition, coords);
+    pendingDist  = dist;
+    pendingClub  = selectedClub;
+    document.getElementById('result-dist').textContent = dist;
+    document.getElementById('result-club').textContent = ALL_CLUBS_FULL[selectedClub] || selectedClub;
+    document.getElementById('tracker-label').textContent = 'Shot measured';
+    setStage('result');
+  });
+}
+
+function saveShot() {
+  if (!pendingClub || pendingDist === null) return;
+  if (!clubDistances[pendingClub]) clubDistances[pendingClub] = [];
+  clubDistances[pendingClub].push({ dist: pendingDist, date: new Date().toLocaleDateString('en-AU') });
+  persist();
+  showToast((ALL_CLUBS_FULL[pendingClub]||pendingClub) + ' \u2014 ' + pendingDist + 'm saved');
+  resetTracker();
+  renderHistory();
+}
+
+function retakeShot() {
+  // Keep start position, go back to walking stage
+  document.getElementById('tracker-label').textContent = 'Walk to your ball';
+  setStage('walking');
+}
+
+function cancelShot() {
+  resetTracker();
+}
+
+function resetTracker() {
+  startPosition = null; pendingDist = null; pendingClub = null;
+  document.getElementById('tracker-label').textContent = 'Ready';
+  document.getElementById('stage-idle').querySelector('p').textContent = 'Select a club, stand at the ball, then tap Start Shot';
+  document.getElementById('btn-start').disabled = !selectedClub;
+  setStage('idle');
+}
+
+// ── History ───────────────────────────────────────────────────────────────────
+function renderHistory() {
+  const el = document.getElementById('shot-history');
+  const clubOrder = BAG;
+  const entries = clubOrder.filter(id => clubDistances[id] && clubDistances[id].length > 0);
+
+  if (!entries.length) {
+    el.innerHTML = '<div class="empty-state"><span class="empty-icon">&#127953;</span>No shots recorded yet.<br>Select a club and start tracking.</div>';
+    return;
+  }
+
+  el.innerHTML = '<div class="shot-list">' + entries.map(id => {
+    const shots = clubDistances[id];
+    const dists = shots.map(s => s.dist);
+    const avg   = Math.round(dists.reduce((a,v) => a+v, 0) / dists.length);
+    const max   = Math.max(...dists);
+    const latest = shots[shots.length-1];
+    return '<div class="shot-item">' +
+      '<div class="shot-bubble">' + shots.length + '</div>' +
+      '<div class="shot-club">' + (ALL_CLUBS_FULL[id]||id) + '<br><span class="shot-avg">avg ' + avg + 'm &middot; best ' + max + 'm</span></div>' +
+      '<div class="shot-dist">' + latest.dist + 'm</div>' +
+      '</div>';
+  }).join('') + '</div>';
+}
+
+function confirmClearAll() {
+  showDialog({
+    icon: '&#128465;',
+    title: 'Clear All Shots?',
+    sub: 'This will permanently delete all recorded club distances.',
+    buttons: [
+      { label: 'Clear everything', style: 'danger', action: () => {
+        clubDistances = {}; persist(); renderHistory(); showToast('All shots cleared');
+      }},
+      { label: 'Cancel', style: 'secondary', action: () => {} }
+    ]
+  });
+}
+
+// ── Dialog ────────────────────────────────────────────────────────────────────
+function showDialog(opts) {
+  document.getElementById('dialog-icon').innerHTML    = opts.icon  || '';
+  document.getElementById('dialog-title').textContent = opts.title || '';
+  document.getElementById('dialog-sub').textContent   = opts.sub   || '';
+  document.getElementById('dialog-actions').innerHTML = opts.buttons.map((b,i) =>
+    '<button class="dialog-btn dialog-btn-'+(b.style||'secondary')+'" onclick="dialogAction('+i+')">'+b.label+'</button>'
+  ).join('');
+  window._dialogActions = opts.buttons.map(b => b.action);
+  document.getElementById('dialog-overlay').style.display = 'flex';
+}
+function dialogAction(i) { closeDialog(); window._dialogActions?.[i]?.(); }
+function closeDialogOutside(e) { if (e.target===document.getElementById('dialog-overlay')) closeDialog(); }
+function closeDialog() { document.getElementById('dialog-overlay').style.display = 'none'; }
+
+// ── Toast ─────────────────────────────────────────────────────────────────────
+function showToast(msg) {
+  const t = document.getElementById('toast'); t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2200);
+}
+
+// ── Nav drawer ────────────────────────────────────────────────────────────────
+function openNavDrawer() {
+  document.getElementById('nav-primary').classList.add('raised');
+  document.getElementById('nav-secondary').classList.add('open');
+  document.getElementById('nav-overlay').classList.add('open');
+  document.getElementById('icon-more').src = 'Courses_2.png';
+  document.getElementById('btn-more').onclick = () => window.location.href = 'find.html';
+}
 function closeDrawer() {
-  primary.classList.remove('raised');
-  secondary.classList.remove('open');
-  overlay.classList.remove('open');
-  iconMore.src = 'More.png';
-  iconMore.alt = 'More';
-  btnMore.onclick = openDrawer;
+  document.getElementById('nav-primary').classList.remove('raised');
+  document.getElementById('nav-secondary').classList.remove('open');
+  document.getElementById('nav-overlay').classList.remove('open');
+  document.getElementById('icon-more').src = 'More.png';
+  document.getElementById('btn-more').onclick = openNavDrawer;
 }
+
+// ── Init ──────────────────────────────────────────────────────────────────────
+renderHistory();
+if ('serviceWorker' in navigator) { navigator.serviceWorker.register('/sw.js').catch(() => {}); }
 </script>
+
+<!-- NAV -->
+<div class="nav-overlay" id="nav-overlay" onclick="closeDrawer()"></div>
+<div class="nav-shell">
+  <div class="nav-row nav-primary" id="nav-primary">
+    <a class="nav-item" href="index.html"><img src="Home_2.png" alt="Home"></a>
+    <a class="nav-item" href="round.html"><img src="Play_2.png" alt="Play"></a>
+    <a class="nav-item" href="range.html"><img src="Range_2.png" alt="Range"></a>
+    <button class="nav-item" id="btn-more" onclick="openNavDrawer()"><img src="More.png" alt="More" id="icon-more"></button>
+  </div>
+  <div class="nav-row nav-secondary" id="nav-secondary">
+    <a class="nav-item" href="history.html"><img src="History_2.png" alt="History"></a>
+    <a class="nav-item" href="clubs.html"><img src="Clubs_1.png" alt="Clubs"></a>
+    <a class="nav-item" href="suggest.html"><img src="Suggets_2.png" alt="Suggest"></a>
+    <button class="nav-item" onclick="closeDrawer()"><img src="Back.png" alt="Back"></button>
+  </div>
+</div>
 </body>
 </html>

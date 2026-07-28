@@ -241,7 +241,7 @@
     <div class="screen" id="screen-scorecard">
       <div class="score-table-wrap">
         <table class="score-table">
-          <thead><tr><th>Hole</th><th>Par</th><th>Shots</th><th>+/-</th><th>Putts</th></tr></thead>
+          <thead><tr><th>Hole</th><th></th><th>Par</th><th>Shots</th><th>+/-</th><th>Putts</th></tr></thead>
           <tbody id="scorecard-body"></tbody>
         </table>
       </div>
@@ -549,6 +549,20 @@ function renderSummary() {
 }
 
 // ── Scorecard ─────────────────────────────────────────────────────────────────
+function scoreIcon(score, par) {
+  if (!par || !score) return '';
+  const diff = score - par;
+  let src = '';
+  if (score === 1)   src = 'hole_in_one.PNG';
+  else if (diff <= -2) src = 'egale.PNG';
+  else if (diff === -1) src = 'Birdie.PNG';
+  else if (diff === 0)  src = 'par.PNG';
+  else if (diff === 1)  src = '1over.PNG';
+  else if (diff === 2)  src = '2over.PNG';
+  else if (diff >= 3)   src = '3over.PNG';
+  return src ? '<img src="' + src + '" style="width:24px;height:24px;object-fit:contain;display:block;margin:0 auto;" alt="">' : '';
+}
+
 function renderScorecard() {
   const tbody = document.getElementById('scorecard-body');
   let ts=0, tp=0, tputts=0;
@@ -562,18 +576,19 @@ function renderScorecard() {
       const ds    = diff===null ? '&#8212;' : (diff===0?'E':(diff>0?'+'+diff:diff));
       ts += score; if(par) tp += par; tputts += putts;
       rows.push('<tr><td>'+h+'</td>' +
+        '<td style="text-align:center;padding:4px 6px;">'+scoreIcon(score,par)+'</td>' +
         '<td><input class="sc-input" type="number" min="3" max="5" inputmode="numeric" value="'+(par||'')+'" placeholder="&#8211;" onchange="scSavePar('+h+',this.value)"></td>' +
         '<td><input class="sc-input" type="number" min="1" max="30" inputmode="numeric" value="'+score+'" onchange="scSaveScore('+h+',this.value)"></td>' +
         '<td>'+ds+'</td>' +
         '<td>'+(putts||'&#8212;')+'</td></tr>');
     }
   }
-  if (!rows.length) { tbody.innerHTML='<tr><td colspan="5" style="text-align:center;color:var(--text-muted);padding:24px">No scores yet</td></tr>'; return; }
+  if (!rows.length) { tbody.innerHTML='<tr><td colspan="6" style="text-align:center;color:var(--text-muted);padding:24px">No scores yet</td></tr>'; return; }
   const tdiff=tp?ts-tp:null;
   const tds=tdiff===null?'&#8212;':(tdiff===0?'E':(tdiff>0?'+'+tdiff:tdiff));
   tbody.innerHTML = rows.join('') +
-    '<tr><td style="padding-left:14px;">Total</td><td>'+(tp||'&#8212;')+'</td><td>'+ts+'</td><td>'+tds+'</td><td>'+(tputts||'&#8212;')+'</td></tr>' +
-    '<tr><td colspan="5" style="padding:10px 14px;"><button class="sc-save-btn" style="width:100%;" onclick="scSaveAll()">Save</button></td></tr>';
+    '<tr><td style="padding-left:14px;">Total</td><td></td><td>'+(tp||'&#8212;')+'</td><td>'+ts+'</td><td>'+tds+'</td><td>'+(tputts||'&#8212;')+'</td></tr>' +
+    '<tr><td colspan="6" style="padding:10px 14px;"><button class="sc-save-btn" style="width:100%;" onclick="scSaveAll()">Save</button></td></tr>';
 }
 
 function scSavePar(hole,val) {

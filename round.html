@@ -509,16 +509,17 @@ function renderSummary() {
   }
 
   function calcBlock(holes) {
-    const played   = holes.filter(h => holeScores[h] > 0);
+    const played    = holes.filter(h => holeScores[h] > 0);
     if (!played.length) return null;
-    const shots    = played.reduce((a,h) => a + holeScores[h], 0);
-    const parHoles = played.filter(h => holePars[h]);
-    const totalPar = parHoles.reduce((a,h) => a + holePars[h], 0);
-    const overPar  = parHoles.length ? shots - totalPar : null;
-    const puttHoles = played.filter(h => holePutts[h] > 0);
+    const shots     = played.reduce((a,h) => a + holeScores[h], 0);
+    const parHoles  = played.filter(h => holePars[h]);
+    const totalPar  = parHoles.reduce((a,h) => a + holePars[h], 0);
+    const overPar   = parHoles.length ? shots - totalPar : null;
+    const avgOverPar = parHoles.length ? (overPar / parHoles.length).toFixed(2) : null;
+    const puttHoles  = played.filter(h => holePutts[h] > 0);
     const totalPutts = played.reduce((a,h) => a + (holePutts[h]||0), 0);
-    const avgPutts  = puttHoles.length ? (totalPutts / puttHoles.length).toFixed(1) : null;
-    return { played: played.length, shots, overPar, totalPutts, avgPutts };
+    const avgPutts   = puttHoles.length ? (totalPutts / puttHoles.length).toFixed(1) : null;
+    return { played: played.length, shots, totalPar: parHoles.length ? totalPar : null, overPar, avgOverPar, totalPutts, avgPutts };
   }
 
   function overParStr(v) {
@@ -530,37 +531,50 @@ function renderSummary() {
     if (v === null || v === 0) return 'color:var(--text-muted)';
     return v > 0 ? 'color:#e74c3c' : 'color:var(--gold)';
   }
+  function avgOverStr(v) {
+    if (v === null) return '&#8212;';
+    const n = parseFloat(v);
+    if (n === 0) return 'E';
+    return (n > 0 ? '+' : '') + v;
+  }
 
   function blockHTML(label, holes) {
     const d = calcBlock(holes);
     if (!d) return '<div class="summary-card"><div class="sum-header"><span class="sum-header-title">' + label + '</span><span class="sum-header-sub">No scores</span></div></div>';
+    const parStr   = d.totalPar !== null ? 'Par ' + d.totalPar : '';
+    const holesStr = d.played + ' hole' + (d.played===1?'':'s') + ' played';
     return '<div class="summary-card">' +
-      '<div class="sum-header"><span class="sum-header-title">' + label + '</span><span class="sum-header-sub">' + d.played + ' hole' + (d.played===1?'':'s') + ' played</span></div>' +
+      '<div class="sum-header" style="display:grid;grid-template-columns:1fr auto 1fr;align-items:center;">' +
+        '<span class="sum-header-title">' + label + '</span>' +
+        '<span style="font-size:13px;font-weight:400;color:var(--text-muted);text-align:center;">' + parStr + '</span>' +
+        '<span class="sum-header-sub" style="text-align:right;">' + holesStr + '</span>' +
+      '</div>' +
       '<div class="sum-stats">' +
         '<div class="sum-stat" style="flex-direction:column;gap:2px;">' +
           '<span style="font-size:9px;letter-spacing:0.1em;text-transform:uppercase;color:var(--text-muted);">Shots</span>' +
           '<span>' + d.shots + '</span>' +
         '</div>' +
-        '<div class="sum-stat" style="flex-direction:column;gap:2px;' + overParCol(d.overPar) + '">' +
+        '<div class="sum-stat" style="flex-direction:column;gap:2px;">' +
           '<span style="font-size:9px;letter-spacing:0.1em;text-transform:uppercase;color:var(--text-muted);">Over/Under</span>' +
-          '<span>' + overParStr(d.overPar) + '</span>' +
+          '<span style="' + overParCol(d.overPar) + '">' + overParStr(d.overPar) + '</span>' +
         '</div>' +
         '<div class="sum-stat" style="flex-direction:column;gap:2px;">' +
           '<span style="font-size:9px;letter-spacing:0.1em;text-transform:uppercase;color:var(--text-muted);">Putts</span>' +
           '<span>' + (d.totalPutts || '&#8212;') + '</span>' +
         '</div>' +
       '</div>' +
-      (d.avgPutts ? '<div class="sum-footer"><span class="sum-footer-label">Avg putts per hole</span><span class="sum-footer-val">' + d.avgPutts + '</span></div>' : '') +
+      '<div class="sum-footer"><span class="sum-footer-label">Avg shots over par / hole</span><span class="sum-footer-val" style="' + overParCol(d.overPar) + '">' + avgOverStr(d.avgOverPar) + '</span></div>' +
+      (d.avgPutts ? '<div class="sum-footer" style="border-top:0.5px solid rgba(200,169,106,0.08);"><span class="sum-footer-label">Avg putts per hole</span><span class="sum-footer-val">' + d.avgPutts + '</span></div>' : '') +
       '</div>';
   }
 
-  const allHoles  = Array.from({length:18}, (_,i) => i+1);
-  const front9    = Array.from({length:9},  (_,i) => i+1);
-  const back9     = Array.from({length:9},  (_,i) => i+10);
+  const front9 = Array.from({length:9}, (_,i) => i+1);
+  const back9  = Array.from({length:9}, (_,i) => i+10);
+  const all18  = Array.from({length:18},(_,i) => i+1);
 
-  el.innerHTML = blockHTML('Overall', allHoles) +
-                 blockHTML('Front 9', front9) +
-                 blockHTML('Back 9',  back9);
+  el.innerHTML = blockHTML('Front 9', front9) +
+                 blockHTML('Back 9',  back9) +
+                 blockHTML('Overall', all18);
 }
 
 // ── Scorecard ─────────────────────────────────────────────────────────────────

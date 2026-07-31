@@ -194,6 +194,22 @@
   }
 
   .nav-overlay.open { opacity: 1; pointer-events: auto; }
+
+  /* Auth section */
+  .auth-card { background: rgba(28,28,28,0.85); border: 0.5px solid var(--gold); border-radius: 16px; overflow: hidden; backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); margin-top: 12px; }
+  .auth-status { padding: 16px 20px; display: flex; align-items: center; gap: 12px; border-bottom: 0.5px solid rgba(200,169,106,0.1); }
+  .auth-dot { width: 10px; height: 10px; border-radius: 50%; background: #666; flex-shrink: 0; }
+  .auth-dot.connected { background: #2ecc71; }
+  .auth-label { font-size: 13px; color: var(--text-muted); flex: 1; }
+  .auth-email { font-size: 13px; font-weight: 500; color: var(--gold); }
+  .auth-field-wrap { padding: 14px 20px; border-bottom: 0.5px solid rgba(200,169,106,0.1); }
+  .auth-field { width: 100%; background: rgba(13,13,13,0.7); border: 0.5px solid rgba(200,169,106,0.3); border-radius: 9px; padding: 11px 14px; font-size: 15px; color: #F2F2F2; font-family: inherit; -webkit-appearance: none; }
+  .auth-field:focus { outline: none; border-color: var(--gold); }
+  .auth-btn { width: calc(100% - 40px); margin: 14px 20px; display: block; background: var(--gold); color: #0D0D0D; border: none; border-radius: 10px; padding: 13px; font-size: 15px; font-weight: 600; cursor: pointer; font-family: inherit; text-align: center; }
+  .auth-btn.sign-out { background: transparent; color: #e74c3c; border: 0.5px solid rgba(231,76,60,0.4); }
+  .auth-btn:active { opacity: 0.8; }
+  .auth-error { font-size: 12px; color: #e74c3c; text-align: center; padding: 0 20px 12px; min-height: 18px; }
+  .auth-section-label { font-size: 10px; font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-muted); padding: 14px 20px 4px; }
 </style>
 </head>
 <body>
@@ -201,7 +217,7 @@
 
   <!-- Background image -->
   <div class="hero">
-    <img class="hero-img" src="images/Back ground New.jpg" alt="">
+    <img class="hero-img" src="Back_ground_New.jpg" alt="">
     <div class="hero-overlay"></div>
   </div>
 
@@ -223,6 +239,31 @@
         </div>
         <div class="settings-item-arrow">›</div>
       </a>
+    </div>
+  </div>
+
+  <!-- Account / Sign In -->
+  <div class="auth-card" id="auth-card">
+    <div class="auth-status">
+      <div class="auth-dot" id="auth-dot"></div>
+      <span class="auth-label" id="auth-label">Checking…</span>
+      <span class="auth-email" id="auth-email"></span>
+    </div>
+    <!-- Sign in form (shown when logged out) -->
+    <div id="signin-form" style="display:none;">
+      <div class="auth-section-label">Sign In to Sync Your Data</div>
+      <div class="auth-field-wrap">
+        <input class="auth-field" type="email" id="auth-email-input" placeholder="Email" autocomplete="email" inputmode="email">
+      </div>
+      <div class="auth-field-wrap" style="border-bottom:none;">
+        <input class="auth-field" type="password" id="auth-pass-input" placeholder="Password" autocomplete="current-password">
+      </div>
+      <div class="auth-error" id="auth-error"></div>
+      <button class="auth-btn" onclick="doSignIn()">Sign In</button>
+    </div>
+    <!-- Sign out button (shown when logged in) -->
+    <div id="signout-form" style="display:none;">
+      <button class="auth-btn sign-out" onclick="doSignOut()">Sign Out</button>
     </div>
   </div>
 
@@ -249,7 +290,51 @@
 
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
+const SUPABASE_URL = 'https://ryqehsqqriavmuqfnzpx.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ5cWVoc3Fxcmlhdm11cWZuenB4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM3NTQ4MzcsImV4cCI6MjA5OTMzMDgzN30.Po2m7uhlMTc43Pdg8pohwvDsQ_UDFRS-n9UnTQ44nXA';
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+function setAuthUI(session) {
+  const dot      = document.getElementById('auth-dot');
+  const label    = document.getElementById('auth-label');
+  const email    = document.getElementById('auth-email');
+  const signIn   = document.getElementById('signin-form');
+  const signOut  = document.getElementById('signout-form');
+  if (session) {
+    dot.classList.add('connected');
+    label.textContent = 'Connected';
+    email.textContent = session.user.email;
+    signIn.style.display  = 'none';
+    signOut.style.display = 'block';
+  } else {
+    dot.classList.remove('connected');
+    label.textContent = 'Not signed in';
+    email.textContent = '';
+    signIn.style.display  = 'block';
+    signOut.style.display = 'none';
+  }
+}
+
+sb.auth.getSession().then(({ data }) => setAuthUI(data.session));
+
+async function doSignIn() {
+  const email    = document.getElementById('auth-email-input').value.trim();
+  const password = document.getElementById('auth-pass-input').value;
+  const errEl    = document.getElementById('auth-error');
+  errEl.textContent = '';
+  if (!email || !password) { errEl.textContent = 'Enter your email and password.'; return; }
+  const { data, error } = await sb.auth.signInWithPassword({ email, password });
+  if (error) { errEl.textContent = error.message; return; }
+  setAuthUI(data.session);
+}
+
+async function doSignOut() {
+  await sb.auth.signOut();
+  setAuthUI(null);
+}
+
 const primary   = document.getElementById('nav-primary');
 const secondary = document.getElementById('nav-secondary');
 const overlay   = document.getElementById('nav-overlay');

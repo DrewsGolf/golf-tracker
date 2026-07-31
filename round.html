@@ -271,10 +271,9 @@ const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZ
 const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 let currentUser = null;
 
-// Auth check on load — redirect to login if not signed in
+// Auth check — silent, no redirect. Supabase saves when logged in, localStorage fallback when not.
 sb.auth.getSession().then(({ data }) => {
-  if (!data.session) { window.location.href = 'login.html'; return; }
-  currentUser = data.session.user;
+  if (data.session) currentUser = data.session.user;
 });
 
 // ── State ─────────────────────────────────────────────────────────────────────

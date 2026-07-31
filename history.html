@@ -596,7 +596,6 @@ function saveManualRound() {
   const displayDate = dateObj.toLocaleDateString('en-AU');
 
   if (editingIndex !== null) {
-    // Editing — update the existing round, preserve non-manual fields like shotData
     const existing = history[editingIndex];
     existing.course = course;
     existing.suburb = selectedCourseSuburb || existing.suburb || '';
@@ -607,7 +606,12 @@ function saveManualRound() {
     existing.holes = Object.keys(shotsPerHole).length;
     existing.shots = Object.values(shotsPerHole).reduce((a,b) => a+b, 0);
     existing.manual = existing.manual !== undefined ? existing.manual : true;
+    saveHistory();
+    if (existing.fromSupabase) saveRoundToSupabase(existing, pars, shotsPerHole, true);
   } else {
+    const totalScore = Object.values(shotsPerHole).reduce((a,b) => a+b, 0);
+    const parVals    = Object.values(pars);
+    const totalPar   = parVals.length ? parVals.reduce((a,b) => a+b, 0) : null;
     const round = {
       id: Date.now().toString(),
       date: displayDate,
@@ -615,20 +619,64 @@ function saveManualRound() {
       course: course,
       suburb: selectedCourseSuburb || '',
       holes: Object.keys(shotsPerHole).length,
-      shots: Object.values(shotsPerHole).reduce((a,b) => a+b, 0),
+      shots: totalScore,
+      totalScore: totalScore,
+      totalPar: totalPar,
+      scoreDiff: totalPar ? totalScore - totalPar : null,
       totalDist: 0,
       pars: pars,
       shotsPerHole: shotsPerHole,
       manual: true
     };
     history.unshift(round);
+    saveHistory();
+    saveRoundToSupabase(round, pars, shotsPerHole, false);
   }
 
-  saveHistory();
-  // Write par data to golf-course-pars store so future rounds at this course auto-fill
   writeCoursePars(course, pars);
   closeSheet();
   renderList();
+}
+
+async function saveRoundToSupabase(round, pars, shotsPerHole, isEdit) {
+  if (!currentUser) return;
+  try {
+    const totalScore = Object.values(shotsPerHole).reduce((a,b) => a+b, 0);
+    const parVals    = Object.values(pars);
+    const totalPar   = parVals.length ? parVals.reduce((a,b) => a+b, 0) : null;
+    const dateObj    = new Date(round.dateISO);
+
+    // Delete existing Supabase record if editing
+    if (isEdit && round.id) {
+      await sb.from('rounds').delete().eq('id', round.id).eq('user_id', currentUser.id);
+    }
+
+    const { data: roundRow, error } = await sb.from('rounds').insert({
+      user_id:      currentUser.id,
+      date:         dateObj.toISOString().split('T')[0],
+      date_iso:     dateObj.toISOString(),
+      course:       round.course,
+      suburb:       round.suburb || null,
+      holes_played: Object.keys(shotsPerHole).length,
+      total_score:  totalScore,
+      total_par:    totalPar,
+      score_diff:   totalPar ? totalScore - totalPar : null
+    }).select().single();
+
+    if (error) { console.error('Supabase round save error:', error); return; }
+
+    const holeRows = Object.keys(shotsPerHole).map(h => ({
+      round_id: roundRow.id,
+      user_id:  currentUser.id,
+      hole:     parseInt(h),
+      score:    shotsPerHole[h],
+      par:      pars[h] || null,
+      putts:    0
+    }));
+    await sb.from('hole_scores').insert(holeRows);
+    round.id           = roundRow.id;
+    round.fromSupabase = true;
+  } catch(e) { console.error('Supabase manual round save error:', e); }
 }
 
 // ── List View ─────────────────────────────────────────────────────────────────

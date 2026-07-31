@@ -25,9 +25,6 @@
   .app { position: relative; width: 100%; height: 100%; max-width: 430px; margin: 0 auto; overflow: hidden; }
 
   /* ── Background ── */
-  .hero { position: absolute; inset: 0; width: 100%; height: 100%; }
-  .hero-img { width: 100%; height: 100%; object-fit: cover; object-position: center; display: block; }
-  .hero-overlay { position: absolute; inset: 0; background: rgba(13,13,13,0.65); }
 
     /* Header */
   .header { background: var(--bg-primary); padding: calc(var(--safe-top) + 20px) 24px 20px; display: flex; align-items: center; gap: 16px; border-bottom: 0.5px solid rgba(200,169,106,0.12); }
@@ -184,14 +181,8 @@
 <body>
 <div class="app">
 
-<!-- Background -->
-<div class="hero">
-  <img class="hero-img" src="images/Background_with_logo_and_tag.webp" alt="">
-  <div class="hero-overlay"></div>
-</div>
-
 <!-- LIST VIEW -->
-<div id="list-view">
+<div id="list-view" style="position:relative;z-index:5;display:flex;flex-direction:column;height:100%;">
   <div class="header-img-wrap">
     <img class="header-img" src="Header.webp" alt="Shot Tracker">
   </div>
@@ -199,7 +190,7 @@
 </div>
 
 <!-- DETAIL VIEW -->
-<div id="detail-view">
+<div id="detail-view" style="position:relative;z-index:5;">
   <div class="detail-header">
     <div class="detail-header-top">
       <button class="back-btn" onclick="showList()" style="background:none;border:none;cursor:pointer;padding:0;"><img src="Back.png" style="width:40px;height:40px;object-fit:contain;"></button>

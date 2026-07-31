@@ -272,10 +272,51 @@
   </div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
+const SUPABASE_URL = 'https://ryqehsqqriavmuqfnzpx.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ5cWVoc3Fxcmlhdm11cWZuenB4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM3NTQ4MzcsImV4cCI6MjA5OTMzMDgzN30.Po2m7uhlMTc43Pdg8pohwvDsQ_UDFRS-n9UnTQ44nXA';
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+let currentUser = null;
+sb.auth.getSession().then(({ data }) => { if (data.session) currentUser = data.session.user; });
 // ── Data ─────────────────────────────────────────────────────────────────────
 let history = JSON.parse(localStorage.getItem('golf-round-history') || '[]');
 let pendingDeleteIndex = null;
+
+// Load from Supabase and merge with localStorage
+async function loadFromSupabase() {
+  if (!currentUser) return;
+  try {
+    const { data: rounds } = await sb.from('rounds')
+      .select('*, hole_scores(*)')
+      .eq('user_id', currentUser.id)
+      .order('date_iso', { ascending: false });
+    if (!rounds || rounds.length === 0) return;
+    // Convert Supabase rounds to local format
+    const sbRounds = rounds.map(r => ({
+      id:         r.id,
+      date:       new Date(r.date_iso).toLocaleDateString('en-AU'),
+      dateISO:    r.date_iso,
+      course:     r.course,
+      suburb:     r.suburb || '',
+      holes:      r.holes_played,
+      totalScore: r.total_score,
+      totalPar:   r.total_par,
+      scoreDiff:  r.score_diff,
+      pars:       Object.fromEntries((r.hole_scores||[]).filter(h=>h.par).map(h=>[h.hole, h.par])),
+      holeScores: Object.fromEntries((r.hole_scores||[]).filter(h=>h.score).map(h=>[h.hole, h.score])),
+      holePutts:  Object.fromEntries((r.hole_scores||[]).filter(h=>h.putts).map(h=>[h.hole, h.putts])),
+      shots:      r.total_score,
+      shotData:   (r.hole_scores||[]).map(h=>({ hole: h.hole, score: h.score, par: h.par })),
+      fromSupabase: true
+    }));
+    // Merge: Supabase is source of truth, keep any local-only rounds
+    const localOnly = history.filter(r => !r.fromSupabase && !sbRounds.find(s => s.dateISO === r.dateISO));
+    history = [...sbRounds, ...localOnly].sort((a,b) => new Date(b.dateISO) - new Date(a.dateISO));
+    renderList();
+setTimeout(loadFromSupabase, 500);
+  } catch(e) { console.error('Supabase load error:', e); }
+}
 let editingIndex = null;
 let selectedCourseSuburb = '';
 let addHoleCount = 18;
@@ -331,6 +372,12 @@ function lookupCoursePars(courseName) {
 
 function saveHistory() {
   localStorage.setItem('golf-round-history', JSON.stringify(history));
+}
+
+async function deleteFromSupabase(round) {
+  if (!currentUser || !round.fromSupabase) return;
+  try { await sb.from('rounds').delete().eq('id', round.id).eq('user_id', currentUser.id); }
+  catch(e) { console.error('Supabase delete error:', e); }
 }
 
 // ── Helpers ───────────────────────────────────────────────────────────────────

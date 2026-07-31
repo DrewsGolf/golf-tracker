@@ -229,7 +229,13 @@
   <div class="club-picker-list" id="club-picker-list"></div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
+const SUPABASE_URL = 'https://ryqehsqqriavmuqfnzpx.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ5cWVoc3Fxcmlhdm11cWZuenB4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM3NTQ4MzcsImV4cCI6MjA5OTMzMDgzN30.Po2m7uhlMTc43Pdg8pohwvDsQ_UDFRS-n9UnTQ44nXA';
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+let currentUser = null;
+sb.auth.getSession().then(({ data }) => { if (data.session) currentUser = data.session.user; });
 // ── Club definitions ──────────────────────────────────────────────────────────
 const ALL_CLUBS_FULL = {
   'driver':'Driver','3wood':'3-Wood','4wood':'4-Wood','5wood':'5-Wood','7wood':'7-Wood','9wood':'9-Wood',
@@ -253,6 +259,38 @@ let clubDistances = JSON.parse(localStorage.getItem('golf-club-distances') || '{
 
 function persist() {
   localStorage.setItem('golf-club-distances', JSON.stringify(clubDistances));
+}
+
+async function saveDistanceToSupabase(club, dist) {
+  if (!currentUser) return;
+  try {
+    await sb.from('club_distances').insert({
+      user_id:  currentUser.id,
+      club:     club,
+      distance: dist,
+      date:     new Date().toISOString().split('T')[0]
+    });
+  } catch(e) { console.error('Supabase club save error:', e); }
+}
+
+async function loadDistancesFromSupabase() {
+  if (!currentUser) return;
+  try {
+    const { data } = await sb.from('club_distances')
+      .select('club, distance, date')
+      .eq('user_id', currentUser.id)
+      .order('created_at', { ascending: true });
+    if (!data || data.length === 0) return;
+    // Merge into clubDistances
+    data.forEach(row => {
+      if (!clubDistances[row.club]) clubDistances[row.club] = [];
+      // Only add if not already in local (avoid duplicates)
+      const exists = clubDistances[row.club].some(s => s.dist === row.distance && s.date === new Date(row.date).toLocaleDateString('en-AU'));
+      if (!exists) clubDistances[row.club].push({ dist: row.distance, date: new Date(row.date).toLocaleDateString('en-AU') });
+    });
+    persist();
+    renderHistory();
+  } catch(e) { console.error('Supabase club load error:', e); }
 }
 
 // ── Club picker ───────────────────────────────────────────────────────────────
@@ -396,6 +434,7 @@ function saveShot() {
   if (!clubDistances[pendingClub]) clubDistances[pendingClub] = [];
   clubDistances[pendingClub].push({ dist: pendingDist, date: new Date().toLocaleDateString('en-AU') });
   persist();
+  saveDistanceToSupabase(pendingClub, pendingDist);
   showToast((ALL_CLUBS_FULL[pendingClub]||pendingClub) + ' \u2014 ' + pendingDist + 'm saved');
   resetTracker();
   renderHistory();
@@ -497,6 +536,7 @@ function closeDrawer() {
 
 // ── Init ──────────────────────────────────────────────────────────────────────
 renderHistory();
+setTimeout(loadDistancesFromSupabase, 500);
 if ('serviceWorker' in navigator) { navigator.serviceWorker.register('/sw.js').catch(() => {}); }
 </script>
 

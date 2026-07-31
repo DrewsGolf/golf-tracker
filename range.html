@@ -236,6 +236,49 @@ function persist() {
   localStorage.setItem('golf-range-sessions', JSON.stringify(sessions));
 }
 
+async function saveSessionToSupabase(session) {
+  if (!currentUser) return;
+  try {
+    const rows = [];
+    Object.entries(session.clubs).forEach(([clubId, distances]) => {
+      distances.forEach(dist => {
+        if (dist > 0) rows.push({
+          user_id:  currentUser.id,
+          club:     clubId,
+          distance: dist,
+          date:     session.date || new Date().toISOString().split('T')[0]
+        });
+      });
+    });
+    if (rows.length) await sb.from('range_sessions').insert(rows);
+  } catch(e) { console.error('Supabase range save error:', e); }
+}
+
+async function loadRangeFromSupabase() {
+  if (!currentUser) return;
+  try {
+    const { data } = await sb.from('range_sessions')
+      .select('club, distance, date')
+      .eq('user_id', currentUser.id)
+      .order('created_at', { ascending: false });
+    if (!data || data.length === 0) return;
+    // Group into sessions by date
+    const byDate = {};
+    data.forEach(row => {
+      const d = row.date;
+      if (!byDate[d]) byDate[d] = { id: 'sb-' + d, date: d, clubs: {}, fromSupabase: true };
+      if (!byDate[d].clubs[row.club]) byDate[d].clubs[row.club] = [];
+      byDate[d].clubs[row.club].push(row.distance);
+    });
+    const sbSessions = Object.values(byDate).sort((a,b) => b.date.localeCompare(a.date));
+    // Merge — keep local-only sessions
+    const localOnly = sessions.filter(s => !s.fromSupabase && !sbSessions.find(sb => sb.date === s.date));
+    sessions = [...sbSessions, ...localOnly].sort((a,b) => b.date.localeCompare(a.date));
+    persist();
+    if (viewState === 'history') renderHistory();
+  } catch(e) { console.error('Supabase range load error:', e); }
+}
+
 // ── Routing ───────────────────────────────────────────────────────────────────
 function showHistory() {
   viewState = 'history';
@@ -462,6 +505,7 @@ function finishSession() {
       { label: 'Save Session', style: 'primary', action: () => {
         sessions.unshift(activeSession);
         persist();
+        saveSessionToSupabase(activeSession);
         closeDialog();
         showHistory();
       }},

@@ -31,7 +31,7 @@
   .header-img-wrap { position: relative; z-index: 10; width: 100%; flex-shrink: 0; }
   .header-img { width: 100%; height: auto; display: block; }
   .header-title { font-size: 13px; font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-muted); flex: 1; }
-  .back-btn { display: none; }
+  .back-btn { display: flex; align-items: center; }
   .header-action { background: transparent; border: 0.5px solid rgba(200,169,106,0.4); color: var(--gold); font-size: 12px; font-weight: 500; padding: 7px 14px; border-radius: 20px; cursor: pointer; white-space: nowrap; letter-spacing: 0.06em; }
   .header-action:active { opacity: 0.7; }
 
@@ -380,6 +380,8 @@ function getShotsPerHole(round) {
   const map = {};
   // Manual rounds store shotsPerHole directly
   if (round.shotsPerHole) return round.shotsPerHole;
+  // Supabase rounds store holeScores as { hole: score }
+  if (round.holeScores && Object.keys(round.holeScores).length > 0) return round.holeScores;
   if (!round.shotData) return map;
   round.shotData.forEach(s => {
     if (!map[s.hole]) map[s.hole] = 0;
@@ -657,7 +659,7 @@ function renderList() {
     html += renderChartHTML(chartRounds);
   }
 
-  html += `<div class="section-label">All Rounds</div>`;
+  html += `<div class="section-label" style="display:flex;align-items:center;justify-content:space-between;">All Rounds<button onclick="openAddSheet()" style="background:transparent;border:0.5px solid var(--gold);color:var(--gold);border-radius:8px;padding:4px 12px;font-size:12px;font-weight:500;cursor:pointer;font-family:inherit;">+ Add Round</button></div>`;
 
   history.forEach((r, i) => {
     const strokes = getTotalStrokes(r);

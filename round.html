@@ -263,7 +263,20 @@
 
 <div id="toast"></div>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
+// ── Supabase ──────────────────────────────────────────────────────────────────
+const SUPABASE_URL = 'https://ryqehsqqriavmuqfnzpx.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ5cWVoc3Fxcmlhdm11cWZuenB4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM3NTQ4MzcsImV4cCI6MjA5OTMzMDgzN30.Po2m7uhlMTc43Pdg8pohwvDsQ_UDFRS-n9UnTQ44nXA';
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+let currentUser = null;
+
+// Auth check on load — redirect to login if not signed in
+sb.auth.getSession().then(({ data }) => {
+  if (!data.session) { window.location.href = 'login.html'; return; }
+  currentUser = data.session.user;
+});
+
 // ── State ─────────────────────────────────────────────────────────────────────
 let currentHole  = 1;
 let holeScores   = JSON.parse(localStorage.getItem('golf-scores-v1') || '{}');
@@ -463,20 +476,24 @@ function finishRound() {
   });
 }
 
-function doFinishRound() {
-  saveRoundToHistory();
+async function doFinishRound() {
+  showToast('Saving round\u2026');
+  await saveRoundToHistory();
   resetState();
   showToast('Round saved!');
   setTimeout(() => window.location.href = 'index.html', 1200);
 }
 
-function saveRoundToHistory() {
+async function saveRoundToHistory() {
   const scoredHoles = Object.keys(holeScores).map(Number).filter(h => holeScores[h] > 0);
   if (!scoredHoles.length) return;
   const totalScore = scoredHoles.reduce((a,h) => a + holeScores[h], 0);
-  const totalPar   = scoredHoles.reduce((a,h) => a + (holePars[h] || 0), 0);
-  const date = new Date();
-  const round = {
+  const parHoles   = scoredHoles.filter(h => holePars[h]);
+  const totalPar   = parHoles.reduce((a,h) => a + holePars[h], 0);
+  const date       = new Date();
+
+  // Always save to localStorage as backup
+  const localRound = {
     id:         Date.now().toString(),
     date:       date.toLocaleDateString('en-AU'),
     dateISO:    date.toISOString(),
@@ -484,7 +501,7 @@ function saveRoundToHistory() {
     suburb:     currentCourse ? currentCourse.suburb : '',
     holes:      scoredHoles.length,
     totalScore: totalScore,
-    totalPar:   totalPar,
+    totalPar:   totalPar || null,
     scoreDiff:  totalPar ? totalScore - totalPar : null,
     pars:       { ...holePars },
     holeScores: { ...holeScores },
@@ -494,8 +511,42 @@ function saveRoundToHistory() {
     shotData:   scoredHoles.sort((a,b)=>a-b).map(h => ({ hole: h, score: holeScores[h], par: holePars[h]||null }))
   };
   const history = JSON.parse(localStorage.getItem('golf-round-history') || '[]');
-  history.unshift(round);
+  history.unshift(localRound);
   localStorage.setItem('golf-round-history', JSON.stringify(history));
+
+  // Save to Supabase if logged in
+  if (!currentUser) return;
+  try {
+    // Insert round row
+    const { data: roundRow, error: roundErr } = await sb.from('rounds').insert({
+      user_id:      currentUser.id,
+      date:         date.toISOString().split('T')[0],
+      date_iso:     date.toISOString(),
+      course:       currentCourse ? currentCourse.name   : 'Unknown Course',
+      suburb:       currentCourse ? currentCourse.suburb : null,
+      holes_played: scoredHoles.length,
+      total_score:  totalScore,
+      total_par:    totalPar || null,
+      score_diff:   totalPar ? totalScore - totalPar : null
+    }).select().single();
+
+    if (roundErr) { console.error('Round save error:', roundErr); return; }
+
+    // Insert one row per hole
+    const holeRows = scoredHoles.sort((a,b)=>a-b).map(h => ({
+      round_id: roundRow.id,
+      user_id:  currentUser.id,
+      hole:     h,
+      score:    holeScores[h],
+      par:      holePars[h]  || null,
+      putts:    holePutts[h] || 0
+    }));
+    const { error: holesErr } = await sb.from('hole_scores').insert(holeRows);
+    if (holesErr) console.error('Hole scores save error:', holesErr);
+  } catch(e) {
+    console.error('Supabase save failed (offline?):', e);
+    // localStorage backup already saved above — data is safe
+  }
 }
 
 // ── Summary ───────────────────────────────────────────────────────────────────

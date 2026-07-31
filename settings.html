@@ -195,6 +195,12 @@
 
   .nav-overlay.open { opacity: 1; pointer-events: auto; }
 
+  /* Header auth badge */
+  .header-auth-badge { position: absolute; top: 10px; right: 14px; display: none; align-items: center; gap: 6px; background: rgba(13,13,13,0.6); backdrop-filter: blur(6px); border: 0.5px solid rgba(200,169,106,0.2); border-radius: 20px; padding: 5px 10px 5px 8px; }
+  .header-auth-badge.visible { display: flex; }
+  .header-auth-dot { width: 8px; height: 8px; border-radius: 50%; background: #2ecc71; flex-shrink: 0; }
+  .header-auth-email { font-size: 11px; font-weight: 500; color: var(--gold); white-space: nowrap; }
+
   /* Auth section */
   .auth-card { background: rgba(28,28,28,0.85); border: 0.5px solid var(--gold); border-radius: 16px; overflow: hidden; backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); margin-top: 12px; }
   .auth-status { padding: 16px 20px; display: flex; align-items: center; gap: 12px; border-bottom: 0.5px solid rgba(200,169,106,0.1); }
@@ -222,8 +228,12 @@
   </div>
 
   <!-- Header -->
-  <div class="header-img-wrap">
+  <div class="header-img-wrap" style="position:relative;">
     <img class="header-img" src="Header.webp" alt="Shot Tracker">
+    <div class="header-auth-badge" id="header-badge">
+      <div class="header-auth-dot"></div>
+      <span class="header-auth-email" id="header-email"></span>
+    </div>
   </div>
 
   <!-- Settings content -->
@@ -244,11 +254,6 @@
 
   <!-- Account / Sign In -->
   <div class="auth-card" id="auth-card">
-    <div class="auth-status">
-      <div class="auth-dot" id="auth-dot"></div>
-      <span class="auth-label" id="auth-label">Checking…</span>
-      <span class="auth-email" id="auth-email"></span>
-    </div>
     <!-- Sign in form (shown when logged out) -->
     <div id="signin-form" style="display:none;">
       <div class="auth-section-label">Sign In to Sync Your Data</div>
@@ -297,21 +302,18 @@ const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZ
 const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 function setAuthUI(session) {
-  const dot      = document.getElementById('auth-dot');
-  const label    = document.getElementById('auth-label');
-  const email    = document.getElementById('auth-email');
+  const badge    = document.getElementById('header-badge');
+  const hEmail   = document.getElementById('header-email');
   const signIn   = document.getElementById('signin-form');
   const signOut  = document.getElementById('signout-form');
   if (session) {
-    dot.classList.add('connected');
-    label.textContent = 'Connected';
-    email.textContent = session.user.email;
+    badge.classList.add('visible');
+    hEmail.textContent    = session.user.email;
     signIn.style.display  = 'none';
     signOut.style.display = 'block';
   } else {
-    dot.classList.remove('connected');
-    label.textContent = 'Not signed in';
-    email.textContent = '';
+    badge.classList.remove('visible');
+    hEmail.textContent    = '';
     signIn.style.display  = 'block';
     signOut.style.display = 'none';
   }

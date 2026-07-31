@@ -176,6 +176,11 @@
   /* Edit button on round rows */
   .edit-btn { background: #1C1C1C; border: none; color: var(--text-muted); font-size: 16px; width: 44px; min-height: 100%; display: flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0; border-left: 0.5px solid rgba(200,169,106,0.12); }
   .edit-btn:active { background: #252525; }
+  /* Auth badge */
+  .header-auth-badge { position: absolute; top: 10px; right: 14px; display: none; align-items: center; gap: 6px; background: rgba(13,13,13,0.6); backdrop-filter: blur(6px); border: 0.5px solid rgba(200,169,106,0.2); border-radius: 20px; padding: 5px 10px 5px 8px; z-index: 20; }
+  .header-auth-badge.visible { display: flex; }
+  .header-auth-dot { width: 8px; height: 8px; border-radius: 50%; background: #2ecc71; flex-shrink: 0; }
+  .header-auth-email { font-size: 11px; font-weight: 500; color: var(--gold); white-space: nowrap; }
 </style>
 </head>
 <body>
@@ -183,8 +188,12 @@
 
 <!-- LIST VIEW -->
 <div id="list-view" style="position:relative;z-index:5;display:flex;flex-direction:column;height:100%;">
-  <div class="header-img-wrap">
+  <div class="header-img-wrap" style="position:relative;">
     <img class="header-img" src="Header.webp" alt="Shot Tracker">
+    <div class="header-auth-badge" id="header-badge">
+      <div class="header-auth-dot"></div>
+      <span class="header-auth-email" id="header-email"></span>
+    </div>
   </div>
   <div class="content" id="list-content"></div>
 </div>

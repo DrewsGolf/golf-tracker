@@ -1,7 +1,8 @@
-const CACHE = 'golf-tracker-v14';
+const CACHE = 'golf-tracker-v15';
 const FILES = [
   '/',
   '/index.html',
+  '/login.html',
   '/setup.html',
   '/round.html',
   '/start.html',
@@ -29,7 +30,9 @@ const FILES = [
   '/Courses_1.png', '/Courses_2.png',
   '/Suggest_1.png', '/Suggets_2.png',
   '/Settings_1.png', '/Settings_2.png',
-  '/Back.png'
+  '/Back.png',
+  '/par.PNG', '/Birdie.PNG', '/egale.PNG',
+  '/hole_in_one.PNG', '/1over.PNG', '/2over.PNG', '/3over.PNG'
 ];
 
 self.addEventListener('install', e => {

@@ -269,7 +269,12 @@ const SUPABASE_URL = 'https://ryqehsqqriavmuqfnzpx.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ5cWVoc3Fxcmlhdm11cWZuenB4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM3NTQ4MzcsImV4cCI6MjA5OTMzMDgzN30.Po2m7uhlMTc43Pdg8pohwvDsQ_UDFRS-n9UnTQ44nXA';
 const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 let currentUser = null;
-sb.auth.getSession().then(({ data }) => { if (data.session) currentUser = data.session.user; });
+sb.auth.getSession().then(({ data }) => {
+  if (data.session) {
+    currentUser = data.session.user;
+    loadFromSupabase();
+  }
+});
 // ── Data ─────────────────────────────────────────────────────────────────────
 let history = JSON.parse(localStorage.getItem('golf-round-history') || '[]');
 let pendingDeleteIndex = null;
@@ -305,7 +310,6 @@ async function loadFromSupabase() {
     const localOnly = history.filter(r => !r.fromSupabase && !sbRounds.find(s => s.dateISO === r.dateISO));
     history = [...sbRounds, ...localOnly].sort((a,b) => new Date(b.dateISO) - new Date(a.dateISO));
     renderList();
-setTimeout(loadFromSupabase, 500);
   } catch(e) { console.error('Supabase load error:', e); }
 }
 let editingIndex = null;

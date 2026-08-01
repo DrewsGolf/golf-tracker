@@ -102,17 +102,18 @@
   .detail-stat-lbl { font-size: 11px; color: rgba(255,255,255,0.6); margin-top: 1px; }
 
   /* Scorecard */
-  .scorecard { background: var(--card); border-radius: var(--radius); border: 0.5px solid var(--border); overflow: hidden; }
+  .scorecard { background: rgba(28,28,28,0.85); border-radius: var(--radius); border: 0.5px solid rgba(200,169,106,0.15); overflow: hidden; }
   .scorecard-table { width: 100%; border-collapse: collapse; font-size: 14px; }
-  .scorecard-table th { background: var(--green-dark); color: #fff; font-size: 11px; font-weight: 700; padding: 8px 10px; text-align: center; }
+  .scorecard-table th { background: rgba(200,169,106,0.12); color: var(--gold); font-size: 11px; font-weight: 500; padding: 10px 6px; text-align: center; letter-spacing: 0.06em; }
   .scorecard-table th:first-child { text-align: left; padding-left: 14px; }
-  .scorecard-table td { padding: 10px 10px; text-align: center; border-bottom: 0.5px solid var(--border); }
-  .scorecard-table td:first-child { text-align: left; padding-left: 14px; font-weight: 600; }
-  .scorecard-table tr:last-child td { border-bottom: none; }
-  .scorecard-table tr.total-row td { background: var(--green-pale); font-weight: 700; }
-  .diff-over { color: var(--red); font-weight: 700; }
-  .diff-under { color: var(--green-dark); font-weight: 700; }
+  .scorecard-table td { padding: 11px 6px; text-align: center; border-bottom: 0.5px solid rgba(200,169,106,0.08); color: var(--text-primary); }
+  .scorecard-table td:first-child { text-align: left; padding-left: 14px; font-weight: 600; color: var(--text-primary); }
+  .scorecard-table tr:last-child td { border-bottom: none; font-weight: 600; background: rgba(200,169,106,0.06); }
+  .diff-over { color: #e74c3c; font-weight: 500; }
+  .diff-under { color: var(--gold); font-weight: 500; }
   .diff-even { color: var(--text-muted); }
+  .score-icon-cell { width: 32px; text-align: center; padding: 6px 4px; }
+  .score-icon-cell img { width: 28px; height: 28px; object-fit: contain; display: block; margin: 0 auto; }
 
   /* Comparison table */
   .compare-card { background: var(--card); border-radius: var(--radius); border: 0.5px solid var(--border); overflow: hidden; }
@@ -824,28 +825,47 @@ function showDetail(index) {
   document.getElementById('detail-total-par').textContent = totalPar || '–';
   const vsParEl = document.getElementById('detail-vs-par');
   vsParEl.textContent = formatVsPar(diff);
-  vsParEl.style.color = diff > 0 ? '#c0392b' : diff < 0 ? '#7dd39a' : '#fff';
+  vsParEl.style.color = diff > 0 ? '#e74c3c' : diff < 0 ? 'var(--gold)' : 'var(--text-muted)';
 
   const holes = Object.keys(sph).map(Number).sort((a,b) => a-b);
   let content = '';
 
-  content += `<div class="scorecard"><table class="scorecard-table">
-    <thead><tr><th>Hole</th><th>Par</th><th>Shots</th><th>+/−</th></tr></thead><tbody>`;
+  // Score icon helper
+  function scoreIconImg(shots, par) {
+    if (!par || !shots) return '';
+    const diff = shots - par;
+    let src = '';
+    if (shots === 1)      src = 'hole_in_one.PNG';
+    else if (diff <= -2)  src = 'egale.PNG';
+    else if (diff === -1) src = 'Birdie.PNG';
+    else if (diff === 0)  src = 'par.PNG';
+    else if (diff === 1)  src = '1over.PNG';
+    else if (diff === 2)  src = '2over.PNG';
+    else if (diff === 3)  src = '3over.PNG';
+    return src ? `<img src="${src}" style="width:28px;height:28px;object-fit:contain;display:block;margin:0 auto;">` : '';
+  }
 
+  content += `<div class="scorecard"><table class="scorecard-table">
+    <thead><tr><th>Hole</th><th></th><th>Par</th><th>Shots</th><th>+/−</th><th>Putts</th></tr></thead><tbody>`;
+
+  let totalPutts = 0;
   holes.forEach(h => {
     const shots = sph[h] || 0;
     const par = round.pars && round.pars[h] ? round.pars[h] : null;
+    const putts = round.holePutts && round.holePutts[h] ? round.holePutts[h] : 0;
+    totalPutts += putts;
     const d = par !== null ? shots - par : null;
     const dStr = d === null ? '–' : (d === 0 ? 'E' : (d > 0 ? '+'+d : ''+d));
     const dCls = d === null ? 'diff-even' : d > 0 ? 'diff-over' : d < 0 ? 'diff-under' : 'diff-even';
-    content += `<tr><td>${h}</td><td>${par !== null ? par : '–'}</td><td>${shots}</td><td class="${dCls}">${dStr}</td></tr>`;
+    const icon = scoreIconImg(shots, par);
+    content += `<tr><td>${h}</td><td class="score-icon-cell">${icon}</td><td>${par !== null ? par : '–'}</td><td>${shots}</td><td class="${dCls}">${dStr}</td><td>${putts || '–'}</td></tr>`;
   });
 
   if (totalPar !== null) {
     const totalDiff = totalStrokes - totalPar;
     const dStr = totalDiff === 0 ? 'E' : (totalDiff > 0 ? '+'+totalDiff : ''+totalDiff);
     const dCls = totalDiff > 0 ? 'diff-over' : totalDiff < 0 ? 'diff-under' : 'diff-even';
-    content += `<tr class="total-row"><td>Total</td><td>${totalPar}</td><td>${totalStrokes}</td><td class="${dCls}">${dStr}</td></tr>`;
+    content += `<tr class="total-row"><td>Total</td><td></td><td>${totalPar}</td><td>${totalStrokes}</td><td class="${dCls}">${dStr}</td><td>${totalPutts || '–'}</td></tr>`;
   }
 
   content += `</tbody></table></div>`;

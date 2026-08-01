@@ -49,7 +49,7 @@
   .nav-overlay.open { opacity: 1; pointer-events: auto; }
 
   /* Content */
-  .content { padding: 20px 16px calc(var(--safe-bottom) + 110px); display: flex; flex-direction: column; gap: 20px; max-width: 430px; margin: 0 auto; width: 100%; }
+  .content { padding: 20px 16px calc(var(--safe-bottom) + 110px); display: flex; flex-direction: column; gap: 20px; max-width: 430px; margin: 0 auto; width: 100%; overflow-y: auto; -webkit-overflow-scrolling: touch; flex: 1; }
 
   /* Empty state */
   .empty-state { text-align: center; padding: 48px 24px; }
@@ -190,7 +190,7 @@
 <div class="app">
 
 <!-- LIST VIEW -->
-<div id="list-view" style="position:relative;z-index:5;display:flex;flex-direction:column;height:100%;">
+<div id="list-view" style="position:absolute;inset:0;z-index:5;display:flex;flex-direction:column;">
   <div class="header-img-wrap" style="position:relative;">
     <img class="header-img" src="Header.webp" alt="Shot Tracker">
     <div class="header-auth-badge" id="header-badge">

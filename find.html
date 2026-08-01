@@ -217,14 +217,12 @@
     <div class="nav-row nav-primary" id="nav-primary">
       <a class="nav-item" href="index.html"><img src="Home_2.png" alt="Home"></a>
       <a class="nav-item" href="start.html"><img src="Play_2.png" alt="Play"></a>
-      <a class="nav-item" href="range.html"><img src="Range_2.png" alt="Range"></a>
-      <button class="nav-item" id="btn-more" onclick="openDrawer()">
-        <img src="More.png" alt="More" id="icon-more">
-      </button>
+      <a class="nav-item" href="clubs.html"><img src="Clubs_2.png" alt="Distance"></a>
+      <button class="nav-item" id="btn-more" onclick="openDrawer()"><img src="More.png" alt="More" id="icon-more"></button>
     </div>
     <div class="nav-row nav-secondary" id="nav-secondary">
-      <a class="nav-item" href="history.html"><img src="History_2.png" alt="History"></a>
-      <a class="nav-item" href="clubs.html"><img src="Clubs_2.png" alt="Clubs"></a>
+      <a class="nav-item" href="range.html"><img src="Range_2.png" alt="Driving Range"></a>
+      <a class="nav-item" href="find.html"><img src="Courses_2.png" alt="Courses"></a>
       <a class="nav-item" href="suggest.html"><img src="Suggets_2.png" alt="Suggest"></a>
       <button class="nav-item" onclick="closeDrawer()"><img src="Back.png" alt="Back"></button>
     </div>
@@ -418,12 +416,14 @@ const iconMore  = document.getElementById('icon-more');
 
 function openDrawer() {
   primary.classList.add('raised'); secondary.classList.add('open'); overlay.classList.add('open');
-  iconMore.src = 'Courses_2.png'; iconMore.alt = 'Courses';
-  btnMore.onclick = () => window.location.href = 'find.html';
+  iconMore.src = 'History_1.png';
+  iconMore.alt = 'History';
+  btnMore.onclick = () => window.location.href = 'history.html';
 }
 function closeDrawer() {
   primary.classList.remove('raised'); secondary.classList.remove('open'); overlay.classList.remove('open');
-  iconMore.src = 'More.png'; iconMore.alt = 'More';
+  iconMore.src = 'More.png';
+  iconMore.alt = 'More';
   btnMore.onclick = openDrawer;
 }
 </script>

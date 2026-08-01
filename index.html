@@ -176,7 +176,7 @@
 
   <!-- Full screen hero image -->
   <div class="hero">
-    <img class="hero-img" src="images/Background_with_logo_and_tag.png" alt="">
+    <img class="hero-img" src="Background_with_logo_and_tag.png" alt="">
   </div>
 
   <!-- Settings — top left, same size as nav icons -->
@@ -190,29 +190,29 @@
   <!-- Nav shell -->
   <div class="nav-shell" id="nav-shell">
 
-    <!-- Primary row — slides UP when drawer opens, More becomes Courses -->
+    <!-- Primary row -->
     <div class="nav-row nav-primary" id="nav-primary">
       <a class="nav-item" href="index.html">
         <img src="Home_1.png" alt="Home">
       </a>
-      <a class="nav-item" href="play.html" id="nav-play">
+      <a class="nav-item" href="start.html" id="nav-play">
         <img src="Play_2.png" alt="Play">
       </a>
-      <a class="nav-item" href="range.html">
-        <img src="Range_2.png" alt="Range">
+      <a class="nav-item" href="clubs.html">
+        <img src="Clubs_2.png" alt="Distance">
       </a>
       <button class="nav-item" id="btn-more" onclick="openDrawer()">
         <img src="More.png" alt="More" id="icon-more">
       </button>
     </div>
 
-    <!-- Secondary row — slides up UNDERNEATH primary when drawer opens -->
+    <!-- Secondary row -->
     <div class="nav-row nav-secondary" id="nav-secondary">
-      <a class="nav-item" href="history.html">
-        <img src="History_2.png" alt="History">
+      <a class="nav-item" href="range.html">
+        <img src="Range_2.png" alt="Driving Range">
       </a>
-      <a class="nav-item" href="clubs.html">
-        <img src="Clubs_2.png" alt="Clubs">
+      <a class="nav-item" href="find.html">
+        <img src="Courses_2.png" alt="Courses">
       </a>
       <a class="nav-item" href="suggest.html">
         <img src="Suggets_2.png" alt="Suggest">
@@ -235,15 +235,12 @@ const btnMore   = document.getElementById('btn-more');
 const iconMore  = document.getElementById('icon-more');
 
 function openDrawer() {
-  // Primary slides up
   primary.classList.add('raised');
-  // Secondary slides up underneath
   secondary.classList.add('open');
   overlay.classList.add('open');
-  // More becomes Courses
-  iconMore.src = 'Courses_2.png';
-  iconMore.alt = 'Courses';
-  btnMore.onclick = () => window.location.href = 'find.html';
+  iconMore.src = 'History_1.png';
+  iconMore.alt = 'History';
+  btnMore.onclick = () => window.location.href = 'history.html';
 }
 
 function closeDrawer() {
@@ -256,10 +253,10 @@ function closeDrawer() {
 }
 
 // ── Continue round — swap Play to round.html if in progress ──────────────────
-const shots = JSON.parse(localStorage.getItem('play-round-v1') || '[]');
+const shots = JSON.parse(localStorage.getItem('golf-shots-v3') || '[]');
 const currentCourse = JSON.parse(localStorage.getItem('golf-current-course') || 'null');
 if (shots.length > 0 || currentCourse) {
-  document.getElementById('nav-play').setAttribute('href', 'play.html');
+  document.getElementById('nav-play').setAttribute('href', 'round.html');
 }
 
 if ('serviceWorker' in navigator) { navigator.serviceWorker.register('/sw.js').catch(()=>{}); }

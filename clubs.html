@@ -536,19 +536,19 @@ function showToast(msg) {
 }
 
 // ── Nav drawer ────────────────────────────────────────────────────────────────
-function openNavDrawer() {
+function openDrawer() {
   document.getElementById('nav-primary').classList.add('raised');
   document.getElementById('nav-secondary').classList.add('open');
   document.getElementById('nav-overlay').classList.add('open');
-  document.getElementById('icon-more').src = 'Courses_2.png';
-  document.getElementById('btn-more').onclick = () => window.location.href = 'find.html';
+  document.getElementById('icon-more').src = 'History_1.png';
+  document.getElementById('btn-more').onclick = () => window.location.href = 'history.html';
 }
 function closeDrawer() {
   document.getElementById('nav-primary').classList.remove('raised');
   document.getElementById('nav-secondary').classList.remove('open');
   document.getElementById('nav-overlay').classList.remove('open');
   document.getElementById('icon-more').src = 'More.png';
-  document.getElementById('btn-more').onclick = openNavDrawer;
+  document.getElementById('btn-more').onclick = openDrawer;
 }
 
 // ── Init ──────────────────────────────────────────────────────────────────────

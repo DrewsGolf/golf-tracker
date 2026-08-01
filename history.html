@@ -129,35 +129,35 @@
   .compare-table td.best { color: var(--green-dark); font-weight: 700; }
 
   /* ── Bottom sheet ── */
-  .sheet-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.45); z-index: 110; }
+  .sheet-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 110; }
   .sheet-overlay.active { display: block; }
-  .bottom-sheet { position: fixed; bottom: 0; left: 0; right: 0; max-width: 430px; margin: 0 auto; background: #fff; border-radius: 20px 20px 0 0; padding: 0; z-index: 111; transform: translateY(100%); transition: transform 0.3s cubic-bezier(0.32,0.72,0,1); max-height: 90vh; display: flex; flex-direction: column; }
+  .bottom-sheet { position: fixed; bottom: 0; left: 0; right: 0; max-width: 430px; margin: 0 auto; background: #1C1C1C; border-radius: 20px 20px 0 0; border-top: 0.5px solid rgba(200,169,106,0.2); padding: 0; z-index: 111; transform: translateY(100%); transition: transform 0.3s cubic-bezier(0.32,0.72,0,1); max-height: 90vh; display: flex; flex-direction: column; }
   .bottom-sheet.open { transform: translateY(0); }
-  .sheet-handle { width: 36px; height: 4px; background: #ddd; border-radius: 2px; margin: 12px auto 4px; }
-  .sheet-title { font-size: 17px; font-weight: 700; padding: 12px 20px 16px; border-bottom: 0.5px solid var(--border); }
+  .sheet-handle { width: 36px; height: 4px; background: rgba(200,169,106,0.3); border-radius: 2px; margin: 12px auto 4px; }
+  .sheet-title { font-size: 17px; font-weight: 600; color: var(--gold); padding: 12px 20px 16px; border-bottom: 0.5px solid rgba(200,169,106,0.12); }
 
   /* Add round form */
   .form-body { padding: 16px 20px; display: flex; flex-direction: column; gap: 16px; overflow-y: auto; flex: 1; }
   .form-group { display: flex; flex-direction: column; gap: 6px; }
-  .form-label { font-size: 12px; font-weight: 700; color: var(--text-secondary); letter-spacing: 0.04em; text-transform: uppercase; }
-  .form-input { background: var(--bg); border: 1px solid var(--border); border-radius: 10px; padding: 12px 14px; font-size: 15px; font-family: inherit; color: var(--text-primary); width: 100%; -webkit-appearance: none; }
-  .form-input:focus { outline: none; border-color: var(--green-mid); }
+  .form-label { font-size: 11px; font-weight: 500; color: var(--text-muted); letter-spacing: 0.1em; text-transform: uppercase; }
+  .form-input { background: rgba(13,13,13,0.7); border: 0.5px solid rgba(200,169,106,0.3); border-radius: 10px; padding: 12px 14px; font-size: 15px; font-family: inherit; color: var(--text-primary); width: 100%; -webkit-appearance: none; }
+  .form-input:focus { outline: none; border-color: var(--gold); }
   .hole-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
-  .hole-entry { background: var(--bg); border: 1px solid var(--border); border-radius: 10px; padding: 10px 8px; text-align: center; }
-  .hole-entry-label { font-size: 10px; font-weight: 700; color: var(--text-muted); margin-bottom: 6px; letter-spacing: 0.04em; }
+  .hole-entry { background: rgba(13,13,13,0.5); border: 0.5px solid rgba(200,169,106,0.15); border-radius: 10px; padding: 10px 8px; text-align: center; }
+  .hole-entry-label { font-size: 10px; font-weight: 500; color: var(--gold-muted); margin-bottom: 6px; letter-spacing: 0.06em; text-transform: uppercase; }
   .hole-entry-inputs { display: flex; gap: 4px; align-items: center; }
-  .hole-mini-input { flex: 1; background: #fff; border: 1px solid var(--border); border-radius: 7px; padding: 7px 4px; font-size: 14px; font-weight: 700; text-align: center; font-family: inherit; width: 0; -webkit-appearance: none; }
-  .hole-mini-input:focus { outline: none; border-color: var(--green-mid); }
+  .hole-mini-input { flex: 1; background: rgba(13,13,13,0.7); border: 0.5px solid rgba(200,169,106,0.25); border-radius: 7px; padding: 7px 4px; font-size: 14px; font-weight: 500; color: var(--text-primary); text-align: center; font-family: inherit; width: 0; -webkit-appearance: none; }
+  .hole-mini-input:focus { outline: none; border-color: var(--gold); color: var(--gold); }
   .hole-sep { font-size: 11px; color: var(--text-muted); flex-shrink: 0; }
   .hole-col-labels { display: flex; gap: 4px; justify-content: center; margin-bottom: 2px; }
-  .hole-col-label { flex: 1; font-size: 9px; color: var(--text-muted); text-align: center; font-weight: 600; letter-spacing: 0.03em; text-transform: uppercase; }
-  .holes-section-label { font-size: 13px; font-weight: 700; color: var(--text-primary); display: flex; align-items: center; justify-content: space-between; }
-  .holes-toggle { display: flex; gap: 0; background: var(--bg); border-radius: 10px; border: 1px solid var(--border); overflow: hidden; width: 160px; flex-shrink: 0; }
-  .holes-toggle button { flex: 1; background: none; border: none; padding: 10px 0; font-size: 15px; font-weight: 700; color: var(--text-secondary); cursor: pointer; }
-  .holes-toggle button.active { background: var(--green-dark); color: #fff; }
-  .form-actions { display: flex; gap: 10px; padding: 12px 20px calc(var(--safe-bottom) + 16px); flex-shrink: 0; border-top: 0.5px solid rgba(0,0,0,0.08); background: #fff; }
-  .btn-save { flex: 1; background: var(--green-dark); color: #fff; border: none; border-radius: 12px; padding: 14px; font-size: 15px; font-weight: 700; cursor: pointer; }
-  .btn-cancel { background: #f0f0f0; color: var(--text-primary); border: none; border-radius: 12px; padding: 14px 20px; font-size: 15px; font-weight: 600; cursor: pointer; }
+  .hole-col-label { flex: 1; font-size: 9px; color: var(--text-muted); text-align: center; font-weight: 500; letter-spacing: 0.06em; text-transform: uppercase; }
+  .holes-section-label { font-size: 13px; font-weight: 500; color: var(--text-primary); display: flex; align-items: center; justify-content: space-between; }
+  .holes-toggle { display: flex; gap: 0; background: rgba(13,13,13,0.5); border-radius: 10px; border: 0.5px solid rgba(200,169,106,0.2); overflow: hidden; width: 160px; flex-shrink: 0; }
+  .holes-toggle button { flex: 1; background: none; border: none; padding: 10px 0; font-size: 15px; font-weight: 500; color: var(--text-muted); cursor: pointer; font-family: inherit; }
+  .holes-toggle button.active { background: var(--gold); color: #0D0D0D; }
+  .form-actions { display: flex; gap: 10px; padding: 12px 20px calc(var(--safe-bottom) + 16px); flex-shrink: 0; border-top: 0.5px solid rgba(200,169,106,0.12); background: #1C1C1C; }
+  .btn-save { flex: 1; background: var(--gold); color: #0D0D0D; border: none; border-radius: 12px; padding: 14px; font-size: 15px; font-weight: 600; cursor: pointer; font-family: inherit; }
+  .btn-cancel { background: rgba(13,13,13,0.7); color: var(--text-muted); border: 0.5px solid rgba(200,169,106,0.2); border-radius: 12px; padding: 14px 20px; font-size: 15px; font-weight: 500; cursor: pointer; font-family: inherit; }
   .btn-save:active { opacity: 0.8; }
   .btn-cancel:active { opacity: 0.7; }
 
@@ -165,16 +165,16 @@
   .confirm-body { padding: 16px 20px 8px; }
   .confirm-msg { font-size: 15px; color: var(--text-secondary); line-height: 1.5; margin-bottom: 20px; }
   .confirm-actions { display: flex; gap: 10px; }
-  .btn-delete { flex: 1; background: var(--red); color: #fff; border: none; border-radius: 12px; padding: 14px; font-size: 15px; font-weight: 700; cursor: pointer; }
+  .btn-delete { flex: 1; background: #c0392b; color: #fff; border: none; border-radius: 12px; padding: 14px; font-size: 15px; font-weight: 600; cursor: pointer; font-family: inherit; }
   .btn-delete:active { opacity: 0.8; }
 
   /* Course picker dropdown */
-  .course-suggestions { background: #fff; border: 1px solid var(--border); border-radius: 10px; margin-top: 4px; overflow: hidden; display: none; }
-  .course-suggestion-item { padding: 11px 14px; font-size: 14px; cursor: pointer; border-bottom: 0.5px solid var(--border); }
+  .course-suggestions { background: #1C1C1C; border: 0.5px solid rgba(200,169,106,0.2); border-radius: 10px; margin-top: 4px; overflow: hidden; display: none; }
+  .course-suggestion-item { padding: 11px 14px; font-size: 14px; cursor: pointer; border-bottom: 0.5px solid rgba(200,169,106,0.1); }
   .course-suggestion-item:last-child { border-bottom: none; }
-  .course-suggestion-item:active { background: var(--green-light); }
+  .course-suggestion-item:active { background: rgba(200,169,106,0.08); }
   .course-suggestion-name { font-weight: 600; color: var(--text-primary); }
-  .course-suggestion-suburb { font-size: 12px; color: var(--text-secondary); margin-top: 1px; }
+  .course-suggestion-suburb { font-size: 12px; color: var(--text-muted); margin-top: 1px; }
 
   /* Edit button on round rows */
   .edit-btn { background: #1C1C1C; border: none; color: var(--text-muted); font-size: 16px; width: 44px; min-height: 100%; display: flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0; border-left: 0.5px solid rgba(200,169,106,0.12); }

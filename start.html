@@ -330,11 +330,11 @@ function startRound() {
   } else {
     localStorage.removeItem('golf-current-course');
   }
-  swingSound.currentTime = 0;
-  swingSound.play()
-    .then(() => { showToast('Sound: playing OK'); })
-    .catch((err) => { showToast('Sound failed: ' + err.name + ' - ' + err.message); });
-  setTimeout(() => { window.location.href = 'round.html'; }, 2500); // TEMP: longer delay so you can read the toast before navigating
+  if (localStorage.getItem('golf-sound-enabled') !== 'false') {
+    swingSound.currentTime = 0;
+    swingSound.play().catch(() => {}); // attempt playback; don't let a rejected promise block navigation timing
+  }
+  setTimeout(() => { window.location.href = 'round.html'; }, 900); // fixed head start so the sound has time to play regardless of promise state
 }
 
 function showToast(msg) {

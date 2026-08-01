@@ -296,8 +296,6 @@ let currentCourse = JSON.parse(localStorage.getItem('golf-current-course') || 'n
 // ── Sounds ────────────────────────────────────────────────────────────────────
 const putSound = new Audio('sounds/put.wav');
 putSound.preload = 'auto';
-const swingSound = new Audio('sounds/Golf_Swing.wav');
-swingSound.preload = 'auto';
 
 function persist() {
   localStorage.setItem('golf-scores-v1', JSON.stringify(holeScores));
@@ -445,8 +443,10 @@ function updatePuttsDisplay() {
 function saveHole() {
   if ((holeScores[currentHole] || 0) === 0) { showToast('Enter a score first'); return; }
   persist();
-  putSound.currentTime = 0;
-  putSound.play().catch(() => {});
+  if (localStorage.getItem('golf-sound-enabled') !== 'false') {
+    putSound.currentTime = 0;
+    putSound.play().catch(() => {});
+  }
   if (currentHole >= 18) { showToast('Last hole saved &#9971;'); updateFinishBtn(); return; }
   currentHole++;
   renderRound();
@@ -766,7 +766,6 @@ function closeDrawer() {
 // ── Init ──────────────────────────────────────────────────────────────────────
 renderRound();
 updateFinishBtn();
-swingSound.play().catch(() => {});
 if('serviceWorker' in navigator){navigator.serviceWorker.register('/sw.js').catch(()=>{});}
 </script>
 
@@ -777,7 +776,7 @@ if('serviceWorker' in navigator){navigator.serviceWorker.register('/sw.js').catc
       <a class="nav-item" href="index.html"><img src="Home_2.png" alt="Home"></a>
       <a class="nav-item" href="round.html"><img src="Play_1.png" alt="Play"></a>
       <a class="nav-item" href="clubs.html"><img src="Clubs_2.png" alt="Distance"></a>
-      <button class="nav-item" id="btn-more" onclick="openDrawer()"><img src="More.png" alt="More" id="icon-more"></button>
+      <button class="nav-item" id="btn-more" onclick="openNavDrawer()"><img src="More.png" alt="More" id="icon-more"></button>
     </div>
   <div class="nav-row-round nav-secondary-r" id="nav-secondary">
       <a class="nav-item" href="range.html"><img src="Range_2.png" alt="Driving Range"></a>

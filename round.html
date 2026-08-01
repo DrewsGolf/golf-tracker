@@ -293,6 +293,10 @@ let holePutts    = JSON.parse(localStorage.getItem('golf-putts-v1')   || '{}');
 let shots        = JSON.parse(localStorage.getItem('golf-shots-v3')  || '[]');
 let currentCourse = JSON.parse(localStorage.getItem('golf-current-course') || 'null');
 
+// ── Sounds ────────────────────────────────────────────────────────────────────
+const putSound = new Audio('sounds/put.wav');
+putSound.preload = 'auto';
+
 function persist() {
   localStorage.setItem('golf-scores-v1', JSON.stringify(holeScores));
   localStorage.setItem('golf-pars-v1',   JSON.stringify(holePars));
@@ -439,6 +443,8 @@ function updatePuttsDisplay() {
 function saveHole() {
   if ((holeScores[currentHole] || 0) === 0) { showToast('Enter a score first'); return; }
   persist();
+  putSound.currentTime = 0;
+  putSound.play().catch(() => {});
   if (currentHole >= 18) { showToast('Last hole saved &#9971;'); updateFinishBtn(); return; }
   currentHole++;
   renderRound();

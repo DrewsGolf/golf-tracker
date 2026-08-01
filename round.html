@@ -285,7 +285,7 @@ sb.auth.getSession().then(({ data }) => {
 });
 
 // ── State ─────────────────────────────────────────────────────────────────────
-let currentHole  = 1;
+let currentHole  = parseInt(localStorage.getItem('golf-current-hole') || '1');
 let holeScores   = JSON.parse(localStorage.getItem('golf-scores-v1') || '{}');
 let holePars     = JSON.parse(localStorage.getItem('golf-pars-v1')   || '{}');
 let holePutts    = JSON.parse(localStorage.getItem('golf-putts-v1')   || '{}');
@@ -297,6 +297,7 @@ function persist() {
   localStorage.setItem('golf-scores-v1', JSON.stringify(holeScores));
   localStorage.setItem('golf-pars-v1',   JSON.stringify(holePars));
   localStorage.setItem('golf-putts-v1',  JSON.stringify(holePutts));
+  localStorage.setItem('golf-current-hole', currentHole);
 }
 
 // ── Tabs ──────────────────────────────────────────────────────────────────────
@@ -330,6 +331,7 @@ function resetState() {
   localStorage.removeItem('golf-scores-v1');
   localStorage.removeItem('golf-pars-v1');
   localStorage.removeItem('golf-putts-v1');
+  localStorage.removeItem('golf-current-hole');
   localStorage.removeItem('golf-shots-v3');
   localStorage.removeItem('golf-current-course');
 }

@@ -91,7 +91,7 @@
   .round-arrow { font-size: 20px; color: var(--text-muted); }
 
   /* Detail view */
-  #detail-view { display: none; position: absolute; inset: 0; flex-direction: column; background: var(--bg-primary); z-index: 10; }
+  #detail-view { display: none; position: absolute; inset: 0; flex-direction: column; background: var(--bg-primary); z-index: 150; }
   #detail-view.visible { display: flex; }
   #detail-content { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; padding: 14px 14px calc(var(--safe-bottom) + 110px); }
   .detail-header { background: var(--bg-primary); padding: calc(var(--safe-top) + 20px) 24px 20px; border-bottom: 0.5px solid rgba(200,169,106,0.12); }
@@ -217,7 +217,7 @@
       <div class="detail-stat"><div class="detail-stat-num" id="detail-vs-par">–</div><div class="detail-stat-lbl">vs Par</div></div>
     </div>
   </div>
-  <div class="content" id="detail-content"></div>
+  <div id="detail-content"></div>
 </div>
 
 <!-- SHEET OVERLAY -->

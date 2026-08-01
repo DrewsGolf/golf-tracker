@@ -131,6 +131,11 @@
 <script>
 let chosenCourse = null;
 
+// ── Sounds ────────────────────────────────────────────────────────────────────
+const swingSound = new Audio('sounds/golf_swing.wav');
+swingSound.preload = 'auto';
+swingSound.load();
+
 function haversine(lat1, lng1, lat2, lng2) {
   const R = 6371000;
   const f1 = lat1*Math.PI/180, f2 = lat2*Math.PI/180;
@@ -325,7 +330,11 @@ function startRound() {
   } else {
     localStorage.removeItem('golf-current-course');
   }
-  window.location.href = 'round.html';
+  swingSound.currentTime = 0;
+  swingSound.play()
+    .then(() => { showToast('Sound: playing OK'); })
+    .catch((err) => { showToast('Sound failed: ' + err.name + ' - ' + err.message); });
+  setTimeout(() => { window.location.href = 'round.html'; }, 2500); // TEMP: longer delay so you can read the toast before navigating
 }
 
 function showToast(msg) {

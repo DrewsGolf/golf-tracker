@@ -296,6 +296,8 @@ let currentCourse = JSON.parse(localStorage.getItem('golf-current-course') || 'n
 // ── Sounds ────────────────────────────────────────────────────────────────────
 const putSound = new Audio('sounds/put.wav');
 putSound.preload = 'auto';
+const swingSound = new Audio('sounds/Golf_Swing.wav');
+swingSound.preload = 'auto';
 
 function persist() {
   localStorage.setItem('golf-scores-v1', JSON.stringify(holeScores));
@@ -764,6 +766,7 @@ function closeDrawer() {
 // ── Init ──────────────────────────────────────────────────────────────────────
 renderRound();
 updateFinishBtn();
+swingSound.play().catch(() => {});
 if('serviceWorker' in navigator){navigator.serviceWorker.register('/sw.js').catch(()=>{});}
 </script>
 

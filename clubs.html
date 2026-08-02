@@ -59,24 +59,12 @@
   .club-picker-item.selected { color: var(--gold); }
   .club-picker-item.selected::after { content: '✓'; font-size: 14px; color: var(--gold); }
 
-  /* GPS stability indicator */
-  .gps-status { display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 6px 0 16px; }
-  .gps-status-row { display: flex; align-items: center; gap: 8px; }
-  .gps-indicator { width: 12px; height: 12px; border-radius: 50%; background: var(--text-muted); flex-shrink: 0; transition: background 0.3s; }
-  .gps-indicator.searching { background: var(--text-muted); animation: gpsPulse 1.2s infinite; }
-  .gps-indicator.poor { background: #c0392b; }
-  .gps-indicator.fair { background: #d4a63a; }
-  .gps-indicator.good { background: #2ecc71; }
-  @keyframes gpsPulse { 0% { box-shadow: 0 0 0 0 rgba(189,189,189,0.35); } 70% { box-shadow: 0 0 0 9px rgba(189,189,189,0); } 100% { box-shadow: 0 0 0 0 rgba(189,189,189,0); } }
-  .gps-status-text { font-size: 13px; font-weight: 500; color: var(--text-secondary); }
-  .gps-accuracy { font-size: 26px; font-weight: 300; color: var(--gold); letter-spacing: -0.02em; }
-  .gps-debug { font-size: 10.5px; color: var(--text-muted); font-family: 'SF Mono', 'Menlo', monospace; margin-top: 2px; text-align: center; }
-
-  /* Live walking distance */
-  .walking-dist-card { text-align: center; padding: 4px 0 16px; }
-  .walking-dist-value { font-size: 46px; font-weight: 300; color: var(--gold); line-height: 1; letter-spacing: -0.03em; }
-  .walking-dist-unit { font-size: 16px; font-weight: 400; color: var(--gold-muted); margin-left: 4px; }
-  .walking-dist-label { font-size: 10px; font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-muted); margin-top: 6px; }
+  /* GPS progress */
+  .gps-progress { display: none; text-align: center; padding: 10px 0 4px; }
+  .gps-progress-label { font-size: 11px; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase; color: var(--gold-muted); margin-bottom: 8px; }
+  .gps-dots { display: flex; justify-content: center; gap: 6px; }
+  .gps-dot-pip { font-size: 18px; color: rgba(200,169,106,0.25); transition: color 0.3s; }
+  .gps-dot-pip.filled { color: var(--gold); }
 
   /* Stage instruction */
   .stage-instruction { text-align: center; font-size: 14px; color: var(--text-secondary); font-style: italic; padding: 6px 0 10px; }
@@ -176,14 +164,21 @@
     <div class="card" id="tracker-card">
       <div class="card-label" id="tracker-label">Ready</div>
 
-      <!-- GPS stability indicator — always visible, live-updating -->
-      <div class="gps-status">
-        <div class="gps-status-row">
-          <span class="gps-indicator searching" id="gps-indicator"></span>
-          <span class="gps-status-text" id="gps-status-text">Acquiring GPS&hellip;</span>
+      <!-- GPS progress dots -->
+      <div class="gps-progress" id="gps-progress">
+        <div class="gps-progress-label" id="gps-progress-label">Acquiring position</div>
+        <div class="gps-dots">
+          <span class="gps-dot-pip" id="gdot-0">&#9678;</span>
+          <span class="gps-dot-pip" id="gdot-1">&#9678;</span>
+          <span class="gps-dot-pip" id="gdot-2">&#9678;</span>
+          <span class="gps-dot-pip" id="gdot-3">&#9678;</span>
+          <span class="gps-dot-pip" id="gdot-4">&#9678;</span>
+          <span class="gps-dot-pip" id="gdot-5">&#9678;</span>
+          <span class="gps-dot-pip" id="gdot-6">&#9678;</span>
+          <span class="gps-dot-pip" id="gdot-7">&#9678;</span>
+          <span class="gps-dot-pip" id="gdot-8">&#9678;</span>
+          <span class="gps-dot-pip" id="gdot-9">&#9678;</span>
         </div>
-        <div class="gps-accuracy" id="gps-accuracy">—</div>
-        <div class="gps-debug" id="gps-debug">no fix yet</div>
       </div>
 
       <!-- Stage: idle -->
@@ -194,10 +189,6 @@
 
       <!-- Stage: walking -->
       <div id="stage-walking" style="display:none">
-        <div class="walking-dist-card">
-          <span class="walking-dist-value" id="walking-dist">0</span><span class="walking-dist-unit">m</span>
-          <div class="walking-dist-label">Distance so far</div>
-        </div>
         <p class="stage-instruction">Walk to where your ball landed and tap Mark Landing</p>
         <button class="btn btn-primary" onclick="markLanding()">&#9655; Mark Landing</button>
         <button class="btn btn-danger" onclick="cancelShot()">&#10007; Cancel</button>
@@ -344,75 +335,70 @@ function selectClub(id) {
   document.getElementById('btn-start').disabled = false;
 }
 
-// ── GPS: live watchPosition stability model ─────────────────────────────────
-// Instead of sampling a handful of readings and averaging (which introduced
-// delay without guaranteeing accuracy), this build watches position
-// continuously and surfaces the device's own accuracy estimate live, so the
-// user can see when the fix is trustworthy before locking a point.
-let watchId    = null;
-let currentFix = null; // { latitude, longitude, accuracy, timestamp }
+// ── GPS ───────────────────────────────────────────────────────────────────────
+let gpsDotTimer    = null;
+let gpsReadingTimer = null;
 
-// Accuracy thresholds (metres) — tune these based on real-world testing
-const ACC_GOOD = 8;   // <=8m  -> green, trustworthy
-const ACC_FAIR = 15;  // <=15m -> yellow, usable with caution
-                       // >15m  -> red, likely under trees / multipath
+function startGPS(onDone) {
+  if (gpsDotTimer)     { clearInterval(gpsDotTimer);     gpsDotTimer = null; }
+  if (gpsReadingTimer) { clearInterval(gpsReadingTimer); gpsReadingTimer = null; }
 
-function accuracyTier(acc) {
-  if (acc == null || !isFinite(acc)) return 'unknown';
-  if (acc <= ACC_GOOD) return 'good';
-  if (acc <= ACC_FAIR) return 'fair';
-  return 'poor';
-}
+  const readings = [];
+  let dotIndex   = 0;
 
-function startWatch() {
-  if (!('geolocation' in navigator)) {
-    document.getElementById('gps-status-text').textContent = 'Geolocation not supported';
-    return;
+  for (let i = 0; i < 10; i++) {
+    const d = document.getElementById('gdot-' + i);
+    if (d) { d.textContent = '\u25ce'; d.classList.remove('filled'); }
   }
-  watchId = navigator.geolocation.watchPosition(
-    pos => {
-      currentFix = {
-        latitude:  pos.coords.latitude,
-        longitude: pos.coords.longitude,
-        accuracy:  pos.coords.accuracy,
-        timestamp: pos.timestamp
-      };
-      updateGpsStatusUI();
-      if (currentStage === 'walking' && startPosition) updateWalkingDistance();
-    },
-    err => {
-      document.getElementById('gps-status-text').textContent = 'GPS error: ' + err.message;
-    },
-    { enableHighAccuracy: true, maximumAge: 1000, timeout: 15000 }
-  );
+  document.getElementById('gps-progress-label').textContent = 'Acquiring position';
+  document.getElementById('gps-progress').style.display = 'block';
+
+  gpsDotTimer = setInterval(() => {
+    const d = document.getElementById('gdot-' + dotIndex);
+    if (d) { d.textContent = '\u25c9'; d.classList.add('filled'); }
+    dotIndex++;
+    if (dotIndex >= 10) { clearInterval(gpsDotTimer); gpsDotTimer = null; }
+  }, 2000);
+
+  // Settle 5s, then 3 readings at 5s intervals
+  setTimeout(() => {
+    let count = 0;
+    gpsReadingTimer = setInterval(() => {
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          pos => readings.push(pos.coords),
+          () => {},
+          { enableHighAccuracy: true, timeout: 4500, maximumAge: 0 }
+        );
+      }
+      count++;
+      if (count >= 3) {
+        clearInterval(gpsReadingTimer); gpsReadingTimer = null;
+        if (gpsDotTimer) { clearInterval(gpsDotTimer); gpsDotTimer = null; }
+        document.getElementById('gps-progress').style.display = 'none';
+        const coords = readings.length > 0 ? bestCoords(readings) : null;
+        onDone(coords);
+      }
+    }, 5000);
+  }, 5000);
 }
 
-function updateGpsStatusUI() {
-  const dot   = document.getElementById('gps-indicator');
-  const text  = document.getElementById('gps-status-text');
-  const acc   = document.getElementById('gps-accuracy');
-  const debug = document.getElementById('gps-debug');
-
-  if (!currentFix) {
-    dot.className  = 'gps-indicator searching';
-    text.textContent = 'Acquiring GPS\u2026';
-    acc.textContent  = '—';
-    debug.textContent = 'no fix yet';
-    return;
-  }
-
-  const tier = accuracyTier(currentFix.accuracy);
-  const labels = { good: 'Good fix', fair: 'Fair \u2014 may drift', poor: 'Poor \u2014 move to open sky', unknown: 'Unknown accuracy' };
-  dot.className = 'gps-indicator ' + tier;
-  text.textContent = labels[tier];
-  acc.textContent = '\u00b1' + Math.round(currentFix.accuracy) + 'm';
-  debug.textContent = currentFix.latitude.toFixed(6) + ', ' + currentFix.longitude.toFixed(6);
-}
-
-function updateWalkingDistance() {
-  if (!currentFix || !startPosition) return;
-  const dist = haversine(startPosition, currentFix);
-  document.getElementById('walking-dist').textContent = dist;
+function bestCoords(readings) {
+  if (readings.length === 1) return readings[0];
+  if (readings.length === 2) return {
+    latitude:  (readings[0].latitude  + readings[1].latitude)  / 2,
+    longitude: (readings[0].longitude + readings[1].longitude) / 2
+  };
+  let best = Infinity, a = 0, b = 1;
+  for (let i = 0; i < readings.length; i++)
+    for (let j = i+1; j < readings.length; j++) {
+      const d = haversine(readings[i], readings[j]);
+      if (d < best) { best = d; a = i; b = j; }
+    }
+  return {
+    latitude:  (readings[a].latitude  + readings[b].latitude)  / 2,
+    longitude: (readings[a].longitude + readings[b].longitude) / 2
+  };
 }
 
 function haversine(a, b) {
@@ -424,10 +410,7 @@ function haversine(a, b) {
 }
 
 // ── Shot flow ─────────────────────────────────────────────────────────────────
-let currentStage = 'idle';
-
 function setStage(name) {
-  currentStage = name;
   ['idle','walking','result'].forEach(s => {
     document.getElementById('stage-'+s).style.display = s===name ? 'block' : 'none';
   });
@@ -435,59 +418,32 @@ function setStage(name) {
 
 function startShot() {
   if (!selectedClub) { showToast('Select a club first'); return; }
-  if (!currentFix) { showToast('Waiting for a GPS fix\u2026'); return; }
+  document.getElementById('tracker-label').textContent = 'Marking start position\u2026';
+  setStage('idle');
+  document.getElementById('btn-start').disabled = true;
+  document.getElementById('stage-idle').querySelector('p').textContent = 'Getting your start position\u2026';
 
-  const tier = accuracyTier(currentFix.accuracy);
-  if (tier === 'poor') {
-    showDialog({
-      icon: '&#9888;',
-      title: 'Poor GPS Accuracy',
-      sub: 'Current accuracy is \u00b1' + Math.round(currentFix.accuracy) + 'm. Starting now may give an inaccurate distance. Record the start position anyway?',
-      buttons: [
-        { label: 'Record anyway', style: 'primary', action: lockStart },
-        { label: 'Wait for better signal', style: 'secondary', action: () => {} }
-      ]
-    });
-  } else {
-    lockStart();
-  }
-}
-
-function lockStart() {
-  startPosition = { latitude: currentFix.latitude, longitude: currentFix.longitude };
-  document.getElementById('walking-dist').textContent = '0';
-  document.getElementById('tracker-label').textContent = 'Walk to your ball';
-  setStage('walking');
-  showToast('Start marked (\u00b1' + Math.round(currentFix.accuracy) + 'm) \u2014 walk to your ball');
+  startGPS(coords => {
+    if (!coords) { showToast('Could not get GPS position — try again'); resetTracker(); return; }
+    startPosition = coords;
+    document.getElementById('tracker-label').textContent = 'Walk to your ball';
+    setStage('walking');
+    showToast('Start marked \u2014 walk to your ball');
+  });
 }
 
 function markLanding() {
-  if (!currentFix) { showToast('Waiting for a GPS fix\u2026'); return; }
-
-  const tier = accuracyTier(currentFix.accuracy);
-  if (tier === 'poor') {
-    showDialog({
-      icon: '&#9888;',
-      title: 'Poor GPS Accuracy',
-      sub: 'Current accuracy is \u00b1' + Math.round(currentFix.accuracy) + 'm. Recording now may give an inaccurate distance. Record the finish position anyway?',
-      buttons: [
-        { label: 'Record anyway', style: 'primary', action: lockFinish },
-        { label: 'Wait for better signal', style: 'secondary', action: () => {} }
-      ]
-    });
-  } else {
-    lockFinish();
-  }
-}
-
-function lockFinish() {
-  const dist = haversine(startPosition, currentFix);
-  pendingDist  = dist;
-  pendingClub  = selectedClub;
-  document.getElementById('result-dist').textContent = dist;
-  document.getElementById('result-club').textContent = ALL_CLUBS_FULL[selectedClub] || selectedClub;
-  document.getElementById('tracker-label').textContent = 'Shot measured';
-  setStage('result');
+  document.getElementById('tracker-label').textContent = 'Marking landing position\u2026';
+  startGPS(coords => {
+    if (!coords) { showToast('Could not get GPS position — try again'); return; }
+    const dist = haversine(startPosition, coords);
+    pendingDist  = dist;
+    pendingClub  = selectedClub;
+    document.getElementById('result-dist').textContent = dist;
+    document.getElementById('result-club').textContent = ALL_CLUBS_FULL[selectedClub] || selectedClub;
+    document.getElementById('tracker-label').textContent = 'Shot measured';
+    setStage('result');
+  });
 }
 
 function saveShot() {
@@ -597,12 +553,8 @@ function closeDrawer() {
 
 // ── Init ──────────────────────────────────────────────────────────────────────
 renderHistory();
-startWatch();
 setTimeout(loadDistancesFromSupabase, 500);
 if ('serviceWorker' in navigator) { navigator.serviceWorker.register('/sw.js').catch(() => {}); }
-window.addEventListener('beforeunload', () => {
-  if (watchId !== null && navigator.geolocation) navigator.geolocation.clearWatch(watchId);
-});
 </script>
 
 <!-- NAV -->
@@ -610,7 +562,7 @@ window.addEventListener('beforeunload', () => {
 <div class="nav-shell">
   <div class="nav-row nav-primary" id="nav-primary">
       <a class="nav-item" href="index.html"><img src="Home_2.png" alt="Home"></a>
-      <a class="nav-item" href="start.html"><img src="Play_2.png" alt="Play"></a>
+      <a class="nav-item" id="nav-play" href="start.html"><img src="Play_2.png" alt="Play"></a>
       <a class="nav-item" href="clubs.html"><img src="Clubs_2.png" alt="Distance"></a>
       <button class="nav-item" id="btn-more" onclick="openDrawer()"><img src="More.png" alt="More" id="icon-more"></button>
     </div>
@@ -621,5 +573,15 @@ window.addEventListener('beforeunload', () => {
       <button class="nav-item" onclick="closeDrawer()"><img src="Back.png" alt="Back"></button>
     </div>
 </div>
+
+// ── Continue round — go to round.html if in progress ─────────────────────────
+(function() {
+  var scores = JSON.parse(localStorage.getItem('golf-scores-v1') || '{}');
+  var hole   = localStorage.getItem('golf-current-hole');
+  if (Object.keys(scores).length > 0 || (hole && parseInt(hole) > 1)) {
+    var el = document.getElementById('nav-play');
+    if (el) el.setAttribute('href', 'round.html');
+  }
+})();
 </body>
 </html>

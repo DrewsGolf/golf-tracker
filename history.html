@@ -993,7 +993,7 @@ showList();
 <div class="nav-shell">
   <div class="nav-row nav-primary" id="nav-primary">
       <a class="nav-item" href="index.html"><img src="Home_2.png" alt="Home"></a>
-      <a class="nav-item" href="start.html"><img src="Play_2.png" alt="Play"></a>
+      <a class="nav-item" id="nav-play" href="start.html"><img src="Play_2.png" alt="Play"></a>
       <a class="nav-item" href="clubs.html"><img src="Clubs_2.png" alt="Distance"></a>
       <button class="nav-item" id="btn-more" onclick="openDrawer()"><img src="More.png" alt="More" id="icon-more"></button>
     </div>
@@ -1016,5 +1016,15 @@ function closeDrawer(){primary.classList.remove('raised');secondary.classList.re
   iconMore.alt = 'More';
   btnMore.onclick = openDrawer;}
 </script>
+
+// ── Continue round — go to round.html if in progress ─────────────────────────
+(function() {
+  var scores = JSON.parse(localStorage.getItem('golf-scores-v1') || '{}');
+  var hole   = localStorage.getItem('golf-current-hole');
+  if (Object.keys(scores).length > 0 || (hole && parseInt(hole) > 1)) {
+    var el = document.getElementById('nav-play');
+    if (el) el.setAttribute('href', 'round.html');
+  }
+})();
 </body>
 </html>

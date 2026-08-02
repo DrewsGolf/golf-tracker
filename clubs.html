@@ -75,15 +75,17 @@
   /* Live walking distance */
   .walking-dist-card { text-align: center; padding: 4px 0 16px; }
   .walking-dist-value { font-size: 46px; font-weight: 300; color: var(--gold); line-height: 1; letter-spacing: -0.03em; }
-  .walking-dist-unit { font-size: 16px; font-weight: 400; color: var(--gold-muted); margin-left: 4px; }
-  .walking-dist-label { font-size: 10px; font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-muted); margin-top: 6px; }
+  .walking-dist-unit { font-size: 20px; font-weight: 400; color: var(--gold-muted); margin-left: 3px; }
+  .walking-dist-label { font-size: 11px; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-muted); margin-top: 4px; }
+
+  /* Result */
+  .result-card { background: rgba(200,169,106,0.08); border: 0.5px solid rgba(200,169,106,0.3); border-radius: var(--radius); padding: 18px 14px; margin-bottom: 12px; text-align: center; }
+  .result-dist { font-size: 56px; font-weight: 300; color: var(--gold); line-height: 1; letter-spacing: -0.04em; }
+  .result-unit { font-size: 18px; font-weight: 400; color: var(--gold-muted); margin-left: 4px; }
+  .result-club { font-size: 15px; font-weight: 500; color: var(--text-secondary); margin-top: 6px; }
 
   /* Stage instruction */
   .stage-instruction { text-align: center; font-size: 14px; color: var(--text-secondary); font-style: italic; padding: 6px 0 10px; }
-
-  /* Result display */
-  .result-card { background: rgba(200,169,106,0.08); border: 0.5px solid rgba(200,169,106,0.3); border-radius: var(--radius); padding: 18px 14px; margin-bottom: 12px; text-align: center; }
-  .result-unit { font-size: 18px; font-weight: 400; color: var(--gold-muted); margin-left: 4px; }
 
   /* Buttons */
   .btn { display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; padding: 15px; border-radius: var(--radius); border: none; font-size: 15px; font-weight: 500; cursor: pointer; transition: opacity 0.15s, transform 0.1s; margin-bottom: 10px; font-family: inherit; letter-spacing: 0.03em; }
@@ -99,8 +101,9 @@
   .history-title { font-size: 13px; font-weight: 600; color: var(--gold); letter-spacing: 0.06em; text-transform: uppercase; }
   .history-clear { background: transparent; border: none; color: var(--text-muted); font-size: 12px; cursor: pointer; font-family: inherit; }
   .shot-list { display: flex; flex-direction: column; gap: 7px; }
-  .shot-item { background: rgba(28,28,28,0.7); border: 0.5px solid var(--border); border-radius: var(--radius-sm); display: flex; align-items: center; padding: 11px 13px; gap: 11px; }
-  .shot-bubble { width: 26px; height: 26px; border-radius: 50%; background: rgba(200,169,106,0.15); font-size: 11px; font-weight: 600; color: var(--gold); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .shot-item { background: rgba(28,28,28,0.7); border: 0.5px solid var(--border); border-radius: var(--radius-sm); display: flex; align-items: center; padding: 11px 13px; gap: 11px; cursor: pointer; }
+  .shot-item:active { background: rgba(200,169,106,0.08); }
+  .shot-bubble { width: 32px; height: 32px; border-radius: 50%; background: rgba(200,169,106,0.15); font-size: 13px; font-weight: 600; color: var(--gold); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
   .shot-club { font-size: 14px; font-weight: 600; flex: 1; color: var(--text-primary); }
   .shot-dist { font-size: 15px; font-weight: 500; color: var(--gold); }
   .shot-avg { font-size: 12px; color: var(--text-muted); }
@@ -110,7 +113,9 @@
   /* Club detail sheet */
   .club-detail-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 200; display: none; align-items: flex-end; justify-content: center; }
   .club-detail-overlay.open { display: flex; animation: fadeIn 0.15s ease; }
+  @keyframes fadeIn { from{opacity:0} to{opacity:1} }
   .club-detail-sheet { background: #1C1C1C; border-top: 0.5px solid rgba(200,169,106,0.2); border-radius: 22px 22px 0 0; width: 100%; max-width: 430px; max-height: 80vh; display: flex; flex-direction: column; animation: slideUp 0.2s ease; }
+  @keyframes slideUp { from{transform:translateY(40px);opacity:0} to{transform:translateY(0);opacity:1} }
   .club-detail-handle { width: 36px; height: 4px; background: rgba(200,169,106,0.3); border-radius: 2px; margin: 12px auto 0; flex-shrink: 0; }
   .club-detail-header { padding: 14px 20px 12px; border-bottom: 0.5px solid rgba(200,169,106,0.12); flex-shrink: 0; }
   .club-detail-name { font-size: 18px; font-weight: 600; color: var(--gold); }
@@ -127,9 +132,7 @@
 
   /* Dialog */
   .dialog-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 200; display: flex; align-items: flex-end; justify-content: center; animation: fadeIn 0.15s ease; }
-  @keyframes fadeIn { from{opacity:0} to{opacity:1} }
   .dialog-sheet { background: #1C1C1C; border-top: 0.5px solid rgba(200,169,106,0.2); border-radius: 22px 22px 0 0; padding: 8px 0 calc(var(--safe-bottom) + 8px); width: 100%; max-width: 430px; animation: slideUp 0.2s ease; }
-  @keyframes slideUp { from{transform:translateY(40px);opacity:0} to{transform:translateY(0);opacity:1} }
   .dialog-handle { width: 36px; height: 4px; background: var(--border-mid); border-radius: 2px; margin: 8px auto 16px; }
   .dialog-icon { text-align: center; margin-bottom: 8px; min-height: 36px; display: flex; align-items: center; justify-content: center; font-size: 36px; }
   .dialog-title { font-size: 18px; font-weight: 700; text-align: center; color: var(--text-primary); padding: 0 20px; margin-bottom: 6px; }
@@ -156,6 +159,7 @@
   .nav-item img { width: 70px; height: 70px; object-fit: contain; display: block; }
   .nav-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); opacity: 0; pointer-events: none; transition: opacity 350ms ease; z-index: 140; }
   .nav-overlay.open { opacity: 1; pointer-events: auto; }
+
   /* Auth badge */
   .header-auth-badge { position: absolute; top: 10px; right: 14px; display: none; align-items: center; gap: 6px; background: rgba(13,13,13,0.6); backdrop-filter: blur(6px); border: 0.5px solid rgba(200,169,106,0.2); border-radius: 20px; padding: 5px 10px 5px 8px; z-index: 20; }
   .header-auth-badge.visible { display: flex; }
@@ -192,7 +196,7 @@
     <div class="card" id="tracker-card">
       <div class="card-label" id="tracker-label">Ready</div>
 
-      <!-- GPS stability indicator — always visible, live-updating -->
+      <!-- GPS stability indicator -->
       <div class="gps-status">
         <div class="gps-status-row">
           <span class="gps-indicator searching" id="gps-indicator"></span>
@@ -214,9 +218,19 @@
           <span class="walking-dist-value" id="walking-dist">0</span><span class="walking-dist-unit">m</span>
           <div class="walking-dist-label">Distance so far</div>
         </div>
-        <p class="stage-instruction">Walk to your ball, then tap Save Shot</p>
-        <button class="btn btn-primary" onclick="saveShot()">&#10003; Save Shot</button>
+        <p class="stage-instruction">Walk to where your ball landed and tap Mark Landing</p>
+        <button class="btn btn-primary" onclick="markLanding()">&#9655; Mark Landing</button>
         <button class="btn btn-danger" onclick="cancelShot()">&#10007; Cancel</button>
+      </div>
+
+      <!-- Stage: result -->
+      <div id="stage-result" style="display:none">
+        <div class="result-card">
+          <span class="result-dist" id="result-dist">—</span><span class="result-unit">m</span>
+          <div class="result-club" id="result-club"></div>
+        </div>
+        <button class="btn btn-primary" onclick="saveShot()">&#10003; Save This Shot</button>
+        <button class="btn btn-outline" onclick="retakeShot()">&#8635; Retake</button>
       </div>
     </div>
 
@@ -267,6 +281,7 @@
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
+// ── Supabase ──────────────────────────────────────────────────────────────────
 const SUPABASE_URL = 'https://ryqehsqqriavmuqfnzpx.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ5cWVoc3Fxcmlhdm11cWZuenB4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM3NTQ4MzcsImV4cCI6MjA5OTMzMDgzN30.Po2m7uhlMTc43Pdg8pohwvDsQ_UDFRS-n9UnTQ44nXA';
 const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
@@ -278,8 +293,10 @@ sb.auth.getSession().then(({ data }) => {
     var email = document.getElementById('header-email');
     if (badge) badge.classList.add('visible');
     if (email) email.textContent = data.session.user.email;
+    loadDistancesFromSupabase();
   }
 });
+
 // ── Club definitions ──────────────────────────────────────────────────────────
 const ALL_CLUBS_FULL = {
   'driver':'Driver','3wood':'3-Wood','4wood':'4-Wood','5wood':'5-Wood','7wood':'7-Wood','9wood':'9-Wood',
@@ -288,29 +305,27 @@ const ALL_CLUBS_FULL = {
   '7iron':'7-Iron','8iron':'8-Iron','9iron':'9-Iron',
   'pw':'Pitching Wedge','gw':'Gap Wedge','sw':'Sand Wedge','lw':'Lob Wedge','putter':'Putter'
 };
-
 const savedBag = JSON.parse(localStorage.getItem('golf-bag-v1') || 'null');
 const BAG = savedBag || ['driver','3wood','5wood','4hybrid','5iron','6iron','7iron','8iron','9iron','pw','gw','sw','lw','putter'];
 
 // ── State ─────────────────────────────────────────────────────────────────────
-let selectedClub   = null;
-let startPosition  = null;
-
-// Distances stored: { 'driver': [220, 215, 230], '7iron': [145, 150], ... }
+let selectedClub  = null;
+let startPosition = null;
+let pendingDist   = null;
+let pendingClub   = null;
 let clubDistances = JSON.parse(localStorage.getItem('golf-club-distances') || '{}');
 
 function persist() {
   localStorage.setItem('golf-club-distances', JSON.stringify(clubDistances));
 }
 
+// ── Supabase save/load ────────────────────────────────────────────────────────
 async function saveDistanceToSupabase(club, dist) {
   if (!currentUser) return;
   try {
     await sb.from('club_distances').insert({
-      user_id:  currentUser.id,
-      club:     club,
-      distance: dist,
-      date:     new Date().toISOString().split('T')[0]
+      user_id: currentUser.id, club: club, distance: dist,
+      date: new Date().toISOString().split('T')[0]
     });
   } catch(e) { console.error('Supabase club save error:', e); }
 }
@@ -319,14 +334,11 @@ async function loadDistancesFromSupabase() {
   if (!currentUser) return;
   try {
     const { data } = await sb.from('club_distances')
-      .select('club, distance, date')
-      .eq('user_id', currentUser.id)
+      .select('club, distance, date').eq('user_id', currentUser.id)
       .order('created_at', { ascending: true });
     if (!data || data.length === 0) return;
-    // Merge into clubDistances
     data.forEach(row => {
       if (!clubDistances[row.club]) clubDistances[row.club] = [];
-      // Only add if not already in local (avoid duplicates)
       const exists = clubDistances[row.club].some(s => s.dist === row.distance && s.date === new Date(row.date).toLocaleDateString('en-AU'));
       if (!exists) clubDistances[row.club].push({ dist: row.distance, date: new Date(row.date).toLocaleDateString('en-AU') });
     });
@@ -337,8 +349,6 @@ async function loadDistancesFromSupabase() {
 
 // ── Club picker ───────────────────────────────────────────────────────────────
 function openClubPicker() {
-  // Trigger GPS on first user tap — iOS Safari requires a user interaction
-  if (watchId === null) startWatch();
   const list = document.getElementById('club-picker-list');
   list.innerHTML = BAG.map(id =>
     '<div class="club-picker-item' + (selectedClub===id?' selected':'') + '" onclick="selectClub(\''+id+'\')">' +
@@ -362,18 +372,11 @@ function selectClub(id) {
   document.getElementById('btn-start').disabled = false;
 }
 
-// ── GPS: live watchPosition stability model ─────────────────────────────────
-// Instead of sampling a handful of readings and averaging (which introduced
-// delay without guaranteeing accuracy), this build watches position
-// continuously and surfaces the device's own accuracy estimate live, so the
-// user can see when the fix is trustworthy before locking a point.
+// ── GPS ───────────────────────────────────────────────────────────────────────
 let watchId    = null;
-let currentFix = null; // { latitude, longitude, accuracy, timestamp }
-
-// Accuracy thresholds (metres) — tune these based on real-world testing
-const ACC_GOOD = 8;   // <=8m  -> green, trustworthy
-const ACC_FAIR = 15;  // <=15m -> yellow, usable with caution
-                       // >15m  -> red, likely under trees / multipath
+let currentFix = null;
+const ACC_GOOD = 8;
+const ACC_FAIR = 15;
 
 function accuracyTier(acc) {
   if (acc == null || !isFinite(acc)) return 'unknown';
@@ -390,31 +393,15 @@ function startWatch() {
   watchId = navigator.geolocation.watchPosition(
     pos => {
       currentFix = {
-        latitude:  pos.coords.latitude,
-        longitude: pos.coords.longitude,
-        accuracy:  pos.coords.accuracy,
-        timestamp: pos.timestamp
+        latitude: pos.coords.latitude, longitude: pos.coords.longitude,
+        accuracy: pos.coords.accuracy, timestamp: pos.timestamp
       };
-      // Clear the no-signal timeout if we get a fix
-      if (window._gpsNoSignalTimer) { clearTimeout(window._gpsNoSignalTimer); window._gpsNoSignalTimer = null; }
       updateGpsStatusUI();
       if (currentStage === 'walking' && startPosition) updateWalkingDistance();
     },
-    err => {
-      document.getElementById('gps-status-text').textContent = 'GPS error: ' + err.message;
-    },
+    err => { document.getElementById('gps-status-text').textContent = 'GPS error: ' + err.message; },
     { enableHighAccuracy: true, maximumAge: 1000, timeout: 15000 }
   );
-
-  // After 5 seconds with no fix, unlock the page and keep trying quietly
-  window._gpsNoSignalTimer = setTimeout(() => {
-    if (!currentFix) {
-      showToast('No GPS signal yet — still trying in background');
-      document.getElementById('gps-status-text').textContent = 'Searching for signal\u2026';
-      // Allow Start Shot if user wants to try anyway
-      if (selectedClub) document.getElementById('btn-start').disabled = false;
-    }
-  }, 5000);
 }
 
 function updateGpsStatusUI() {
@@ -422,15 +409,13 @@ function updateGpsStatusUI() {
   const text  = document.getElementById('gps-status-text');
   const acc   = document.getElementById('gps-accuracy');
   const debug = document.getElementById('gps-debug');
-
   if (!currentFix) {
-    dot.className  = 'gps-indicator searching';
+    dot.className = 'gps-indicator searching';
     text.textContent = 'Acquiring GPS\u2026';
-    acc.textContent  = '—';
+    acc.textContent = '\u2014';
     debug.textContent = 'no fix yet';
     return;
   }
-
   const tier = accuracyTier(currentFix.accuracy);
   const labels = { good: 'Good fix', fair: 'Fair \u2014 may drift', poor: 'Poor \u2014 move to open sky', unknown: 'Unknown accuracy' };
   dot.className = 'gps-indicator ' + tier;
@@ -441,8 +426,7 @@ function updateGpsStatusUI() {
 
 function updateWalkingDistance() {
   if (!currentFix || !startPosition) return;
-  const dist = haversine(startPosition, currentFix);
-  document.getElementById('walking-dist').textContent = dist;
+  document.getElementById('walking-dist').textContent = haversine(startPosition, currentFix);
 }
 
 function haversine(a, b) {
@@ -458,7 +442,7 @@ let currentStage = 'idle';
 
 function setStage(name) {
   currentStage = name;
-  ['idle','walking'].forEach(s => {
+  ['idle','walking','result'].forEach(s => {
     document.getElementById('stage-'+s).style.display = s===name ? 'block' : 'none';
   });
 }
@@ -466,7 +450,6 @@ function setStage(name) {
 function startShot() {
   if (!selectedClub) { showToast('Select a club first'); return; }
   if (!currentFix) { showToast('Waiting for a GPS fix\u2026'); return; }
-
   const tier = accuracyTier(currentFix.accuracy);
   if (tier === 'poor') {
     showDialog({
@@ -478,9 +461,7 @@ function startShot() {
         { label: 'Wait for better signal', style: 'secondary', action: () => {} }
       ]
     });
-  } else {
-    lockStart();
-  }
+  } else { lockStart(); }
 }
 
 function lockStart() {
@@ -491,84 +472,98 @@ function lockStart() {
   showToast('Start marked (\u00b1' + Math.round(currentFix.accuracy) + 'm) \u2014 walk to your ball');
 }
 
-function saveShot() {
-  if (!selectedClub) { showToast('Select a club first'); return; }
-  if (!startPosition || !currentFix) { showToast('No GPS position — try again'); return; }
+function markLanding() {
+  if (!currentFix) { showToast('Waiting for a GPS fix\u2026'); return; }
+  const tier = accuracyTier(currentFix.accuracy);
+  if (tier === 'poor') {
+    showDialog({
+      icon: '&#9888;',
+      title: 'Poor GPS Accuracy',
+      sub: 'Current accuracy is \u00b1' + Math.round(currentFix.accuracy) + 'm. Recording now may give an inaccurate distance. Record the finish position anyway?',
+      buttons: [
+        { label: 'Record anyway', style: 'primary', action: lockFinish },
+        { label: 'Wait for better signal', style: 'secondary', action: () => {} }
+      ]
+    });
+  } else { lockFinish(); }
+}
+
+function lockFinish() {
   const dist = haversine(startPosition, currentFix);
-  if (dist === 0) { showToast('Move further from start position'); return; }
-  if (!clubDistances[selectedClub]) clubDistances[selectedClub] = [];
-  clubDistances[selectedClub].push({ dist: dist, date: new Date().toLocaleDateString('en-AU') });
+  pendingDist = dist;
+  pendingClub = selectedClub;
+  document.getElementById('result-dist').textContent = dist;
+  document.getElementById('result-club').textContent = ALL_CLUBS_FULL[selectedClub] || selectedClub;
+  document.getElementById('tracker-label').textContent = 'Shot measured';
+  setStage('result');
+}
+
+function saveShot() {
+  if (!pendingClub || pendingDist === null) return;
+  if (!clubDistances[pendingClub]) clubDistances[pendingClub] = [];
+  clubDistances[pendingClub].push({ dist: pendingDist, date: new Date().toLocaleDateString('en-AU') });
   persist();
-  saveDistanceToSupabase(selectedClub, dist);
-  showToast((ALL_CLUBS_FULL[selectedClub]||selectedClub) + ' — ' + dist + 'm saved');
+  saveDistanceToSupabase(pendingClub, pendingDist);
+  showToast((ALL_CLUBS_FULL[pendingClub]||pendingClub) + ' \u2014 ' + pendingDist + 'm saved');
   resetTracker();
   renderHistory();
 }
 
-
-
-function cancelShot() {
-  resetTracker();
+function retakeShot() {
+  document.getElementById('tracker-label').textContent = 'Walk to your ball';
+  setStage('walking');
 }
 
+function cancelShot() { resetTracker(); }
+
 function resetTracker() {
-  startPosition = null;
+  startPosition = null; pendingDist = null; pendingClub = null;
   document.getElementById('tracker-label').textContent = 'Ready';
   document.getElementById('stage-idle').querySelector('p').textContent = 'Select a club, stand at the ball, then tap Start Shot';
   document.getElementById('btn-start').disabled = !selectedClub;
   setStage('idle');
 }
 
-// ── History ───────────────────────────────────────────────────────────────────
-function renderHistory() {
-  const el = document.getElementById('shot-history');
-  const clubOrder = BAG;
-  const entries = clubOrder.filter(id => clubDistances[id] && clubDistances[id].length > 0);
-
-  if (!entries.length) {
-    el.innerHTML = '<div class="empty-state"><span class="empty-icon">&#127953;</span>No shots recorded yet.<br>Select a club and start tracking.</div>';
-    return;
-  }
-
-  el.innerHTML = '<div class="shot-list">' + entries.map(id => {
-    const shots = clubDistances[id];
-    const dists = shots.map(s => s.dist);
-    const avg   = Math.round(dists.reduce((a,v) => a+v, 0) / dists.length);
-    const max   = Math.max(...dists);
-    return '<div class="shot-item">' +
-      '<div class="shot-bubble" onclick="showClubDetail('' + id + '')" style="cursor:pointer;width:32px;height:32px;">' + shots.length + '</div>' +
-      '<div class="shot-club" onclick="showClubDetail('' + id + '')" style="cursor:pointer;">' + (ALL_CLUBS_FULL[id]||id) + '<br><span class="shot-avg">avg ' + avg + 'm &middot; best ' + max + 'm</span></div>' +
-      '<div class="shot-dist" onclick="showClubDetail('' + id + '')" style="cursor:pointer;">' + avg + 'm</div>' +
-      '</div>';
-  }).join('') + '</div>';
-}
-
+// ── Club detail sheet ─────────────────────────────────────────────────────────
 function showClubDetail(id) {
-  const shots  = clubDistances[id] || [];
-  const dists  = shots.map(s => s.dist);
-  const avg    = Math.round(dists.reduce((a,v) => a+v, 0) / dists.length);
-  const best   = Math.max(...dists);
-  const worst  = Math.min(...dists);
-
+  const shots = clubDistances[id] || [];
+  const dists = shots.map(s => s.dist);
+  const avg   = Math.round(dists.reduce((a,v) => a+v, 0) / dists.length);
+  const best  = Math.max(...dists);
   document.getElementById('club-detail-name').textContent = ALL_CLUBS_FULL[id] || id;
   document.getElementById('club-detail-stats').innerHTML =
     '<div class="club-detail-stat"><div class="club-detail-stat-label">Average</div><div class="club-detail-stat-value">' + avg + 'm</div></div>' +
     '<div class="club-detail-stat"><div class="club-detail-stat-label">Best</div><div class="club-detail-stat-value">' + best + 'm</div></div>' +
     '<div class="club-detail-stat"><div class="club-detail-stat-label">Shots</div><div class="club-detail-stat-value">' + shots.length + '</div></div>';
-
-  // List newest first
-  const rows = [...shots].reverse().map(s =>
-    '<div class="club-detail-row">' +
-    '<span class="club-detail-date">' + s.date + '</span>' +
-    '<span class="club-detail-dist">' + s.dist + 'm</span>' +
-    '</div>'
+  document.getElementById('club-detail-list').innerHTML = [...shots].reverse().map(s =>
+    '<div class="club-detail-row"><span class="club-detail-date">' + s.date + '</span><span class="club-detail-dist">' + s.dist + 'm</span></div>'
   ).join('');
-  document.getElementById('club-detail-list').innerHTML = rows;
   document.getElementById('club-detail-overlay').classList.add('open');
 }
 
 function closeClubDetail(e) {
   document.getElementById('club-detail-overlay').classList.remove('open');
+}
+
+// ── History ───────────────────────────────────────────────────────────────────
+function renderHistory() {
+  const el = document.getElementById('shot-history');
+  const entries = BAG.filter(id => clubDistances[id] && clubDistances[id].length > 0);
+  if (!entries.length) {
+    el.innerHTML = '<div class="empty-state"><span class="empty-icon">&#127953;</span>No shots recorded yet.<br>Select a club and start tracking.</div>';
+    return;
+  }
+  el.innerHTML = '<div class="shot-list">' + entries.map(id => {
+    const shots = clubDistances[id];
+    const dists = shots.map(s => s.dist);
+    const avg   = Math.round(dists.reduce((a,v) => a+v, 0) / dists.length);
+    const best  = Math.max(...dists);
+    return '<div class="shot-item" onclick="showClubDetail(\'' + id + '\')">' +
+      '<div class="shot-bubble">' + shots.length + '</div>' +
+      '<div class="shot-club">' + (ALL_CLUBS_FULL[id]||id) + '<br><span class="shot-avg">avg ' + avg + 'm &middot; best ' + best + 'm</span></div>' +
+      '<div class="shot-dist">' + avg + 'm</div>' +
+      '</div>';
+  }).join('') + '</div>';
 }
 
 function confirmClearAll() {
@@ -577,9 +572,7 @@ function confirmClearAll() {
     title: 'Clear All Shots?',
     sub: 'This will permanently delete all recorded club distances.',
     buttons: [
-      { label: 'Clear everything', style: 'danger', action: () => {
-        clubDistances = {}; persist(); renderHistory(); showToast('All shots cleared');
-      }},
+      { label: 'Clear everything', style: 'danger', action: () => { clubDistances = {}; persist(); renderHistory(); showToast('All shots cleared'); }},
       { label: 'Cancel', style: 'secondary', action: () => {} }
     ]
   });
@@ -624,11 +617,10 @@ function closeDrawer() {
 
 // ── Init ──────────────────────────────────────────────────────────────────────
 renderHistory();
-setTimeout(loadDistancesFromSupabase, 500);
+startWatch();
 if ('serviceWorker' in navigator) { navigator.serviceWorker.register('/sw.js').catch(() => {}); }
 window.addEventListener('beforeunload', () => {
   if (watchId !== null && navigator.geolocation) navigator.geolocation.clearWatch(watchId);
-  if (window._gpsNoSignalTimer) { clearTimeout(window._gpsNoSignalTimer); window._gpsNoSignalTimer = null; }
 });
 </script>
 
@@ -636,18 +628,19 @@ window.addEventListener('beforeunload', () => {
 <div class="nav-overlay" id="nav-overlay" onclick="closeDrawer()"></div>
 <div class="nav-shell">
   <div class="nav-row nav-primary" id="nav-primary">
-      <a class="nav-item" href="index.html"><img src="Home_2.png" alt="Home"></a>
-      <a class="nav-item" id="nav-play" href="start.html"><img src="Play_2.png" alt="Play"></a>
-      <a class="nav-item" href="clubs.html"><img src="Clubs_2.png" alt="Distance"></a>
-      <button class="nav-item" id="btn-more" onclick="openDrawer()"><img src="More.png" alt="More" id="icon-more"></button>
-    </div>
+    <a class="nav-item" href="index.html"><img src="Home_2.png" alt="Home"></a>
+    <a class="nav-item" id="nav-play" href="start.html"><img src="Play_2.png" alt="Play"></a>
+    <a class="nav-item" href="clubs.html"><img src="Clubs_1.png" alt="Distance"></a>
+    <button class="nav-item" id="btn-more" onclick="openDrawer()"><img src="More.png" alt="More" id="icon-more"></button>
+  </div>
   <div class="nav-row nav-secondary" id="nav-secondary">
-      <a class="nav-item" href="range.html"><img src="Range_2.png" alt="Driving Range"></a>
-      <a class="nav-item" href="find.html"><img src="Courses_2.png" alt="Courses"></a>
-      <a class="nav-item" href="suggest.html"><img src="Suggets_2.png" alt="Suggest"></a>
-      <button class="nav-item" onclick="closeDrawer()"><img src="Back.png" alt="Back"></button>
-    </div>
+    <a class="nav-item" href="range.html"><img src="Range_2.png" alt="Driving Range"></a>
+    <a class="nav-item" href="find.html"><img src="Courses_2.png" alt="Courses"></a>
+    <a class="nav-item" href="suggest.html"><img src="Suggets_2.png" alt="Suggest"></a>
+    <button class="nav-item" onclick="closeDrawer()"><img src="Back.png" alt="Back"></button>
+  </div>
 </div>
+
 <script>
 // ── Continue round — go to round.html if in progress ─────────────────────────
 (function() {

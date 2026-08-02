@@ -253,9 +253,9 @@ function closeDrawer() {
 }
 
 // ── Continue round — swap Play to round.html if in progress ──────────────────
-const shots = JSON.parse(localStorage.getItem('golf-shots-v3') || '[]');
-const currentCourse = JSON.parse(localStorage.getItem('golf-current-course') || 'null');
-if (shots.length > 0 || currentCourse) {
+const inProgressScores = JSON.parse(localStorage.getItem('golf-scores-v1') || '{}');
+const inProgressHole   = localStorage.getItem('golf-current-hole');
+if (Object.keys(inProgressScores).length > 0 || (inProgressHole && parseInt(inProgressHole) > 1)) {
   document.getElementById('nav-play').setAttribute('href', 'round.html');
 }
 

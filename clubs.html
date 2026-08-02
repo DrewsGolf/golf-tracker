@@ -337,6 +337,8 @@ async function loadDistancesFromSupabase() {
 
 // ── Club picker ───────────────────────────────────────────────────────────────
 function openClubPicker() {
+  // Trigger GPS on first user tap — iOS Safari requires a user interaction
+  if (watchId === null) startWatch();
   const list = document.getElementById('club-picker-list');
   list.innerHTML = BAG.map(id =>
     '<div class="club-picker-item' + (selectedClub===id?' selected':'') + '" onclick="selectClub(\''+id+'\')">' +
@@ -622,7 +624,6 @@ function closeDrawer() {
 
 // ── Init ──────────────────────────────────────────────────────────────────────
 renderHistory();
-startWatch();
 setTimeout(loadDistancesFromSupabase, 500);
 if ('serviceWorker' in navigator) { navigator.serviceWorker.register('/sw.js').catch(() => {}); }
 window.addEventListener('beforeunload', () => {

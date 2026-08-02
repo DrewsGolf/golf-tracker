@@ -393,6 +393,8 @@ function startWatch() {
         accuracy:  pos.coords.accuracy,
         timestamp: pos.timestamp
       };
+      // Clear the no-signal timeout if we get a fix
+      if (window._gpsNoSignalTimer) { clearTimeout(window._gpsNoSignalTimer); window._gpsNoSignalTimer = null; }
       updateGpsStatusUI();
       if (currentStage === 'walking' && startPosition) updateWalkingDistance();
     },
@@ -401,6 +403,16 @@ function startWatch() {
     },
     { enableHighAccuracy: true, maximumAge: 1000, timeout: 15000 }
   );
+
+  // After 5 seconds with no fix, unlock the page and keep trying quietly
+  window._gpsNoSignalTimer = setTimeout(() => {
+    if (!currentFix) {
+      showToast('No GPS signal yet — still trying in background');
+      document.getElementById('gps-status-text').textContent = 'Searching for signal\u2026';
+      // Allow Start Shot if user wants to try anyway
+      if (selectedClub) document.getElementById('btn-start').disabled = false;
+    }
+  }, 5000);
 }
 
 function updateGpsStatusUI() {
@@ -615,6 +627,7 @@ setTimeout(loadDistancesFromSupabase, 500);
 if ('serviceWorker' in navigator) { navigator.serviceWorker.register('/sw.js').catch(() => {}); }
 window.addEventListener('beforeunload', () => {
   if (watchId !== null && navigator.geolocation) navigator.geolocation.clearWatch(watchId);
+  if (window._gpsNoSignalTimer) { clearTimeout(window._gpsNoSignalTimer); window._gpsNoSignalTimer = null; }
 });
 </script>
 

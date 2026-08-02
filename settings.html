@@ -223,6 +223,14 @@
   .header-auth-dot { width: 8px; height: 8px; border-radius: 50%; background: #2ecc71; flex-shrink: 0; }
   .header-auth-email { font-size: 11px; font-weight: 500; color: var(--gold); white-space: nowrap; }
 
+  /* Handicap card */
+  .handicap-input { width: 64px; background: rgba(13,13,13,0.7); border: 0.5px solid rgba(200,169,106,0.3); border-radius: 8px; padding: 7px 8px; font-size: 18px; font-weight: 300; color: var(--gold); font-family: inherit; text-align: center; -webkit-appearance: none; -moz-appearance: textfield; }
+  .handicap-input::-webkit-outer-spin-button, .handicap-input::-webkit-inner-spin-button { -webkit-appearance: none; }
+  .handicap-input:focus { outline: none; border-color: var(--gold); }
+  .handicap-save-btn { background: transparent; color: var(--gold); border: 0.5px solid var(--gold); border-radius: 8px; padding: 7px 12px; font-size: 13px; font-weight: 500; cursor: pointer; font-family: inherit; white-space: nowrap; }
+  .handicap-save-btn:active { opacity: 0.75; }
+  .handicap-updated { font-size: 12px; color: var(--text-muted); }
+
   /* Auth section */
   .auth-card { background: rgba(28,28,28,0.85); border: 0.5px solid var(--gold); border-radius: 16px; overflow: hidden; backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); margin-top: 12px; }
   .auth-status { padding: 16px 20px; display: flex; align-items: center; gap: 12px; border-bottom: 0.5px solid rgba(200,169,106,0.1); }
@@ -260,7 +268,22 @@
 
   <!-- Settings content -->
   <div class="settings-content">
+
     <div class="settings-card">
+      <!-- Handicap -->
+      <div class="settings-item">
+        <div class="settings-item-icon">
+          <span style="font-size:22px;">&#9971;</span>
+        </div>
+        <div class="settings-item-body">
+          <div class="settings-item-title">Handicap</div>
+          <div class="settings-item-desc handicap-updated" id="handicap-updated">Not set</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <input class="handicap-input" type="number" id="handicap-input" min="0" max="54" step="0.1" inputmode="decimal" placeholder="–">
+          <button class="handicap-save-btn" onclick="saveHandicap()">Save</button>
+        </div>
+      </div>
       <a class="settings-item" href="setup.html">
         <div class="settings-item-icon">
           <img src="Set_Clubs_1.png" style="width:32px;height:32px;object-fit:contain;display:block;">
@@ -344,6 +367,7 @@ function setAuthUI(session) {
     hEmail.textContent    = session.user.email;
     signIn.style.display  = 'none';
     signOut.style.display = 'block';
+    loadHandicap();
   } else {
     badge.classList.remove('visible');
     hEmail.textContent    = '';
@@ -355,8 +379,59 @@ function setAuthUI(session) {
 sb.auth.getSession().then(({ data }) => setAuthUI(data.session));
 
 // ── Sound toggle ─────────────────────────────────────────────────────────────
+// ── Handicap ──────────────────────────────────────────────────────────────────
+async function loadHandicap() {
+  // Try localStorage first
+  const local = localStorage.getItem('golf-handicap');
+  if (local) {
+    const h = JSON.parse(local);
+    document.getElementById('handicap-input').value = h.value;
+    document.getElementById('handicap-updated').textContent = 'Last updated: ' + h.date;
+  }
+  // Then try Supabase
+  if (!currentUser) return;
+  try {
+    const { data } = await sb.from('handicap').select('handicap, updated_at').eq('user_id', currentUser.id).single();
+    if (data) {
+      const date = new Date(data.updated_at).toLocaleDateString('en-AU');
+      document.getElementById('handicap-input').value = data.handicap;
+      document.getElementById('handicap-updated').textContent = 'Last updated: ' + date;
+      localStorage.setItem('golf-handicap', JSON.stringify({ value: data.handicap, date: date }));
+    }
+  } catch(e) {}
+}
+
+async function saveHandicap() {
+  const val = parseFloat(document.getElementById('handicap-input').value);
+  if (isNaN(val) || val < 0 || val > 54) {
+    showToast('Enter a handicap between 0 and 54');
+    return;
+  }
+  const date = new Date().toLocaleDateString('en-AU');
+  localStorage.setItem('golf-handicap', JSON.stringify({ value: val, date: date }));
+  document.getElementById('handicap-updated').textContent = 'Last updated: ' + date;
+  showToast('Handicap saved');
+  if (!currentUser) return;
+  try {
+    await sb.from('handicap').upsert({ user_id: currentUser.id, handicap: val, updated_at: new Date().toISOString() }, { onConflict: 'user_id' });
+  } catch(e) { console.error('Handicap save error:', e); }
+}
+
+function showToast(msg) {
+  // Simple toast using existing auth-error or alert fallback
+  const existing = document.getElementById('hcp-toast');
+  if (existing) existing.remove();
+  const t = document.createElement('div');
+  t.id = 'hcp-toast';
+  t.style.cssText = 'position:fixed;bottom:130px;left:50%;transform:translateX(-50%);background:rgba(28,28,28,0.95);color:#F2F2F2;border:0.5px solid rgba(200,169,106,0.2);padding:10px 20px;border-radius:100px;font-size:13px;font-weight:500;z-index:999;white-space:nowrap;';
+  t.textContent = msg;
+  document.body.appendChild(t);
+  setTimeout(() => t.remove(), 2200);
+}
+
 const soundToggle = document.getElementById('sound-toggle');
-soundToggle.checked = localStorage.getItem('golf-sound-enabled') !== 'false'; // default: on
+soundToggle.checked = localStorage.getItem('golf-sound-enabled') !== 'false';
+loadHandicap(); // default: on
 function toggleSound(enabled) {
   localStorage.setItem('golf-sound-enabled', enabled ? 'true' : 'false');
 }

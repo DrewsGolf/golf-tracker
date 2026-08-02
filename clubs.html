@@ -83,9 +83,7 @@
 
   /* Result display */
   .result-card { background: rgba(200,169,106,0.08); border: 0.5px solid rgba(200,169,106,0.3); border-radius: var(--radius); padding: 18px 14px; margin-bottom: 12px; text-align: center; }
-  .result-dist { font-size: 56px; font-weight: 300; color: var(--gold); line-height: 1; letter-spacing: -0.04em; }
   .result-unit { font-size: 18px; font-weight: 400; color: var(--gold-muted); margin-left: 4px; }
-  .result-club { font-size: 15px; font-weight: 500; color: var(--text-secondary); margin-top: 6px; }
 
   /* Buttons */
   .btn { display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; padding: 15px; border-radius: var(--radius); border: none; font-size: 15px; font-weight: 500; cursor: pointer; transition: opacity 0.15s, transform 0.1s; margin-bottom: 10px; font-family: inherit; letter-spacing: 0.03em; }
@@ -198,19 +196,9 @@
           <span class="walking-dist-value" id="walking-dist">0</span><span class="walking-dist-unit">m</span>
           <div class="walking-dist-label">Distance so far</div>
         </div>
-        <p class="stage-instruction">Walk to where your ball landed and tap Mark Landing</p>
-        <button class="btn btn-primary" onclick="markLanding()">&#9655; Mark Landing</button>
+        <p class="stage-instruction">Walk to your ball, then tap Save Shot</p>
+        <button class="btn btn-primary" onclick="saveShot()">&#10003; Save Shot</button>
         <button class="btn btn-danger" onclick="cancelShot()">&#10007; Cancel</button>
-      </div>
-
-      <!-- Stage: result -->
-      <div id="stage-result" style="display:none">
-        <div class="result-card">
-          <span class="result-dist" id="result-dist">—</span><span class="result-unit">m</span>
-          <div class="result-club" id="result-club"></div>
-        </div>
-        <button class="btn btn-primary" onclick="saveShot()">&#10003; Save This Shot</button>
-        <button class="btn btn-outline" onclick="retakeShot()">&#8635; Retake</button>
       </div>
     </div>
 
@@ -277,8 +265,6 @@ const BAG = savedBag || ['driver','3wood','5wood','4hybrid','5iron','6iron','7ir
 // ── State ─────────────────────────────────────────────────────────────────────
 let selectedClub   = null;
 let startPosition  = null;
-let pendingDist    = null;
-let pendingClub    = null;
 
 // Distances stored: { 'driver': [220, 215, 230], '7iron': [145, 150], ... }
 let clubDistances = JSON.parse(localStorage.getItem('golf-club-distances') || '{}');
@@ -428,7 +414,7 @@ let currentStage = 'idle';
 
 function setStage(name) {
   currentStage = name;
-  ['idle','walking','result'].forEach(s => {
+  ['idle','walking'].forEach(s => {
     document.getElementById('stage-'+s).style.display = s===name ? 'block' : 'none';
   });
 }
@@ -461,58 +447,28 @@ function lockStart() {
   showToast('Start marked (\u00b1' + Math.round(currentFix.accuracy) + 'm) \u2014 walk to your ball');
 }
 
-function markLanding() {
-  if (!currentFix) { showToast('Waiting for a GPS fix\u2026'); return; }
-
-  const tier = accuracyTier(currentFix.accuracy);
-  if (tier === 'poor') {
-    showDialog({
-      icon: '&#9888;',
-      title: 'Poor GPS Accuracy',
-      sub: 'Current accuracy is \u00b1' + Math.round(currentFix.accuracy) + 'm. Recording now may give an inaccurate distance. Record the finish position anyway?',
-      buttons: [
-        { label: 'Record anyway', style: 'primary', action: lockFinish },
-        { label: 'Wait for better signal', style: 'secondary', action: () => {} }
-      ]
-    });
-  } else {
-    lockFinish();
-  }
-}
-
-function lockFinish() {
-  const dist = haversine(startPosition, currentFix);
-  pendingDist  = dist;
-  pendingClub  = selectedClub;
-  document.getElementById('result-dist').textContent = dist;
-  document.getElementById('result-club').textContent = ALL_CLUBS_FULL[selectedClub] || selectedClub;
-  document.getElementById('tracker-label').textContent = 'Shot measured';
-  setStage('result');
-}
-
 function saveShot() {
-  if (!pendingClub || pendingDist === null) return;
-  if (!clubDistances[pendingClub]) clubDistances[pendingClub] = [];
-  clubDistances[pendingClub].push({ dist: pendingDist, date: new Date().toLocaleDateString('en-AU') });
+  if (!selectedClub) { showToast('Select a club first'); return; }
+  if (!startPosition || !currentFix) { showToast('No GPS position — try again'); return; }
+  const dist = haversine(startPosition, currentFix);
+  if (dist === 0) { showToast('Move further from start position'); return; }
+  if (!clubDistances[selectedClub]) clubDistances[selectedClub] = [];
+  clubDistances[selectedClub].push({ dist: dist, date: new Date().toLocaleDateString('en-AU') });
   persist();
-  saveDistanceToSupabase(pendingClub, pendingDist);
-  showToast((ALL_CLUBS_FULL[pendingClub]||pendingClub) + ' \u2014 ' + pendingDist + 'm saved');
+  saveDistanceToSupabase(selectedClub, dist);
+  showToast((ALL_CLUBS_FULL[selectedClub]||selectedClub) + ' — ' + dist + 'm saved');
   resetTracker();
   renderHistory();
 }
 
-function retakeShot() {
-  // Keep start position, go back to walking stage
-  document.getElementById('tracker-label').textContent = 'Walk to your ball';
-  setStage('walking');
-}
+
 
 function cancelShot() {
   resetTracker();
 }
 
 function resetTracker() {
-  startPosition = null; pendingDist = null; pendingClub = null;
+  startPosition = null;
   document.getElementById('tracker-label').textContent = 'Ready';
   document.getElementById('stage-idle').querySelector('p').textContent = 'Select a club, stand at the ball, then tap Start Shot';
   document.getElementById('btn-start').disabled = !selectedClub;

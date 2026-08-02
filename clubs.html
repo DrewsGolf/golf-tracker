@@ -218,8 +218,8 @@
           <span class="walking-dist-value" id="walking-dist">0</span><span class="walking-dist-unit">m</span>
           <div class="walking-dist-label">Distance so far</div>
         </div>
-        <p class="stage-instruction">Walk to where your ball landed and tap Mark Landing</p>
-        <button class="btn btn-primary" onclick="markLanding()">&#9655; Mark Landing</button>
+        <p class="stage-instruction">Walk to your ball, then tap Save Shot</p>
+        <button class="btn btn-primary" onclick="markLanding()">&#10003; Save Shot</button>
         <button class="btn btn-danger" onclick="cancelShot()">&#10007; Cancel</button>
       </div>
 
@@ -492,10 +492,8 @@ function lockFinish() {
   const dist = haversine(startPosition, currentFix);
   pendingDist = dist;
   pendingClub = selectedClub;
-  document.getElementById('result-dist').textContent = dist;
-  document.getElementById('result-club').textContent = ALL_CLUBS_FULL[selectedClub] || selectedClub;
-  document.getElementById('tracker-label').textContent = 'Shot measured';
-  setStage('result');
+  // Save immediately — no result stage
+  saveShot();
 }
 
 function saveShot() {

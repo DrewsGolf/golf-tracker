@@ -240,8 +240,8 @@
     <div class="card">
       <div class="history-header">
         <span class="history-title">Recorded Shots</span>
+        <button class="history-clear" onclick="confirmClearAll()">Clear all</button>
       </div>
-      <button class="history-clear" onclick="confirmClearAll()" style="display:block;width:100%;text-align:left;padding:6px 0 10px;background:transparent;border:none;color:var(--text-muted);font-size:12px;cursor:pointer;font-family:inherit;">Clear all recorded shots</button>
       <div id="shot-history"></div>
     </div>
 
@@ -252,8 +252,9 @@
 <div class="club-detail-overlay" id="club-detail-overlay" onclick="closeClubDetail(event)">
   <div class="club-detail-sheet" onclick="event.stopPropagation()">
     <div class="club-detail-handle"></div>
-    <div class="club-detail-header">
+    <div class="club-detail-header" style="display:flex;align-items:center;justify-content:space-between;">
       <div class="club-detail-name" id="club-detail-name"></div>
+      <button onclick="closeClubDetail()" style="background:transparent;border:0.5px solid rgba(200,169,106,0.3);border-radius:8px;padding:6px 14px;color:var(--gold);font-size:13px;font-weight:500;cursor:pointer;font-family:inherit;">&#8592; Back</button>
     </div>
     <div class="club-detail-stats" id="club-detail-stats"></div>
     <div class="club-detail-list" id="club-detail-list"></div>

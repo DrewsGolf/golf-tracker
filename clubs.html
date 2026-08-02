@@ -125,10 +125,12 @@
   .club-detail-stat-label { font-size: 9px; font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 4px; }
   .club-detail-stat-value { font-size: 22px; font-weight: 300; color: var(--text-primary); }
   .club-detail-list { overflow-y: auto; -webkit-overflow-scrolling: touch; flex: 1; padding: 8px 0 calc(env(safe-area-inset-bottom,0px) + 16px); }
-  .club-detail-row { display: flex; align-items: center; justify-content: space-between; padding: 11px 20px; border-bottom: 0.5px solid rgba(200,169,106,0.08); }
+  .club-detail-row { display: flex; align-items: center; padding: 11px 14px 11px 20px; border-bottom: 0.5px solid rgba(200,169,106,0.08); gap: 10px; }
   .club-detail-row:last-child { border-bottom: none; }
-  .club-detail-date { font-size: 13px; color: var(--text-muted); }
+  .club-detail-date { font-size: 13px; color: var(--text-muted); flex: 1; }
   .club-detail-dist { font-size: 15px; font-weight: 500; color: var(--gold); }
+  .club-detail-delete { width: 32px; height: 32px; background: transparent; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 16px; color: var(--text-muted); flex-shrink: 0; border-radius: 6px; }
+  .club-detail-delete:active { background: rgba(192,57,43,0.15); color: #e74c3c; }
 
   /* Dialog */
   .dialog-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 200; display: flex; align-items: flex-end; justify-content: center; animation: fadeIn 0.15s ease; }
@@ -238,8 +240,8 @@
     <div class="card">
       <div class="history-header">
         <span class="history-title">Recorded Shots</span>
-        <button class="history-clear" onclick="confirmClearAll()">Clear all</button>
       </div>
+      <button class="history-clear" onclick="confirmClearAll()" style="display:block;width:100%;text-align:left;padding:6px 0 10px;background:transparent;border:none;color:var(--text-muted);font-size:12px;cursor:pointer;font-family:inherit;">Clear all recorded shots</button>
       <div id="shot-history"></div>
     </div>
 
@@ -533,16 +535,44 @@ function showClubDetail(id) {
     '<div class="club-detail-stat"><div class="club-detail-stat-label">Average</div><div class="club-detail-stat-value">' + avg + 'm</div></div>' +
     '<div class="club-detail-stat"><div class="club-detail-stat-label">Best</div><div class="club-detail-stat-value">' + best + 'm</div></div>' +
     '<div class="club-detail-stat"><div class="club-detail-stat-label">Shots</div><div class="club-detail-stat-value">' + shots.length + '</div></div>';
-  document.getElementById('club-detail-list').innerHTML = [...shots].reverse().map(s =>
-    '<div class="club-detail-row"><span class="club-detail-date">' + s.date + '</span><span class="club-detail-dist">' + s.dist + 'm</span></div>'
-  ).join('');
+  document.getElementById('club-detail-list').innerHTML = [...shots].reverse().map((s, i) => {
+    const realIndex = shots.length - 1 - i; // index in original array
+    return '<div class="club-detail-row">' +
+      '<span class="club-detail-date">' + s.date + '</span>' +
+      '<span class="club-detail-dist">' + s.dist + 'm</span>' +
+      '<button class="club-detail-delete" onclick="deleteShot(\'' + id + '\',' + realIndex + ')" aria-label="Delete">&#128465;</button>' +
+      '</div>';
+  }).join('');
   document.getElementById('club-detail-overlay').classList.add('open');
+}
+
+function deleteShot(clubId, index) {
+  showDialog({
+    icon: '&#128465;',
+    title: 'Delete This Shot?',
+    sub: 'Remove the ' + (clubDistances[clubId][index].dist) + 'm shot recorded on ' + clubDistances[clubId][index].date + '?',
+    buttons: [
+      { label: 'Delete', style: 'danger', action: () => {
+        clubDistances[clubId].splice(index, 1);
+        if (clubDistances[clubId].length === 0) delete clubDistances[clubId];
+        persist();
+        renderHistory();
+        // Refresh or close detail sheet
+        if (clubDistances[clubId] && clubDistances[clubId].length > 0) {
+          showClubDetail(clubId);
+        } else {
+          closeClubDetail();
+        }
+        showToast('Shot deleted');
+      }},
+      { label: 'Cancel', style: 'secondary', action: () => {} }
+    ]
+  });
 }
 
 function closeClubDetail(e) {
   document.getElementById('club-detail-overlay').classList.remove('open');
 }
-
 // ── History ───────────────────────────────────────────────────────────────────
 function renderHistory() {
   const el = document.getElementById('shot-history');

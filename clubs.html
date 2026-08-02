@@ -107,6 +107,24 @@
   .empty-state { text-align: center; padding: 24px 16px; color: var(--text-muted); font-size: 14px; }
   .empty-icon { font-size: 32px; margin-bottom: 8px; display: block; }
 
+  /* Club detail sheet */
+  .club-detail-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 200; display: none; align-items: flex-end; justify-content: center; }
+  .club-detail-overlay.open { display: flex; animation: fadeIn 0.15s ease; }
+  .club-detail-sheet { background: #1C1C1C; border-top: 0.5px solid rgba(200,169,106,0.2); border-radius: 22px 22px 0 0; width: 100%; max-width: 430px; max-height: 80vh; display: flex; flex-direction: column; animation: slideUp 0.2s ease; }
+  .club-detail-handle { width: 36px; height: 4px; background: rgba(200,169,106,0.3); border-radius: 2px; margin: 12px auto 0; flex-shrink: 0; }
+  .club-detail-header { padding: 14px 20px 12px; border-bottom: 0.5px solid rgba(200,169,106,0.12); flex-shrink: 0; }
+  .club-detail-name { font-size: 18px; font-weight: 600; color: var(--gold); }
+  .club-detail-stats { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0; border-bottom: 0.5px solid rgba(200,169,106,0.12); flex-shrink: 0; }
+  .club-detail-stat { display: flex; flex-direction: column; align-items: center; padding: 12px 6px; border-right: 0.5px solid rgba(200,169,106,0.12); }
+  .club-detail-stat:last-child { border-right: none; }
+  .club-detail-stat-label { font-size: 9px; font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 4px; }
+  .club-detail-stat-value { font-size: 22px; font-weight: 300; color: var(--text-primary); }
+  .club-detail-list { overflow-y: auto; -webkit-overflow-scrolling: touch; flex: 1; padding: 8px 0 calc(env(safe-area-inset-bottom,0px) + 16px); }
+  .club-detail-row { display: flex; align-items: center; justify-content: space-between; padding: 11px 20px; border-bottom: 0.5px solid rgba(200,169,106,0.08); }
+  .club-detail-row:last-child { border-bottom: none; }
+  .club-detail-date { font-size: 13px; color: var(--text-muted); }
+  .club-detail-dist { font-size: 15px; font-weight: 500; color: var(--gold); }
+
   /* Dialog */
   .dialog-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 200; display: flex; align-items: flex-end; justify-content: center; animation: fadeIn 0.15s ease; }
   @keyframes fadeIn { from{opacity:0} to{opacity:1} }
@@ -211,6 +229,18 @@
       <div id="shot-history"></div>
     </div>
 
+  </div>
+</div>
+
+<!-- Club Detail Sheet -->
+<div class="club-detail-overlay" id="club-detail-overlay" onclick="closeClubDetail(event)">
+  <div class="club-detail-sheet" onclick="event.stopPropagation()">
+    <div class="club-detail-handle"></div>
+    <div class="club-detail-header">
+      <div class="club-detail-name" id="club-detail-name"></div>
+    </div>
+    <div class="club-detail-stats" id="club-detail-stats"></div>
+    <div class="club-detail-list" id="club-detail-list"></div>
   </div>
 </div>
 
@@ -491,13 +521,40 @@ function renderHistory() {
     const dists = shots.map(s => s.dist);
     const avg   = Math.round(dists.reduce((a,v) => a+v, 0) / dists.length);
     const max   = Math.max(...dists);
-    const latest = shots[shots.length-1];
     return '<div class="shot-item">' +
-      '<div class="shot-bubble">' + shots.length + '</div>' +
-      '<div class="shot-club">' + (ALL_CLUBS_FULL[id]||id) + '<br><span class="shot-avg">avg ' + avg + 'm &middot; best ' + max + 'm</span></div>' +
-      '<div class="shot-dist">' + latest.dist + 'm</div>' +
+      '<div class="shot-bubble" onclick="showClubDetail('' + id + '')" style="cursor:pointer;width:32px;height:32px;">' + shots.length + '</div>' +
+      '<div class="shot-club" onclick="showClubDetail('' + id + '')" style="cursor:pointer;">' + (ALL_CLUBS_FULL[id]||id) + '<br><span class="shot-avg">avg ' + avg + 'm &middot; best ' + max + 'm</span></div>' +
+      '<div class="shot-dist" onclick="showClubDetail('' + id + '')" style="cursor:pointer;">' + avg + 'm</div>' +
       '</div>';
   }).join('') + '</div>';
+}
+
+function showClubDetail(id) {
+  const shots  = clubDistances[id] || [];
+  const dists  = shots.map(s => s.dist);
+  const avg    = Math.round(dists.reduce((a,v) => a+v, 0) / dists.length);
+  const best   = Math.max(...dists);
+  const worst  = Math.min(...dists);
+
+  document.getElementById('club-detail-name').textContent = ALL_CLUBS_FULL[id] || id;
+  document.getElementById('club-detail-stats').innerHTML =
+    '<div class="club-detail-stat"><div class="club-detail-stat-label">Average</div><div class="club-detail-stat-value">' + avg + 'm</div></div>' +
+    '<div class="club-detail-stat"><div class="club-detail-stat-label">Best</div><div class="club-detail-stat-value">' + best + 'm</div></div>' +
+    '<div class="club-detail-stat"><div class="club-detail-stat-label">Shots</div><div class="club-detail-stat-value">' + shots.length + '</div></div>';
+
+  // List newest first
+  const rows = [...shots].reverse().map(s =>
+    '<div class="club-detail-row">' +
+    '<span class="club-detail-date">' + s.date + '</span>' +
+    '<span class="club-detail-dist">' + s.dist + 'm</span>' +
+    '</div>'
+  ).join('');
+  document.getElementById('club-detail-list').innerHTML = rows;
+  document.getElementById('club-detail-overlay').classList.add('open');
+}
+
+function closeClubDetail(e) {
+  document.getElementById('club-detail-overlay').classList.remove('open');
 }
 
 function confirmClearAll() {

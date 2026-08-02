@@ -122,6 +122,28 @@
   .settings-item-desc { font-size: 12px; color: var(--text-muted); letter-spacing: 0.01em; }
   .settings-item-arrow { font-size: 18px; color: var(--gold-muted); }
 
+  /* ── Toggle switch ── */
+  .toggle-switch { position: relative; width: 48px; height: 28px; flex-shrink: 0; }
+  .toggle-switch input { opacity: 0; width: 0; height: 0; position: absolute; }
+  .toggle-track {
+    position: absolute; inset: 0; border-radius: 14px;
+    background: rgba(154,124,71,0.35);
+    border: 0.5px solid rgba(200,169,106,0.3);
+    transition: background 0.2s ease;
+    cursor: pointer;
+  }
+  .toggle-track::before {
+    content: '';
+    position: absolute;
+    top: 2px; left: 2px;
+    width: 22px; height: 22px;
+    border-radius: 50%;
+    background: var(--text-primary);
+    transition: transform 0.2s ease;
+  }
+  .toggle-switch input:checked + .toggle-track { background: var(--gold); }
+  .toggle-switch input:checked + .toggle-track::before { transform: translateX(20px); background: #0D0D0D; }
+
   /* ── Nav — identical to index.html ── */
   .nav-shell {
     position: absolute;
@@ -249,6 +271,19 @@
         </div>
         <div class="settings-item-arrow">›</div>
       </a>
+      <div class="settings-item">
+        <div class="settings-item-icon">
+          <span style="font-size:20px;">&#128266;</span>
+        </div>
+        <div class="settings-item-body">
+          <div class="settings-item-title">Sound Effects</div>
+          <div class="settings-item-desc">Play sounds during rounds</div>
+        </div>
+        <label class="toggle-switch">
+          <input type="checkbox" id="sound-toggle" onchange="toggleSound(this.checked)">
+          <span class="toggle-track"></span>
+        </label>
+      </div>
     </div>
   </div>
 
@@ -319,6 +354,13 @@ function setAuthUI(session) {
 
 sb.auth.getSession().then(({ data }) => setAuthUI(data.session));
 
+// ── Sound toggle ─────────────────────────────────────────────────────────────
+const soundToggle = document.getElementById('sound-toggle');
+soundToggle.checked = localStorage.getItem('golf-sound-enabled') !== 'false'; // default: on
+function toggleSound(enabled) {
+  localStorage.setItem('golf-sound-enabled', enabled ? 'true' : 'false');
+}
+
 async function doSignIn() {
   const email    = document.getElementById('auth-email-input').value.trim();
   const password = document.getElementById('auth-pass-input').value;
@@ -360,7 +402,8 @@ function closeDrawer() {
 }
 </script>
 
-// ── Continue round — go to round.html if in progress ─────────────────────────
+<script>
+// ── Continue round ────────────────────────────────────────────────────────────
 (function() {
   var scores = JSON.parse(localStorage.getItem('golf-scores-v1') || '{}');
   var hole   = localStorage.getItem('golf-current-hole');
@@ -369,5 +412,6 @@ function closeDrawer() {
     if (el) el.setAttribute('href', 'round.html');
   }
 })();
+</script>
 </body>
 </html>

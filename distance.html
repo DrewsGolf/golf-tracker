@@ -1,0 +1,667 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#0D0D0D">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-192.svg">
+<title>Shot Tracker — Clubs</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap');
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  :root {
+    --gold: #C8A96A; --gold-muted: #9A7C47;
+    --text-primary: #F2F2F2; --text-secondary: #BDBDBD; --text-muted: #9A9A9A;
+    --bg: #0D0D0D; --card: rgba(28,28,28,0.85); --border: rgba(200,169,106,0.15); --border-mid: rgba(200,169,106,0.25);
+    --radius: 14px; --radius-sm: 9px;
+    --safe-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  html, body { height: 100%; font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; background: var(--bg); color: var(--text-primary); overflow: hidden; }
+  .app { position: relative; width: 100%; height: 100%; max-width: 430px; margin: 0 auto; overflow: hidden; }
+  #app { display: flex; flex-direction: column; height: 100%; position: relative; z-index: 5; }
+
+  /* Background */
+  .hero { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 0; }
+  .hero-img { width: 100%; height: 100%; object-fit: cover; object-position: center; display: block; }
+  .hero-overlay { position: absolute; inset: 0; background: rgba(13,13,13,0.88); }
+
+  /* Header */
+  .header-img-wrap { position: relative; z-index: 10; width: 100%; flex-shrink: 0; }
+  .header-img { width: 100%; height: auto; display: block; }
+
+  /* Content */
+  .content { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; padding: 14px 14px calc(var(--safe-bottom) + 110px); position: relative; z-index: 5; }
+
+  /* Cards */
+  .card { background: var(--card); border: 0.5px solid var(--border); border-radius: var(--radius); backdrop-filter: blur(8px); padding: 16px 14px; margin-bottom: 12px; }
+  .card-label { font-size: 10px; font-weight: 500; letter-spacing: 0.14em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 10px; }
+
+  /* Club picker trigger */
+  .club-picker-trigger { width: 100%; background: rgba(13,13,13,0.7); border: 0.5px solid rgba(200,169,106,0.35); border-radius: var(--radius-sm); padding: 14px 16px; font-size: 17px; font-weight: 500; color: var(--gold); font-family: inherit; cursor: pointer; display: flex; align-items: center; justify-content: space-between; text-align: left; }
+  .club-picker-trigger.placeholder { color: var(--text-muted); font-size: 15px; }
+  .club-picker-arrow { font-size: 14px; color: var(--gold); flex-shrink: 0; }
+
+  /* Club picker bottom sheet */
+  .club-picker-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 300; opacity: 0; pointer-events: none; transition: opacity 0.25s; }
+  .club-picker-overlay.open { opacity: 1; pointer-events: auto; }
+  .club-picker-sheet { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%) translateY(100%); width: 100%; max-width: 430px; background: #1C1C1C; border-radius: 20px 20px 0 0; border-top: 0.5px solid rgba(200,169,106,0.2); z-index: 301; transition: transform 0.3s cubic-bezier(0.4,0,0.2,1); max-height: 70vh; display: flex; flex-direction: column; }
+  .club-picker-sheet.open { transform: translateX(-50%) translateY(0); }
+  .club-picker-handle { width: 36px; height: 3px; background: rgba(200,169,106,0.3); border-radius: 2px; margin: 12px auto 4px; flex-shrink: 0; }
+  .club-picker-title { font-size: 12px; font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-muted); text-align: center; padding: 8px 0 12px; border-bottom: 0.5px solid rgba(200,169,106,0.12); flex-shrink: 0; }
+  .club-picker-list { overflow-y: auto; -webkit-overflow-scrolling: touch; padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 16px); }
+  .club-picker-item { padding: 16px 24px; font-size: 16px; font-weight: 400; color: #F2F2F2; cursor: pointer; border-bottom: 0.5px solid rgba(200,169,106,0.08); font-family: inherit; display: flex; align-items: center; justify-content: space-between; }
+  .club-picker-item:last-child { border-bottom: none; }
+  .club-picker-item:active { background: rgba(200,169,106,0.08); }
+  .club-picker-item.selected { color: var(--gold); }
+  .club-picker-item.selected::after { content: '✓'; font-size: 14px; color: var(--gold); }
+
+  /* GPS stability indicator */
+  .gps-status { display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 6px 0 16px; }
+  .gps-status-row { display: flex; align-items: center; gap: 8px; }
+  .gps-indicator { width: 12px; height: 12px; border-radius: 50%; background: var(--text-muted); flex-shrink: 0; transition: background 0.3s; }
+  .gps-indicator.searching { background: var(--text-muted); animation: gpsPulse 1.2s infinite; }
+  .gps-indicator.poor { background: #c0392b; }
+  .gps-indicator.fair { background: #d4a63a; }
+  .gps-indicator.good { background: #2ecc71; }
+  @keyframes gpsPulse { 0% { box-shadow: 0 0 0 0 rgba(189,189,189,0.35); } 70% { box-shadow: 0 0 0 9px rgba(189,189,189,0); } 100% { box-shadow: 0 0 0 0 rgba(189,189,189,0); } }
+  .gps-status-text { font-size: 13px; font-weight: 500; color: var(--text-secondary); }
+  .gps-accuracy { font-size: 26px; font-weight: 300; color: var(--gold); letter-spacing: -0.02em; }
+  .gps-debug { font-size: 10.5px; color: var(--text-muted); font-family: 'SF Mono', 'Menlo', monospace; margin-top: 2px; text-align: center; }
+
+  /* Live walking distance */
+  .walking-dist-card { text-align: center; padding: 4px 0 16px; }
+  .walking-dist-value { font-size: 46px; font-weight: 300; color: var(--gold); line-height: 1; letter-spacing: -0.03em; }
+  .walking-dist-unit { font-size: 20px; font-weight: 400; color: var(--gold-muted); margin-left: 3px; }
+  .walking-dist-label { font-size: 11px; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-muted); margin-top: 4px; }
+
+  /* Result */
+  .result-card { background: rgba(200,169,106,0.08); border: 0.5px solid rgba(200,169,106,0.3); border-radius: var(--radius); padding: 18px 14px; margin-bottom: 12px; text-align: center; }
+  .result-dist { font-size: 56px; font-weight: 300; color: var(--gold); line-height: 1; letter-spacing: -0.04em; }
+  .result-unit { font-size: 18px; font-weight: 400; color: var(--gold-muted); margin-left: 4px; }
+  .result-club { font-size: 15px; font-weight: 500; color: var(--text-secondary); margin-top: 6px; }
+
+  /* Stage instruction */
+  .stage-instruction { text-align: center; font-size: 14px; color: var(--text-secondary); font-style: italic; padding: 6px 0 10px; }
+
+  /* Buttons */
+  .btn { display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; padding: 15px; border-radius: var(--radius); border: none; font-size: 15px; font-weight: 500; cursor: pointer; transition: opacity 0.15s, transform 0.1s; margin-bottom: 10px; font-family: inherit; letter-spacing: 0.03em; }
+  .btn:last-child { margin-bottom: 0; }
+  .btn:active { opacity: 0.82; transform: scale(0.985); }
+  .btn-primary { background: var(--gold); color: #0D0D0D; }
+  .btn-outline { background: transparent; color: var(--gold); border: 0.5px solid var(--gold); }
+  .btn-danger { background: rgba(142,75,75,0.3); color: #F2F2F2; border: 0.5px solid rgba(142,75,75,0.5); }
+  .btn:disabled { opacity: 0.35; cursor: default; }
+
+  /* History */
+  .history-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+  .history-title { font-size: 13px; font-weight: 600; color: var(--gold); letter-spacing: 0.06em; text-transform: uppercase; }
+  .history-clear { background: transparent; border: none; color: var(--text-muted); font-size: 12px; cursor: pointer; font-family: inherit; }
+  .shot-list { display: flex; flex-direction: column; gap: 7px; }
+  .shot-item { background: rgba(28,28,28,0.7); border: 0.5px solid var(--border); border-radius: var(--radius-sm); display: flex; align-items: center; padding: 11px 13px; gap: 11px; cursor: pointer; }
+  .shot-item:active { background: rgba(200,169,106,0.08); }
+  .shot-bubble { width: 32px; height: 32px; border-radius: 50%; background: rgba(200,169,106,0.15); font-size: 13px; font-weight: 600; color: var(--gold); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .shot-club { font-size: 14px; font-weight: 600; flex: 1; color: var(--text-primary); }
+  .shot-dist { font-size: 15px; font-weight: 500; color: var(--gold); }
+  .shot-avg { font-size: 12px; color: var(--text-muted); }
+  .empty-state { text-align: center; padding: 24px 16px; color: var(--text-muted); font-size: 14px; }
+  .empty-icon { font-size: 32px; margin-bottom: 8px; display: block; }
+
+  /* Club detail sheet */
+  .club-detail-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 200; display: none; align-items: flex-end; justify-content: center; }
+  .club-detail-overlay.open { display: flex; animation: fadeIn 0.15s ease; }
+  @keyframes fadeIn { from{opacity:0} to{opacity:1} }
+  .club-detail-sheet { background: #1C1C1C; border-top: 0.5px solid rgba(200,169,106,0.2); border-radius: 22px 22px 0 0; width: 100%; max-width: 430px; max-height: 80vh; display: flex; flex-direction: column; animation: slideUp 0.2s ease; }
+  @keyframes slideUp { from{transform:translateY(40px);opacity:0} to{transform:translateY(0);opacity:1} }
+  .club-detail-handle { width: 36px; height: 4px; background: rgba(200,169,106,0.3); border-radius: 2px; margin: 12px auto 0; flex-shrink: 0; }
+  .club-detail-header { padding: 14px 20px 12px; border-bottom: 0.5px solid rgba(200,169,106,0.12); flex-shrink: 0; }
+  .club-detail-name { font-size: 18px; font-weight: 600; color: var(--gold); }
+  .club-detail-stats { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0; border-bottom: 0.5px solid rgba(200,169,106,0.12); flex-shrink: 0; }
+  .club-detail-stat { display: flex; flex-direction: column; align-items: center; padding: 12px 6px; border-right: 0.5px solid rgba(200,169,106,0.12); }
+  .club-detail-stat:last-child { border-right: none; }
+  .club-detail-stat-label { font-size: 9px; font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 4px; }
+  .club-detail-stat-value { font-size: 22px; font-weight: 300; color: var(--text-primary); }
+  .club-detail-list { overflow-y: auto; -webkit-overflow-scrolling: touch; flex: 1; padding: 8px 0 calc(env(safe-area-inset-bottom,0px) + 16px); }
+  .club-detail-row { display: flex; align-items: center; padding: 11px 14px 11px 20px; border-bottom: 0.5px solid rgba(200,169,106,0.08); gap: 10px; }
+  .club-detail-row:last-child { border-bottom: none; }
+  .club-detail-date { font-size: 13px; color: var(--text-muted); flex: 1; }
+  .club-detail-dist { font-size: 15px; font-weight: 500; color: var(--gold); }
+  .club-detail-delete { width: 32px; height: 32px; background: transparent; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 16px; color: var(--text-muted); flex-shrink: 0; border-radius: 6px; }
+  .club-detail-delete:active { background: rgba(192,57,43,0.15); color: #e74c3c; }
+
+  /* Dialog */
+  .dialog-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 200; display: flex; align-items: flex-end; justify-content: center; animation: fadeIn 0.15s ease; }
+  .dialog-sheet { background: #1C1C1C; border-top: 0.5px solid rgba(200,169,106,0.2); border-radius: 22px 22px 0 0; padding: 8px 0 calc(var(--safe-bottom) + 8px); width: 100%; max-width: 430px; animation: slideUp 0.2s ease; }
+  .dialog-handle { width: 36px; height: 4px; background: var(--border-mid); border-radius: 2px; margin: 8px auto 16px; }
+  .dialog-icon { text-align: center; margin-bottom: 8px; min-height: 36px; display: flex; align-items: center; justify-content: center; font-size: 36px; }
+  .dialog-title { font-size: 18px; font-weight: 700; text-align: center; color: var(--text-primary); padding: 0 20px; margin-bottom: 6px; }
+  .dialog-sub { font-size: 14px; color: var(--text-secondary); text-align: center; padding: 0 24px; margin-bottom: 20px; line-height: 1.5; }
+  .dialog-actions { padding: 0 16px; display: flex; flex-direction: column; gap: 8px; }
+  .dialog-btn { display: flex; align-items: center; justify-content: center; width: 100%; padding: 15px; border-radius: var(--radius); border: none; font-size: 15px; font-weight: 600; cursor: pointer; font-family: inherit; }
+  .dialog-btn-primary { background: var(--gold); color: #0D0D0D; }
+  .dialog-btn-danger { background: #c0392b; color: #fff; }
+  .dialog-btn-secondary { background: rgba(28,28,28,0.85); color: var(--text-muted); border: 0.5px solid var(--border); }
+
+  /* Toast */
+  #toast { position: fixed; bottom: calc(var(--safe-bottom) + 120px); left: 50%; transform: translateX(-50%) translateY(20px); background: rgba(28,28,28,0.95); color: var(--text-primary); border: 0.5px solid var(--border); padding: 10px 20px; border-radius: 100px; font-size: 13px; font-weight: 500; opacity: 0; transition: opacity 0.25s, transform 0.25s; pointer-events: none; white-space: nowrap; z-index: 999; }
+  #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  /* Bottom nav */
+  .nav-shell { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 430px; z-index: 150; }
+  .nav-row { display: flex; background: rgba(13,13,13,0.95); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
+  .nav-primary { border-top: 0.5px solid rgba(200,169,106,0.2); padding-bottom: calc(var(--safe-bottom) + 6px); transform: translateY(0); transition: transform 350ms cubic-bezier(0.4,0,0.2,1); will-change: transform; position: relative; z-index: 2; }
+  .nav-primary.raised { transform: translateY(-100%); }
+  .nav-secondary { border-top: 0.5px solid rgba(200,169,106,0.12); padding-bottom: calc(var(--safe-bottom) + 6px); position: absolute; bottom: 0; left: 0; right: 0; transform: translateY(100%); transition: transform 350ms cubic-bezier(0.4,0,0.2,1); will-change: transform; z-index: 1; }
+  .nav-secondary.open { transform: translateY(0); }
+  .nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 10px 4px 6px; cursor: pointer; text-decoration: none; background: none; border: none; -webkit-tap-highlight-color: transparent; transition: opacity 0.15s; }
+  .nav-item:active { opacity: 0.7; }
+  .nav-item img { width: 56px; height: 56px; object-fit: contain; display: block; }
+  .nav-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); opacity: 0; pointer-events: none; transition: opacity 350ms ease; z-index: 140; }
+  .nav-overlay.open { opacity: 1; pointer-events: auto; }
+
+  /* Auth badge */
+  .header-auth-badge { position: absolute; top: 10px; right: 14px; display: none; align-items: center; gap: 6px; background: rgba(13,13,13,0.6); backdrop-filter: blur(6px); border: 0.5px solid rgba(200,169,106,0.2); border-radius: 20px; padding: 5px 10px 5px 8px; z-index: 20; }
+  .header-auth-badge.visible { display: flex; }
+  .header-auth-dot { width: 8px; height: 8px; border-radius: 50%; background: #2ecc71; flex-shrink: 0; }
+  .header-auth-email { font-size: 11px; font-weight: 500; color: var(--gold); white-space: nowrap; }
+</style>
+</head>
+<body>
+<div class="app">
+<div class="hero">
+  <img class="hero-img" src="Back_ground_New.jpg" alt="">
+  <div class="hero-overlay"></div>
+</div>
+<div id="app">
+  <div class="header-img-wrap" style="position:relative;">
+    <img class="header-img" src="Header.webp" alt="Shot Tracker">
+    <div class="header-auth-badge" id="header-badge">
+      <div class="header-auth-dot"></div>
+      <span class="header-auth-email" id="header-email"></span>
+    </div>
+  </div>
+  <div class="content">
+
+    <!-- CLUB SELECTOR -->
+    <div class="card">
+      <div class="card-label">Select Club</div>
+      <button class="club-picker-trigger placeholder" id="club-trigger" onclick="openClubPicker()">
+        <span id="club-label">— Choose a club —</span>
+        <span class="club-picker-arrow">&#9662;</span>
+      </button>
+    </div>
+
+    <!-- SHOT TRACKER -->
+    <div class="card" id="tracker-card">
+      <div class="card-label" id="tracker-label">Ready</div>
+
+      <!-- GPS stability indicator -->
+      <div class="gps-status">
+        <div class="gps-status-row">
+          <span class="gps-indicator searching" id="gps-indicator"></span>
+          <span class="gps-status-text" id="gps-status-text">Acquiring GPS&hellip;</span>
+        </div>
+        <div class="gps-accuracy" id="gps-accuracy">—</div>
+        <div class="gps-debug" id="gps-debug">no fix yet</div>
+      </div>
+
+      <!-- Stage: idle -->
+      <div id="stage-idle">
+        <p class="stage-instruction">Select a club, stand at the ball, then tap Start Shot</p>
+        <button class="btn btn-primary" id="btn-start" onclick="startShot()" disabled>&#9679; Start Shot</button>
+      </div>
+
+      <!-- Stage: walking -->
+      <div id="stage-walking" style="display:none">
+        <div class="walking-dist-card">
+          <span class="walking-dist-value" id="walking-dist">0</span><span class="walking-dist-unit">m</span>
+          <div class="walking-dist-label">Distance so far</div>
+        </div>
+        <p class="stage-instruction">Walk to your ball, then tap Save Shot</p>
+        <button class="btn btn-primary" onclick="markLanding()">&#10003; Save Shot</button>
+        <button class="btn btn-danger" onclick="cancelShot()">&#10007; Cancel</button>
+      </div>
+
+      <!-- Stage: result -->
+      <div id="stage-result" style="display:none">
+        <div class="result-card">
+          <span class="result-dist" id="result-dist">—</span><span class="result-unit">m</span>
+          <div class="result-club" id="result-club"></div>
+        </div>
+        <button class="btn btn-primary" onclick="saveShot()">&#10003; Save This Shot</button>
+        <button class="btn btn-outline" onclick="retakeShot()">&#8635; Retake</button>
+      </div>
+    </div>
+
+    <!-- HISTORY -->
+    <div class="card">
+      <div class="history-header">
+        <span class="history-title">Recorded Shots</span>
+        <button class="history-clear" onclick="confirmClearAll()">Clear all</button>
+      </div>
+      <div id="shot-history"></div>
+    </div>
+
+  </div>
+</div>
+
+<!-- Club Detail Sheet -->
+<div class="club-detail-overlay" id="club-detail-overlay" onclick="closeClubDetail(event)">
+  <div class="club-detail-sheet" onclick="event.stopPropagation()">
+    <div class="club-detail-handle"></div>
+    <div class="club-detail-header" style="display:flex;align-items:center;justify-content:space-between;">
+      <div class="club-detail-name" id="club-detail-name"></div>
+      <button onclick="closeClubDetail()" style="background:transparent;border:0.5px solid rgba(200,169,106,0.3);border-radius:8px;padding:6px 14px;color:var(--gold);font-size:13px;font-weight:500;cursor:pointer;font-family:inherit;">&#8592; Back</button>
+    </div>
+    <div class="club-detail-stats" id="club-detail-stats"></div>
+    <div class="club-detail-list" id="club-detail-list"></div>
+  </div>
+</div>
+
+<!-- Dialog -->
+<div id="dialog-overlay" class="dialog-overlay" style="display:none" onclick="closeDialogOutside(event)">
+  <div class="dialog-sheet" onclick="event.stopPropagation()">
+    <div class="dialog-handle"></div>
+    <div id="dialog-icon" class="dialog-icon"></div>
+    <div id="dialog-title" class="dialog-title"></div>
+    <div id="dialog-sub" class="dialog-sub"></div>
+    <div id="dialog-actions" class="dialog-actions"></div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<!-- Club picker bottom sheet -->
+<div class="club-picker-overlay" id="club-picker-overlay" onclick="closeClubPicker()"></div>
+<div class="club-picker-sheet" id="club-picker-sheet">
+  <div class="club-picker-handle"></div>
+  <div class="club-picker-title">Select Club</div>
+  <div class="club-picker-list" id="club-picker-list"></div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+// ── Supabase ──────────────────────────────────────────────────────────────────
+const SUPABASE_URL = 'https://ryqehsqqriavmuqfnzpx.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ5cWVoc3Fxcmlhdm11cWZuenB4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM3NTQ4MzcsImV4cCI6MjA5OTMzMDgzN30.Po2m7uhlMTc43Pdg8pohwvDsQ_UDFRS-n9UnTQ44nXA';
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+let currentUser = null;
+sb.auth.getSession().then(({ data }) => {
+  if (data.session) {
+    currentUser = data.session.user;
+    var badge = document.getElementById('header-badge');
+    var email = document.getElementById('header-email');
+    if (badge) badge.classList.add('visible');
+    if (email) email.textContent = data.session.user.email;
+    loadDistancesFromSupabase();
+  }
+});
+
+// ── Club definitions ──────────────────────────────────────────────────────────
+const ALL_CLUBS_FULL = {
+  'driver':'Driver','3wood':'3-Wood','4wood':'4-Wood','5wood':'5-Wood','7wood':'7-Wood','9wood':'9-Wood',
+  '2hybrid':'2-Hybrid','3hybrid':'3-Hybrid','4hybrid':'4-Hybrid','5hybrid':'5-Hybrid','6hybrid':'6-Hybrid',
+  '2iron':'2-Iron','3iron':'3-Iron','4iron':'4-Iron','5iron':'5-Iron','6iron':'6-Iron',
+  '7iron':'7-Iron','8iron':'8-Iron','9iron':'9-Iron',
+  'pw':'Pitching Wedge','gw':'Gap Wedge','sw':'Sand Wedge','lw':'Lob Wedge','putter':'Putter'
+};
+const savedBag = JSON.parse(localStorage.getItem('golf-bag-v1') || 'null');
+const BAG = savedBag || ['driver','3wood','5wood','4hybrid','5iron','6iron','7iron','8iron','9iron','pw','gw','sw','lw','putter'];
+
+// ── State ─────────────────────────────────────────────────────────────────────
+let selectedClub  = null;
+let startPosition = null;
+let pendingDist   = null;
+let pendingClub   = null;
+let clubDistances = JSON.parse(localStorage.getItem('golf-club-distances') || '{}');
+
+function persist() {
+  localStorage.setItem('golf-club-distances', JSON.stringify(clubDistances));
+}
+
+// ── Supabase save/load ────────────────────────────────────────────────────────
+async function saveDistanceToSupabase(club, dist) {
+  if (!currentUser) return;
+  try {
+    await sb.from('club_distances').insert({
+      user_id: currentUser.id, club: club, distance: dist,
+      date: new Date().toISOString().split('T')[0]
+    });
+  } catch(e) { console.error('Supabase club save error:', e); }
+}
+
+async function loadDistancesFromSupabase() {
+  if (!currentUser) return;
+  try {
+    const { data } = await sb.from('club_distances')
+      .select('club, distance, date').eq('user_id', currentUser.id)
+      .order('created_at', { ascending: true });
+    if (!data || data.length === 0) return;
+    data.forEach(row => {
+      if (!clubDistances[row.club]) clubDistances[row.club] = [];
+      const exists = clubDistances[row.club].some(s => s.dist === row.distance && s.date === new Date(row.date).toLocaleDateString('en-AU'));
+      if (!exists) clubDistances[row.club].push({ dist: row.distance, date: new Date(row.date).toLocaleDateString('en-AU') });
+    });
+    persist();
+    renderHistory();
+  } catch(e) { console.error('Supabase club load error:', e); }
+}
+
+// ── Club picker ───────────────────────────────────────────────────────────────
+function openClubPicker() {
+  const list = document.getElementById('club-picker-list');
+  list.innerHTML = BAG.map(id =>
+    '<div class="club-picker-item' + (selectedClub===id?' selected':'') + '" onclick="selectClub(\''+id+'\')">' +
+    (ALL_CLUBS_FULL[id]||id) + '</div>'
+  ).join('');
+  document.getElementById('club-picker-overlay').classList.add('open');
+  document.getElementById('club-picker-sheet').classList.add('open');
+}
+
+function closeClubPicker() {
+  document.getElementById('club-picker-overlay').classList.remove('open');
+  document.getElementById('club-picker-sheet').classList.remove('open');
+}
+
+function selectClub(id) {
+  selectedClub = id;
+  closeClubPicker();
+  const trigger = document.getElementById('club-trigger');
+  document.getElementById('club-label').textContent = ALL_CLUBS_FULL[id] || id;
+  trigger.classList.remove('placeholder');
+  document.getElementById('btn-start').disabled = false;
+}
+
+// ── GPS ───────────────────────────────────────────────────────────────────────
+let watchId    = null;
+let currentFix = null;
+const ACC_GOOD = 8;
+const ACC_FAIR = 15;
+
+function accuracyTier(acc) {
+  if (acc == null || !isFinite(acc)) return 'unknown';
+  if (acc <= ACC_GOOD) return 'good';
+  if (acc <= ACC_FAIR) return 'fair';
+  return 'poor';
+}
+
+function startWatch() {
+  if (!('geolocation' in navigator)) {
+    document.getElementById('gps-status-text').textContent = 'Geolocation not supported';
+    return;
+  }
+  watchId = navigator.geolocation.watchPosition(
+    pos => {
+      currentFix = {
+        latitude: pos.coords.latitude, longitude: pos.coords.longitude,
+        accuracy: pos.coords.accuracy, timestamp: pos.timestamp
+      };
+      updateGpsStatusUI();
+      if (currentStage === 'walking' && startPosition) updateWalkingDistance();
+    },
+    err => { document.getElementById('gps-status-text').textContent = 'GPS error: ' + err.message; },
+    { enableHighAccuracy: true, maximumAge: 1000, timeout: 15000 }
+  );
+}
+
+function updateGpsStatusUI() {
+  const dot   = document.getElementById('gps-indicator');
+  const text  = document.getElementById('gps-status-text');
+  const acc   = document.getElementById('gps-accuracy');
+  const debug = document.getElementById('gps-debug');
+  if (!currentFix) {
+    dot.className = 'gps-indicator searching';
+    text.textContent = 'Acquiring GPS\u2026';
+    acc.textContent = '\u2014';
+    debug.textContent = 'no fix yet';
+    return;
+  }
+  const tier = accuracyTier(currentFix.accuracy);
+  const labels = { good: 'Good fix', fair: 'Fair \u2014 may drift', poor: 'Poor \u2014 move to open sky', unknown: 'Unknown accuracy' };
+  dot.className = 'gps-indicator ' + tier;
+  text.textContent = labels[tier];
+  acc.textContent = '\u00b1' + Math.round(currentFix.accuracy) + 'm';
+  debug.textContent = currentFix.latitude.toFixed(6) + ', ' + currentFix.longitude.toFixed(6);
+}
+
+function updateWalkingDistance() {
+  if (!currentFix || !startPosition) return;
+  document.getElementById('walking-dist').textContent = haversine(startPosition, currentFix);
+}
+
+function haversine(a, b) {
+  const R = 6371000, f1 = a.latitude*Math.PI/180, f2 = b.latitude*Math.PI/180;
+  const df = (b.latitude-a.latitude)*Math.PI/180;
+  const dl = (b.longitude-a.longitude)*Math.PI/180;
+  const x  = Math.sin(df/2)**2 + Math.cos(f1)*Math.cos(f2)*Math.sin(dl/2)**2;
+  return Math.round(2*R*Math.asin(Math.sqrt(x)));
+}
+
+// ── Shot flow ─────────────────────────────────────────────────────────────────
+let currentStage = 'idle';
+
+function setStage(name) {
+  currentStage = name;
+  ['idle','walking','result'].forEach(s => {
+    document.getElementById('stage-'+s).style.display = s===name ? 'block' : 'none';
+  });
+}
+
+function startShot() {
+  if (!selectedClub) { showToast('Select a club first'); return; }
+  if (!currentFix) { showToast('Waiting for a GPS fix\u2026'); return; }
+  const tier = accuracyTier(currentFix.accuracy);
+  if (tier === 'poor') {
+    showDialog({
+      icon: '&#9888;',
+      title: 'Poor GPS Accuracy',
+      sub: 'Current accuracy is \u00b1' + Math.round(currentFix.accuracy) + 'm. Starting now may give an inaccurate distance. Record the start position anyway?',
+      buttons: [
+        { label: 'Record anyway', style: 'primary', action: lockStart },
+        { label: 'Wait for better signal', style: 'secondary', action: () => {} }
+      ]
+    });
+  } else { lockStart(); }
+}
+
+function lockStart() {
+  startPosition = { latitude: currentFix.latitude, longitude: currentFix.longitude };
+  document.getElementById('walking-dist').textContent = '0';
+  document.getElementById('tracker-label').textContent = 'Walk to your ball';
+  setStage('walking');
+  showToast('Start marked (\u00b1' + Math.round(currentFix.accuracy) + 'm) \u2014 walk to your ball');
+}
+
+function markLanding() {
+  if (!currentFix) { showToast('Waiting for a GPS fix\u2026'); return; }
+  const tier = accuracyTier(currentFix.accuracy);
+  if (tier === 'poor') {
+    showDialog({
+      icon: '&#9888;',
+      title: 'Poor GPS Accuracy',
+      sub: 'Current accuracy is \u00b1' + Math.round(currentFix.accuracy) + 'm. Recording now may give an inaccurate distance. Record the finish position anyway?',
+      buttons: [
+        { label: 'Record anyway', style: 'primary', action: lockFinish },
+        { label: 'Wait for better signal', style: 'secondary', action: () => {} }
+      ]
+    });
+  } else { lockFinish(); }
+}
+
+function lockFinish() {
+  const dist = haversine(startPosition, currentFix);
+  pendingDist = dist;
+  pendingClub = selectedClub;
+  // Save immediately — no result stage
+  saveShot();
+}
+
+function saveShot() {
+  if (!pendingClub || pendingDist === null) return;
+  if (!clubDistances[pendingClub]) clubDistances[pendingClub] = [];
+  clubDistances[pendingClub].push({ dist: pendingDist, date: new Date().toLocaleDateString('en-AU') });
+  persist();
+  saveDistanceToSupabase(pendingClub, pendingDist);
+  showToast((ALL_CLUBS_FULL[pendingClub]||pendingClub) + ' \u2014 ' + pendingDist + 'm saved');
+  resetTracker();
+  renderHistory();
+}
+
+function retakeShot() {
+  document.getElementById('tracker-label').textContent = 'Walk to your ball';
+  setStage('walking');
+}
+
+function cancelShot() { resetTracker(); }
+
+function resetTracker() {
+  startPosition = null; pendingDist = null; pendingClub = null;
+  document.getElementById('tracker-label').textContent = 'Ready';
+  document.getElementById('stage-idle').querySelector('p').textContent = 'Select a club, stand at the ball, then tap Start Shot';
+  document.getElementById('btn-start').disabled = !selectedClub;
+  setStage('idle');
+}
+
+// ── Club detail sheet ─────────────────────────────────────────────────────────
+function showClubDetail(id) {
+  const shots = clubDistances[id] || [];
+  const dists = shots.map(s => s.dist);
+  const avg   = Math.round(dists.reduce((a,v) => a+v, 0) / dists.length);
+  const best  = Math.max(...dists);
+  document.getElementById('club-detail-name').textContent = ALL_CLUBS_FULL[id] || id;
+  document.getElementById('club-detail-stats').innerHTML =
+    '<div class="club-detail-stat"><div class="club-detail-stat-label">Average</div><div class="club-detail-stat-value">' + avg + 'm</div></div>' +
+    '<div class="club-detail-stat"><div class="club-detail-stat-label">Best</div><div class="club-detail-stat-value">' + best + 'm</div></div>' +
+    '<div class="club-detail-stat"><div class="club-detail-stat-label">Shots</div><div class="club-detail-stat-value">' + shots.length + '</div></div>';
+  document.getElementById('club-detail-list').innerHTML = [...shots].reverse().map((s, i) => {
+    const realIndex = shots.length - 1 - i; // index in original array
+    return '<div class="club-detail-row">' +
+      '<span class="club-detail-date">' + s.date + '</span>' +
+      '<span class="club-detail-dist">' + s.dist + 'm</span>' +
+      '<button class="club-detail-delete" onclick="deleteShot(\'' + id + '\',' + realIndex + ')" aria-label="Delete">&#128465;</button>' +
+      '</div>';
+  }).join('');
+  document.getElementById('club-detail-overlay').classList.add('open');
+}
+
+function deleteShot(clubId, index) {
+  showDialog({
+    icon: '&#128465;',
+    title: 'Delete This Shot?',
+    sub: 'Remove the ' + (clubDistances[clubId][index].dist) + 'm shot recorded on ' + clubDistances[clubId][index].date + '?',
+    buttons: [
+      { label: 'Delete', style: 'danger', action: () => {
+        clubDistances[clubId].splice(index, 1);
+        if (clubDistances[clubId].length === 0) delete clubDistances[clubId];
+        persist();
+        renderHistory();
+        // Refresh or close detail sheet
+        if (clubDistances[clubId] && clubDistances[clubId].length > 0) {
+          showClubDetail(clubId);
+        } else {
+          closeClubDetail();
+        }
+        showToast('Shot deleted');
+      }},
+      { label: 'Cancel', style: 'secondary', action: () => {} }
+    ]
+  });
+}
+
+function closeClubDetail(e) {
+  document.getElementById('club-detail-overlay').classList.remove('open');
+}
+// ── History ───────────────────────────────────────────────────────────────────
+function renderHistory() {
+  const el = document.getElementById('shot-history');
+  const entries = BAG.filter(id => clubDistances[id] && clubDistances[id].length > 0);
+  if (!entries.length) {
+    el.innerHTML = '<div class="empty-state"><span class="empty-icon">&#127953;</span>No shots recorded yet.<br>Select a club and start tracking.</div>';
+    return;
+  }
+  el.innerHTML = '<div class="shot-list">' + entries.map(id => {
+    const shots = clubDistances[id];
+    const dists = shots.map(s => s.dist);
+    const avg   = Math.round(dists.reduce((a,v) => a+v, 0) / dists.length);
+    const best  = Math.max(...dists);
+    return '<div class="shot-item" onclick="showClubDetail(\'' + id + '\')">' +
+      '<div class="shot-bubble">' + shots.length + '</div>' +
+      '<div class="shot-club">' + (ALL_CLUBS_FULL[id]||id) + '<br><span class="shot-avg">avg ' + avg + 'm &middot; best ' + best + 'm</span></div>' +
+      '<div class="shot-dist">' + avg + 'm</div>' +
+      '</div>';
+  }).join('') + '</div>';
+}
+
+function confirmClearAll() {
+  showDialog({
+    icon: '&#128465;',
+    title: 'Clear All Shots?',
+    sub: 'This will permanently delete all recorded club distances.',
+    buttons: [
+      { label: 'Clear everything', style: 'danger', action: () => { clubDistances = {}; persist(); renderHistory(); showToast('All shots cleared'); }},
+      { label: 'Cancel', style: 'secondary', action: () => {} }
+    ]
+  });
+}
+
+// ── Dialog ────────────────────────────────────────────────────────────────────
+function showDialog(opts) {
+  document.getElementById('dialog-icon').innerHTML    = opts.icon  || '';
+  document.getElementById('dialog-title').textContent = opts.title || '';
+  document.getElementById('dialog-sub').textContent   = opts.sub   || '';
+  document.getElementById('dialog-actions').innerHTML = opts.buttons.map((b,i) =>
+    '<button class="dialog-btn dialog-btn-'+(b.style||'secondary')+'" onclick="dialogAction('+i+')">'+b.label+'</button>'
+  ).join('');
+  window._dialogActions = opts.buttons.map(b => b.action);
+  document.getElementById('dialog-overlay').style.display = 'flex';
+}
+function dialogAction(i) { closeDialog(); window._dialogActions?.[i]?.(); }
+function closeDialogOutside(e) { if (e.target===document.getElementById('dialog-overlay')) closeDialog(); }
+function closeDialog() { document.getElementById('dialog-overlay').style.display = 'none'; }
+
+// ── Toast ─────────────────────────────────────────────────────────────────────
+function showToast(msg) {
+  const t = document.getElementById('toast'); t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2200);
+}
+
+// ── Nav drawer ────────────────────────────────────────────────────────────────
+
+
+// ── Init ──────────────────────────────────────────────────────────────────────
+renderHistory();
+startWatch();
+if ('serviceWorker' in navigator) { navigator.serviceWorker.register('/sw.js').catch(() => {}); }
+window.addEventListener('beforeunload', () => {
+  if (watchId !== null && navigator.geolocation) navigator.geolocation.clearWatch(watchId);
+});
+</script>
+
+<!-- NAV -->
+  <!-- Nav shell -->
+  <div class="nav-shell">
+    <div class="nav-row">
+      <a class="nav-item" href="find.html"><img src="icons/Courses.png" alt="Courses"></a>
+      <a class="nav-item" id="nav-play" href="start.html"><img src="icons/Play.png" alt="Play"></a>
+      <a class="nav-item" href="distance.html"><img src="icons/Distance.png" alt="Distance"></a>
+      <a class="nav-item" href="suggest.html"><img src="icons/Suggest.png" alt="Suggest"></a>
+      <a class="nav-item" href="history.html"><img src="icons/History.png" alt="History"></a>
+    </div>
+  </div>
+
+<script>
+// ── Continue round — go to round.html if in progress ─────────────────────────
+(function() {
+  var scores = JSON.parse(localStorage.getItem('golf-scores-v1') || '{}');
+  var hole   = localStorage.getItem('golf-current-hole');
+  if (Object.keys(scores).length > 0 || (hole && parseInt(hole) > 1)) {
+    var el = document.getElementById('nav-play');
+    if (el) el.setAttribute('href', 'round.html');
+  }
+})();
+</script>
+</body>
+</html>

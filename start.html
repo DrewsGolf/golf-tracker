@@ -103,7 +103,7 @@
   .nav-secondary.open { transform: translateY(0); }
   .nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 10px 4px 6px; cursor: pointer; text-decoration: none; background: none; border: none; -webkit-tap-highlight-color: transparent; transition: opacity 0.15s; }
   .nav-item:active { opacity: 0.7; }
-  .nav-item img { width: 70px; height: 70px; object-fit: contain; display: block; }
+  .nav-item img { width: 56px; height: 56px; object-fit: contain; display: block; }
   .nav-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); opacity: 0; pointer-events: none; transition: opacity 350ms ease; z-index: 90; }
   .nav-overlay.open { opacity: 1; pointer-events: auto; }
   /* Auth badge */
@@ -350,26 +350,19 @@ function showToast(msg) {
 }
 </script>
 <!-- NAV -->
-<div class="nav-overlay" id="nav-overlay" onclick="closeDrawer()"></div>
-<div class="nav-shell">
-  <div class="nav-row nav-primary" id="nav-primary">
-    <a class="nav-item" href="index.html"><img src="Home_2.png" alt="Home"></a>
-    <a class="nav-item" href="start.html"><img src="Play_2.png" alt="Play"></a>
-    <a class="nav-item" href="range.html"><img src="Range_2.png" alt="Range"></a>
-    <button class="nav-item" id="btn-more" onclick="openDrawer()"><img src="More.png" alt="More" id="icon-more"></button>
+  <!-- Nav shell -->
+  <div class="nav-shell">
+    <div class="nav-row">
+      <a class="nav-item" href="find.html"><img src="icons/Courses.png" alt="Courses"></a>
+      <a class="nav-item" id="nav-play" href="start.html"><img src="icons/Play.png" alt="Play"></a>
+      <a class="nav-item" href="distance.html"><img src="icons/Distance.png" alt="Distance"></a>
+      <a class="nav-item" href="suggest.html"><img src="icons/Suggest.png" alt="Suggest"></a>
+      <a class="nav-item" href="history.html"><img src="icons/History.png" alt="History"></a>
+    </div>
   </div>
-  <div class="nav-row nav-secondary" id="nav-secondary">
-    <a class="nav-item" href="history.html"><img src="History_2.png" alt="History"></a>
-    <a class="nav-item" href="clubs.html"><img src="Clubs_2.png" alt="Clubs"></a>
-    <a class="nav-item" href="suggest.html"><img src="Suggets_2.png" alt="Suggest"></a>
-    <button class="nav-item" onclick="closeDrawer()"><img src="Back.png" alt="Back"></button>
-  </div>
-</div>
 </div><!-- end .app -->
 <script>
-const primary=document.getElementById('nav-primary'),secondary=document.getElementById('nav-secondary'),overlay=document.getElementById('nav-overlay'),btnMore=document.getElementById('btn-more'),iconMore=document.getElementById('icon-more');
-function openDrawer(){primary.classList.add('raised');secondary.classList.add('open');overlay.classList.add('open');iconMore.src='Courses_2.png';iconMore.alt='Courses';btnMore.onclick=()=>window.location.href='find.html';}
-function closeDrawer(){primary.classList.remove('raised');secondary.classList.remove('open');overlay.classList.remove('open');iconMore.src='More.png';iconMore.alt='More';btnMore.onclick=openDrawer;}
+
 
 // ── Auth badge ────────────────────────────────────────────────────────────────
 (function() {

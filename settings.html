@@ -203,7 +203,7 @@
   }
 
   .nav-item:active { opacity: 0.7; }
-  .nav-item img { width: 70px; height: 70px; object-fit: contain; display: block; }
+  .nav-item img { width: 56px; height: 56px; object-fit: contain; display: block; }
 
   .nav-overlay {
     position: absolute;
@@ -331,21 +331,14 @@
   </div>
 
   <!-- Overlay -->
-  <div class="nav-overlay" id="nav-overlay" onclick="closeDrawer()"></div>
-
-  <!-- Nav shell — identical structure to index.html -->
+    <!-- Nav shell -->
   <div class="nav-shell">
-    <div class="nav-row nav-primary" id="nav-primary">
-      <a class="nav-item" href="index.html"><img src="Home_2.png" alt="Home"></a>
-      <a class="nav-item" id="nav-play" href="start.html"><img src="Play_2.png" alt="Play"></a>
-      <a class="nav-item" href="clubs.html"><img src="Clubs_2.png" alt="Distance"></a>
-      <button class="nav-item" id="btn-more" onclick="openDrawer()"><img src="More.png" alt="More" id="icon-more"></button>
-    </div>
-    <div class="nav-row nav-secondary" id="nav-secondary">
-      <a class="nav-item" href="range.html"><img src="Range_2.png" alt="Driving Range"></a>
-      <a class="nav-item" href="find.html"><img src="Courses_2.png" alt="Courses"></a>
-      <a class="nav-item" href="suggest.html"><img src="Suggets_2.png" alt="Suggest"></a>
-      <button class="nav-item" onclick="closeDrawer()"><img src="Back.png" alt="Back"></button>
+    <div class="nav-row">
+      <a class="nav-item" href="find.html"><img src="icons/Courses.png" alt="Courses"></a>
+      <a class="nav-item" id="nav-play" href="start.html"><img src="icons/Play.png" alt="Play"></a>
+      <a class="nav-item" href="distance.html"><img src="icons/Distance.png" alt="Distance"></a>
+      <a class="nav-item" href="suggest.html"><img src="icons/Suggest.png" alt="Suggest"></a>
+      <a class="nav-item" href="history.html"><img src="icons/History.png" alt="History"></a>
     </div>
   </div>
 
@@ -452,29 +445,7 @@ async function doSignOut() {
   setAuthUI(null);
 }
 
-const primary   = document.getElementById('nav-primary');
-const secondary = document.getElementById('nav-secondary');
-const overlay   = document.getElementById('nav-overlay');
-const btnMore   = document.getElementById('btn-more');
-const iconMore  = document.getElementById('icon-more');
 
-function openDrawer() {
-  primary.classList.add('raised');
-  secondary.classList.add('open');
-  overlay.classList.add('open');
-  iconMore.src = 'History_1.png';
-  iconMore.alt = 'History';
-  btnMore.onclick = () => window.location.href = 'history.html';
-}
-
-function closeDrawer() {
-  primary.classList.remove('raised');
-  secondary.classList.remove('open');
-  overlay.classList.remove('open');
-  iconMore.src = 'More.png';
-  iconMore.alt = 'More';
-  btnMore.onclick = openDrawer;
-}
 </script>
 
 <script>

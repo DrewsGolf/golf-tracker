@@ -157,10 +157,10 @@
   .nav-secondary-r.open { transform: translateY(0); }
   .nav-item-round { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 10px 4px 6px; cursor: pointer; text-decoration: none; background: none; border: none; -webkit-tap-highlight-color: transparent; transition: opacity 0.15s; }
   .nav-item-round:active { opacity: 0.7; }
-  .nav-item-round img { width: 70px; height: 70px; object-fit: contain; display: block; }
+  .nav-item-round img { width: 56px; height: 56px; object-fit: contain; display: block; }
   .nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 10px 4px 6px; cursor: pointer; text-decoration: none; background: none; border: none; -webkit-tap-highlight-color: transparent; transition: opacity 0.15s; }
   .nav-item:active { opacity: 0.7; }
-  .nav-item img { width: 70px; height: 70px; object-fit: contain; display: block; }
+  .nav-item img { width: 56px; height: 56px; object-fit: contain; display: block; }
   .nav-overlay-round { position: fixed; inset: 0; background: rgba(0,0,0,0.5); opacity: 0; pointer-events: none; transition: opacity 350ms ease; z-index: 140; }
   .nav-overlay-round.open { opacity: 1; pointer-events: auto; }
   /* Auth badge */
@@ -754,22 +754,6 @@ function showToast(msg) {
   setTimeout(()=>t.classList.remove('show'),2200);
 }
 
-// ── Nav drawer ────────────────────────────────────────────────────────────────
-function openNavDrawer() {
-  document.getElementById('nav-primary').classList.add('raised');
-  document.getElementById('nav-secondary').classList.add('open');
-  document.getElementById('nav-overlay').classList.add('open');
-  document.getElementById('icon-more').src='Courses_2.png';
-  document.getElementById('btn-more').onclick=()=>window.location.href='find.html';
-}
-function closeDrawer() {
-  document.getElementById('nav-primary').classList.remove('raised');
-  document.getElementById('nav-secondary').classList.remove('open');
-  document.getElementById('nav-overlay').classList.remove('open');
-  document.getElementById('icon-more').src='More.png';
-  document.getElementById('btn-more').onclick=openNavDrawer;
-}
-
 // ── Init ──────────────────────────────────────────────────────────────────────
 renderRound();
 updateFinishBtn();
@@ -777,20 +761,14 @@ if('serviceWorker' in navigator){navigator.serviceWorker.register('/sw.js').catc
 </script>
 
 <!-- NAV -->
-<div class="nav-overlay-round" id="nav-overlay" onclick="closeDrawer()"></div>
 <div class="nav-shell-round">
-  <div class="nav-row-round nav-primary-r" id="nav-primary">
-      <a class="nav-item" href="index.html"><img src="Home_2.png" alt="Home"></a>
-      <a class="nav-item" href="round.html"><img src="Play_1.png" alt="Play"></a>
-      <a class="nav-item" href="clubs.html"><img src="Clubs_2.png" alt="Distance"></a>
-      <button class="nav-item" id="btn-more" onclick="openNavDrawer()"><img src="More.png" alt="More" id="icon-more"></button>
-    </div>
-  <div class="nav-row-round nav-secondary-r" id="nav-secondary">
-      <a class="nav-item" href="range.html"><img src="Range_2.png" alt="Driving Range"></a>
-      <a class="nav-item" href="find.html"><img src="Courses_2.png" alt="Courses"></a>
-      <a class="nav-item" href="suggest.html"><img src="Suggets_2.png" alt="Suggest"></a>
-      <button class="nav-item" onclick="closeDrawer()"><img src="Back.png" alt="Back"></button>
-    </div>
+  <div class="nav-row-round">
+    <a class="nav-item" href="find.html"><img src="icons/Courses.png" alt="Courses"></a>
+    <a class="nav-item" id="nav-play" href="round.html"><img src="icons/Play.png" alt="Play"></a>
+    <a class="nav-item" href="distance.html"><img src="icons/Distance.png" alt="Distance"></a>
+    <a class="nav-item" href="suggest.html"><img src="icons/Suggest.png" alt="Suggest"></a>
+    <a class="nav-item" href="history.html"><img src="icons/History.png" alt="History"></a>
+  </div>
 </div>
 </body>
 </html>

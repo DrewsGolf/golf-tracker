@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Shot Tracker">
+<meta name="theme-color" content="#0D0D0D">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-192.svg">
+<title>Shot Tracker — Nav Mockup</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap');
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+  :root {
+    --bg-primary:   #0D0D0D;
+    --gold:         #C8A96A;
+    --safe-top:     env(safe-area-inset-top, 0px);
+    --safe-bottom:  env(safe-area-inset-bottom, 0px);
+  }
+
+  html, body {
+    height: 100%;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: var(--bg-primary);
+    overflow: hidden;
+  }
+
+  .app {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    max-width: 430px;
+    margin: 0 auto;
+    overflow: hidden;
+  }
+
+  /* ── Full screen hero ───────────────────────────────────────── */
+  .hero {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+  }
+
+  .hero-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center 15%;
+    display: block;
+  }
+
+  /* ── Settings button — top left, same size as nav icons ─────── */
+  .settings-btn {
+    position: absolute;
+    top: calc(var(--safe-top) + 12px);
+    left: 16px;
+    width: 56px;
+    height: 56px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 50;
+    text-decoration: none;
+  }
+
+  .settings-btn img {
+    width: 56px;
+    height: 56px;
+    object-fit: contain;
+    display: block;
+  }
+
+  .settings-btn:active { opacity: 0.7; }
+
+  /* ── Bottom nav shell — single static row, 5 icons, no drawer ─ */
+  .nav-shell {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 100;
+  }
+
+  .nav-row {
+    display: flex;
+    background: rgba(13,13,13,0.92);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-top: 0.5px solid rgba(200,169,106,0.2);
+    padding-bottom: calc(var(--safe-bottom) + 6px);
+  }
+
+  .nav-item {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 10px 4px 6px;
+    text-decoration: none;
+    background: none;
+    border: none;
+  }
+
+  .nav-item img {
+    width: 56px;
+    height: 56px;
+    object-fit: contain;
+    display: block;
+  }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- Full screen hero image -->
+  <div class="hero">
+    <img class="hero-img" src="images/Background_with_logo_and_tag.png" alt="">
+  </div>
+
+  <!-- Settings — top left, same size as nav icons -->
+  <a class="settings-btn" href="settings.html">
+    <img src="Settings_1.png" alt="Settings">
+  </a>
+
+  <!-- Nav shell — flat row, 5 icons, no links (mockup only) -->
+  <div class="nav-shell">
+    <div class="nav-row">
+      <div class="nav-item">
+        <img src="Courses_2_noborder.png" alt="Courses">
+      </div>
+      <div class="nav-item">
+        <img src="Play_2_noborder.png" alt="Play">
+      </div>
+      <div class="nav-item">
+        <img src="Distance_2_noborder.png" alt="Distance">
+      </div>
+      <div class="nav-item">
+        <img src="Suggest_2_noborder.png" alt="Suggest">
+      </div>
+      <div class="nav-item">
+        <img src="History_2_noborder.png" alt="History">
+      </div>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>

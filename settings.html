@@ -334,8 +334,8 @@
 
   <!-- Account / Sign In -->
   <div class="auth-card" id="auth-card">
-    <!-- Sign in form (shown when logged out) -->
-    <div id="signin-form" style="display:none;">
+    <!-- Sign in form (shown when logged out) — visible by default so it never disappears if the auth check is slow/fails -->
+    <div id="signin-form" style="display:block;">
       <div class="auth-section-label">Sign In to Sync Your Data</div>
       <div class="auth-field-wrap">
         <input class="auth-field" type="email" id="auth-email-input" placeholder="Email" autocomplete="email" inputmode="email">
@@ -394,7 +394,7 @@ function setAuthUI(session) {
   }
 }
 
-sb.auth.getSession().then(({ data }) => setAuthUI(data.session));
+sb.auth.getSession().then(({ data }) => setAuthUI(data.session)).catch(() => setAuthUI(null));
 
 // ── Sound toggle ─────────────────────────────────────────────────────────────
 // ── Handicap ──────────────────────────────────────────────────────────────────

@@ -727,7 +727,7 @@ async function saveRoundToSupabase(round, pars, shotsPerHole, isEdit) {
 
 // ── List View ─────────────────────────────────────────────────────────────────
 function showList() {
-  document.getElementById('list-view').style.display = 'block';
+  document.getElementById('list-view').style.display = 'flex';
   document.getElementById('detail-view').classList.remove('visible');
   window.scrollTo(0,0);
 }
@@ -1027,32 +1027,6 @@ function renderComparison(thisRound, otherRounds, holes) {
 // ── Init ──────────────────────────────────────────────────────────────────────
 renderList();
 showList();
-
-// ── TEMPORARY DIAGNOSTIC — remove once scroll issue is confirmed fixed ──
-(function() {
-  const box = document.createElement('div');
-  box.id = 'scroll-debug';
-  box.style.cssText = 'position:fixed;top:60px;left:8px;right:8px;background:rgba(200,30,30,0.95);color:#fff;font-size:11px;font-family:monospace;padding:8px;border-radius:8px;z-index:9999;line-height:1.5;white-space:pre-wrap;';
-  document.body.appendChild(box);
-  let touchCount = 0;
-  function report() {
-    const lv = document.getElementById('list-view');
-    const ct = document.getElementById('list-content');
-    const lvRect = lv.getBoundingClientRect();
-    const ctRect = ct.getBoundingClientRect();
-    box.textContent =
-      'innerHeight: ' + window.innerHeight + '\n' +
-      '#list-view h: ' + lvRect.height.toFixed(0) + ' (computed:' + getComputedStyle(lv).height + ')\n' +
-      '.content h: ' + ctRect.height.toFixed(0) + '  scrollH:' + ct.scrollHeight + '  clientH:' + ct.clientHeight + '\n' +
-      '.content overflow-y: ' + getComputedStyle(ct).overflowY + '\n' +
-      '.content scrollTop: ' + ct.scrollTop + '\n' +
-      'touch events on .content: ' + touchCount;
-  }
-  document.getElementById('list-content').addEventListener('touchstart', () => { touchCount++; report(); }, {passive:true});
-  document.getElementById('list-content').addEventListener('scroll', report, {passive:true});
-  setTimeout(report, 300);
-  setTimeout(report, 1200);
-})();
 </script>
 <script src="courses.js"></script>
 

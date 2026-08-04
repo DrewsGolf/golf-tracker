@@ -69,7 +69,7 @@
   svg.chart { width: 100%; height: 100%; overflow: visible; }
 
   /* Round list */
-  .round-row { display: flex; align-items: center; gap: 0; border-radius: var(--radius); overflow: hidden; border: 0.5px solid var(--border); background: var(--card); }
+  .round-row { display: flex; align-items: center; gap: 0; border-radius: var(--radius); overflow: hidden; border: 0.5px solid var(--border); background: var(--card); flex-shrink: 0; }
   .round-card { flex: 1; padding: 16px 18px; cursor: pointer; transition: opacity 0.15s; display: flex; align-items: center; gap: 14px; min-width: 0; }
   .round-card:active { opacity: 0.7; }
   .delete-btn { background: var(--red-light); border: none; color: var(--red); font-size: 18px; width: 52px; min-height: 100%; display: flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0; border-left: 0.5px solid rgba(192,57,43,0.15); }

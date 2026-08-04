@@ -491,8 +491,10 @@ function promptDelete(index, e) {
 
 function confirmDelete() {
   if (pendingDeleteIndex === null) return;
+  const round = history[pendingDeleteIndex];
   history.splice(pendingDeleteIndex, 1);
   saveHistory();
+  deleteFromSupabase(round);
   pendingDeleteIndex = null;
   closeSheet();
   renderList();

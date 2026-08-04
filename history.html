@@ -22,7 +22,7 @@
   }
   html, body { height: 100%; font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; background: var(--bg-primary); overflow: hidden; }
 
-  .app { position: relative; width: 100%; height: 100%; max-width: 430px; margin: 0 auto; overflow: hidden; }
+  .app { position: relative; width: 100%; height: 100%; max-width: 430px; margin: 0 auto; overflow: hidden; display: flex; flex-direction: column; }
 
   /* ── Background ── */
 
@@ -49,7 +49,7 @@
   .nav-overlay.open { opacity: 1; pointer-events: auto; }
 
   /* Content */
-  .content { padding: 20px 16px calc(var(--safe-bottom) + 110px); display: flex; flex-direction: column; gap: 20px; max-width: 430px; margin: 0 auto; width: 100%; overflow-y: auto; -webkit-overflow-scrolling: touch; flex: 1; }
+  .content { padding: 20px 16px calc(var(--safe-bottom) + 110px); display: flex; flex-direction: column; gap: 20px; max-width: 430px; margin: 0 auto; width: 100%; overflow-y: auto; -webkit-overflow-scrolling: touch; flex: 1; min-height: 0; }
 
   /* Empty state */
   .empty-state { text-align: center; padding: 48px 24px; }
@@ -93,7 +93,12 @@
   /* Detail view */
   #detail-view { display: none; position: absolute; inset: 0; flex-direction: column; background: var(--bg-primary); z-index: 150; }
   #detail-view.visible { display: flex; }
-  #detail-content { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; padding: 14px 14px calc(var(--safe-bottom) + 110px); }
+  #detail-content { flex: 1; min-height: 0; overflow-y: auto; -webkit-overflow-scrolling: touch; padding: 14px 14px calc(var(--safe-bottom) + 110px); }
+  .detail-tab-bar { background: transparent; border-bottom: 0.5px solid rgba(200,169,106,0.15); padding: 0 14px 12px; display: flex; gap: 6px; flex-shrink: 0; }
+  .detail-tab { flex: 1; padding: 8px; font-size: 13px; font-weight: 500; text-align: center; border-radius: 8px; border: 0.5px solid rgba(200,169,106,0.15); cursor: pointer; background: rgba(200,169,106,0.06); color: var(--text-muted); font-family: inherit; }
+  .detail-tab.active { background: var(--gold); color: #0D0D0D; border-color: var(--gold); }
+  .detail-screen { display: none; }
+  .detail-screen.active { display: block; }
   .detail-header { background: var(--bg-primary); padding: calc(var(--safe-top) + 20px) 24px 20px; border-bottom: 0.5px solid rgba(200,169,106,0.12); }
   .detail-header-top { display: flex; align-items: center; gap: 16px; margin-bottom: 10px; }
   .detail-course { font-size: 16px; font-weight: 500; color: var(--text-primary); flex: 1; letter-spacing: 0.01em; }
@@ -223,7 +228,16 @@
       <div class="detail-stat"><div class="detail-stat-num" id="detail-vs-par">–</div><div class="detail-stat-lbl">vs Par</div></div>
     </div>
   </div>
-  <div id="detail-content"></div>
+  <div class="detail-tab-bar">
+    <button class="detail-tab active" onclick="showDetailTab('scorecard')" id="dtab-scorecard">Scorecard</button>
+    <button class="detail-tab" onclick="showDetailTab('summary')" id="dtab-summary">Summary</button>
+    <button class="detail-tab" onclick="showDetailTab('compare')" id="dtab-compare">Compare</button>
+  </div>
+  <div id="detail-content">
+    <div class="detail-screen active" id="detail-screen-scorecard"></div>
+    <div class="detail-screen" id="detail-screen-summary"></div>
+    <div class="detail-screen" id="detail-screen-compare"></div>
+  </div>
 </div>
 
 <!-- SHEET OVERLAY -->
@@ -820,7 +834,10 @@ function showDetail(index) {
 
   document.getElementById('list-view').style.display = 'none';
   document.getElementById('detail-view').classList.add('visible');
-  document.getElementById('detail-content').innerHTML = ''; // clear first
+  document.getElementById('detail-screen-scorecard').innerHTML = '';
+  document.getElementById('detail-screen-summary').innerHTML = '';
+  document.getElementById('detail-screen-compare').innerHTML = '';
+  showDetailTab('scorecard');
   window.scrollTo(0,0);
 
   const sph = getShotsPerHole(round);
@@ -837,7 +854,9 @@ function showDetail(index) {
   vsParEl.style.color = diff > 0 ? '#e74c3c' : diff < 0 ? 'var(--gold)' : 'var(--text-muted)';
 
   const holes = Object.keys(sph).map(Number).sort((a,b) => a-b);
-  let content = '';
+  let scorecardContent = '';
+  let summaryContent = '';
+  let compareContent = '';
 
   // Score icon helper
   function scoreIconImg(shots, par) {
@@ -855,7 +874,7 @@ function showDetail(index) {
   }
 
   // ── Scorecard ──
-  content += `<div class="scorecard"><table class="scorecard-table">
+  scorecardContent += `<div class="scorecard"><table class="scorecard-table">
     <thead><tr><th>Hole</th><th></th><th>Par</th><th>Shots</th><th>+/−</th><th>Putts</th></tr></thead><tbody>`;
 
   let totalPutts = 0;
@@ -868,16 +887,16 @@ function showDetail(index) {
     const dStr = d === null ? '–' : (d === 0 ? 'E' : (d > 0 ? '+'+d : ''+d));
     const dCls = d === null ? 'diff-even' : d > 0 ? 'diff-over' : d < 0 ? 'diff-under' : 'diff-even';
     const icon = scoreIconImg(shots, par);
-    content += `<tr><td>${h}</td><td class="score-icon-cell">${icon}</td><td>${par !== null ? par : '–'}</td><td>${shots}</td><td class="${dCls}">${dStr}</td><td>${putts || '–'}</td></tr>`;
+    scorecardContent += `<tr><td>${h}</td><td class="score-icon-cell">${icon}</td><td>${par !== null ? par : '–'}</td><td>${shots}</td><td class="${dCls}">${dStr}</td><td>${putts || '–'}</td></tr>`;
   });
 
   if (totalPar !== null) {
     const totalDiff = totalStrokes - totalPar;
     const dStr = totalDiff === 0 ? 'E' : (totalDiff > 0 ? '+'+totalDiff : ''+totalDiff);
     const dCls = totalDiff > 0 ? 'diff-over' : totalDiff < 0 ? 'diff-under' : 'diff-even';
-    content += `<tr class="total-row"><td>Total</td><td></td><td>${totalPar}</td><td>${totalStrokes}</td><td class="${dCls}">${dStr}</td><td>${totalPutts || '–'}</td></tr>`;
+    scorecardContent += `<tr class="total-row"><td>Total</td><td></td><td>${totalPar}</td><td>${totalStrokes}</td><td class="${dCls}">${dStr}</td><td>${totalPutts || '–'}</td></tr>`;
   }
-  content += `</tbody></table></div>`;
+  scorecardContent += `</tbody></table></div>`;
 
   // ── Summary blocks — Front 9 / Back 9 / Overall ──
   function calcBlock(holeList) {
@@ -936,18 +955,33 @@ function showDetail(index) {
   const back9  = Array.from({length:9}, (_,i) => i+10);
   const all18  = Array.from({length:18},(_,i) => i+1);
 
-  content += summaryBlock('Front 9', front9);
-  content += summaryBlock('Back 9',  back9);
-  content += summaryBlock('Overall', all18);
+  summaryContent += summaryBlock('Front 9', front9);
+  summaryContent += summaryBlock('Back 9',  back9);
+  summaryContent += summaryBlock('Overall', all18);
+  if (!summaryContent) {
+    summaryContent = '<div class="empty-state"><span class="empty-icon">&#128202;</span>No scores logged for this round yet.</div>';
+  }
 
   // ── Same-course comparison ──
   const sameRounds = history.filter((r, i) => i !== index && r.course && round.course &&
     r.course.toLowerCase() === round.course.toLowerCase() && getTotalPar(r) !== null);
   if (sameRounds.length > 0) {
-    content += renderComparison(round, sameRounds, holes);
+    compareContent = renderComparison(round, sameRounds, holes);
+  } else {
+    compareContent = '<div class="empty-state"><span class="empty-icon">&#9878;&#65039;</span>No other rounds at ' + (round.course || 'this course') + ' yet to compare against.</div>';
   }
 
-  document.getElementById('detail-content').innerHTML = content;
+  document.getElementById('detail-screen-scorecard').innerHTML = scorecardContent;
+  document.getElementById('detail-screen-summary').innerHTML = summaryContent;
+  document.getElementById('detail-screen-compare').innerHTML = compareContent;
+}
+
+// ── Detail tabs ───────────────────────────────────────────────────────────────
+function showDetailTab(t) {
+  ['scorecard','summary','compare'].forEach(id => {
+    document.getElementById('detail-screen-'+id).classList.toggle('active', id===t);
+    document.getElementById('dtab-'+id).classList.toggle('active', id===t);
+  });
 }
 
 // ── Same-Course Comparison ────────────────────────────────────────────────────

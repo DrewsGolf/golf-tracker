@@ -85,6 +85,19 @@
   .header-logo { height: 80px; object-fit: contain; }
   .header-title { font-size: 13px; font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-muted); }
 
+  /* ── Scrollable page content wrapper ── */
+  .page-scroll {
+    position: relative;
+    z-index: 5;
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    display: flex;
+    flex-direction: column;
+    padding-bottom: calc(110px + var(--safe-bottom));
+  }
+
   /* ── Settings content ── */
   .settings-content {
     position: relative;
@@ -263,6 +276,9 @@
     <div class="hero-overlay"></div>
   </div>
 
+  <!-- Scrollable content: header + settings + account -->
+  <div class="page-scroll">
+
   <!-- Header -->
   <div class="header-img-wrap" style="position:relative;">
     <img class="header-img" src="Header.webp" alt="Shot Tracker">
@@ -335,6 +351,9 @@
       <button class="auth-btn sign-out" onclick="doSignOut()">Sign Out</button>
     </div>
   </div>
+
+  </div>
+  <!-- /page-scroll -->
 
   <!-- Overlay -->
     <!-- Nav shell -->

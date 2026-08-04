@@ -372,6 +372,7 @@
 const SUPABASE_URL = 'https://ryqehsqqriavmuqfnzpx.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ5cWVoc3Fxcmlhdm11cWZuenB4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM3NTQ4MzcsImV4cCI6MjA5OTMzMDgzN30.Po2m7uhlMTc43Pdg8pohwvDsQ_UDFRS-n9UnTQ44nXA';
 const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+let currentUser = null;
 
 function setAuthUI(session) {
   const badge    = document.getElementById('header-badge');
@@ -379,12 +380,14 @@ function setAuthUI(session) {
   const signIn   = document.getElementById('signin-form');
   const signOut  = document.getElementById('signout-form');
   if (session) {
+    currentUser = session.user;
     badge.classList.add('visible');
     hEmail.textContent    = session.user.email;
     signIn.style.display  = 'none';
     signOut.style.display = 'block';
     loadHandicap();
   } else {
+    currentUser = null;
     badge.classList.remove('visible');
     hEmail.textContent    = '';
     signIn.style.display  = 'block';

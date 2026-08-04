@@ -49,7 +49,9 @@
   .nav-overlay.open { opacity: 1; pointer-events: auto; }
 
   /* Content */
-  .content { padding: 20px 16px calc(var(--safe-bottom) + 110px); display: flex; flex-direction: column; gap: 20px; max-width: 430px; margin: 0 auto; width: 100%; overflow-y: auto; -webkit-overflow-scrolling: touch; flex: 1; min-height: 0; }
+  .content { padding: 20px 16px calc(var(--safe-bottom) + 110px); max-width: 430px; margin: 0 auto; width: 100%; overflow-y: auto; -webkit-overflow-scrolling: touch; flex: 1; min-height: 0; }
+  .content > * { margin-bottom: 20px; }
+  .content > *:last-child { margin-bottom: 0; }
 
   /* Empty state */
   .empty-state { text-align: center; padding: 48px 24px; }

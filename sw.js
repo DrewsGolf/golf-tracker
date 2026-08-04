@@ -1,4 +1,4 @@
-const CACHE = 'golf-tracker-v16';
+const CACHE = 'golf-tracker-v17';
 const STATIC = [
   '/courses.js',
   '/manifest.json',
@@ -23,21 +23,34 @@ const STATIC = [
   '/hole_in_one.PNG', '/1over.PNG', '/2over.PNG', '/3over.PNG'
 ];
 
-// HTML pages — always network first, cache as fallback only
-const HTML_PAGES = [
-  '/',
-  '/index.html',
-  '/login.html',
-  '/round.html',
-  '/setup.html',
-  '/start.html',
-  '/find.html',
-  '/history.html',
-  '/clubs.html',
-  '/range.html',
-  '/settings.html',
-  '/suggest.html'
+// HTML pages — always network first, cache as fallback only.
+// Matched by filename only (not full path) so this still works
+// when the site is served from a sub-path like /golf-tracker/.
+const HTML_FILENAMES = [
+  'index.html',
+  'login.html',
+  'round.html',
+  'setup.html',
+  'start.html',
+  'play.html',
+  'find.html',
+  'history.html',
+  'clubs.html',
+  'distance.html',
+  'range.html',
+  'settings.html',
+  'suggest.html'
 ];
+
+function isHTMLRequest(request, url) {
+  // Full-page navigations (typing a URL, tapping a link, opening the PWA) are always HTML
+  if (request.mode === 'navigate') return true;
+  // Root of the site (with or without sub-path) is index.html
+  if (url.pathname === '/' || url.pathname.endsWith('/')) return true;
+  // Match by filename regardless of what folder/sub-path it's served under
+  const filename = url.pathname.split('/').pop();
+  return HTML_FILENAMES.includes(filename);
+}
 
 self.addEventListener('install', e => {
   e.waitUntil(
@@ -57,9 +70,8 @@ self.addEventListener('activate', e => {
 
 self.addEventListener('fetch', e => {
   const url = new URL(e.request.url);
-  const isHTML = HTML_PAGES.includes(url.pathname) || url.pathname === '/';
 
-  if (isHTML) {
+  if (isHTMLRequest(e.request, url)) {
     // Network first for HTML — always get fresh auth-aware pages
     e.respondWith(
       fetch(e.request)

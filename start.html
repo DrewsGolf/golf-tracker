@@ -367,7 +367,30 @@ function resetSearch() {
 
 // ── Start round ───────────────────────────────────────────────────────────────
 function startRound() {
-  // Save chosen course to localStorage so round.html can read it
+  // Check handicap if Net or Stableford selected
+  if (selectedMode === 'net' || selectedMode === 'stableford') {
+    const hcp = localStorage.getItem('golf-handicap');
+    const hcpVal = hcp ? JSON.parse(hcp).value : null;
+    if (!hcpVal && hcpVal !== 0) {
+      showDialog({
+        icon: '&#9888;',
+        title: 'Handicap Not Set',
+        sub: selectedMode === 'stableford'
+          ? 'Stableford scoring requires your handicap. Please set it in Settings before starting.'
+          : 'Net scoring requires your handicap. Please set it in Settings before starting.',
+        buttons: [
+          { label: 'Go to Settings', style: 'primary', action: () => window.location.href = 'settings.html' },
+          { label: 'Play Gross instead', style: 'secondary', action: () => { selectedMode = 'gross'; localStorage.setItem('golf-scoring-mode','gross'); proceedToRound(); } },
+          { label: 'Continue anyway', style: 'secondary', action: proceedToRound }
+        ]
+      });
+      return;
+    }
+  }
+  proceedToRound();
+}
+
+function proceedToRound() {
   if (chosenCourse) {
     localStorage.setItem('golf-current-course', JSON.stringify({
       name: chosenCourse.name,
@@ -377,7 +400,6 @@ function startRound() {
   } else {
     localStorage.removeItem('golf-current-course');
   }
-  // Save holes and scoring mode
   localStorage.setItem('golf-holes', selectedHoles);
   localStorage.setItem('golf-scoring-mode', selectedMode);
 
@@ -387,6 +409,22 @@ function startRound() {
   }
   setTimeout(() => { window.location.href = 'round.html'; }, 900);
 }
+
+function showDialog(opts) {
+  document.getElementById('dialog-icon').innerHTML    = opts.icon  || '';
+  document.getElementById('dialog-title').textContent = opts.title || '';
+  document.getElementById('dialog-sub').textContent   = opts.sub   || '';
+  document.getElementById('dialog-actions').innerHTML = opts.buttons.map((b,i) =>
+    '<button style="display:flex;align-items:center;justify-content:center;width:100%;padding:15px;border-radius:14px;border:none;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;margin-bottom:8px;' +
+    (b.style==='primary' ? 'background:#C8A96A;color:#0D0D0D;' : 'background:rgba(28,28,28,0.85);color:#9A9A9A;border:0.5px solid rgba(200,169,106,0.15);') +
+    '" onclick="dialogAction('+i+')">' + b.label + '</button>'
+  ).join('');
+  window._dialogActions = opts.buttons.map(b => b.action);
+  document.getElementById('dialog-overlay').style.display = 'flex';
+}
+function dialogAction(i) { closeDialog(); window._dialogActions?.[i]?.(); }
+function closeDialogOutside(e) { if (e.target===document.getElementById('dialog-overlay')) closeDialog(); }
+function closeDialog() { document.getElementById('dialog-overlay').style.display = 'none'; }
 
 function showToast(msg) {
   const t = document.getElementById('toast');
@@ -432,5 +470,15 @@ function closeDrawer(){primary.classList.remove('raised');secondary.classList.re
   } catch(e) {}
 })();
 </script>
+<!-- Dialog -->
+<div id="dialog-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:400;align-items:flex-end;justify-content:center;" onclick="closeDialogOutside(event)">
+  <div style="background:#1C1C1C;border-top:0.5px solid rgba(200,169,106,0.2);border-radius:22px 22px 0 0;padding:8px 16px calc(env(safe-area-inset-bottom,0px)+16px);width:100%;max-width:430px;" onclick="event.stopPropagation()">
+    <div style="width:36px;height:4px;background:rgba(200,169,106,0.25);border-radius:2px;margin:8px auto 16px;"></div>
+    <div id="dialog-icon" style="text-align:center;font-size:36px;margin-bottom:8px;"></div>
+    <div id="dialog-title" style="font-size:18px;font-weight:700;text-align:center;color:#F2F2F2;margin-bottom:6px;"></div>
+    <div id="dialog-sub" style="font-size:14px;color:#BDBDBD;text-align:center;margin-bottom:20px;line-height:1.5;padding:0 8px;"></div>
+    <div id="dialog-actions"></div>
+  </div>
+</div>
 </body>
 </html>

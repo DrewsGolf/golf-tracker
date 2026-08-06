@@ -103,14 +103,16 @@
   .nav-secondary.open { transform: translateY(0); }
   .nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 10px 4px 6px; cursor: pointer; text-decoration: none; background: none; border: none; -webkit-tap-highlight-color: transparent; transition: opacity 0.15s; }
   .nav-item:active { opacity: 0.7; }
-  .nav-item img { width: 56px; height: 56px; object-fit: contain; display: block; }
+  .nav-item img { width: 70px; height: 70px; object-fit: contain; display: block; }
   .nav-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); opacity: 0; pointer-events: none; transition: opacity 350ms ease; z-index: 90; }
   .nav-overlay.open { opacity: 1; pointer-events: auto; }
   /* Auth badge */
-  .header-auth-badge { position: absolute; top: 10px; right: 14px; display: none; align-items: center; gap: 6px; background: rgba(13,13,13,0.6); backdrop-filter: blur(6px); border: 0.5px solid rgba(200,169,106,0.2); border-radius: 20px; padding: 5px 10px 5px 8px; z-index: 20; }
-  .header-auth-badge.visible { display: flex; }
-  .header-auth-dot { width: 8px; height: 8px; border-radius: 50%; background: #2ecc71; flex-shrink: 0; }
-  .header-auth-email { font-size: 11px; font-weight: 500; color: var(--gold); white-space: nowrap; }
+  /* Scoring options */
+  .options-card { background: rgba(28,28,28,0.85); border: 0.5px solid rgba(200,169,106,0.15); border-radius: var(--radius); backdrop-filter: blur(8px); padding: 14px 16px; margin-bottom: 12px; }
+  .options-label { font-size: 10px; font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 10px; }
+  .options-toggle { display: flex; background: rgba(13,13,13,0.5); border-radius: 10px; border: 0.5px solid rgba(200,169,106,0.2); overflow: hidden; }
+  .options-toggle button { flex: 1; background: none; border: none; padding: 10px 6px; font-size: 14px; font-weight: 500; color: var(--text-muted); cursor: pointer; font-family: inherit; transition: background 0.15s, color 0.15s; }
+  .options-toggle button.active { background: var(--gold); color: #0D0D0D; }
 </style>
 </head>
 <body>
@@ -315,8 +317,41 @@ function selectCourse(course) {
       '<div class="selected-detail">' + (course.suburb ? '&#128205; ' + course.suburb : '') + (course.access && course.access !== 'Unknown' ? ' &nbsp;·&nbsp; ' + course.access : '') + '</div>' +
       '<span class="selected-change" onclick="resetSearch()">&#8592; Change course</span>' +
     '</div>' +
-    '<button class="btn-start" onclick="startRound()">&#9971; Start Round</button>' +
-    '<button class="btn-skip" onclick="startRound()">Continue without a course</button>';
+    '<div class="options-card">' +
+      '<div class="options-label">Holes</div>' +
+      '<div class="options-toggle" id="holes-toggle">' +
+        '<button class="active" onclick="setHoles(9, this)">9 Holes</button>' +
+        '<button class="active" onclick="setHoles(18, this)">18 Holes</button>' +
+      '</div>' +
+    '</div>' +
+    '<div class="options-card">' +
+      '<div class="options-label">Scoring Mode</div>' +
+      '<div class="options-toggle" id="mode-toggle">' +
+        '<button class="active" onclick="setMode(\'gross\', this)">Gross</button>' +
+        '<button onclick="setMode(\'net\', this)">Net</button>' +
+        '<button onclick="setMode(\'stableford\', this)">Stableford</button>' +
+      '</div>' +
+    '</div>' +
+    '<button class="btn-start" onclick="startRound()">&#9971; Start Round</button>';
+
+  // Set defaults
+  setHoles(18, document.querySelectorAll('#holes-toggle button')[1]);
+  setMode('gross', document.querySelectorAll('#mode-toggle button')[0]);
+}
+
+let selectedHoles = 18;
+let selectedMode  = 'gross';
+
+function setHoles(n, btn) {
+  selectedHoles = n;
+  document.querySelectorAll('#holes-toggle button').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+}
+
+function setMode(mode, btn) {
+  selectedMode = mode;
+  document.querySelectorAll('#mode-toggle button').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
 }
 
 function resetSearch() {
@@ -336,11 +371,15 @@ function startRound() {
   } else {
     localStorage.removeItem('golf-current-course');
   }
+  // Save holes and scoring mode
+  localStorage.setItem('golf-holes', selectedHoles);
+  localStorage.setItem('golf-scoring-mode', selectedMode);
+
   if (localStorage.getItem('golf-sound-enabled') !== 'false') {
     swingSound.currentTime = 0;
-    swingSound.play().catch(() => {}); // attempt playback; don't let a rejected promise block navigation timing
+    swingSound.play().catch(() => {});
   }
-  setTimeout(() => { window.location.href = 'round.html'; }, 900); // fixed head start so the sound has time to play regardless of promise state
+  setTimeout(() => { window.location.href = 'round.html'; }, 900);
 }
 
 function showToast(msg) {
@@ -350,19 +389,26 @@ function showToast(msg) {
 }
 </script>
 <!-- NAV -->
-  <!-- Nav shell -->
-  <div class="nav-shell">
-    <div class="nav-row">
-      <a class="nav-item" href="find.html"><img src="icons/Courses.png" alt="Courses"></a>
-      <a class="nav-item" id="nav-play" href="start.html"><img src="icons/Play.png" alt="Play"></a>
-      <a class="nav-item" href="distance.html"><img src="icons/Distance.png" alt="Distance"></a>
-      <a class="nav-item" href="suggest.html"><img src="icons/Suggest.png" alt="Suggest"></a>
-      <a class="nav-item" href="history.html"><img src="icons/History.png" alt="History"></a>
-    </div>
+<div class="nav-overlay" id="nav-overlay" onclick="closeDrawer()"></div>
+<div class="nav-shell">
+  <div class="nav-row nav-primary" id="nav-primary">
+    <a class="nav-item" href="index.html"><img src="Home_2.png" alt="Home"></a>
+    <a class="nav-item" href="start.html"><img src="Play_2.png" alt="Play"></a>
+    <a class="nav-item" href="range.html"><img src="Range_2.png" alt="Range"></a>
+    <button class="nav-item" id="btn-more" onclick="openDrawer()"><img src="More.png" alt="More" id="icon-more"></button>
   </div>
+  <div class="nav-row nav-secondary" id="nav-secondary">
+    <a class="nav-item" href="history.html"><img src="History_2.png" alt="History"></a>
+    <a class="nav-item" href="clubs.html"><img src="Clubs_2.png" alt="Clubs"></a>
+    <a class="nav-item" href="suggest.html"><img src="Suggets_2.png" alt="Suggest"></a>
+    <button class="nav-item" onclick="closeDrawer()"><img src="Back.png" alt="Back"></button>
+  </div>
+</div>
 </div><!-- end .app -->
 <script>
-
+const primary=document.getElementById('nav-primary'),secondary=document.getElementById('nav-secondary'),overlay=document.getElementById('nav-overlay'),btnMore=document.getElementById('btn-more'),iconMore=document.getElementById('icon-more');
+function openDrawer(){primary.classList.add('raised');secondary.classList.add('open');overlay.classList.add('open');iconMore.src='Courses_2.png';iconMore.alt='Courses';btnMore.onclick=()=>window.location.href='find.html';}
+function closeDrawer(){primary.classList.remove('raised');secondary.classList.remove('open');overlay.classList.remove('open');iconMore.src='More.png';iconMore.alt='More';btnMore.onclick=openDrawer;}
 
 // ── Auth badge ────────────────────────────────────────────────────────────────
 (function() {

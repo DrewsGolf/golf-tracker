@@ -487,13 +487,17 @@ function updatePuttsDisplay() {
 
 // ── Save hole & next ──────────────────────────────────────────────────────────
 function saveHole() {
-  // If score not explicitly set, use par as the default (since display shows par)
-  if (holeScores[currentHole] === undefined) {
-    const par = holePars[currentHole];
-    if (!par) { showDialog({ icon: '&#9971;', title: 'No Score Entered', sub: 'Please enter a score before saving this hole.', buttons: [{ label: 'OK', style: 'primary', action: () => {} }] }); return; }
-    holeScores[currentHole] = par;
+  // Resolve the score — use explicitly set score, or fall back to displayed default (par)
+  let score = holeScores[currentHole];
+  if (score === undefined || score === null) {
+    score = currentDefault(); // returns par if set, else 0
   }
-  if ((holeScores[currentHole] || 0) === 0) { showDialog({ icon: '&#9971;', title: 'No Score Entered', sub: 'Please enter a score before saving this hole.', buttons: [{ label: 'OK', style: 'primary', action: () => {} }] }); return; }
+  if (!score || score === 0) {
+    showDialog({ icon: '&#9971;', title: 'No Score Entered', sub: 'Please enter a score before saving this hole.', buttons: [{ label: 'OK', style: 'primary', action: () => {} }] });
+    return;
+  }
+  // Commit the score to state
+  holeScores[currentHole] = score;
   persist();
   if (localStorage.getItem('golf-sound-enabled') !== 'false') {
     putSound.currentTime = 0;

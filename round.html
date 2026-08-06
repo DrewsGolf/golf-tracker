@@ -250,7 +250,7 @@
     <div class="screen" id="screen-scorecard">
       <div class="score-table-wrap">
         <table class="score-table">
-          <thead><tr><th>Hole</th><th></th><th>Par</th><th>Shots</th><th>+/-</th><th>Putts</th></tr></thead>
+          <thead><tr><th>Hole</th><th></th><th>Par</th><th>SI</th><th>Shots</th><th>+/-</th><th>Putts</th></tr></thead>
           <tbody id="scorecard-body"></tbody>
         </table>
       </div>
@@ -713,6 +713,7 @@ function renderScorecard() {
     const score = holeScores[h] || shots.filter(s=>s.hole===h).length;
     if (score > 0) {
       const par   = holePars[h];
+      const si    = holeStrokeIndex[h] || null;
       const putts = holePutts[h] || 0;
       const diff  = par ? score - par : null;
       const ds    = diff===null ? '&#8212;' : (diff===0?'E':(diff>0?'+'+diff:diff));
@@ -720,17 +721,18 @@ function renderScorecard() {
       rows.push('<tr><td>'+h+'</td>' +
         '<td style="text-align:center;padding:4px 6px;">'+scoreIcon(score,par)+'</td>' +
         '<td><input class="sc-input" type="number" min="3" max="5" inputmode="numeric" value="'+(par||'')+'" placeholder="&#8211;" onchange="scSavePar('+h+',this.value)"></td>' +
+        '<td style="color:var(--text-muted);font-size:13px;">'+(si||'&#8212;')+'</td>' +
         '<td><input class="sc-input" type="number" min="1" max="30" inputmode="numeric" value="'+score+'" onchange="scSaveScore('+h+',this.value)"></td>' +
         '<td>'+ds+'</td>' +
         '<td>'+(putts||'&#8212;')+'</td></tr>');
     }
   }
-  if (!rows.length) { tbody.innerHTML='<tr><td colspan="6" style="text-align:center;color:var(--text-muted);padding:24px">No scores yet</td></tr>'; return; }
+  if (!rows.length) { tbody.innerHTML='<tr><td colspan="7" style="text-align:center;color:var(--text-muted);padding:24px">No scores yet</td></tr>'; return; }
   const tdiff=tp?ts-tp:null;
   const tds=tdiff===null?'&#8212;':(tdiff===0?'E':(tdiff>0?'+'+tdiff:tdiff));
   tbody.innerHTML = rows.join('') +
-    '<tr><td style="padding-left:14px;">Total</td><td></td><td>'+(tp||'&#8212;')+'</td><td>'+ts+'</td><td>'+tds+'</td><td>'+(tputts||'&#8212;')+'</td></tr>' +
-    '<tr><td colspan="6" style="padding:10px 14px;"><button class="sc-save-btn" style="width:100%;" onclick="scSaveAll()">Save</button></td></tr>';
+    '<tr><td style="padding-left:14px;">Total</td><td></td><td>'+(tp||'&#8212;')+'</td><td></td><td>'+ts+'</td><td>'+tds+'</td><td>'+(tputts||'&#8212;')+'</td></tr>' +
+    '<tr><td colspan="7" style="padding:10px 14px;"><button class="sc-save-btn" style="width:100%;" onclick="scSaveAll()">Save</button></td></tr>';
 }
 
 function scSavePar(hole,val) {

@@ -643,7 +643,10 @@ function renderSummary() {
     const puttHoles  = played.filter(h => holePutts[h] > 0);
     const totalPutts = played.reduce((a,h) => a + (holePutts[h]||0), 0);
     const avgPutts   = puttHoles.length ? (totalPutts / puttHoles.length).toFixed(1) : null;
-    return { played: played.length, shots, totalPar: parHoles.length ? totalPar : null, overPar, avgOverPar, totalPutts, avgPutts };
+    const stablefordPts = handicapIndex !== null
+      ? played.reduce((a,h) => { const p = stablefordPoints(h); return p !== null ? a + p : a; }, 0)
+      : null;
+    return { played: played.length, shots, totalPar: parHoles.length ? totalPar : null, overPar, avgOverPar, totalPutts, avgPutts, stablefordPts };
   }
 
   function overParStr(v) {
@@ -689,6 +692,7 @@ function renderSummary() {
       '</div>' +
       '<div class="sum-footer"><span class="sum-footer-label">Avg shots over par / hole</span><span class="sum-footer-val" style="' + overParCol(d.overPar) + '">' + avgOverStr(d.avgOverPar) + '</span></div>' +
       (d.avgPutts ? '<div class="sum-footer" style="border-top:0.5px solid rgba(200,169,106,0.08);"><span class="sum-footer-label">Avg putts per hole</span><span class="sum-footer-val">' + d.avgPutts + '</span></div>' : '') +
+      (d.stablefordPts !== null ? '<div class="sum-footer" style="border-top:0.5px solid rgba(200,169,106,0.08);"><span class="sum-footer-label">Stableford points</span><span class="sum-footer-val" style="color:var(--gold);">' + d.stablefordPts + '</span></div>' : '') +
       '</div>';
   }
 

@@ -309,7 +309,7 @@ let currentCourse = JSON.parse(localStorage.getItem('golf-current-course') || 'n
 const scoringMode   = localStorage.getItem('golf-scoring-mode') || 'gross';
 const hcpStored     = localStorage.getItem('golf-handicap');
 const handicapIndex = hcpStored ? parseFloat(JSON.parse(hcpStored).value) : null;
-let   scorecardView = 'gross';
+let   scorecardView = localStorage.getItem('golf-scorecard-view') || 'gross';
 
 function calcPlayingHandicap() {
   if (handicapIndex === null || isNaN(handicapIndex)) return null;
@@ -364,7 +364,7 @@ function showTab(t) {
     document.getElementById('tab-'+id).classList.toggle('active', id===t);
   });
   if (t==='summary') renderSummary();
-  if (t==='scorecard') renderScorecard();
+  if (t==='scorecard') { renderScorecard(); setScorecardView(scorecardView); }
 }
 
 // ── New round ─────────────────────────────────────────────────────────────────
@@ -766,6 +766,7 @@ function scoreIcon(score, par) {
 
 function setScorecardView(view) {
   scorecardView = view;
+  localStorage.setItem('golf-scorecard-view', view);
   const gBtn = document.getElementById('sc-toggle-gross');
   const nBtn = document.getElementById('sc-toggle-net');
   if (gBtn && nBtn) {
@@ -794,7 +795,7 @@ function renderScorecard() {
       const siDot  = extras > 0 ? '<span style="color:var(--gold);font-size:10px;"> +'+extras+'</span>' : '';
       ts += displayScore; if(par) tp += par; tputts += putts;
       rows.push('<tr><td>'+h+siDot+'</td>' +
-        '<td style="text-align:center;padding:4px 6px;">'+scoreIcon(score,par)+'</td>' +
+        '<td style="text-align:center;padding:4px 6px;">'+scoreIcon(displayScore,par)+'</td>' +
         '<td><input class="sc-input" type="number" min="3" max="5" inputmode="numeric" value="'+(par||'')+'" placeholder="&#8211;" onchange="scSavePar('+h+',this.value)"></td>' +
         '<td><input class="sc-input" type="number" min="1" max="30" inputmode="numeric" value="'+score+'" onchange="scSaveScore('+h+',this.value)"></td>' +
         '<td style="'+diffCol+'">'+ds+'</td>' +

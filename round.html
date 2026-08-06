@@ -252,7 +252,6 @@
         <button id="sc-toggle-gross" onclick="setScorecardView('gross')" style="flex:1;background:#C8A96A;color:#0D0D0D;border:none;padding:10px 6px;font-size:14px;font-weight:500;cursor:pointer;font-family:inherit;">Gross</button>
         <button id="sc-toggle-net"   onclick="setScorecardView('net')"   style="flex:1;background:none;color:var(--text-muted);border:none;padding:10px 6px;font-size:14px;font-weight:500;cursor:pointer;font-family:inherit;">Net</button>
       </div>
-      <div id="sc-debug" style="font-size:11px;color:var(--gold);padding:4px 8px;margin-bottom:6px;background:rgba(200,169,106,0.08);border-radius:6px;"></div>
       <div class="score-table-wrap">
         <table class="score-table">
           <thead><tr><th>Hole</th><th></th><th>Par</th><th>Shots</th><th>+/-</th><th>Putts</th></tr></thead>
@@ -783,10 +782,6 @@ function setScorecardView(view) {
 
 function renderScorecard() {
   const tbody = document.getElementById('scorecard-body');
-  const dbg   = document.getElementById('sc-debug');
-  const ph    = calcPlayingHandicap();
-  const siKeys = Object.keys(holeStrokeIndex).length;
-  if (dbg) dbg.textContent = 'View:' + scorecardView + ' | HCP:' + handicapIndex + ' | PlayingHCP:' + ph + ' | SI loaded:' + siKeys + ' holes | H1 extras:' + strokesOnHole(1);
   let ts=0, tp=0, tputts=0;
   const rows=[];
   for (let h=1; h<=18; h++) {

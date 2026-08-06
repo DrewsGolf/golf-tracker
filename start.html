@@ -320,25 +320,29 @@ function selectCourse(course) {
     '<div class="options-card">' +
       '<div class="options-label">Holes</div>' +
       '<div class="options-toggle" id="holes-toggle">' +
-        '<button class="active" onclick="setHoles(9, this)">9 Holes</button>' +
-        '<button class="active" onclick="setHoles(18, this)">18 Holes</button>' +
+        '<button onclick="setHoles(9, this)">9 Holes</button>' +
+        '<button onclick="setHoles(18, this)">18 Holes</button>' +
       '</div>' +
     '</div>' +
     '<div class="options-card">' +
       '<div class="options-label">Scoring Mode</div>' +
       '<div class="options-toggle" id="mode-toggle">' +
-        '<button class="active" onclick="setMode(\'gross\', this)">Gross</button>' +
+        '<button onclick="setMode(\'gross\', this)">Gross</button>' +
         '<button onclick="setMode(\'net\', this)">Net</button>' +
         '<button onclick="setMode(\'stableford\', this)">Stableford</button>' +
       '</div>' +
     '</div>' +
     '<button class="btn-start" onclick="startRound()">&#9971; Start Round</button>';
 
-  // Set defaults after DOM updates
+  // Set defaults — 18 holes, Gross
+  selectedHoles = 18;
+  selectedMode  = 'gross';
   setTimeout(() => {
-    setHoles(18, document.querySelectorAll('#holes-toggle button')[1]);
-    setMode('gross', document.querySelectorAll('#mode-toggle button')[0]);
-  }, 0);
+    const hBtns = document.querySelectorAll('#holes-toggle button');
+    const mBtns = document.querySelectorAll('#mode-toggle button');
+    if (hBtns.length) { hBtns.forEach(b => b.classList.remove('active')); hBtns[1].classList.add('active'); }
+    if (mBtns.length) { mBtns.forEach(b => b.classList.remove('active')); mBtns[0].classList.add('active'); }
+  }, 50);
 }
 
 let selectedHoles = 18;

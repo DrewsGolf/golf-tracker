@@ -145,7 +145,7 @@
   .dialog-btn-secondary { background: rgba(28,28,28,0.85); color: var(--text-muted); border: 0.5px solid var(--border); }
 
   /* Toast */
-  #toast { position: fixed; bottom: calc(var(--safe-bottom) + 120px); left: 50%; transform: translateX(-50%) translateY(20px); background: rgba(28,28,28,0.95); color: var(--text-primary); border: 0.5px solid var(--border); padding: 10px 20px; border-radius: 100px; font-size: 13px; font-weight: 500; opacity: 0; transition: opacity 0.25s, transform 0.25s; pointer-events: none; white-space: nowrap; z-index: 999; }
+  #toast { position: fixed; bottom: calc(var(--safe-bottom) + 120px); left: 50%; transform: translateX(-50%) translateY(20px); background: rgba(28,28,28,0.97); color: var(--gold); border: 0.5px solid rgba(200,169,106,0.4); padding: 12px 24px; border-radius: 14px; font-size: 14px; font-weight: 500; letter-spacing: 0.03em; opacity: 0; transition: opacity 0.3s, transform 0.3s; pointer-events: none; white-space: nowrap; z-index: 999; backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); box-shadow: 0 4px 24px rgba(0,0,0,0.4); }
   #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 
   /* Bottom nav */
@@ -250,7 +250,7 @@
     <div class="screen" id="screen-scorecard">
       <div class="score-table-wrap">
         <table class="score-table">
-          <thead><tr><th>Hole</th><th></th><th>Par</th><th>SI</th><th>Shots</th><th>+/-</th><th>Putts</th></tr></thead>
+          <thead><tr><th>Hole</th><th></th><th>Par</th><th>Shots</th><th>+/-</th><th>Putts</th></tr></thead>
           <tbody id="scorecard-body"></tbody>
         </table>
       </div>
@@ -487,7 +487,13 @@ function updatePuttsDisplay() {
 
 // ── Save hole & next ──────────────────────────────────────────────────────────
 function saveHole() {
-  if ((holeScores[currentHole] || 0) === 0) { showToast('Enter a score first'); return; }
+  // If score not explicitly set, use par as the default (since display shows par)
+  if (holeScores[currentHole] === undefined) {
+    const par = holePars[currentHole];
+    if (!par) { showDialog({ icon: '&#9971;', title: 'No Score Entered', sub: 'Please enter a score before saving this hole.', buttons: [{ label: 'OK', style: 'primary', action: () => {} }] }); return; }
+    holeScores[currentHole] = par;
+  }
+  if ((holeScores[currentHole] || 0) === 0) { showDialog({ icon: '&#9971;', title: 'No Score Entered', sub: 'Please enter a score before saving this hole.', buttons: [{ label: 'OK', style: 'primary', action: () => {} }] }); return; }
   persist();
   if (localStorage.getItem('golf-sound-enabled') !== 'false') {
     putSound.currentTime = 0;
@@ -527,7 +533,7 @@ function updateFinishBtn() {
 
 function finishRound() {
   const count = Object.keys(holeScores).filter(h => holeScores[h] > 0).length;
-  if (!count) { showToast('No scores to save'); return; }
+  if (!count) { showDialog({ icon: '&#9971;', title: 'No Scores Yet', sub: 'Play at least one hole before finishing the round.', buttons: [{ label: 'OK', style: 'primary', action: () => {} }] }); return; }
   showDialog({
     icon: '&#127942;',
     title: 'Finish & Save Round?',
@@ -714,7 +720,6 @@ function renderScorecard() {
     const score = holeScores[h] || shots.filter(s=>s.hole===h).length;
     if (score > 0) {
       const par   = holePars[h];
-      const si    = holeStrokeIndex[h] || null;
       const putts = holePutts[h] || 0;
       const diff  = par ? score - par : null;
       const ds    = diff===null ? '&#8212;' : (diff===0?'E':(diff>0?'+'+diff:diff));
@@ -722,18 +727,17 @@ function renderScorecard() {
       rows.push('<tr><td>'+h+'</td>' +
         '<td style="text-align:center;padding:4px 6px;">'+scoreIcon(score,par)+'</td>' +
         '<td><input class="sc-input" type="number" min="3" max="5" inputmode="numeric" value="'+(par||'')+'" placeholder="&#8211;" onchange="scSavePar('+h+',this.value)"></td>' +
-        '<td style="color:var(--text-muted);font-size:13px;">'+(si||'&#8212;')+'</td>' +
         '<td><input class="sc-input" type="number" min="1" max="30" inputmode="numeric" value="'+score+'" onchange="scSaveScore('+h+',this.value)"></td>' +
         '<td>'+ds+'</td>' +
         '<td>'+(putts||'&#8212;')+'</td></tr>');
     }
   }
-  if (!rows.length) { tbody.innerHTML='<tr><td colspan="7" style="text-align:center;color:var(--text-muted);padding:24px">No scores yet</td></tr>'; return; }
+  if (!rows.length) { tbody.innerHTML='<tr><td colspan="6" style="text-align:center;color:var(--text-muted);padding:24px">No scores yet</td></tr>'; return; }
   const tdiff=tp?ts-tp:null;
   const tds=tdiff===null?'&#8212;':(tdiff===0?'E':(tdiff>0?'+'+tdiff:tdiff));
   tbody.innerHTML = rows.join('') +
-    '<tr><td style="padding-left:14px;">Total</td><td></td><td>'+(tp||'&#8212;')+'</td><td></td><td>'+ts+'</td><td>'+tds+'</td><td>'+(tputts||'&#8212;')+'</td></tr>' +
-    '<tr><td colspan="7" style="padding:10px 14px;"><button class="sc-save-btn" style="width:100%;" onclick="scSaveAll()">Save</button></td></tr>';
+    '<tr><td style="padding-left:14px;">Total</td><td></td><td>'+(tp||'&#8212;')+'</td><td>'+ts+'</td><td>'+tds+'</td><td>'+(tputts||'&#8212;')+'</td></tr>' +
+    '<tr><td colspan="6" style="padding:10px 14px;"><button class="sc-save-btn" style="width:100%;" onclick="scSaveAll()">Save</button></td></tr>';
 }
 
 function scSavePar(hole,val) {

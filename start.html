@@ -334,9 +334,11 @@ function selectCourse(course) {
     '</div>' +
     '<button class="btn-start" onclick="startRound()">&#9971; Start Round</button>';
 
-  // Set defaults
-  setHoles(18, document.querySelectorAll('#holes-toggle button')[1]);
-  setMode('gross', document.querySelectorAll('#mode-toggle button')[0]);
+  // Set defaults after DOM updates
+  setTimeout(() => {
+    setHoles(18, document.querySelectorAll('#holes-toggle button')[1]);
+    setMode('gross', document.querySelectorAll('#mode-toggle button')[0]);
+  }, 0);
 }
 
 let selectedHoles = 18;

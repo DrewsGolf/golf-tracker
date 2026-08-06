@@ -319,10 +319,12 @@ function calcPlayingHandicap() {
 
 function strokesOnHole(hole) {
   const ph = calcPlayingHandicap();
-  if (!ph || !holeStrokeIndex[hole]) return 0;
-  const si   = holeStrokeIndex[hole];
-  const base = Math.floor(ph / 18);
+  if (!ph) return 0;
+  const base  = Math.floor(ph / 18);
   const extra = ph % 18;
+  // If SI not loaded, just use base strokes (applies equally to all holes)
+  if (!holeStrokeIndex[hole]) return base;
+  const si = holeStrokeIndex[hole];
   return base + (si <= extra ? 1 : 0);
 }
 

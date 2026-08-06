@@ -248,6 +248,10 @@
 
     <!-- SCORECARD TAB -->
     <div class="screen" id="screen-scorecard">
+      <div style="display:flex;gap:0;background:rgba(13,13,13,0.5);border-radius:10px;border:0.5px solid rgba(200,169,106,0.2);overflow:hidden;margin-bottom:10px;">
+        <button id="sc-toggle-gross" onclick="setScorecardView('gross')" style="flex:1;background:#C8A96A;color:#0D0D0D;border:none;padding:10px 6px;font-size:14px;font-weight:500;cursor:pointer;font-family:inherit;">Gross</button>
+        <button id="sc-toggle-net"   onclick="setScorecardView('net')"   style="flex:1;background:none;color:var(--text-muted);border:none;padding:10px 6px;font-size:14px;font-weight:500;cursor:pointer;font-family:inherit;">Net</button>
+      </div>
       <div class="score-table-wrap">
         <table class="score-table">
           <thead><tr><th>Hole</th><th></th><th>Par</th><th>Shots</th><th>+/-</th><th>Putts</th></tr></thead>
@@ -300,6 +304,46 @@ let holePutts    = JSON.parse(localStorage.getItem('golf-putts-v1')   || '{}');
 // Legacy shot data — kept so Summary tab can show old shot-by-shot rounds
 let shots        = JSON.parse(localStorage.getItem('golf-shots-v3')  || '[]');
 let currentCourse = JSON.parse(localStorage.getItem('golf-current-course') || 'null');
+
+// ── Scoring mode & handicap ──────────────────────────────────────────────────
+const scoringMode   = localStorage.getItem('golf-scoring-mode') || 'gross';
+const hcpStored     = localStorage.getItem('golf-handicap');
+const handicapIndex = hcpStored ? parseFloat(JSON.parse(hcpStored).value) : null;
+let   scorecardView = 'gross';
+
+function calcPlayingHandicap() {
+  if (handicapIndex === null || isNaN(handicapIndex)) return null;
+  const slope = (currentCourse && currentCourse.slope) ? currentCourse.slope : 113;
+  return Math.round(handicapIndex * (slope / 113));
+}
+
+function strokesOnHole(hole) {
+  const ph = calcPlayingHandicap();
+  if (!ph || !holeStrokeIndex[hole]) return 0;
+  const si   = holeStrokeIndex[hole];
+  const base = Math.floor(ph / 18);
+  const extra = ph % 18;
+  return base + (si <= extra ? 1 : 0);
+}
+
+function netScore(hole) {
+  const gross = holeScores[hole];
+  if (!gross) return null;
+  return gross - strokesOnHole(hole);
+}
+
+function stablefordPoints(hole) {
+  const net = netScore(hole);
+  const par = holePars[hole];
+  if (net === null || !par) return null;
+  const diff = net - par;
+  if (diff >=  2) return 0;
+  if (diff ===  1) return 1;
+  if (diff ===  0) return 2;
+  if (diff === -1) return 3;
+  if (diff === -2) return 4;
+  return 5;
+}
 
 // ── Sounds ────────────────────────────────────────────────────────────────────
 const putSound = new Audio('sounds/put.wav');
@@ -720,6 +764,19 @@ function scoreIcon(score, par) {
   return src ? '<img src="' + src + '" style="width:31px;height:31px;object-fit:contain;display:block;margin:0 auto;" alt="">' : '';
 }
 
+function setScorecardView(view) {
+  scorecardView = view;
+  const gBtn = document.getElementById('sc-toggle-gross');
+  const nBtn = document.getElementById('sc-toggle-net');
+  if (gBtn && nBtn) {
+    gBtn.style.background = view === 'gross' ? '#C8A96A' : 'none';
+    gBtn.style.color      = view === 'gross' ? '#0D0D0D' : 'var(--text-muted)';
+    nBtn.style.background = view === 'net'   ? '#C8A96A' : 'none';
+    nBtn.style.color      = view === 'net'   ? '#0D0D0D' : 'var(--text-muted)';
+  }
+  renderScorecard();
+}
+
 function renderScorecard() {
   const tbody = document.getElementById('scorecard-body');
   let ts=0, tp=0, tputts=0;
@@ -727,16 +784,20 @@ function renderScorecard() {
   for (let h=1; h<=18; h++) {
     const score = holeScores[h] || shots.filter(s=>s.hole===h).length;
     if (score > 0) {
-      const par   = holePars[h];
-      const putts = holePutts[h] || 0;
-      const diff  = par ? score - par : null;
-      const ds    = diff===null ? '&#8212;' : (diff===0?'E':(diff>0?'+'+diff:diff));
-      ts += score; if(par) tp += par; tputts += putts;
-      rows.push('<tr><td>'+h+'</td>' +
+      const par    = holePars[h];
+      const putts  = holePutts[h] || 0;
+      const extras = strokesOnHole(h);
+      const displayScore = scorecardView === 'net' ? (score - extras) : score;
+      const diff   = par ? displayScore - par : null;
+      const ds     = diff===null ? '&#8212;' : (diff===0?'E':(diff>0?'+'+diff:diff));
+      const diffCol = diff===null?'':(diff>0?'color:#e74c3c':diff<0?'color:var(--gold)':'color:var(--text-muted)');
+      const siDot  = extras > 0 ? '<span style="color:var(--gold);font-size:10px;"> +'+extras+'</span>' : '';
+      ts += displayScore; if(par) tp += par; tputts += putts;
+      rows.push('<tr><td>'+h+siDot+'</td>' +
         '<td style="text-align:center;padding:4px 6px;">'+scoreIcon(score,par)+'</td>' +
         '<td><input class="sc-input" type="number" min="3" max="5" inputmode="numeric" value="'+(par||'')+'" placeholder="&#8211;" onchange="scSavePar('+h+',this.value)"></td>' +
         '<td><input class="sc-input" type="number" min="1" max="30" inputmode="numeric" value="'+score+'" onchange="scSaveScore('+h+',this.value)"></td>' +
-        '<td>'+ds+'</td>' +
+        '<td style="'+diffCol+'">'+ds+'</td>' +
         '<td>'+(putts||'&#8212;')+'</td></tr>');
     }
   }

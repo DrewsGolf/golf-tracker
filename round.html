@@ -353,8 +353,8 @@ function resetState() {
 // ── Load course par & stroke index from Supabase ─────────────────────────────
 async function loadCourseData() {
   if (!currentCourse || !currentCourse.name) return;
-  // Only load if we don't already have par data for this course
-  if (Object.keys(holePars).length > 0) return;
+  // Skip if we already have stroke index data loaded
+  if (Object.keys(holeStrokeIndex).length > 0) return;
   try {
     // Find the course in Supabase by name
     const { data: courses } = await sb
@@ -374,14 +374,15 @@ async function loadCourseData() {
       .eq('course_id', courseId)
       .order('hole');
     if (!holes || holes.length === 0) return;
-    // Pre-populate pars and stroke indexes
+    const parsAlreadySet = Object.keys(holePars).length > 0;
+    // Always load stroke index; only pre-fill pars if not already set
     holes.forEach(h => {
-      if (h.par)          holePars[h.hole]        = h.par;
+      if (h.par && !parsAlreadySet) holePars[h.hole] = h.par;
       if (h.stroke_index) holeStrokeIndex[h.hole] = h.stroke_index;
     });
     persist();
     renderRound();
-    showToast('Course data loaded — pars pre-filled');
+    showToast(parsAlreadySet ? 'Stroke index loaded' : 'Course data loaded \u2014 pars pre-filled');
   } catch(e) { console.error('Course data load error:', e); }
 }
 

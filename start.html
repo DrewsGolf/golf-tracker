@@ -370,20 +370,20 @@ function startRound() {
   // Check handicap if Net or Stableford selected
   if (selectedMode === 'net' || selectedMode === 'stableford') {
     const hcp = localStorage.getItem('golf-handicap');
-    const hcpVal = hcp ? JSON.parse(hcp).value : null;
-    if (!hcpVal && hcpVal !== 0) {
-      showDialog({
-        icon: '&#9888;',
-        title: 'Handicap Not Set',
-        sub: selectedMode === 'stableford'
-          ? 'Stableford scoring requires your handicap. Please set it in Settings before starting.'
-          : 'Net scoring requires your handicap. Please set it in Settings before starting.',
-        buttons: [
-          { label: 'Go to Settings', style: 'primary', action: () => window.location.href = 'settings.html' },
-          { label: 'Play Gross instead', style: 'secondary', action: () => { selectedMode = 'gross'; localStorage.setItem('golf-scoring-mode','gross'); proceedToRound(); } },
-          { label: 'Continue anyway', style: 'secondary', action: proceedToRound }
-        ]
-      });
+    let hcpVal = null;
+    try { hcpVal = hcp ? JSON.parse(hcp).value : null; } catch(e) { hcpVal = null; }
+    if (hcpVal === null || hcpVal === undefined || hcpVal === '') {
+      const overlay = document.getElementById('dialog-overlay');
+      overlay.style.display = 'flex';
+      document.getElementById('dialog-icon').innerHTML = '&#9888;';
+      document.getElementById('dialog-title').textContent = 'Handicap Not Set';
+      document.getElementById('dialog-sub').textContent = selectedMode === 'stableford'
+        ? 'Stableford scoring requires your handicap. Please set it in Settings before starting.'
+        : 'Net scoring requires your handicap. Please set it in Settings before starting.';
+      document.getElementById('dialog-actions').innerHTML =
+        '<button style="display:flex;align-items:center;justify-content:center;width:100%;padding:15px;border-radius:14px;border:none;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;margin-bottom:8px;background:#C8A96A;color:#0D0D0D;" onclick="closeDialog();window.location.href=\'settings.html\'">Go to Settings</button>' +
+        '<button style="display:flex;align-items:center;justify-content:center;width:100%;padding:15px;border-radius:14px;border:none;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;margin-bottom:8px;background:rgba(28,28,28,0.85);color:#9A9A9A;border:0.5px solid rgba(200,169,106,0.15);" onclick="closeDialog();selectedMode=\'gross\';proceedToRound()">Play Gross instead</button>' +
+        '<button style="display:flex;align-items:center;justify-content:center;width:100%;padding:15px;border-radius:14px;border:none;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;background:rgba(28,28,28,0.85);color:#9A9A9A;border:0.5px solid rgba(200,169,106,0.15);" onclick="closeDialog();proceedToRound()">Continue anyway</button>';
       return;
     }
   }

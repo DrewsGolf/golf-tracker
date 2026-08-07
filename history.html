@@ -370,6 +370,26 @@ let editingIndex = null;
 let selectedCourseSuburb = '';
 let addHoleCount = 18;
 
+// ── Course slope & stroke index — live from Supabase (courses/course_holes) ──
+const courseDataCache = {}; // key: lowercase trimmed course name -> { slope, si: {hole: stroke_index} } | null
+async function fetchCourseSlopeSI(courseName) {
+  if (!courseName) return null;
+  const key = courseName.trim().toLowerCase();
+  if (Object.prototype.hasOwnProperty.call(courseDataCache, key)) return courseDataCache[key];
+  try {
+    const { data: courses } = await sb.from('courses').select('id, slope').ilike('name', courseName.trim()).limit(1);
+    if (!courses || courses.length === 0) { courseDataCache[key] = null; return null; }
+    const courseId = courses[0].id;
+    const slope = courses[0].slope || 113;
+    const { data: holes } = await sb.from('course_holes').select('hole, stroke_index').eq('course_id', courseId).order('hole');
+    const si = {};
+    (holes || []).forEach(h => { if (h.stroke_index) si[h.hole] = h.stroke_index; });
+    const result = { slope, si };
+    courseDataCache[key] = result;
+    return result;
+  } catch(e) { console.error('Course slope/SI fetch error:', e); courseDataCache[key] = null; return null; }
+}
+
 // ── golf-course-pars store ────────────────────────────────────────────────────
 function getCourseParsStore() {
   return JSON.parse(localStorage.getItem('golf-course-pars') || '{}');
@@ -874,6 +894,12 @@ function showDetail(index) {
   window.scrollTo(0,0);
   renderHistoryScorecard(index);
 
+  // Fetch real slope + stroke index for this round's course (if not already cached),
+  // then re-render the scorecard with accurate Net figures once it lands.
+  fetchCourseSlopeSI(round.course).then(() => {
+    if (currentDetailIndex === index) renderHistoryScorecard(index);
+  });
+
   const sph = getShotsPerHole(round);
   const totalStrokes = getTotalStrokes(round);
   const totalPar = getTotalPar(round);
@@ -1029,22 +1055,23 @@ function renderHistoryScorecard(index) {
     const hcpStored = localStorage.getItem('golf-handicap');
     hcpIndex = hcpStored ? parseFloat(JSON.parse(hcpStored).value) : null;
   }
-  // Try to get slope from round's course data in Supabase cache, fallback to 113
-  const cachedCourses = JSON.parse(localStorage.getItem('golf-supabase-courses') || '{}');
-  const courseSlope = (round.course && cachedCourses[round.course]) ? cachedCourses[round.course].slope : 113;
+  // Try to get real slope from Supabase courses table (via courseDataCache), fallback to 113
+  const courseKey  = round.course ? round.course.trim().toLowerCase() : '';
+  const courseData = courseDataCache[courseKey];
+  const courseSlope = (courseData && courseData.slope) ? courseData.slope : 113;
   const playingHcp = hcpIndex ? Math.round(hcpIndex * (courseSlope / 113)) : null;
 
-  // Use stored stroke index if available, otherwise apply strokes evenly
+  // Use real per-hole stroke index from Supabase course_holes when available,
+  // otherwise fall back to any SI stored on the round itself, otherwise apply strokes evenly
   function historyExtras(h) {
     if (!playingHcp) return 0;
     const base  = Math.floor(playingHcp / 18);
     const extra = playingHcp % 18;
-    // If we have stroke index use it, otherwise just apply base strokes equally
-    if (round.holeStrokeIndex && round.holeStrokeIndex[h]) {
-      const si = round.holeStrokeIndex[h];
-      return base + (si <= extra ? 1 : 0);
-    }
-    // No SI available — just apply base strokes (equal across all holes)
+    const si = (courseData && courseData.si && courseData.si[h]) ? courseData.si[h]
+             : (round.holeStrokeIndex && round.holeStrokeIndex[h]) ? round.holeStrokeIndex[h]
+             : null;
+    if (si) return base + (si <= extra ? 1 : 0);
+    // No SI available anywhere — just apply base strokes (equal across all holes)
     return base;
   }
 

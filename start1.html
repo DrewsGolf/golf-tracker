@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#0D0D0D">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-192.svg">
+<title>Start Round</title>
+<script src="courses.js"></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap');
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  :root {
+    --green-dark: #C8A96A; --green-mid: #D9B878; --green-light: rgba(200,169,106,0.12); --green-pale: rgba(200,169,106,0.06);
+    --text-primary: #F2F2F2; --text-secondary: #BDBDBD; --text-muted: #9A9A9A;
+    --bg: #0D0D0D; --card: #1C1C1C; --border: rgba(200,169,106,0.15); --border-mid: rgba(200,169,106,0.25);
+    --gold: #C8A96A; --gold-muted: #9A7C47;
+    --radius: 14px; --radius-sm: 9px;
+    --safe-top: env(safe-area-inset-top, 0px); --safe-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  html, body { height: 100%; font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; background: var(--bg); color: var(--text-primary); overflow: hidden; }
+  .app { position: relative; width: 100%; height: 100%; max-width: 430px; margin: 0 auto; overflow: hidden; }
+  .content { padding: 20px 16px calc(var(--safe-bottom) + 110px); position: relative; z-index: 5; }
+  .hero { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 0; }
+  .hero-img { width: 100%; height: 100%; object-fit: cover; object-position: center; display: block; }
+  .hero-overlay { position: absolute; inset: 0; background: rgba(13,13,13,0.88); }
+
+  .topbar { background: transparent; border-bottom: 0.5px solid rgba(200,169,106,0.2); padding: calc(var(--safe-top) + 14px) 16px 14px; display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
+  .header-img-wrap { position: relative; z-index: 10; width: 100%; flex-shrink: 0; }
+  .header-img { width: 100%; height: auto; display: block; }
+  .topbar h1 { font-size: 13px; font-weight: 500; flex: 1; color: var(--text-muted); letter-spacing: 0.12em; text-transform: uppercase; }
+
+  .content { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; padding: 20px 16px calc(var(--safe-bottom) + 110px); }
+
+  /* Status card */
+  .status-card { background: rgba(28,28,28,0.85); border: 0.5px solid var(--border); border-radius: var(--radius); padding: 20px; text-align: center; margin-bottom: 16px; backdrop-filter: blur(8px); }
+  .status-icon { font-size: 40px; margin-bottom: 10px; display: block; }
+  .status-title { font-size: 17px; font-weight: 500; color: var(--text-primary); margin-bottom: 6px; }
+  .status-sub { font-size: 14px; color: var(--text-secondary); line-height: 1.5; }
+  .gps-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: var(--gold); margin-right: 6px; }
+  .gps-dot.pulse { animation: pulse 1.2s infinite; }
+  @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.5;transform:scale(1.4)} }
+
+  /* Suggested course card */
+  .suggest-card { background: rgba(200,169,106,0.08); border: 0.5px solid rgba(200,169,106,0.3); border-radius: var(--radius); padding: 16px; margin-bottom: 16px; backdrop-filter: blur(8px); }
+  .suggest-label { font-size: 11px; font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase; color: var(--gold-muted); margin-bottom: 8px; }
+  .suggest-name { font-size: 18px; font-weight: 300; color: var(--text-primary); margin-bottom: 4px; }
+  .suggest-detail { font-size: 13px; color: var(--text-secondary); margin-bottom: 12px; }
+  .suggest-btns { display: flex; gap: 8px; }
+  .suggest-btn-yes { flex: 2; padding: 13px; background: var(--gold); color: #0D0D0D; border: none; border-radius: var(--radius-sm); font-size: 14px; font-weight: 500; cursor: pointer; font-family: inherit; }
+  .suggest-btn-no { flex: 1; padding: 13px; background: rgba(28,28,28,0.85); color: var(--text-muted); border: 0.5px solid var(--border); border-radius: var(--radius-sm); font-size: 14px; font-weight: 500; cursor: pointer; font-family: inherit; }
+
+  /* Nearby list */
+  .nearby-label { font-size: 11px; font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase; color: var(--gold-muted); margin-bottom: 10px; }
+  .nearby-list { background: rgba(28,28,28,0.85); border: 0.5px solid var(--border); border-radius: var(--radius); overflow: hidden; margin-bottom: 16px; backdrop-filter: blur(8px); }
+  .nearby-row { display: flex; align-items: center; padding: 13px 16px; border-bottom: 0.5px solid var(--border); cursor: pointer; gap: 12px; transition: background 0.1s; }
+  .nearby-row:last-child { border-bottom: none; }
+  .nearby-row:active { background: rgba(200,169,106,0.06); }
+  .nearby-dist { background: rgba(200,169,106,0.15); color: var(--gold); border: 0.5px solid rgba(200,169,106,0.3); font-size: 11px; font-weight: 600; padding: 3px 8px; border-radius: 20px; white-space: nowrap; flex-shrink: 0; }
+  .nearby-info { flex: 1; }
+  .nearby-name { font-size: 14px; font-weight: 500; color: var(--text-primary); }
+  .nearby-suburb { font-size: 12px; color: var(--text-muted); margin-top: 1px; }
+  .nearby-arrow { color: var(--text-muted); font-size: 18px; }
+
+  /* Manual entry */
+  .manual-card { background: rgba(28,28,28,0.85); border: 0.5px solid var(--border); border-radius: var(--radius); padding: 16px; margin-bottom: 16px; backdrop-filter: blur(8px); }
+  .manual-label { font-size: 13px; font-weight: 600; color: var(--text-secondary); margin-bottom: 10px; }
+  .manual-input-row { display: flex; gap: 8px; }
+  .manual-input { flex: 1; border: 0.5px solid rgba(200,169,106,0.25); border-radius: var(--radius-sm); padding: 12px 14px; font-size: 15px; color: var(--text-primary); background: rgba(13,13,13,0.7); outline: none; font-family: inherit; }
+  .manual-input:focus { border-color: var(--gold); }
+  .manual-search-btn { background: var(--gold); color: #0D0D0D; border: none; border-radius: var(--radius-sm); padding: 12px 14px; font-size: 13px; font-weight: 500; cursor: pointer; white-space: nowrap; font-family: inherit; }
+
+  /* Selected course confirmation */
+  .selected-card { background: rgba(28,28,28,0.85); border: 1px solid var(--gold); border-radius: var(--radius); padding: 16px; margin-bottom: 16px; backdrop-filter: blur(8px); }
+  .selected-label { font-size: 11px; font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase; color: var(--gold-muted); margin-bottom: 6px; }
+  .selected-name { font-size: 18px; font-weight: 300; color: var(--text-primary); margin-bottom: 2px; }
+  .selected-detail { font-size: 13px; color: var(--text-secondary); }
+  .selected-change { font-size: 13px; color: var(--gold); font-weight: 500; cursor: pointer; margin-top: 10px; display: inline-block; }
+
+  /* Start button */
+  .btn-start { width: 100%; padding: 17px; background: var(--gold); color: #0D0D0D; border: none; border-radius: var(--radius); font-size: 17px; font-weight: 500; cursor: pointer; margin-bottom: 10px; font-family: inherit; letter-spacing: 0.04em; }
+  .btn-start:active { opacity: 0.85; }
+  .btn-skip { width: 100%; padding: 13px; background: transparent; color: var(--text-muted); border: none; font-size: 13px; cursor: pointer; font-family: inherit; }
+
+  /* Section divider */
+  .or-divider { text-align: center; font-size: 12px; color: var(--text-muted); margin: 4px 0 12px; position: relative; }
+  .or-divider::before, .or-divider::after { content: ''; position: absolute; top: 50%; width: 42%; height: 0.5px; background: rgba(200,169,106,0.2); }
+  .or-divider::before { left: 0; } .or-divider::after { right: 0; }
+
+  /* Toast */
+  #toast { position: fixed; bottom: calc(var(--safe-bottom) + 120px); left: 50%; transform: translateX(-50%) translateY(20px); background: rgba(28,28,28,0.95); color: var(--text-primary); border: 0.5px solid rgba(200,169,106,0.2); padding: 10px 20px; border-radius: 100px; font-size: 13px; font-weight: 500; opacity: 0; transition: opacity 0.25s, transform 0.25s; pointer-events: none; white-space: nowrap; z-index: 999; }
+  #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  /* ── Bottom nav ── */
+  .nav-shell { position: absolute; bottom: 0; left: 0; right: 0; z-index: 100; }
+  .nav-row { display: flex; background: rgba(13,13,13,0.95); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
+  /* Auth badge */
+  /* Scoring options */
+  .options-card { background: rgba(28,28,28,0.85); border: 0.5px solid rgba(200,169,106,0.15); border-radius: var(--radius); backdrop-filter: blur(8px); padding: 14px 16px; margin-bottom: 12px; }
+  .options-label { font-size: 10px; font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 10px; }
+  .options-toggle { display: flex; background: rgba(13,13,13,0.5); border-radius: 10px; border: 0.5px solid rgba(200,169,106,0.2); overflow: hidden; }
+  .options-toggle button { flex: 1; background: none; border: none; padding: 10px 6px; font-size: 14px; font-weight: 500; color: var(--text-muted); cursor: pointer; font-family: inherit; transition: background 0.15s, color 0.15s; }
+  .options-toggle button.active { background: var(--gold); color: #0D0D0D; }
+</style>
+</head>
+<body>
+<div class="app">
+<div class="hero">
+  <img class="hero-img" src="Back_ground_New.jpg" alt="">
+  <div class="hero-overlay"></div>
+</div>
+  <div class="header-img-wrap">
+    <div class="header-auth-badge" id="header-badge"><div class="header-auth-dot"></div><span class="header-auth-email" id="header-email"></span></div>
+    <img class="header-img" src="Header.webp" alt="Shot Tracker">
+  </div>
+  <div class="content" id="main-content">
+    <div class="status-card" id="status-card">
+      <span class="status-icon">📍</span>
+      <div class="status-title">Finding your course…</div>
+      <div class="status-sub"><span class="gps-dot pulse"></span>Getting your location</div>
+    </div>
+  </div>
+<div id="toast"></div>
+
+<script>
+let chosenCourse = null;
+
+// ── Sounds ────────────────────────────────────────────────────────────────────
+const swingSound = new Audio('sounds/golf_swing.wav');
+swingSound.preload = 'auto';
+swingSound.load();
+
+function haversine(lat1, lng1, lat2, lng2) {
+  const R = 6371000;
+  const f1 = lat1*Math.PI/180, f2 = lat2*Math.PI/180;
+  const df = (lat2-lat1)*Math.PI/180, dl = (lng2-lng1)*Math.PI/180;
+  const x = Math.sin(df/2)**2 + Math.cos(f1)*Math.cos(f2)*Math.sin(dl/2)**2;
+  return Math.round(2*R*Math.asin(Math.sqrt(x)));
+}
+
+function distKm(lat1, lng1, lat2, lng2) {
+  return haversine(lat1, lng1, lat2, lng2) / 1000;
+}
+
+function fmtDist(km) {
+  return km < 1 ? Math.round(km*1000)+'m' : km.toFixed(1)+'km';
+}
+
+// ── On load — get GPS ─────────────────────────────────────────────────────────
+window.addEventListener('load', () => {
+  if (!navigator.geolocation) { showManualOnly('GPS not available on this device'); return; }
+  navigator.geolocation.getCurrentPosition(pos => {
+    findNearby(pos.coords.latitude, pos.coords.longitude);
+  }, () => {
+    showManualOnly('Could not get your location — enter the course name below');
+  }, {enableHighAccuracy: true, timeout: 12000});
+});
+
+// ── Find nearby courses ───────────────────────────────────────────────────────
+function findNearby(lat, lng) {
+  // All courses with distance
+  const withDist = COURSES.map(c => ({...c, km: distKm(lat, lng, c.lat, c.lng)}))
+    .sort((a,b) => a.km - b.km);
+
+  const within3 = withDist.filter(c => c.km <= 3);
+  const within10 = withDist.filter(c => c.km <= 10);
+
+  if (within3.length > 0) {
+    // Suggest closest
+    showSuggestion(within3[0], within10);
+  } else if (within10.length > 0) {
+    // No match within 3km — show nearby list + manual
+    showNearbyList(within10, lat, lng);
+  } else {
+    // Nothing within 10km
+    showManualOnly('No courses found nearby — enter the course name below');
+  }
+}
+
+// ── Show suggestion ───────────────────────────────────────────────────────────
+function showSuggestion(course, nearby) {
+  const c = document.getElementById('main-content');
+  c.innerHTML =
+    '<div class="suggest-card">' +
+      '<div class="suggest-label">&#10003; Closest course found</div>' +
+      '<div class="suggest-name">' + course.name + '</div>' +
+      '<div class="suggest-detail">&#128205; ' + course.suburb + ' &nbsp;·&nbsp; ' + fmtDist(course.km) + ' away</div>' +
+      '<div class="suggest-btns">' +
+        '<button class="suggest-btn-yes" onclick="selectCourse(' + JSON.stringify(course).replace(/"/g,'&quot;') + ')">&#10003; Yes, that\'s it</button>' +
+        '<button class="suggest-btn-no" onclick="showNearbyFromSuggest()">No, find another</button>' +
+      '</div>' +
+    '</div>' +
+    manualEntryHTML();
+
+  // Store nearby for later
+  window._nearby = nearby;
+}
+
+function showNearbyFromSuggest() {
+  const c = document.getElementById('main-content');
+  c.innerHTML = nearbyListHTML(window._nearby) + manualEntryHTML();
+}
+
+// ── Show nearby list ──────────────────────────────────────────────────────────
+function showNearbyList(courses, lat, lng) {
+  window._nearby = courses;
+  const c = document.getElementById('main-content');
+  c.innerHTML =
+    '<div class="status-card" style="margin-bottom:16px;">' +
+      '<span class="status-icon">🔍</span>' +
+      '<div class="status-title">No course found within 3km</div>' +
+      '<div class="status-sub">Select from nearby courses or enter manually</div>' +
+    '</div>' +
+    nearbyListHTML(courses) +
+    manualEntryHTML();
+}
+
+function nearbyListHTML(courses) {
+  if (!courses || courses.length === 0) return '';
+  return '<div class="nearby-label">Courses within 10km</div>' +
+    '<div class="nearby-list">' +
+    courses.map(c =>
+      '<div class="nearby-row" onclick="selectCourse(' + JSON.stringify(c).replace(/"/g,'&quot;') + ')">' +
+        '<span class="nearby-dist">' + fmtDist(c.km) + '</span>' +
+        '<div class="nearby-info">' +
+          '<div class="nearby-name">' + c.name + '</div>' +
+          '<div class="nearby-suburb">' + c.suburb + ' &nbsp;·&nbsp; ' + c.access + '</div>' +
+        '</div>' +
+        '<span class="nearby-arrow">›</span>' +
+      '</div>'
+    ).join('') +
+    '</div>';
+}
+
+// ── Manual entry ──────────────────────────────────────────────────────────────
+function manualEntryHTML() {
+  return '<div class="or-divider">or enter manually</div>' +
+    '<div class="manual-card">' +
+      '<div class="manual-label">Type the course name</div>' +
+      '<div class="manual-input-row">' +
+        '<input class="manual-input" type="text" id="manual-input" placeholder="e.g. Royal Melbourne" autocomplete="off">' +
+        '<button class="manual-search-btn" onclick="searchManual()">Search</button>' +
+      '</div>' +
+      '<div id="manual-results" style="margin-top:10px;"></div>' +
+    '</div>';
+}
+
+function showManualOnly(msg) {
+  const c = document.getElementById('main-content');
+  c.innerHTML =
+    '<div class="status-card" style="margin-bottom:16px;">' +
+      '<span class="status-icon">📍</span>' +
+      '<div class="status-title">Course not found automatically</div>' +
+      '<div class="status-sub">' + msg + '</div>' +
+    '</div>' +
+    manualEntryHTML();
+}
+
+function searchManual() {
+  const val = document.getElementById('manual-input').value.trim().toLowerCase();
+  if (!val) return;
+  const matches = COURSES.filter(c =>
+    c.name.toLowerCase().includes(val) || c.suburb.toLowerCase().includes(val)
+  ).slice(0, 8);
+  const el = document.getElementById('manual-results');
+  if (matches.length === 0) {
+    el.innerHTML = '<div style="font-size:13px;color:var(--text-muted);padding:8px 0;">No matches found — you can still use the name you typed</div>' +
+      '<button style="width:100%;margin-top:8px;padding:12px;background:var(--green-dark);color:#fff;border:none;border-radius:9px;font-size:14px;font-weight:600;cursor:pointer;" ' +
+      'onclick="selectManual()">Use \'' + document.getElementById('manual-input').value.trim() + '\'</button>';
+    return;
+  }
+  el.innerHTML = '<div class="nearby-list">' +
+    matches.map(c =>
+      '<div class="nearby-row" onclick="selectCourse(' + JSON.stringify(c).replace(/"/g,'&quot;') + ')">' +
+        '<div class="nearby-info"><div class="nearby-name">' + c.name + '</div><div class="nearby-suburb">' + c.suburb + '</div></div>' +
+        '<span class="nearby-arrow">›</span>' +
+      '</div>'
+    ).join('') + '</div>';
+}
+
+function selectManual() {
+  const val = document.getElementById('manual-input').value.trim();
+  if (!val) { showToast('Please enter a course name'); return; }
+  selectCourse({name: val, suburb: '', access: 'Unknown', holes: 18, par: ''});
+}
+
+// Allow enter key
+document.addEventListener('keydown', e => {
+  if (e.key === 'Enter') {
+    const inp = document.getElementById('manual-input');
+    if (inp && document.activeElement === inp) searchManual();
+  }
+});
+
+// ── Select course ─────────────────────────────────────────────────────────────
+function selectCourse(course) {
+  chosenCourse = course;
+  const c = document.getElementById('main-content');
+  c.innerHTML =
+    '<div class="selected-card">' +
+      '<div class="selected-label">&#9971; Selected course</div>' +
+      '<div class="selected-name">' + course.name + '</div>' +
+      '<div class="selected-detail">' + (course.suburb ? '&#128205; ' + course.suburb : '') + (course.access && course.access !== 'Unknown' ? ' &nbsp;·&nbsp; ' + course.access : '') + '</div>' +
+      '<span class="selected-change" onclick="resetSearch()">&#8592; Change course</span>' +
+    '</div>' +
+    '<div class="options-card">' +
+      '<div class="options-label">Holes</div>' +
+      '<div class="options-toggle" id="holes-toggle">' +
+        '<button onclick="setHoles(9, this)">9 Holes</button>' +
+        '<button onclick="setHoles(18, this)">18 Holes</button>' +
+      '</div>' +
+    '</div>' +
+    '<div class="options-card">' +
+      '<div class="options-label">Scoring Mode</div>' +
+      '<div class="options-toggle" id="mode-toggle">' +
+        '<button onclick="setMode(\'gross\', this)">Gross</button>' +
+        '<button onclick="setMode(\'net\', this)">Net</button>' +
+        '<button onclick="setMode(\'stableford\', this)">Stableford</button>' +
+      '</div>' +
+    '</div>' +
+    '<button class="btn-start" onclick="startRound()">&#9971; Start Round</button>';
+
+  // Set defaults — 18 holes, Gross
+  selectedHoles = 18;
+  selectedMode  = 'gross';
+  setTimeout(() => {
+    const hBtns = document.querySelectorAll('#holes-toggle button');
+    const mBtns = document.querySelectorAll('#mode-toggle button');
+    if (hBtns.length) { hBtns.forEach(b => b.classList.remove('active')); hBtns[1].classList.add('active'); }
+    if (mBtns.length) { mBtns.forEach(b => b.classList.remove('active')); mBtns[0].classList.add('active'); }
+  }, 50);
+}
+
+let selectedHoles = 18;
+let selectedMode  = 'gross';
+
+function setHoles(n, btn) {
+  selectedHoles = n;
+  document.querySelectorAll('#holes-toggle button').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+}
+
+function setMode(mode, btn) {
+  selectedMode = mode;
+  document.querySelectorAll('#mode-toggle button').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+}
+
+function resetSearch() {
+  chosenCourse = null;
+  window.location.reload();
+}
+
+// ── Start round ───────────────────────────────────────────────────────────────
+function startRound() {
+  // Check handicap if Net or Stableford selected
+  if (selectedMode === 'net' || selectedMode === 'stableford') {
+    const hcp = localStorage.getItem('golf-handicap');
+    let hcpVal = null;
+    try { hcpVal = hcp ? JSON.parse(hcp).value : null; } catch(e) { hcpVal = null; }
+    if (hcpVal === null || hcpVal === undefined || hcpVal === '') {
+      const overlay = document.getElementById('dialog-overlay');
+      overlay.style.display = 'flex';
+      document.getElementById('dialog-icon').innerHTML = '&#9888;';
+      document.getElementById('dialog-title').textContent = 'Handicap Not Set';
+      document.getElementById('dialog-sub').textContent = selectedMode === 'stableford'
+        ? 'Stableford scoring requires your handicap. Please set it in Settings before starting.'
+        : 'Net scoring requires your handicap. Please set it in Settings before starting.';
+      document.getElementById('dialog-actions').innerHTML =
+        '<button style="display:flex;align-items:center;justify-content:center;width:100%;padding:15px;border-radius:14px;border:none;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;margin-bottom:8px;background:#C8A96A;color:#0D0D0D;" onclick="closeDialog();window.location.href=\'settings.html\'">Go to Settings</button>' +
+        '<button style="display:flex;align-items:center;justify-content:center;width:100%;padding:15px;border-radius:14px;border:none;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;margin-bottom:8px;background:rgba(28,28,28,0.85);color:#9A9A9A;border:0.5px solid rgba(200,169,106,0.15);" onclick="closeDialog();selectedMode=\'gross\';proceedToRound()">Play Gross instead</button>' +
+        '<button style="display:flex;align-items:center;justify-content:center;width:100%;padding:15px;border-radius:14px;border:none;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;background:rgba(28,28,28,0.85);color:#9A9A9A;border:0.5px solid rgba(200,169,106,0.15);" onclick="closeDialog();proceedToRound()">Continue anyway</button>';
+      return;
+    }
+  }
+  proceedToRound();
+}
+
+function proceedToRound() {
+  if (chosenCourse) {
+    localStorage.setItem('golf-current-course', JSON.stringify({
+      name: chosenCourse.name,
+      suburb: chosenCourse.suburb || '',
+      startedAt: new Date().toISOString()
+    }));
+  } else {
+    localStorage.removeItem('golf-current-course');
+  }
+  localStorage.setItem('golf-holes', selectedHoles);
+  localStorage.setItem('golf-scoring-mode', selectedMode);
+
+  if (localStorage.getItem('golf-sound-enabled') !== 'false') {
+    swingSound.currentTime = 0;
+    swingSound.play().catch(() => {});
+  }
+  setTimeout(() => { window.location.href = 'round.html'; }, 900);
+}
+
+function showDialog(opts) {
+  document.getElementById('dialog-icon').innerHTML    = opts.icon  || '';
+  document.getElementById('dialog-title').textContent = opts.title || '';
+  document.getElementById('dialog-sub').textContent   = opts.sub   || '';
+  document.getElementById('dialog-actions').innerHTML = opts.buttons.map((b,i) =>
+    '<button style="display:flex;align-items:center;justify-content:center;width:100%;padding:15px;border-radius:14px;border:none;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;margin-bottom:8px;' +
+    (b.style==='primary' ? 'background:#C8A96A;color:#0D0D0D;' : 'background:rgba(28,28,28,0.85);color:#9A9A9A;border:0.5px solid rgba(200,169,106,0.15);') +
+    '" onclick="dialogAction('+i+')">' + b.label + '</button>'
+  ).join('');
+  window._dialogActions = opts.buttons.map(b => b.action);
+  document.getElementById('dialog-overlay').style.display = 'flex';
+}
+function dialogAction(i) { closeDialog(); window._dialogActions?.[i]?.(); }
+function closeDialogOutside(e) { if (e.target===document.getElementById('dialog-overlay')) closeDialog(); }
+function closeDialog() { document.getElementById('dialog-overlay').style.display = 'none'; }
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2200);
+}
+</script>
+<!-- Nav (inside .app so position:absolute works) -->
+<div class="nav-shell">
+  <div class="nav-row">
+    <a class="nav-item" href="find.html"><img src="icons/Courses.png" alt="Courses"></a>
+    <a class="nav-item" id="nav-play" href="start.html"><img src="icons/Play.png" alt="Play"></a>
+    <a class="nav-item" href="distance.html"><img src="icons/Distance.png" alt="Distance"></a>
+    <a class="nav-item" href="suggest.html"><img src="icons/Suggest.png" alt="Suggest"></a>
+    <a class="nav-item" href="history.html"><img src="icons/History.png" alt="History"></a>
+  </div>
+</div>
+</div><!-- end .app -->
+
+<script>
+// ── Continue round ────────────────────────────────────────────────────────────
+(function() {
+  var scores = JSON.parse(localStorage.getItem('golf-scores-v1') || '{}');
+  var hole   = localStorage.getItem('golf-current-hole');
+  if (Object.keys(scores).length > 0 || (hole && parseInt(hole) > 1)) {
+    var el = document.getElementById('nav-play');
+    if (el) el.setAttribute('href', 'round.html');
+  }
+})();
+</script>
+</body>
+</html>

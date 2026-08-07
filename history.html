@@ -1008,14 +1008,23 @@ function renderHistoryScorecard(index) {
 
   const hcpStored  = localStorage.getItem('golf-handicap');
   const hcpIndex   = hcpStored ? parseFloat(JSON.parse(hcpStored).value) : null;
-  const playingHcp = hcpIndex ? Math.round(hcpIndex * (113 / 113)) : null;
+  // Try to get slope from round's course data in Supabase cache, fallback to 113
+  const cachedCourses = JSON.parse(localStorage.getItem('golf-supabase-courses') || '{}');
+  const courseSlope = (round.course && cachedCourses[round.course]) ? cachedCourses[round.course].slope : 113;
+  const playingHcp = hcpIndex ? Math.round(hcpIndex * (courseSlope / 113)) : null;
 
+  // Use stored stroke index if available, otherwise apply strokes evenly
   function historyExtras(h) {
-    if (!playingHcp || !round.holeStrokeIndex || !round.holeStrokeIndex[h]) return 0;
-    const si    = round.holeStrokeIndex[h];
+    if (!playingHcp) return 0;
     const base  = Math.floor(playingHcp / 18);
     const extra = playingHcp % 18;
-    return base + (si <= extra ? 1 : 0);
+    // If we have stroke index use it, otherwise just apply base strokes equally
+    if (round.holeStrokeIndex && round.holeStrokeIndex[h]) {
+      const si = round.holeStrokeIndex[h];
+      return base + (si <= extra ? 1 : 0);
+    }
+    // No SI available — just apply base strokes (equal across all holes)
+    return base;
   }
 
   const gActive = historyScView === 'gross';

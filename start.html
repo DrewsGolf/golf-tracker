@@ -95,7 +95,7 @@
   #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 
   /* ── Bottom nav ── */
-  .nav-shell { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 430px; z-index: 100; }
+  .nav-shell { position: absolute; bottom: 0; left: 0; right: 0; z-index: 100; }
   .nav-row { display: flex; background: rgba(13,13,13,0.95); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
   /* Auth badge */
   /* Scoring options */
@@ -423,7 +423,7 @@ function showToast(msg) {
   setTimeout(() => t.classList.remove('show'), 2200);
 }
 </script>
-<!-- Nav -->
+<!-- Nav (inside .app so position:absolute works) -->
 <div class="nav-shell">
   <div class="nav-row">
     <a class="nav-item" href="find.html"><img src="icons/Courses.png" alt="Courses"></a>
@@ -433,7 +433,7 @@ function showToast(msg) {
     <a class="nav-item" href="history.html"><img src="icons/History.png" alt="History"></a>
   </div>
 </div>
-
+</div><!-- end .app -->
 
 <script>
 // ── Continue round ────────────────────────────────────────────────────────────

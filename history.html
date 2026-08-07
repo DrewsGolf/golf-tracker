@@ -260,6 +260,10 @@
       <input class="form-input" id="f-date" type="date">
     </div>
     <div class="form-group">
+      <div class="form-label">Handicap on the day <span style="color:var(--text-muted);font-weight:400;text-transform:none;letter-spacing:0;">(optional)</span></div>
+      <input class="form-input" id="f-handicap" type="number" step="0.1" min="0" max="54" placeholder="Leave blank if unknown" inputmode="decimal">
+    </div>
+    <div class="form-group">
       <div class="holes-section-label">
         <span>Holes played</span>
         <div class="holes-toggle">
@@ -347,6 +351,7 @@ async function loadFromSupabase() {
       totalScore: r.total_score,
       totalPar:   r.total_par,
       scoreDiff:  r.score_diff,
+      handicapAtTime: (r.handicap_at_time !== undefined && r.handicap_at_time !== null) ? r.handicap_at_time : null,
       pars:       Object.fromEntries((r.hole_scores||[]).filter(h=>h.par != null).map(h=>[h.hole, h.par])),
       holeScores: Object.fromEntries((r.hole_scores||[]).filter(h=>h.score != null).map(h=>[h.hole, h.score])),
       holePutts:  Object.fromEntries((r.hole_scores||[]).filter(h=>h.putts != null).map(h=>[h.hole, h.putts])),
@@ -510,6 +515,7 @@ function openAddSheet() {
   const today = new Date().toISOString().split('T')[0];
   document.getElementById('f-date').value = today;
   document.getElementById('f-course').value = '';
+  document.getElementById('f-handicap').value = '';
   hideSuggestions();
   setHoles(18);
   openSheet('add-sheet');
@@ -531,6 +537,8 @@ function openEditSheet(index, e) {
   } else {
     document.getElementById('f-date').value = '';
   }
+  // Populate handicap-at-time if we have one stored for this round; otherwise leave blank
+  document.getElementById('f-handicap').value = (r.handicapAtTime !== undefined && r.handicapAtTime !== null) ? r.handicapAtTime : '';
   // Work out hole count and set toggle
   const sph = getShotsPerHole(r);
   const holeNums = Object.keys(sph).map(Number);
@@ -625,6 +633,8 @@ function hideSuggestions() {
 function saveManualRound() {
   const course = document.getElementById('f-course').value.trim();
   const dateVal = document.getElementById('f-date').value;
+  const hcpVal  = document.getElementById('f-handicap').value;
+  const handicapAtTime = (hcpVal !== '' && !isNaN(parseFloat(hcpVal))) ? parseFloat(hcpVal) : null;
 
   if (!course) { alert('Please enter a course name.'); return; }
   if (!dateVal) { alert('Please enter a date.'); return; }
@@ -656,6 +666,7 @@ function saveManualRound() {
     existing.holes = Object.keys(shotsPerHole).length;
     existing.shots = Object.values(shotsPerHole).reduce((a,b) => a+b, 0);
     existing.manual = existing.manual !== undefined ? existing.manual : true;
+    existing.handicapAtTime = handicapAtTime;
     saveHistory();
     if (existing.fromSupabase) saveRoundToSupabase(existing, pars, shotsPerHole, true);
   } else {
@@ -676,7 +687,8 @@ function saveManualRound() {
       totalDist: 0,
       pars: pars,
       shotsPerHole: shotsPerHole,
-      manual: true
+      manual: true,
+      handicapAtTime: handicapAtTime
     };
     history.unshift(round);
     saveHistory();
@@ -710,7 +722,8 @@ async function saveRoundToSupabase(round, pars, shotsPerHole, isEdit) {
       holes_played: Object.keys(shotsPerHole).length,
       total_score:  totalScore,
       total_par:    totalPar,
-      score_diff:   totalPar ? totalScore - totalPar : null
+      score_diff:   totalPar ? totalScore - totalPar : null,
+      handicap_at_time: (round.handicapAtTime !== undefined && round.handicapAtTime !== null) ? round.handicapAtTime : null
     }).select().single();
 
     if (error) { console.error('Supabase round save error:', error); return; }
@@ -1007,8 +1020,15 @@ function renderHistoryScorecard(index) {
     return src ? `<img src="${src}" style="width:28px;height:28px;object-fit:contain;display:block;margin:0 auto;">` : '';
   }
 
-  const hcpStored  = localStorage.getItem('golf-handicap');
-  const hcpIndex   = hcpStored ? parseFloat(JSON.parse(hcpStored).value) : null;
+  // Prefer the handicap that was actually in effect when this round was played.
+  // Only fall back to the current handicap for older rounds saved before this existed.
+  let hcpIndex = null;
+  if (round.handicapAtTime !== undefined && round.handicapAtTime !== null) {
+    hcpIndex = parseFloat(round.handicapAtTime);
+  } else {
+    const hcpStored = localStorage.getItem('golf-handicap');
+    hcpIndex = hcpStored ? parseFloat(JSON.parse(hcpStored).value) : null;
+  }
   // Try to get slope from round's course data in Supabase cache, fallback to 113
   const cachedCourses = JSON.parse(localStorage.getItem('golf-supabase-courses') || '{}');
   const courseSlope = (round.course && cachedCourses[round.course]) ? cachedCourses[round.course].slope : 113;

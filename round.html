@@ -653,6 +653,7 @@ async function saveRoundToHistory() {
     holePutts:  { ...holePutts },
     shots:      totalScore,
     totalDist:  0,
+    handicapAtTime: handicapIndex,
     shotData:   scoredHoles.sort((a,b)=>a-b).map(h => ({ hole: h, score: holeScores[h], par: holePars[h]||null }))
   };
   const history = JSON.parse(localStorage.getItem('golf-round-history') || '[]');
@@ -672,7 +673,8 @@ async function saveRoundToHistory() {
       holes_played: scoredHoles.length,
       total_score:  totalScore,
       total_par:    totalPar || null,
-      score_diff:   totalPar ? totalScore - totalPar : null
+      score_diff:   totalPar ? totalScore - totalPar : null,
+      handicap_at_time: handicapIndex
     }).select().single();
 
     if (roundErr) { console.error('Round save error:', roundErr); return; }

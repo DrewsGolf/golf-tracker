@@ -878,6 +878,34 @@ function holePoints(shots, par) {
   return 5;
 }
 
+// ── Shared handicap/slope/stroke-index context for a round ────────────────────
+// Used by both the Scorecard tab and the Summary tab so Net figures always match.
+function getHandicapContext(round) {
+  let hcpIndex = null;
+  if (round.handicapAtTime !== undefined && round.handicapAtTime !== null) {
+    hcpIndex = parseFloat(round.handicapAtTime);
+  } else {
+    const hcpStored = localStorage.getItem('golf-handicap');
+    hcpIndex = hcpStored ? parseFloat(JSON.parse(hcpStored).value) : null;
+  }
+  const courseKey   = round.course ? round.course.trim().toLowerCase() : '';
+  const courseData  = courseDataCache[courseKey];
+  const courseSlope = (courseData && courseData.slope) ? courseData.slope : 113;
+  const playingHcp  = hcpIndex ? Math.round(hcpIndex * (courseSlope / 113)) : null;
+
+  function extras(h) {
+    if (!playingHcp) return 0;
+    const base  = Math.floor(playingHcp / 18);
+    const extra = playingHcp % 18;
+    const si = (courseData && courseData.si && courseData.si[h]) ? courseData.si[h]
+             : (round.holeStrokeIndex && round.holeStrokeIndex[h]) ? round.holeStrokeIndex[h]
+             : null;
+    if (si) return base + (si <= extra ? 1 : 0);
+    return base; // no SI available anywhere — apply base strokes evenly
+  }
+  return { hcpIndex, playingHcp, extras };
+}
+
 // ── Detail View ───────────────────────────────────────────────────────────────
 function showDetail(index) {
   const round = history[index];
@@ -897,7 +925,10 @@ function showDetail(index) {
   // Fetch real slope + stroke index for this round's course (if not already cached),
   // then re-render the scorecard with accurate Net figures once it lands.
   fetchCourseSlopeSI(round.course).then(() => {
-    if (currentDetailIndex === index) renderHistoryScorecard(index);
+    if (currentDetailIndex === index) {
+      renderHistoryScorecard(index);
+      renderHistorySummary(index);
+    }
   });
 
   const sph = getShotsPerHole(round);
@@ -914,14 +945,35 @@ function showDetail(index) {
   vsParEl.style.color = diff > 0 ? '#e74c3c' : diff < 0 ? 'var(--gold)' : 'var(--text-muted)';
 
   const holes = Object.keys(sph).map(Number).sort((a,b) => a-b);
-  let summaryContent = '';
   let compareContent = '';
 
-  // ── Summary blocks — Front 9 / Back 9 / Overall ──
+  renderHistorySummary(index);
+
+  // ── Same-course comparison ──
+  const sameRounds = history.filter((r, i) => i !== index && r.course && round.course &&
+    r.course.toLowerCase() === round.course.toLowerCase() && getTotalPar(r) !== null);
+  if (sameRounds.length > 0) {
+    compareContent = renderComparison(round, sameRounds, holes);
+  } else {
+    compareContent = '<div class="empty-state"><span class="empty-icon">&#9878;&#65039;</span>No other rounds at ' + (round.course || 'this course') + ' yet to compare against.</div>';
+  }
+
+  document.getElementById('detail-screen-compare').innerHTML = compareContent;
+}
+
+// ── Summary tab — Front 9 / Back 9 / Overall, Gross/Net aware ─────────────────
+function renderHistorySummary(index) {
+  const round = history[index];
+  if (!round) return;
+  const sph = getShotsPerHole(round);
+  const { extras: getExtras } = getHandicapContext(round);
+  const netActive = historyScView === 'net';
+  const shotsFor = h => netActive ? (sph[h] - getExtras(h)) : sph[h];
+
   function calcBlock(holeList) {
     const played = holeList.filter(h => sph[h] > 0);
     if (!played.length) return null;
-    const shots    = played.reduce((a,h) => a + (sph[h]||0), 0);
+    const shots    = played.reduce((a,h) => a + (shotsFor(h)||0), 0);
     const parHoles = played.filter(h => round.pars && round.pars[h]);
     const tPar     = parHoles.reduce((a,h) => a + round.pars[h], 0);
     const overPar  = parHoles.length ? shots - tPar : null;
@@ -929,8 +981,8 @@ function showDetail(index) {
     const puttHoles= played.filter(h => round.holePutts && round.holePutts[h] > 0);
     const tPutts   = played.reduce((a,h) => a + (round.holePutts && round.holePutts[h] ? round.holePutts[h] : 0), 0);
     const avgPutts = puttHoles.length ? (tPutts / puttHoles.length).toFixed(1) : null;
-    const stablefordPts = played.reduce((a,h) => { const p = holePoints(sph[h], round.pars && round.pars[h]); return p !== null ? a+p : a; }, 0);
-    const hasPoints = played.some(h => holePoints(sph[h], round.pars && round.pars[h]) !== null);
+    const stablefordPts = played.reduce((a,h) => { const p = holePoints(shotsFor(h), round.pars && round.pars[h]); return p !== null ? a+p : a; }, 0);
+    const hasPoints = played.some(h => holePoints(shotsFor(h), round.pars && round.pars[h]) !== null);
     return { played: played.length, shots, totalPar: parHoles.length ? tPar : null, overPar, avgOver, tPutts, avgPutts, stablefordPts, hasPoints };
   }
   function overStr(v) { if (v===null) return '–'; if (v===0) return 'E'; return (v>0?'+':'')+v; }
@@ -980,24 +1032,20 @@ function showDetail(index) {
   const back9  = Array.from({length:9}, (_,i) => i+10);
   const all18  = Array.from({length:18},(_,i) => i+1);
 
+  const gActive = historyScView === 'gross';
+  let summaryContent = `<div style="display:flex;gap:0;background:rgba(13,13,13,0.5);border-radius:10px;border:0.5px solid rgba(200,169,106,0.2);overflow:hidden;">
+    <button id="hsum-toggle-gross" onclick="setHistoryScView('gross')" style="flex:1;background:${gActive?'#C8A96A':'none'};color:${gActive?'#0D0D0D':'var(--text-muted)'};border:none;padding:10px 6px;font-size:14px;font-weight:500;cursor:pointer;font-family:inherit;">Gross</button>
+    <button id="hsum-toggle-net"   onclick="setHistoryScView('net')"   style="flex:1;background:${!gActive?'#C8A96A':'none'};color:${!gActive?'#0D0D0D':'var(--text-muted)'};border:none;padding:10px 6px;font-size:14px;font-weight:500;cursor:pointer;font-family:inherit;">Net</button>
+  </div>`;
+
   summaryContent += summaryBlock('Front 9', front9);
   summaryContent += summaryBlock('Back 9',  back9);
   summaryContent += summaryBlock('Overall', all18);
-  if (!summaryContent) {
+  if (!Object.keys(sph).length) {
     summaryContent = '<div class="empty-state"><span class="empty-icon">&#128202;</span>No scores logged for this round yet.</div>';
   }
 
-  // ── Same-course comparison ──
-  const sameRounds = history.filter((r, i) => i !== index && r.course && round.course &&
-    r.course.toLowerCase() === round.course.toLowerCase() && getTotalPar(r) !== null);
-  if (sameRounds.length > 0) {
-    compareContent = renderComparison(round, sameRounds, holes);
-  } else {
-    compareContent = '<div class="empty-state"><span class="empty-icon">&#9878;&#65039;</span>No other rounds at ' + (round.course || 'this course') + ' yet to compare against.</div>';
-  }
-
   document.getElementById('detail-screen-summary').innerHTML = summaryContent;
-  document.getElementById('detail-screen-compare').innerHTML = compareContent;
 }
 
 // ── Detail tabs ───────────────────────────────────────────────────────────────
@@ -1010,17 +1058,22 @@ function showDetailTab(t) {
 
 function setHistoryScView(view) {
   historyScView = view;
-  // Just re-render the scorecard content, don't reload the whole detail view
-  if (currentDetailIndex !== null) renderHistoryScorecard(currentDetailIndex);
-  // Update toggle buttons
-  const gBtn = document.getElementById('hsc-toggle-gross');
-  const nBtn = document.getElementById('hsc-toggle-net');
-  if (gBtn && nBtn) {
-    gBtn.style.background = view === 'gross' ? '#C8A96A' : 'none';
-    gBtn.style.color      = view === 'gross' ? '#0D0D0D' : 'var(--text-muted)';
-    nBtn.style.background = view === 'net'   ? '#C8A96A' : 'none';
-    nBtn.style.color      = view === 'net'   ? '#0D0D0D' : 'var(--text-muted)';
+  // Re-render both tabs so Gross/Net stays in sync between Scorecard and Summary
+  if (currentDetailIndex !== null) {
+    renderHistoryScorecard(currentDetailIndex);
+    renderHistorySummary(currentDetailIndex);
   }
+  // Update toggle buttons on both tabs
+  ['hsc', 'hsum'].forEach(prefix => {
+    const gBtn = document.getElementById(prefix + '-toggle-gross');
+    const nBtn = document.getElementById(prefix + '-toggle-net');
+    if (gBtn && nBtn) {
+      gBtn.style.background = view === 'gross' ? '#C8A96A' : 'none';
+      gBtn.style.color      = view === 'gross' ? '#0D0D0D' : 'var(--text-muted)';
+      nBtn.style.background = view === 'net'   ? '#C8A96A' : 'none';
+      nBtn.style.color      = view === 'net'   ? '#0D0D0D' : 'var(--text-muted)';
+    }
+  });
 }
 
 function renderHistoryScorecard(index) {
@@ -1046,34 +1099,7 @@ function renderHistoryScorecard(index) {
     return src ? `<img src="${src}" style="width:28px;height:28px;object-fit:contain;display:block;margin:0 auto;">` : '';
   }
 
-  // Prefer the handicap that was actually in effect when this round was played.
-  // Only fall back to the current handicap for older rounds saved before this existed.
-  let hcpIndex = null;
-  if (round.handicapAtTime !== undefined && round.handicapAtTime !== null) {
-    hcpIndex = parseFloat(round.handicapAtTime);
-  } else {
-    const hcpStored = localStorage.getItem('golf-handicap');
-    hcpIndex = hcpStored ? parseFloat(JSON.parse(hcpStored).value) : null;
-  }
-  // Try to get real slope from Supabase courses table (via courseDataCache), fallback to 113
-  const courseKey  = round.course ? round.course.trim().toLowerCase() : '';
-  const courseData = courseDataCache[courseKey];
-  const courseSlope = (courseData && courseData.slope) ? courseData.slope : 113;
-  const playingHcp = hcpIndex ? Math.round(hcpIndex * (courseSlope / 113)) : null;
-
-  // Use real per-hole stroke index from Supabase course_holes when available,
-  // otherwise fall back to any SI stored on the round itself, otherwise apply strokes evenly
-  function historyExtras(h) {
-    if (!playingHcp) return 0;
-    const base  = Math.floor(playingHcp / 18);
-    const extra = playingHcp % 18;
-    const si = (courseData && courseData.si && courseData.si[h]) ? courseData.si[h]
-             : (round.holeStrokeIndex && round.holeStrokeIndex[h]) ? round.holeStrokeIndex[h]
-             : null;
-    if (si) return base + (si <= extra ? 1 : 0);
-    // No SI available anywhere — just apply base strokes (equal across all holes)
-    return base;
-  }
+  const { extras: historyExtras } = getHandicapContext(round);
 
   const gActive = historyScView === 'gross';
   let sc = `<div style="display:flex;gap:0;background:rgba(13,13,13,0.5);border-radius:10px;border:0.5px solid rgba(200,169,106,0.2);overflow:hidden;margin-bottom:10px;">

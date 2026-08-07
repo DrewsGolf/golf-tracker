@@ -931,7 +931,9 @@ function showDetail(index) {
     const puttHoles= played.filter(h => round.holePutts && round.holePutts[h] > 0);
     const tPutts   = played.reduce((a,h) => a + (round.holePutts && round.holePutts[h] ? round.holePutts[h] : 0), 0);
     const avgPutts = puttHoles.length ? (tPutts / puttHoles.length).toFixed(1) : null;
-    return { played: played.length, shots, totalPar: parHoles.length ? tPar : null, overPar, avgOver, tPutts, avgPutts };
+    const stablefordPts = played.reduce((a,h) => { const p = holePoints(sph[h], round.pars && round.pars[h]); return p !== null ? a+p : a; }, 0);
+    const hasPoints = played.some(h => holePoints(sph[h], round.pars && round.pars[h]) !== null);
+    return { played: played.length, shots, totalPar: parHoles.length ? tPar : null, overPar, avgOver, tPutts, avgPutts, stablefordPts, hasPoints };
   }
   function overStr(v) { if (v===null) return '–'; if (v===0) return 'E'; return (v>0?'+':'')+v; }
   function overCol(v) { if (v===null||v===0) return 'color:var(--text-muted)'; return v>0?'color:#e74c3c':'color:var(--gold)'; }
@@ -958,16 +960,20 @@ function showDetail(index) {
         </div>
         <div style="display:flex;flex-direction:column;align-items:center;padding:10px 6px;">
           <span style="font-size:9px;letter-spacing:0.1em;text-transform:uppercase;color:var(--text-muted);margin-bottom:4px;">Putts</span>
-          <span style="font-size:15px;font-weight:500;color:var(--text-primary);">${d.tPutts||'–'}</span>
+          <span style="font-size:15px;font-weight:500;color:var(--gold);">${d.tPutts||'–'}</span>
         </div>
       </div>
       <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-bottom:0.5px solid rgba(200,169,106,0.08);">
         <span style="font-size:13px;color:var(--text-muted);">Avg shots over par / hole</span>
         <span style="font-size:13px;font-weight:500;${overCol(d.overPar)}">${avgOverStr(d.avgOver)}</span>
       </div>
-      ${d.avgPutts ? `<div style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;">
+      ${d.avgPutts ? `<div style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-bottom:0.5px solid rgba(200,169,106,0.08);">
         <span style="font-size:13px;color:var(--text-muted);">Avg putts per hole</span>
         <span style="font-size:13px;font-weight:500;color:var(--gold);">${d.avgPutts}</span>
+      </div>` : ''}
+      ${d.hasPoints ? `<div style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;">
+        <span style="font-size:13px;color:var(--text-muted);">Stableford points</span>
+        <span style="font-size:13px;font-weight:500;color:var(--gold);">${d.stablefordPts}</span>
       </div>` : ''}
     </div>`;
   }

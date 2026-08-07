@@ -279,7 +279,7 @@
       </div>
       <div class="score-table-wrap">
         <table class="score-table">
-          <thead><tr><th>Hole</th><th></th><th>Par</th><th>Shots</th><th>+/-</th><th>Putts</th></tr></thead>
+          <thead><tr><th>Hole</th><th></th><th>Par</th><th>Shots</th><th>+/-</th><th>Putts</th><th>Pts</th></tr></thead>
           <tbody id="scorecard-body"></tbody>
         </table>
       </div>
@@ -820,21 +820,26 @@ function renderScorecard() {
       const ds     = diff===null ? '&#8212;' : (diff===0?'E':(diff>0?'+'+diff:diff));
       const diffCol = diff===null?'':(diff>0?'color:#e74c3c':diff<0?'color:var(--gold)':'color:var(--text-muted)');
       const siDot  = extras > 0 ? '<span style="color:var(--gold);font-size:10px;"> +'+extras+'</span>' : '';
+      const pts    = stablefordPoints(h);
+      const ptsStr = pts !== null ? pts : '&#8212;';
       ts += displayScore; if(par) tp += par; tputts += putts;
       rows.push('<tr><td>'+h+siDot+'</td>' +
         '<td style="text-align:center;padding:4px 6px;">'+scoreIcon(displayScore,par)+'</td>' +
         '<td><input class="sc-input" type="number" min="3" max="5" inputmode="numeric" value="'+(par||'')+'" placeholder="&#8211;" onchange="scSavePar('+h+',this.value)"></td>' +
         '<td><input class="sc-input" type="number" min="1" max="30" inputmode="numeric" value="'+score+'" onchange="scSaveScore('+h+',this.value)"></td>' +
         '<td style="'+diffCol+'">'+ds+'</td>' +
-        '<td>'+(putts||'&#8212;')+'</td></tr>');
+        '<td style="color:var(--gold);">'+(putts||'&#8212;')+'</td>' +
+        '<td style="font-weight:500;color:var(--gold);">'+ptsStr+'</td></tr>');
     }
   }
-  if (!rows.length) { tbody.innerHTML='<tr><td colspan="6" style="text-align:center;color:var(--text-muted);padding:24px">No scores yet</td></tr>'; return; }
+  if (!rows.length) { tbody.innerHTML='<tr><td colspan="7" style="text-align:center;color:var(--text-muted);padding:24px">No scores yet</td></tr>'; return; }
   const tdiff=tp?ts-tp:null;
   const tds=tdiff===null?'&#8212;':(tdiff===0?'E':(tdiff>0?'+'+tdiff:tdiff));
+  const tdsCol=tdiff===null?'':(tdiff>0?'color:#e74c3c':tdiff<0?'color:var(--gold)':'color:var(--text-muted)');
+  const totalPts = Object.keys(holeScores).filter(h=>holeScores[h]>0).reduce((a,h)=>{ const p=stablefordPoints(parseInt(h)); return p!==null?a+p:a; }, 0);
   tbody.innerHTML = rows.join('') +
-    '<tr><td style="padding-left:14px;">Total</td><td></td><td>'+(tp||'&#8212;')+'</td><td>'+ts+'</td><td>'+tds+'</td><td>'+(tputts||'&#8212;')+'</td></tr>' +
-    '<tr><td colspan="6" style="padding:10px 14px;"><button class="sc-save-btn" style="width:100%;" onclick="scSaveAll()">Save</button></td></tr>';
+    '<tr><td style="padding-left:14px;">Total</td><td></td><td>'+(tp||'&#8212;')+'</td><td>'+ts+'</td><td style="'+tdsCol+'">'+tds+'</td><td style="color:var(--gold);">'+(tputts||'&#8212;')+'</td><td style="font-weight:500;color:var(--gold);">'+(handicapIndex!==null?totalPts:'&#8212;')+'</td></tr>' +
+    '<tr><td colspan="7" style="padding:10px 14px;"><button class="sc-save-btn" style="width:100%;" onclick="scSaveAll()">Save</button></td></tr>';
 }
 
 function scSavePar(hole,val) {

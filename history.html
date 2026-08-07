@@ -847,6 +847,7 @@ function showDetail(index) {
   document.getElementById('detail-screen-compare').innerHTML = '';
   showDetailTab('scorecard');
   window.scrollTo(0,0);
+  renderHistoryScorecard(index);
 
   const sph = getShotsPerHole(round);
   const totalStrokes = getTotalStrokes(round);
@@ -862,89 +863,8 @@ function showDetail(index) {
   vsParEl.style.color = diff > 0 ? '#e74c3c' : diff < 0 ? 'var(--gold)' : 'var(--text-muted)';
 
   const holes = Object.keys(sph).map(Number).sort((a,b) => a-b);
-  let scorecardContent = '';
   let summaryContent = '';
   let compareContent = '';
-
-  // Score icon helper
-  function scoreIconImg(shots, par) {
-    if (!par || !shots) return '';
-    const d = shots - par;
-    let src = '';
-    if (shots === 1)    src = 'hole_in_one.PNG';
-    else if (d <= -2)   src = 'egale.PNG';
-    else if (d === -1)  src = 'Birdie.PNG';
-    else if (d === 0)   src = 'par.PNG';
-    else if (d === 1)   src = '1over.PNG';
-    else if (d === 2)   src = '2over.PNG';
-    else if (d === 3)   src = '3over.PNG';
-    return src ? `<img src="${src}" style="width:28px;height:28px;object-fit:contain;display:block;margin:0 auto;">` : '';
-  }
-
-  // Stableford points helper (gross — no handicap in history view)
-  function holePoints(shots, par) {
-    if (!shots || !par) return null;
-    const diff = shots - par;
-    if (diff >=  2) return 0;
-    if (diff ===  1) return 1;
-    if (diff ===  0) return 2;
-    if (diff === -1) return 3;
-    if (diff === -2) return 4;
-    return 5;
-  }
-
-  // ── Gross/Net toggle ──
-  const toggleHTML = `<div style="display:flex;gap:0;background:rgba(13,13,13,0.5);border-radius:10px;border:0.5px solid rgba(200,169,106,0.2);overflow:hidden;margin-bottom:10px;">
-    <button id="hsc-toggle-gross" onclick="setHistoryScView('gross')" style="flex:1;background:#C8A96A;color:#0D0D0D;border:none;padding:10px 6px;font-size:14px;font-weight:500;cursor:pointer;font-family:inherit;">Gross</button>
-    <button id="hsc-toggle-net"   onclick="setHistoryScView('net')"   style="flex:1;background:none;color:var(--text-muted);border:none;padding:10px 6px;font-size:14px;font-weight:500;cursor:pointer;font-family:inherit;">Net</button>
-  </div>`;
-
-  // ── Scorecard ──
-  scorecardContent += toggleHTML;
-  // Get handicap for net view
-  const hcpStored = localStorage.getItem('golf-handicap');
-  const hcpIndex  = hcpStored ? parseFloat(JSON.parse(hcpStored).value) : null;
-  const slope     = 113; // default if not available
-  const playingHcp = hcpIndex ? Math.round(hcpIndex * (slope / 113)) : null;
-
-  function historyExtras(h) {
-    if (!playingHcp || !round.holeStrokeIndex || !round.holeStrokeIndex[h]) return 0;
-    const si   = round.holeStrokeIndex[h];
-    const base  = Math.floor(playingHcp / 18);
-    const extra = playingHcp % 18;
-    return base + (si <= extra ? 1 : 0);
-  }
-
-  scorecardContent += `<div class="scorecard"><table class="scorecard-table">
-    <thead><tr><th>Hole</th><th></th><th>Par</th><th>Shots</th><th>+/−</th><th style="color:var(--gold);">Putts</th><th style="color:var(--gold);">Pts</th></tr></thead><tbody>`;
-
-  let totalPutts = 0;
-  let totalPts   = 0;
-  let hasPts     = false;
-  holes.forEach(h => {
-    const shots = sph[h] || 0;
-    const par   = round.pars && round.pars[h] ? round.pars[h] : null;
-    const putts = round.holePutts && round.holePutts[h] ? round.holePutts[h] : 0;
-    totalPutts += putts;
-    const extras = historyExtras(h);
-    const displayShots = historyScView === 'net' ? (shots - extras) : shots;
-    const d    = par !== null ? displayShots - par : null;
-    const dStr = d === null ? '–' : (d === 0 ? 'E' : (d > 0 ? '+'+d : ''+d));
-    const dCls = d === null ? 'diff-even' : d > 0 ? 'diff-over' : d < 0 ? 'diff-under' : 'diff-even';
-    const icon = scoreIconImg(displayShots, par);
-    const pts  = holePoints(displayShots, par);
-    if (pts !== null) { totalPts += pts; hasPts = true; }
-    const ptsStr = pts !== null ? pts : '–';
-    scorecardContent += `<tr><td>${h}</td><td class="score-icon-cell">${icon}</td><td>${par !== null ? par : '–'}</td><td>${shots}</td><td class="${dCls}">${dStr}</td><td style="color:var(--gold);">${putts || '–'}</td><td style="color:var(--gold);font-weight:500;">${ptsStr}</td></tr>`;
-  });
-
-  if (totalPar !== null) {
-    const totalDiff = totalStrokes - totalPar;
-    const dStr = totalDiff === 0 ? 'E' : (totalDiff > 0 ? '+'+totalDiff : ''+totalDiff);
-    const dCls = totalDiff > 0 ? 'diff-over' : totalDiff < 0 ? 'diff-under' : 'diff-even';
-    scorecardContent += `<tr class="total-row"><td>Total</td><td></td><td>${totalPar}</td><td>${totalStrokes}</td><td class="${dCls}">${dStr}</td><td style="color:var(--gold);">${totalPutts || '–'}</td><td style="color:var(--gold);font-weight:500;">${hasPts ? totalPts : '–'}</td></tr>`;
-  }
-  scorecardContent += `</tbody></table></div>`;
 
   // ── Summary blocks — Front 9 / Back 9 / Overall ──
   function calcBlock(holeList) {
@@ -1025,7 +945,6 @@ function showDetail(index) {
     compareContent = '<div class="empty-state"><span class="empty-icon">&#9878;&#65039;</span>No other rounds at ' + (round.course || 'this course') + ' yet to compare against.</div>';
   }
 
-  document.getElementById('detail-screen-scorecard').innerHTML = scorecardContent;
   document.getElementById('detail-screen-summary').innerHTML = summaryContent;
   document.getElementById('detail-screen-compare').innerHTML = compareContent;
 }
@@ -1040,6 +959,9 @@ function showDetailTab(t) {
 
 function setHistoryScView(view) {
   historyScView = view;
+  // Just re-render the scorecard content, don't reload the whole detail view
+  if (currentDetailIndex !== null) renderHistoryScorecard(currentDetailIndex);
+  // Update toggle buttons
   const gBtn = document.getElementById('hsc-toggle-gross');
   const nBtn = document.getElementById('hsc-toggle-net');
   if (gBtn && nBtn) {
@@ -1048,8 +970,88 @@ function setHistoryScView(view) {
     nBtn.style.background = view === 'net'   ? '#C8A96A' : 'none';
     nBtn.style.color      = view === 'net'   ? '#0D0D0D' : 'var(--text-muted)';
   }
-  // Re-render the scorecard with the new view
-  if (currentDetailIndex !== null) showDetail(currentDetailIndex);
+}
+
+function renderHistoryScorecard(index) {
+  const round = history[index];
+  if (!round) return;
+  const sph = getShotsPerHole(round);
+  const totalStrokes = getTotalStrokes(round);
+  const totalPar = getTotalPar(round);
+  const holes = Object.keys(sph).map(Number).sort((a,b)=>a-b);
+
+  // Score icon helper
+  function scoreIconImg(shots, par) {
+    if (!par || !shots) return '';
+    const d = shots - par;
+    let src = '';
+    if (shots === 1)    src = 'hole_in_one.PNG';
+    else if (d <= -2)   src = 'egale.PNG';
+    else if (d === -1)  src = 'Birdie.PNG';
+    else if (d === 0)   src = 'par.PNG';
+    else if (d === 1)   src = '1over.PNG';
+    else if (d === 2)   src = '2over.PNG';
+    else if (d === 3)   src = '3over.PNG';
+    return src ? `<img src="${src}" style="width:28px;height:28px;object-fit:contain;display:block;margin:0 auto;">` : '';
+  }
+
+  function holePoints(shots, par) {
+    if (!shots || !par) return null;
+    const diff = shots - par;
+    if (diff >=  2) return 0;
+    if (diff ===  1) return 1;
+    if (diff ===  0) return 2;
+    if (diff === -1) return 3;
+    if (diff === -2) return 4;
+    return 5;
+  }
+
+  const hcpStored  = localStorage.getItem('golf-handicap');
+  const hcpIndex   = hcpStored ? parseFloat(JSON.parse(hcpStored).value) : null;
+  const playingHcp = hcpIndex ? Math.round(hcpIndex * (113 / 113)) : null;
+
+  function historyExtras(h) {
+    if (!playingHcp || !round.holeStrokeIndex || !round.holeStrokeIndex[h]) return 0;
+    const si    = round.holeStrokeIndex[h];
+    const base  = Math.floor(playingHcp / 18);
+    const extra = playingHcp % 18;
+    return base + (si <= extra ? 1 : 0);
+  }
+
+  const gActive = historyScView === 'gross';
+  let sc = `<div style="display:flex;gap:0;background:rgba(13,13,13,0.5);border-radius:10px;border:0.5px solid rgba(200,169,106,0.2);overflow:hidden;margin-bottom:10px;">
+    <button id="hsc-toggle-gross" onclick="setHistoryScView('gross')" style="flex:1;background:${gActive?'#C8A96A':'none'};color:${gActive?'#0D0D0D':'var(--text-muted)'};border:none;padding:10px 6px;font-size:14px;font-weight:500;cursor:pointer;font-family:inherit;">Gross</button>
+    <button id="hsc-toggle-net"   onclick="setHistoryScView('net')"   style="flex:1;background:${!gActive?'#C8A96A':'none'};color:${!gActive?'#0D0D0D':'var(--text-muted)'};border:none;padding:10px 6px;font-size:14px;font-weight:500;cursor:pointer;font-family:inherit;">Net</button>
+  </div>`;
+
+  sc += `<div class="scorecard"><table class="scorecard-table">
+    <thead><tr><th>Hole</th><th></th><th>Par</th><th>Shots</th><th>+/−</th><th style="color:var(--gold);">Putts</th><th style="color:var(--gold);">Pts</th></tr></thead><tbody>`;
+
+  let totalPutts=0, totalPts=0, hasPts=false;
+  holes.forEach(h => {
+    const shots  = sph[h] || 0;
+    const par    = round.pars && round.pars[h] ? round.pars[h] : null;
+    const putts  = round.holePutts && round.holePutts[h] ? round.holePutts[h] : 0;
+    totalPutts  += putts;
+    const extras = historyExtras(h);
+    const display = historyScView === 'net' ? (shots - extras) : shots;
+    const d      = par !== null ? display - par : null;
+    const dStr   = d === null ? '–' : (d === 0 ? 'E' : (d > 0 ? '+'+d : ''+d));
+    const dCls   = d === null ? 'diff-even' : d > 0 ? 'diff-over' : d < 0 ? 'diff-under' : 'diff-even';
+    const icon   = scoreIconImg(display, par);
+    const pts    = holePoints(display, par);
+    if (pts !== null) { totalPts += pts; hasPts = true; }
+    sc += `<tr><td>${h}</td><td class="score-icon-cell">${icon}</td><td>${par ?? '–'}</td><td>${shots}</td><td class="${dCls}">${dStr}</td><td style="color:var(--gold);">${putts||'–'}</td><td style="color:var(--gold);font-weight:500;">${pts??'–'}</td></tr>`;
+  });
+
+  if (totalPar !== null) {
+    const td   = totalStrokes - totalPar;
+    const tStr = td === 0 ? 'E' : (td > 0 ? '+'+td : ''+td);
+    const tCls = td > 0 ? 'diff-over' : td < 0 ? 'diff-under' : 'diff-even';
+    sc += `<tr class="total-row"><td>Total</td><td></td><td>${totalPar}</td><td>${totalStrokes}</td><td class="${tCls}">${tStr}</td><td style="color:var(--gold);">${totalPutts||'–'}</td><td style="color:var(--gold);font-weight:500;">${hasPts?totalPts:'–'}</td></tr>`;
+  }
+  sc += `</tbody></table></div>`;
+  document.getElementById('detail-screen-scorecard').innerHTML = sc;
 }
 
 // ── Same-Course Comparison ────────────────────────────────────────────────────

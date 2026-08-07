@@ -833,6 +833,18 @@ function renderChartHTML(rounds) {
   </div>`;
 }
 
+// ── Stableford points helper ──────────────────────────────────────────────────
+function holePoints(shots, par) {
+  if (!shots || !par) return null;
+  const diff = shots - par;
+  if (diff >=  2) return 0;
+  if (diff ===  1) return 1;
+  if (diff ===  0) return 2;
+  if (diff === -1) return 3;
+  if (diff === -2) return 4;
+  return 5;
+}
+
 // ── Detail View ───────────────────────────────────────────────────────────────
 function showDetail(index) {
   const round = history[index];
@@ -993,17 +1005,6 @@ function renderHistoryScorecard(index) {
     else if (d === 2)   src = '2over.PNG';
     else if (d === 3)   src = '3over.PNG';
     return src ? `<img src="${src}" style="width:28px;height:28px;object-fit:contain;display:block;margin:0 auto;">` : '';
-  }
-
-  function holePoints(shots, par) {
-    if (!shots || !par) return null;
-    const diff = shots - par;
-    if (diff >=  2) return 0;
-    if (diff ===  1) return 1;
-    if (diff ===  0) return 2;
-    if (diff === -1) return 3;
-    if (diff === -2) return 4;
-    return 5;
   }
 
   const hcpStored  = localStorage.getItem('golf-handicap');

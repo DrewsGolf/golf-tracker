@@ -324,6 +324,8 @@ sb.auth.getSession().then(({ data }) => {
 // ── Data ─────────────────────────────────────────────────────────────────────
 let history = JSON.parse(localStorage.getItem('golf-round-history') || '[]');
 let pendingDeleteIndex = null;
+let historyScView = 'gross';
+let currentDetailIndex = null;
 
 // Load from Supabase and merge with localStorage
 async function loadFromSupabase() {
@@ -838,6 +840,8 @@ function showDetail(index) {
 
   document.getElementById('list-view').style.display = 'none';
   document.getElementById('detail-view').classList.add('visible');
+  currentDetailIndex = index;
+
   document.getElementById('detail-screen-scorecard').innerHTML = '';
   document.getElementById('detail-screen-summary').innerHTML = '';
   document.getElementById('detail-screen-compare').innerHTML = '';
@@ -889,7 +893,28 @@ function showDetail(index) {
     return 5;
   }
 
+  // ── Gross/Net toggle ──
+  const toggleHTML = `<div style="display:flex;gap:0;background:rgba(13,13,13,0.5);border-radius:10px;border:0.5px solid rgba(200,169,106,0.2);overflow:hidden;margin-bottom:10px;">
+    <button id="hsc-toggle-gross" onclick="setHistoryScView('gross')" style="flex:1;background:#C8A96A;color:#0D0D0D;border:none;padding:10px 6px;font-size:14px;font-weight:500;cursor:pointer;font-family:inherit;">Gross</button>
+    <button id="hsc-toggle-net"   onclick="setHistoryScView('net')"   style="flex:1;background:none;color:var(--text-muted);border:none;padding:10px 6px;font-size:14px;font-weight:500;cursor:pointer;font-family:inherit;">Net</button>
+  </div>`;
+
   // ── Scorecard ──
+  scorecardContent += toggleHTML;
+  // Get handicap for net view
+  const hcpStored = localStorage.getItem('golf-handicap');
+  const hcpIndex  = hcpStored ? parseFloat(JSON.parse(hcpStored).value) : null;
+  const slope     = 113; // default if not available
+  const playingHcp = hcpIndex ? Math.round(hcpIndex * (slope / 113)) : null;
+
+  function historyExtras(h) {
+    if (!playingHcp || !round.holeStrokeIndex || !round.holeStrokeIndex[h]) return 0;
+    const si   = round.holeStrokeIndex[h];
+    const base  = Math.floor(playingHcp / 18);
+    const extra = playingHcp % 18;
+    return base + (si <= extra ? 1 : 0);
+  }
+
   scorecardContent += `<div class="scorecard"><table class="scorecard-table">
     <thead><tr><th>Hole</th><th></th><th>Par</th><th>Shots</th><th>+/−</th><th style="color:var(--gold);">Putts</th><th style="color:var(--gold);">Pts</th></tr></thead><tbody>`;
 
@@ -901,11 +926,13 @@ function showDetail(index) {
     const par   = round.pars && round.pars[h] ? round.pars[h] : null;
     const putts = round.holePutts && round.holePutts[h] ? round.holePutts[h] : 0;
     totalPutts += putts;
-    const d    = par !== null ? shots - par : null;
+    const extras = historyExtras(h);
+    const displayShots = historyScView === 'net' ? (shots - extras) : shots;
+    const d    = par !== null ? displayShots - par : null;
     const dStr = d === null ? '–' : (d === 0 ? 'E' : (d > 0 ? '+'+d : ''+d));
     const dCls = d === null ? 'diff-even' : d > 0 ? 'diff-over' : d < 0 ? 'diff-under' : 'diff-even';
-    const icon = scoreIconImg(shots, par);
-    const pts  = holePoints(shots, par);
+    const icon = scoreIconImg(displayShots, par);
+    const pts  = holePoints(displayShots, par);
     if (pts !== null) { totalPts += pts; hasPts = true; }
     const ptsStr = pts !== null ? pts : '–';
     scorecardContent += `<tr><td>${h}</td><td class="score-icon-cell">${icon}</td><td>${par !== null ? par : '–'}</td><td>${shots}</td><td class="${dCls}">${dStr}</td><td style="color:var(--gold);">${putts || '–'}</td><td style="color:var(--gold);font-weight:500;">${ptsStr}</td></tr>`;
@@ -1009,6 +1036,20 @@ function showDetailTab(t) {
     document.getElementById('detail-screen-'+id).classList.toggle('active', id===t);
     document.getElementById('dtab-'+id).classList.toggle('active', id===t);
   });
+}
+
+function setHistoryScView(view) {
+  historyScView = view;
+  const gBtn = document.getElementById('hsc-toggle-gross');
+  const nBtn = document.getElementById('hsc-toggle-net');
+  if (gBtn && nBtn) {
+    gBtn.style.background = view === 'gross' ? '#C8A96A' : 'none';
+    gBtn.style.color      = view === 'gross' ? '#0D0D0D' : 'var(--text-muted)';
+    nBtn.style.background = view === 'net'   ? '#C8A96A' : 'none';
+    nBtn.style.color      = view === 'net'   ? '#0D0D0D' : 'var(--text-muted)';
+  }
+  // Re-render the scorecard with the new view
+  if (currentDetailIndex !== null) showDetail(currentDetailIndex);
 }
 
 // ── Same-Course Comparison ────────────────────────────────────────────────────

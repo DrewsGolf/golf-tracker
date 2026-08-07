@@ -877,28 +877,45 @@ function showDetail(index) {
     return src ? `<img src="${src}" style="width:28px;height:28px;object-fit:contain;display:block;margin:0 auto;">` : '';
   }
 
+  // Stableford points helper (gross — no handicap in history view)
+  function holePoints(shots, par) {
+    if (!shots || !par) return null;
+    const diff = shots - par;
+    if (diff >=  2) return 0;
+    if (diff ===  1) return 1;
+    if (diff ===  0) return 2;
+    if (diff === -1) return 3;
+    if (diff === -2) return 4;
+    return 5;
+  }
+
   // ── Scorecard ──
   scorecardContent += `<div class="scorecard"><table class="scorecard-table">
-    <thead><tr><th>Hole</th><th></th><th>Par</th><th>Shots</th><th>+/−</th><th>Putts</th></tr></thead><tbody>`;
+    <thead><tr><th>Hole</th><th></th><th>Par</th><th>Shots</th><th>+/−</th><th style="color:var(--gold);">Putts</th><th style="color:var(--gold);">Pts</th></tr></thead><tbody>`;
 
   let totalPutts = 0;
+  let totalPts   = 0;
+  let hasPts     = false;
   holes.forEach(h => {
     const shots = sph[h] || 0;
-    const par = round.pars && round.pars[h] ? round.pars[h] : null;
+    const par   = round.pars && round.pars[h] ? round.pars[h] : null;
     const putts = round.holePutts && round.holePutts[h] ? round.holePutts[h] : 0;
     totalPutts += putts;
-    const d = par !== null ? shots - par : null;
+    const d    = par !== null ? shots - par : null;
     const dStr = d === null ? '–' : (d === 0 ? 'E' : (d > 0 ? '+'+d : ''+d));
     const dCls = d === null ? 'diff-even' : d > 0 ? 'diff-over' : d < 0 ? 'diff-under' : 'diff-even';
     const icon = scoreIconImg(shots, par);
-    scorecardContent += `<tr><td>${h}</td><td class="score-icon-cell">${icon}</td><td>${par !== null ? par : '–'}</td><td>${shots}</td><td class="${dCls}">${dStr}</td><td>${putts || '–'}</td></tr>`;
+    const pts  = holePoints(shots, par);
+    if (pts !== null) { totalPts += pts; hasPts = true; }
+    const ptsStr = pts !== null ? pts : '–';
+    scorecardContent += `<tr><td>${h}</td><td class="score-icon-cell">${icon}</td><td>${par !== null ? par : '–'}</td><td>${shots}</td><td class="${dCls}">${dStr}</td><td style="color:var(--gold);">${putts || '–'}</td><td style="color:var(--gold);font-weight:500;">${ptsStr}</td></tr>`;
   });
 
   if (totalPar !== null) {
     const totalDiff = totalStrokes - totalPar;
     const dStr = totalDiff === 0 ? 'E' : (totalDiff > 0 ? '+'+totalDiff : ''+totalDiff);
     const dCls = totalDiff > 0 ? 'diff-over' : totalDiff < 0 ? 'diff-under' : 'diff-even';
-    scorecardContent += `<tr class="total-row"><td>Total</td><td></td><td>${totalPar}</td><td>${totalStrokes}</td><td class="${dCls}">${dStr}</td><td>${totalPutts || '–'}</td></tr>`;
+    scorecardContent += `<tr class="total-row"><td>Total</td><td></td><td>${totalPar}</td><td>${totalStrokes}</td><td class="${dCls}">${dStr}</td><td style="color:var(--gold);">${totalPutts || '–'}</td><td style="color:var(--gold);font-weight:500;">${hasPts ? totalPts : '–'}</td></tr>`;
   }
   scorecardContent += `</tbody></table></div>`;
 

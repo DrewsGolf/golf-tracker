@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <script src="theme.js"></script>
+<link rel="stylesheet" href="theme.css">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -19,40 +20,14 @@
      --text-secondary, --gold, --highlight, --warning, --success.
      Old names used throughout this file's existing CSS are kept as aliases
      pointing at the canonical ones, so nothing else needs renaming. */
-  :root, [data-theme="dark"] {
-    --bg:             #0D0D0D;
-    --surface:        #171717;
-    --text-primary:   #F3E7CC;
-    --text-secondary: #B8A98A;
-    --gold:           #C8A96A;
-    --highlight:      #D4B36A;
-    --warning:        #7B3F3F;
-    --success:        #8F7A2A;
-    --gold-muted:     #9A7C47;
-    --on-gold:        #0D0D0D;
-
-    /* Backward-compat aliases for names already used across this file */
-    --bg-primary:  var(--bg);
-    --bg-card:     var(--surface);
-    --text-muted:  var(--text-secondary);
-  }
-  [data-theme="light"] {
-    --bg:             #E8DFC8;
-    --surface:        #F7F1E2;
-    --text-primary:   #111111;
-    --text-secondary: #4A463D;
-    --gold:           #9A7C47;
-    --highlight:      #1F3328;
-    --warning:        #B35454;
-    --success:        #2E7D32;
-    --gold-muted:     #6B5730;
-    --on-gold:        #0D0D0D;
-
-    --bg-primary:  var(--bg);
-    --bg-card:     var(--surface);
-    --text-muted:  var(--text-secondary);
-  }
+  /* ── Page-specific aliases + layout vars. Core theme colors (--bg, --gold,
+     etc.) now come from theme.css, loaded in <head>. This page's --text-muted
+     intentionally overrides theme.css's default to match --text-secondary,
+     preserving this page's original 2-tier text behavior. ── */
   :root {
+    --bg-primary:  var(--bg);
+    --bg-card:     var(--surface);
+    --text-muted:  var(--text-secondary);
     --safe-top:      env(safe-area-inset-top, 0px);
     --safe-bottom:   env(safe-area-inset-bottom, 0px);
   }

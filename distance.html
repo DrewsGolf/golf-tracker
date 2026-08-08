@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <script src="theme.js"></script>
+<link rel="stylesheet" href="theme.css">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -14,34 +15,9 @@
   @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap');
 
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-  :root, [data-theme="dark"] {
-    --bg:              #0D0D0D;
-    --surface:         #171717;
-    --text-primary:    #F3E7CC;
-    --text-secondary:  #B8A98A;
-    --gold:            #C8A96A;
-    --highlight:       #D4B36A;
-    --warning:         #7B3F3F;
-    --success:         #8F7A2A;
-    --gold-muted:      #9A7C47;
-    --text-muted:      #9A9A9A;
-    --on-gold:         #0D0D0D;
-    --card:            color-mix(in srgb, var(--surface) 85%, transparent);
-    --border:          color-mix(in srgb, var(--gold) 15%, transparent);
-    --border-mid:      color-mix(in srgb, var(--gold) 25%, transparent);
-  }
-  [data-theme="light"] {
-    --bg:              #E8DFC8;
-    --surface:         #F7F1E2;
-    --text-primary:    #111111;
-    --text-secondary:  #4A463D;
-    --gold:            #9A7C47;
-    --highlight:       #1F3328;
-    --warning:         #B35454;
-    --success:         #2E7D32;
-    --gold-muted:      #6B5730;
-    --text-muted:      #4A463D;
-    --on-gold:         #0D0D0D;
+  /* ── Page-specific aliases + layout vars. Core theme colors (--bg, --gold,
+     etc.) now come from theme.css, loaded in <head>. ── */
+  :root {
     --card:            color-mix(in srgb, var(--surface) 85%, transparent);
     --border:          color-mix(in srgb, var(--gold) 15%, transparent);
     --border-mid:      color-mix(in srgb, var(--gold) 25%, transparent);

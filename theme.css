@@ -1,0 +1,37 @@
+/* ── Shot Tracker — shared theme variables ──────────────────────────────────
+   Single source of truth for the app's dark/light color roles.
+   Loaded via <link rel="stylesheet" href="theme.css"> in <head>, after
+   theme.js (which sets data-theme on <html> before first paint).
+
+   To change a color across the whole app, edit it here once — every page
+   picks it up automatically. Page-specific aliases (--bg-primary, --card,
+   --border, etc.) and layout variables (--radius, --safe-top, etc.) stay in
+   each page's own <style> block since they vary slightly page to page. */
+
+:root, [data-theme="dark"] {
+  --bg:              #0D0D0D;
+  --surface:         #171717;
+  --text-primary:    #F3E7CC;
+  --text-secondary:  #B8A98A;
+  --gold:            #C8A96A;
+  --highlight:       #D4B36A;
+  --warning:         #7B3F3F;
+  --success:         #8F7A2A;
+  --gold-muted:      #9A7C47;
+  --text-muted:      #9A9A9A;
+  --on-gold:         #0D0D0D;
+}
+
+[data-theme="light"] {
+  --bg:              #E8DFC8;
+  --surface:         #F7F1E2;
+  --text-primary:    #111111;
+  --text-secondary:  #4A463D;
+  --gold:            #9A7C47;
+  --highlight:       #1F3328;
+  --warning:         #B35454;
+  --success:         #2E7D32;
+  --gold-muted:      #6B5730;
+  --text-muted:      #4A463D;
+  --on-gold:         #0D0D0D;
+}

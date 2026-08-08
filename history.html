@@ -471,7 +471,11 @@ function getTotalStrokes(round) {
 
 function getTotalPar(round) {
   if (!round.pars) return null;
-  const vals = Object.values(round.pars);
+  // Only count par for holes actually played — round.pars can be pre-filled for
+  // all 18 holes by loadCourseData() even when fewer holes were actually scored.
+  const sph = getShotsPerHole(round);
+  const playedHoles = Object.keys(sph).filter(h => sph[h] > 0);
+  const vals = playedHoles.map(h => round.pars[h]).filter(v => v !== undefined && v !== null);
   if (vals.length === 0) return null;
   return vals.reduce((a,b) => a+b, 0);
 }

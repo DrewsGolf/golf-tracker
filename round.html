@@ -623,15 +623,20 @@ function finishRound() {
 
 async function doFinishRound() {
   showToast('Saving round\u2026');
-  await saveRoundToHistory();
+  const cloudSynced = await saveRoundToHistory();
   resetState();
-  showToast('Round saved!');
-  setTimeout(() => window.location.href = 'index.html', 1200);
+  if (cloudSynced) {
+    showToast('Round saved!');
+    setTimeout(() => window.location.href = 'index.html', 1200);
+  } else {
+    showToast('Saved locally — cloud sync failed');
+    setTimeout(() => window.location.href = 'index.html', 2000);
+  }
 }
 
 async function saveRoundToHistory() {
   const scoredHoles = Object.keys(holeScores).map(Number).filter(h => holeScores[h] > 0);
-  if (!scoredHoles.length) return;
+  if (!scoredHoles.length) return true;
   const totalScore = scoredHoles.reduce((a,h) => a + holeScores[h], 0);
   const parHoles   = scoredHoles.filter(h => holePars[h]);
   const totalPar   = parHoles.reduce((a,h) => a + holePars[h], 0);
@@ -660,8 +665,8 @@ async function saveRoundToHistory() {
   history.unshift(localRound);
   localStorage.setItem('golf-round-history', JSON.stringify(history));
 
-  // Save to Supabase if logged in
-  if (!currentUser) return;
+  // Save to Supabase if logged in. Not signed in is expected/local-only by design, not a failure.
+  if (!currentUser) return true;
   try {
     // Insert round row
     const { data: roundRow, error: roundErr } = await sb.from('rounds').insert({
@@ -677,7 +682,7 @@ async function saveRoundToHistory() {
       handicap_at_time: handicapIndex
     }).select().single();
 
-    if (roundErr) { console.error('Round save error:', roundErr); return; }
+    if (roundErr) { console.error('Round save error:', roundErr); return false; }
 
     // Insert one row per hole
     const holeRows = scoredHoles.sort((a,b)=>a-b).map(h => ({
@@ -689,10 +694,12 @@ async function saveRoundToHistory() {
       putts:    holePutts[h] || 0
     }));
     const { error: holesErr } = await sb.from('hole_scores').insert(holeRows);
-    if (holesErr) console.error('Hole scores save error:', holesErr);
+    if (holesErr) { console.error('Hole scores save error:', holesErr); return false; }
+    return true;
   } catch(e) {
     console.error('Supabase save failed (offline?):', e);
-    // localStorage backup already saved above — data is safe
+    // localStorage backup already saved above — data is safe, will auto-retry next time History opens
+    return false;
   }
 }
 

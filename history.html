@@ -196,9 +196,12 @@
     .home-btn { position: absolute; top: 0; left: 0; width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; z-index: 60; text-decoration: none; cursor: pointer; }
   .home-btn img { width: 44px; height: 44px; object-fit: contain; display: block; }
   .home-btn:active { opacity: 0.7; }
+#toast { position: fixed; bottom: calc(var(--safe-bottom) + 100px); left: 50%; transform: translateX(-50%) translateY(20px); background: rgba(28,28,28,0.97); color: var(--gold); border: 0.5px solid rgba(200,169,106,0.4); padding: 12px 24px; border-radius: 14px; font-size: 14px; font-weight: 500; letter-spacing: 0.03em; opacity: 0; transition: opacity 0.3s, transform 0.3s; pointer-events: none; white-space: nowrap; z-index: 999; backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); box-shadow: 0 4px 24px rgba(0,0,0,0.4); }
+#toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 </style>
 </head>
 <body>
+<div id="toast"></div>
 <div class="app">
 <a class="home-btn" href="index.html"><img src="icons/Home.png" alt="Home"></a>
 
@@ -307,6 +310,13 @@ const SUPABASE_URL = 'https://ryqehsqqriavmuqfnzpx.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ5cWVoc3Fxcmlhdm11cWZuenB4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM3NTQ4MzcsImV4cCI6MjA5OTMzMDgzN30.Po2m7uhlMTc43Pdg8pohwvDsQ_UDFRS-n9UnTQ44nXA';
 const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 let currentUser = null;
+function showHistoryToast(msg) {
+  const t = document.getElementById('toast');
+  if (!t) return;
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2600);
+}
 sb.auth.getSession().then(({ data }) => {
   if (data.session) {
     currentUser = data.session.user;
@@ -331,6 +341,46 @@ let pendingDeleteIndex = null;
 let historyScView = 'gross';
 let currentDetailIndex = null;
 
+// Push a local-only round (never made it to Supabase) up now. Used for auto-retry.
+async function pushLocalRoundToSupabase(round) {
+  if (!currentUser) return false;
+  try {
+    const sph      = getShotsPerHole(round);
+    const pars     = round.pars || {};
+    const totalScore = Object.values(sph).reduce((a,b) => a+b, 0);
+    const parVals  = Object.values(pars);
+    const totalPar = parVals.length ? parVals.reduce((a,b) => a+b, 0) : null;
+    const dateObj  = new Date(round.dateISO);
+
+    const { data: roundRow, error } = await sb.from('rounds').insert({
+      user_id:      currentUser.id,
+      date:         dateObj.toISOString().split('T')[0],
+      date_iso:     dateObj.toISOString(),
+      course:       round.course,
+      suburb:       round.suburb || null,
+      holes_played: Object.keys(sph).length,
+      total_score:  totalScore,
+      total_par:    totalPar,
+      score_diff:   totalPar ? totalScore - totalPar : null,
+      handicap_at_time: (round.handicapAtTime !== undefined && round.handicapAtTime !== null) ? round.handicapAtTime : null
+    }).select().single();
+    if (error) { console.error('Auto-retry push failed:', error); return false; }
+
+    const holeRows = Object.keys(sph).map(h => ({
+      round_id: roundRow.id,
+      user_id:  currentUser.id,
+      hole:     parseInt(h),
+      score:    sph[h],
+      par:      pars[h] || null,
+      putts:    (round.holePutts && round.holePutts[h]) || 0
+    }));
+    await sb.from('hole_scores').insert(holeRows);
+    round.id = roundRow.id;
+    round.fromSupabase = true;
+    return true;
+  } catch(e) { console.error('Auto-retry push error:', e); return false; }
+}
+
 // Load from Supabase and merge with localStorage
 async function loadFromSupabase() {
   if (!currentUser) return;
@@ -339,9 +389,8 @@ async function loadFromSupabase() {
       .select('*, hole_scores(*)')
       .eq('user_id', currentUser.id)
       .order('date_iso', { ascending: false });
-    if (!rounds || rounds.length === 0) return;
     // Convert Supabase rounds to local format
-    const sbRounds = rounds.map(r => ({
+    const sbRounds = (rounds || []).map(r => ({
       id:         r.id,
       date:       new Date(r.date_iso).toLocaleDateString('en-AU'),
       dateISO:    r.date_iso,
@@ -363,7 +412,23 @@ async function loadFromSupabase() {
     // Merge: Supabase is source of truth, keep any local-only rounds
     const localOnly = history.filter(r => !r.fromSupabase && !sbRounds.find(s => s.dateISO === r.dateISO));
     history = [...sbRounds, ...localOnly].sort((a,b) => new Date(b.dateISO) - new Date(a.dateISO));
+    saveHistory();
     renderList();
+
+    // Auto-heal: any round still sitting local-only (e.g. a previous save that
+    // silently failed to reach Supabase) gets pushed up now, in the background.
+    if (localOnly.length > 0) {
+      let recovered = 0;
+      for (const round of localOnly) {
+        const ok = await pushLocalRoundToSupabase(round);
+        if (ok) recovered++;
+      }
+      if (recovered > 0) {
+        saveHistory();
+        renderList();
+        showHistoryToast(recovered + ' round' + (recovered===1?'':'s') + ' synced to cloud');
+      }
+    }
   } catch(e) { console.error('Supabase load error:', e); }
 }
 let editingIndex = null;
@@ -692,7 +757,9 @@ function saveManualRound() {
     existing.manual = existing.manual !== undefined ? existing.manual : true;
     existing.handicapAtTime = handicapAtTime;
     saveHistory();
-    if (existing.fromSupabase) saveRoundToSupabase(existing, pars, shotsPerHole, true);
+    // Sync to Supabase regardless of whether this round had previously made it there —
+    // editing a local-only round should still try to push it up, not just previously-synced ones.
+    saveRoundToSupabase(existing, pars, shotsPerHole, !!existing.fromSupabase);
   } else {
     const totalScore = Object.values(shotsPerHole).reduce((a,b) => a+b, 0);
     const parVals    = Object.values(pars);

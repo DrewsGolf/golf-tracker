@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+<script src="theme.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -13,13 +14,45 @@
 
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
 
+  /* ── Theme variables ──────────────────────────────────────────────────────
+     Canonical names (per Day/Night Theme spec): --bg, --surface, --text-primary,
+     --text-secondary, --gold, --highlight, --warning, --success.
+     Old names used throughout this file's existing CSS are kept as aliases
+     pointing at the canonical ones, so nothing else needs renaming. */
+  :root, [data-theme="dark"] {
+    --bg:             #0D0D0D;
+    --surface:        #171717;
+    --text-primary:   #F3E7CC;
+    --text-secondary: #B8A98A;
+    --gold:           #C8A96A;
+    --highlight:      #D4B36A;
+    --warning:        #7B3F3F;
+    --success:        #8F7A2A;
+    --gold-muted:     #9A7C47;
+    --on-gold:        #0D0D0D;
+
+    /* Backward-compat aliases for names already used across this file */
+    --bg-primary:  var(--bg);
+    --bg-card:     var(--surface);
+    --text-muted:  var(--text-secondary);
+  }
+  [data-theme="light"] {
+    --bg:             #E8DFC8;
+    --surface:        #F7F1E2;
+    --text-primary:   #111111;
+    --text-secondary: #4A463D;
+    --gold:           #9A7C47;
+    --highlight:      #1F3328;
+    --warning:        #B35454;
+    --success:        #2E7D32;
+    --gold-muted:     #6B5730;
+    --on-gold:        #0D0D0D;
+
+    --bg-primary:  var(--bg);
+    --bg-card:     var(--surface);
+    --text-muted:  var(--text-secondary);
+  }
   :root {
-    --bg-primary:    #0D0D0D;
-    --bg-card:       #1C1C1C;
-    --gold:          #C8A96A;
-    --gold-muted:    #9A7C47;
-    --text-primary:  #F2F2F2;
-    --text-muted:    #9A9A9A;
     --safe-top:      env(safe-area-inset-top, 0px);
     --safe-bottom:   env(safe-area-inset-bottom, 0px);
   }
@@ -78,7 +111,7 @@
     display: flex;
     align-items: center;
     gap: 16px;
-    border-bottom: 0.5px solid rgba(200,169,106,0.2);
+    border-bottom: 0.5px solid color-mix(in srgb, var(--gold) 20%, transparent);
     z-index: 10;
   }
 
@@ -105,7 +138,7 @@
   }
 
   .settings-card {
-    background: rgba(28,28,28,0.85);
+    background: color-mix(in srgb, var(--surface) 85%, transparent);
     border: 0.5px solid var(--gold);
     border-radius: 16px;
     overflow: hidden;
@@ -120,12 +153,12 @@
     padding: 18px 20px;
     text-decoration: none;
     color: inherit;
-    border-bottom: 0.5px solid rgba(200,169,106,0.1);
+    border-bottom: 0.5px solid color-mix(in srgb, var(--gold) 10%, transparent);
     transition: background 0.15s;
   }
 
   .settings-item:last-child { border-bottom: none; }
-  .settings-item:active { background: rgba(200,169,106,0.08); }
+  .settings-item:active { background: color-mix(in srgb, var(--gold) 8%, transparent); }
 
   .settings-item-icon { width: 36px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
   .settings-item-body { flex: 1; }
@@ -139,7 +172,7 @@
   .toggle-track {
     position: absolute; inset: 0; border-radius: 14px;
     background: rgba(154,124,71,0.35);
-    border: 0.5px solid rgba(200,169,106,0.3);
+    border: 0.5px solid color-mix(in srgb, var(--gold) 30%, transparent);
     transition: background 0.2s ease;
     cursor: pointer;
   }
@@ -153,7 +186,7 @@
     transition: transform 0.2s ease;
   }
   .toggle-switch input:checked + .toggle-track { background: var(--gold); }
-  .toggle-switch input:checked + .toggle-track::before { transform: translateX(20px); background: #0D0D0D; }
+  .toggle-switch input:checked + .toggle-track::before { transform: translateX(20px); background: var(--on-gold); }
 
   /* ── Nav — identical to index.html ── */
   .nav-shell {
@@ -172,7 +205,7 @@
   }
 
   .nav-primary {
-    border-top: 0.5px solid rgba(200,169,106,0.2);
+    border-top: 0.5px solid color-mix(in srgb, var(--gold) 20%, transparent);
     padding-bottom: calc(var(--safe-bottom) + 6px);
     transform: translateY(0);
     transition: transform 350ms cubic-bezier(0.4, 0, 0.2, 1);
@@ -184,7 +217,7 @@
   .nav-primary.raised { transform: translateY(-100%); }
 
   .nav-secondary {
-    border-top: 0.5px solid rgba(200,169,106,0.12);
+    border-top: 0.5px solid color-mix(in srgb, var(--gold) 12%, transparent);
     padding-bottom: calc(var(--safe-bottom) + 6px);
     position: absolute;
     bottom: 0;
@@ -229,13 +262,13 @@
   .nav-overlay.open { opacity: 1; pointer-events: auto; }
 
   /* Header auth badge */
-  .header-auth-badge { position: absolute; top: 10px; right: 14px; display: none; align-items: center; gap: 6px; background: rgba(13,13,13,0.6); backdrop-filter: blur(6px); border: 0.5px solid rgba(200,169,106,0.2); border-radius: 20px; padding: 5px 10px 5px 8px; }
+  .header-auth-badge { position: absolute; top: 10px; right: 14px; display: none; align-items: center; gap: 6px; background: rgba(13,13,13,0.6); backdrop-filter: blur(6px); border: 0.5px solid color-mix(in srgb, var(--gold) 20%, transparent); border-radius: 20px; padding: 5px 10px 5px 8px; }
   .header-auth-badge.visible { display: flex; }
-  .header-auth-dot { width: 8px; height: 8px; border-radius: 50%; background: #2ecc71; flex-shrink: 0; }
+  .header-auth-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--success); flex-shrink: 0; }
   .header-auth-email { font-size: 11px; font-weight: 500; color: var(--gold); white-space: nowrap; }
 
   /* Handicap card */
-  .handicap-input { width: 64px; background: rgba(13,13,13,0.7); border: 0.5px solid rgba(200,169,106,0.3); border-radius: 8px; padding: 7px 8px; font-size: 18px; font-weight: 300; color: var(--gold); font-family: inherit; text-align: center; -webkit-appearance: none; -moz-appearance: textfield; }
+  .handicap-input { width: 64px; background: color-mix(in srgb, var(--bg) 70%, transparent); border: 0.5px solid color-mix(in srgb, var(--gold) 30%, transparent); border-radius: 8px; padding: 7px 8px; font-size: 18px; font-weight: 300; color: var(--gold); font-family: inherit; text-align: center; -webkit-appearance: none; -moz-appearance: textfield; }
   .handicap-input::-webkit-outer-spin-button, .handicap-input::-webkit-inner-spin-button { -webkit-appearance: none; }
   .handicap-input:focus { outline: none; border-color: var(--gold); }
   .handicap-save-btn { background: transparent; color: var(--gold); border: 0.5px solid var(--gold); border-radius: 8px; padding: 7px 12px; font-size: 13px; font-weight: 500; cursor: pointer; font-family: inherit; white-space: nowrap; }
@@ -243,19 +276,19 @@
   .handicap-updated { font-size: 12px; color: var(--text-muted); }
 
   /* Auth section */
-  .auth-card { background: rgba(28,28,28,0.85); border: 0.5px solid var(--gold); border-radius: 16px; overflow: hidden; backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); margin-top: 12px; flex-shrink: 0; }
-  .auth-status { padding: 16px 20px; display: flex; align-items: center; gap: 12px; border-bottom: 0.5px solid rgba(200,169,106,0.1); }
+  .auth-card { background: color-mix(in srgb, var(--surface) 85%, transparent); border: 0.5px solid var(--gold); border-radius: 16px; overflow: hidden; backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); margin-top: 12px; flex-shrink: 0; }
+  .auth-status { padding: 16px 20px; display: flex; align-items: center; gap: 12px; border-bottom: 0.5px solid color-mix(in srgb, var(--gold) 10%, transparent); }
   .auth-dot { width: 10px; height: 10px; border-radius: 50%; background: #666; flex-shrink: 0; }
-  .auth-dot.connected { background: #2ecc71; }
+  .auth-dot.connected { background: var(--success); }
   .auth-label { font-size: 13px; color: var(--text-muted); flex: 1; }
   .auth-email { font-size: 13px; font-weight: 500; color: var(--gold); }
-  .auth-field-wrap { padding: 14px 20px; border-bottom: 0.5px solid rgba(200,169,106,0.1); }
-  .auth-field { width: 100%; background: rgba(13,13,13,0.7); border: 0.5px solid rgba(200,169,106,0.3); border-radius: 9px; padding: 11px 14px; font-size: 15px; color: #F2F2F2; font-family: inherit; -webkit-appearance: none; }
+  .auth-field-wrap { padding: 14px 20px; border-bottom: 0.5px solid color-mix(in srgb, var(--gold) 10%, transparent); }
+  .auth-field { width: 100%; background: color-mix(in srgb, var(--bg) 70%, transparent); border: 0.5px solid color-mix(in srgb, var(--gold) 30%, transparent); border-radius: 9px; padding: 11px 14px; font-size: 15px; color: var(--text-primary); font-family: inherit; -webkit-appearance: none; }
   .auth-field:focus { outline: none; border-color: var(--gold); }
-  .auth-btn { width: calc(100% - 40px); margin: 14px 20px; display: block; background: var(--gold); color: #0D0D0D; border: none; border-radius: 10px; padding: 13px; font-size: 15px; font-weight: 600; cursor: pointer; font-family: inherit; text-align: center; }
-  .auth-btn.sign-out { background: transparent; color: #e74c3c; border: 0.5px solid rgba(231,76,60,0.4); }
+  .auth-btn { width: calc(100% - 40px); margin: 14px 20px; display: block; background: var(--gold); color: var(--on-gold); border: none; border-radius: 10px; padding: 13px; font-size: 15px; font-weight: 600; cursor: pointer; font-family: inherit; text-align: center; }
+  .auth-btn.sign-out { background: transparent; color: var(--warning); border: 0.5px solid color-mix(in srgb, var(--warning) 40%, transparent); }
   .auth-btn:active { opacity: 0.8; }
-  .auth-error { font-size: 12px; color: #e74c3c; text-align: center; padding: 0 20px 12px; min-height: 18px; }
+  .auth-error { font-size: 12px; color: var(--warning); text-align: center; padding: 0 20px 12px; min-height: 18px; }
   .auth-section-label { font-size: 10px; font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-muted); padding: 14px 20px 4px; }
 
   /* Home button — bottom-left of header, under logo */
@@ -324,6 +357,17 @@
         </div>
         <label class="toggle-switch">
           <input type="checkbox" id="sound-toggle" onchange="toggleSound(this.checked)">
+          <span class="toggle-track"></span>
+        </label>
+      </div>
+      <div class="settings-item">
+        <div class="settings-item-icon" id="theme-icon" style="font-size:22px;">&#127769;</div>
+        <div class="settings-item-body">
+          <div class="settings-item-title">Light Mode</div>
+          <div class="settings-item-desc" id="theme-desc">Currently using Dark theme</div>
+        </div>
+        <label class="toggle-switch">
+          <input type="checkbox" id="theme-toggle" onchange="toggleThemeSwitch(this.checked)">
           <span class="toggle-track"></span>
         </label>
       </div>
@@ -446,7 +490,7 @@ function showToast(msg) {
   if (existing) existing.remove();
   const t = document.createElement('div');
   t.id = 'hcp-toast';
-  t.style.cssText = 'position:fixed;bottom:130px;left:50%;transform:translateX(-50%) translateY(20px);background:rgba(28,28,28,0.97);color:#C8A96A;border:0.5px solid rgba(200,169,106,0.4);padding:12px 24px;border-radius:14px;font-size:14px;font-weight:500;letter-spacing:0.03em;z-index:999;white-space:nowrap;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);box-shadow:0 4px 24px rgba(0,0,0,0.4);transition:opacity 0.3s,transform 0.3s;opacity:0;';
+  t.style.cssText = 'position:fixed;bottom:130px;left:50%;transform:translateX(-50%) translateY(20px);background:color-mix(in srgb, var(--surface) 97%, transparent);color:var(--gold);border:0.5px solid color-mix(in srgb, var(--gold) 40%, transparent);padding:12px 24px;border-radius:14px;font-size:14px;font-weight:500;letter-spacing:0.03em;z-index:999;white-space:nowrap;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);box-shadow:0 4px 24px rgba(0,0,0,0.4);transition:opacity 0.3s,transform 0.3s;opacity:0;';
   t.textContent = msg;
   document.body.appendChild(t);
   setTimeout(() => { t.style.opacity='1'; t.style.transform='translateX(-50%) translateY(0)'; }, 10);
@@ -459,6 +503,22 @@ loadHandicap(); // default: on
 function toggleSound(enabled) {
   localStorage.setItem('golf-sound-enabled', enabled ? 'true' : 'false');
 }
+
+// ── Theme toggle ──────────────────────────────────────────────────────────────
+function refreshThemeUI() {
+  const isLight = getTheme() === 'light';
+  const toggle = document.getElementById('theme-toggle');
+  const icon   = document.getElementById('theme-icon');
+  const desc   = document.getElementById('theme-desc');
+  if (toggle) toggle.checked = isLight;
+  if (icon)   icon.innerHTML = isLight ? '&#9728;&#65039;' : '&#127769;';
+  if (desc)   desc.textContent = 'Currently using ' + (isLight ? 'Light' : 'Dark') + ' theme';
+}
+function toggleThemeSwitch(checked) {
+  setTheme(checked ? 'light' : 'dark');
+  refreshThemeUI();
+}
+refreshThemeUI();
 
 async function doSignIn() {
   const email    = document.getElementById('auth-email-input').value.trim();
@@ -492,11 +552,11 @@ async function doSignOut() {
 </script>
 <!-- Dialog -->
 <div id="dialog-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:200;display:none;align-items:flex-end;justify-content:center;" onclick="closeDialogOutside(event)">
-  <div style="background:#1C1C1C;border-top:0.5px solid rgba(200,169,106,0.2);border-radius:22px 22px 0 0;padding:8px 0 calc(env(safe-area-inset-bottom,0px) + 8px);width:100%;max-width:430px;" onclick="event.stopPropagation()">
-    <div style="width:36px;height:4px;background:rgba(200,169,106,0.25);border-radius:2px;margin:8px auto 16px;"></div>
+  <div style="background:var(--surface);border-top:0.5px solid color-mix(in srgb, var(--gold) 20%, transparent);border-radius:22px 22px 0 0;padding:8px 0 calc(env(safe-area-inset-bottom,0px) + 8px);width:100%;max-width:430px;" onclick="event.stopPropagation()">
+    <div style="width:36px;height:4px;background:color-mix(in srgb, var(--gold) 25%, transparent);border-radius:2px;margin:8px auto 16px;"></div>
     <div id="dialog-icon" style="text-align:center;margin-bottom:8px;font-size:36px;"></div>
-    <div id="dialog-title" style="font-size:18px;font-weight:700;text-align:center;color:#F2F2F2;padding:0 20px;margin-bottom:6px;"></div>
-    <div id="dialog-sub" style="font-size:14px;color:#BDBDBD;text-align:center;padding:0 24px;margin-bottom:20px;line-height:1.5;"></div>
+    <div id="dialog-title" style="font-size:18px;font-weight:700;text-align:center;color:var(--text-primary);padding:0 20px;margin-bottom:6px;"></div>
+    <div id="dialog-sub" style="font-size:14px;color:var(--text-secondary);text-align:center;padding:0 24px;margin-bottom:20px;line-height:1.5;"></div>
     <div id="dialog-actions" style="padding:0 16px;display:flex;flex-direction:column;gap:8px;"></div>
   </div>
 </div>
@@ -508,7 +568,7 @@ function showDialog(opts) {
   document.getElementById('dialog-sub').textContent   = opts.sub   || '';
   document.getElementById('dialog-actions').innerHTML = opts.buttons.map((b,i) =>
     '<button style="display:flex;align-items:center;justify-content:center;width:100%;padding:15px;border-radius:14px;border:none;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;' +
-    (b.style==='primary' ? 'background:#C8A96A;color:#0D0D0D;' : 'background:rgba(28,28,28,0.85);color:#9A9A9A;border:0.5px solid rgba(200,169,106,0.15);') +
+    (b.style==='primary' ? 'background:var(--gold);color:var(--on-gold);' : 'background:color-mix(in srgb, var(--surface) 85%, transparent);color:var(--text-secondary);border:0.5px solid color-mix(in srgb, var(--gold) 15%, transparent);') +
     '" onclick="dialogAction('+i+')">' + b.label + '</button>'
   ).join('');
   window._dialogActions = opts.buttons.map(b => b.action);

@@ -66,11 +66,6 @@
   .app { position: relative; width: 100%; height: 100%; max-width: 430px; margin: 0 auto; overflow: hidden; }
   #app { display: flex; flex-direction: column; height: 100%; position: relative; z-index: 5; }
 
-  /* Background */
-  .hero { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 0; }
-  .hero-img { width: 100%; height: 100%; object-fit: cover; object-position: center; display: block; }
-  .hero-overlay { position: absolute; inset: 0; background: rgba(13,13,13,0.88); }
-
   /* Header */
   .header-img-wrap { position: relative; z-index: 10; width: 100%; flex-shrink: 0; }
   .header-img { width: 100%; height: auto; display: block; }
@@ -82,7 +77,7 @@
   .tab.active { background: var(--gold); color: var(--on-gold); border-color: var(--gold); }
 
   /* Content */
-  .content { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; padding: 14px 14px calc(var(--safe-bottom) + 110px); }
+  .content { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; padding: 14px 14px calc(var(--safe-bottom) + 110px); background: var(--bg); position: relative; z-index: 15; }
   .screen { display: none; } .screen.active { display: block; }
 
   /* Course strip */
@@ -228,10 +223,6 @@
 </head>
 <body>
 <div class="app">
-<div class="hero">
-  <img class="hero-img" src="Back_ground_New.jpg" alt="">
-  <div class="hero-overlay"></div>
-</div>
 <div id="app">
   <div class="header-img-wrap" style="position:relative;">
     <img class="header-img" src="Header.webp" alt="Shot Tracker">

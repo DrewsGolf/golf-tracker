@@ -47,7 +47,7 @@
   /* Tab bar */
   .tab-bar { background: transparent; border-bottom: 0.5px solid color-mix(in srgb, var(--gold) 15%, transparent); padding: 0 16px 12px; display: flex; gap: 6px; flex-shrink: 0; }
   .tab { flex: 1; padding: 8px; font-size: 13px; font-weight: 500; text-align: center; border-radius: 8px; border: 0.5px solid color-mix(in srgb, var(--gold) 15%, transparent); cursor: pointer; background: color-mix(in srgb, var(--gold) 6%, transparent); color: var(--text-muted); font-family: inherit; }
-  .tab.active { background: var(--gold); color: var(--on-gold); border-color: var(--gold); }
+  .tab.active { background: var(--btn-primary); color: var(--on-btn-primary); border-color: var(--btn-primary); }
 
   /* Content */
   .content { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; padding: 14px 14px calc(var(--safe-bottom) + 110px); background: var(--bg); position: relative; z-index: 15; }
@@ -92,7 +92,7 @@
   .btn { display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; padding: 16px; border-radius: var(--radius); border: none; font-size: 16px; font-weight: 500; cursor: pointer; transition: opacity 0.15s, transform 0.1s; margin-bottom: 10px; font-family: inherit; letter-spacing: 0.03em; }
   .btn:last-child { margin-bottom: 0; }
   .btn:active { opacity: 0.82; transform: scale(0.985); }
-  .btn-primary { background: var(--gold); color: var(--on-gold); }
+  .btn-primary { background: var(--btn-primary); color: var(--on-btn-primary); }
   .btn-outline { background: transparent; color: var(--gold); border: 0.5px solid var(--gold); }
 
   /* Summary */
@@ -139,7 +139,7 @@
   .dialog-actions { padding: 0 16px; display: flex; flex-direction: column; gap: 8px; }
   .dialog-btn { display: flex; align-items: center; justify-content: center; width: 100%; padding: 15px; border-radius: var(--radius); border: none; font-size: 15px; font-weight: 600; cursor: pointer; transition: opacity 0.15s; font-family: inherit; }
   .dialog-btn:active { opacity: 0.82; }
-  .dialog-btn-primary { background: var(--gold); color: var(--on-gold); }
+  .dialog-btn-primary { background: var(--btn-primary); color: var(--on-btn-primary); }
   .dialog-btn-danger { background: var(--warning); color: #fff; }
   .dialog-btn-secondary { background: color-mix(in srgb, var(--surface) 85%, transparent); color: var(--text-muted); border: 0.5px solid var(--border); }
 
@@ -270,7 +270,7 @@
     <!-- SCORECARD TAB -->
     <div class="screen" id="screen-scorecard">
       <div style="display:flex;gap:0;background:color-mix(in srgb, var(--bg) 50%, transparent);border-radius:10px;border:0.5px solid color-mix(in srgb, var(--gold) 20%, transparent);overflow:hidden;margin-bottom:10px;">
-        <button id="sc-toggle-gross" onclick="setScorecardView('gross')" style="flex:1;background:var(--gold);color:var(--on-gold);border:none;padding:10px 6px;font-size:14px;font-weight:500;cursor:pointer;font-family:inherit;">Gross</button>
+        <button id="sc-toggle-gross" onclick="setScorecardView('gross')" style="flex:1;background:var(--btn-primary);color:var(--on-btn-primary);border:none;padding:10px 6px;font-size:14px;font-weight:500;cursor:pointer;font-family:inherit;">Gross</button>
         <button id="sc-toggle-net"   onclick="setScorecardView('net')"   style="flex:1;background:none;color:var(--text-muted);border:none;padding:10px 6px;font-size:14px;font-weight:500;cursor:pointer;font-family:inherit;">Net</button>
       </div>
       <div class="score-table-wrap">
@@ -793,10 +793,10 @@ function setScorecardView(view) {
   const gBtn = document.getElementById('sc-toggle-gross');
   const nBtn = document.getElementById('sc-toggle-net');
   if (gBtn && nBtn) {
-    gBtn.style.background = view === 'gross' ? 'var(--gold)' : 'none';
-    gBtn.style.color      = view === 'gross' ? 'var(--on-gold)' : 'var(--text-muted)';
-    nBtn.style.background = view === 'net'   ? 'var(--gold)' : 'none';
-    nBtn.style.color      = view === 'net'   ? 'var(--on-gold)' : 'var(--text-muted)';
+    gBtn.style.background = view === 'gross' ? 'var(--btn-primary)' : 'none';
+    gBtn.style.color      = view === 'gross' ? 'var(--on-btn-primary)' : 'var(--text-muted)';
+    nBtn.style.background = view === 'net'   ? 'var(--btn-primary)' : 'none';
+    nBtn.style.color      = view === 'net'   ? 'var(--on-btn-primary)' : 'var(--text-muted)';
   }
   renderScorecard();
 }

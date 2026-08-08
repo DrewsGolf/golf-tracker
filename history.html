@@ -62,7 +62,7 @@
   .empty-icon { font-size: 48px; margin-bottom: 16px; }
   .empty-title { font-size: 18px; font-weight: 700; margin-bottom: 8px; color: var(--text-primary); }
   .empty-desc { font-size: 14px; color: var(--text-secondary); line-height: 1.5; margin-bottom: 20px; }
-  .btn-primary { background: var(--gold); color: var(--on-gold); border: none; border-radius: 12px; padding: 14px 24px; font-size: 15px; font-weight: 700; cursor: pointer; width: 100%; }
+  .btn-primary { background: var(--btn-primary); color: var(--on-btn-primary); border: none; border-radius: 12px; padding: 14px 24px; font-size: 15px; font-weight: 700; cursor: pointer; width: 100%; }
   .btn-primary:active { opacity: 0.8; }
 
   /* Section label */
@@ -102,7 +102,7 @@
   #detail-content { flex: 1; min-height: 0; overflow-y: auto; -webkit-overflow-scrolling: touch; padding: 14px 14px calc(var(--safe-bottom) + 110px); }
   .detail-tab-bar { background: transparent; border-bottom: 0.5px solid color-mix(in srgb, var(--gold) 15%, transparent); padding: 0 14px 12px; display: flex; gap: 6px; flex-shrink: 0; }
   .detail-tab { flex: 1; padding: 8px; font-size: 13px; font-weight: 500; text-align: center; border-radius: 8px; border: 0.5px solid color-mix(in srgb, var(--gold) 15%, transparent); cursor: pointer; background: color-mix(in srgb, var(--gold) 6%, transparent); color: var(--text-muted); font-family: inherit; }
-  .detail-tab.active { background: var(--gold); color: var(--on-gold); border-color: var(--gold); }
+  .detail-tab.active { background: var(--btn-primary); color: var(--on-btn-primary); border-color: var(--btn-primary); }
   .detail-screen { display: none; }
   .detail-screen.active { display: block; }
   .detail-header { background: var(--bg-primary); padding: calc(var(--safe-top) + 20px) 24px 20px; border-bottom: 0.5px solid color-mix(in srgb, var(--gold) 12%, transparent); }
@@ -165,9 +165,9 @@
   .holes-section-label { font-size: 13px; font-weight: 500; color: var(--text-primary); display: flex; align-items: center; justify-content: space-between; }
   .holes-toggle { display: flex; gap: 0; background: color-mix(in srgb, var(--bg) 50%, transparent); border-radius: 10px; border: 0.5px solid color-mix(in srgb, var(--gold) 20%, transparent); overflow: hidden; width: 160px; flex-shrink: 0; }
   .holes-toggle button { flex: 1; background: none; border: none; padding: 10px 0; font-size: 15px; font-weight: 500; color: var(--text-muted); cursor: pointer; font-family: inherit; }
-  .holes-toggle button.active { background: var(--gold); color: var(--on-gold); }
+  .holes-toggle button.active { background: var(--btn-primary); color: var(--on-btn-primary); }
   .form-actions { display: flex; gap: 10px; padding: 12px 20px calc(var(--safe-bottom) + 16px); flex-shrink: 0; border-top: 0.5px solid color-mix(in srgb, var(--gold) 12%, transparent); background: var(--surface); }
-  .btn-save { flex: 1; background: var(--gold); color: var(--on-gold); border: none; border-radius: 12px; padding: 14px; font-size: 15px; font-weight: 600; cursor: pointer; font-family: inherit; }
+  .btn-save { flex: 1; background: var(--btn-primary); color: var(--on-btn-primary); border: none; border-radius: 12px; padding: 14px; font-size: 15px; font-weight: 600; cursor: pointer; font-family: inherit; }
   .btn-cancel { background: color-mix(in srgb, var(--bg) 70%, transparent); color: var(--text-muted); border: 0.5px solid color-mix(in srgb, var(--gold) 20%, transparent); border-radius: 12px; padding: 14px 20px; font-size: 15px; font-weight: 500; cursor: pointer; font-family: inherit; }
   .btn-save:active { opacity: 0.8; }
   .btn-cancel:active { opacity: 0.7; }
@@ -1110,8 +1110,8 @@ function renderHistorySummary(index) {
 
   const gActive = historyScView === 'gross';
   let summaryContent = `<div style="display:flex;gap:0;background:color-mix(in srgb, var(--bg) 50%, transparent);border-radius:10px;border:0.5px solid color-mix(in srgb, var(--gold) 20%, transparent);overflow:hidden;">
-    <button id="hsum-toggle-gross" onclick="setHistoryScView('gross')" style="flex:1;background:${gActive?'var(--gold)':'none'};color:${gActive?'var(--on-gold)':'var(--text-muted)'};border:none;padding:10px 6px;font-size:14px;font-weight:500;cursor:pointer;font-family:inherit;">Gross</button>
-    <button id="hsum-toggle-net"   onclick="setHistoryScView('net')"   style="flex:1;background:${!gActive?'var(--gold)':'none'};color:${!gActive?'var(--on-gold)':'var(--text-muted)'};border:none;padding:10px 6px;font-size:14px;font-weight:500;cursor:pointer;font-family:inherit;">Net</button>
+    <button id="hsum-toggle-gross" onclick="setHistoryScView('gross')" style="flex:1;background:${gActive?'var(--btn-primary)':'none'};color:${gActive?'var(--on-btn-primary)':'var(--text-muted)'};border:none;padding:10px 6px;font-size:14px;font-weight:500;cursor:pointer;font-family:inherit;">Gross</button>
+    <button id="hsum-toggle-net"   onclick="setHistoryScView('net')"   style="flex:1;background:${!gActive?'var(--btn-primary)':'none'};color:${!gActive?'var(--on-btn-primary)':'var(--text-muted)'};border:none;padding:10px 6px;font-size:14px;font-weight:500;cursor:pointer;font-family:inherit;">Net</button>
   </div>`;
 
   summaryContent += summaryBlock('Front 9', front9);
@@ -1144,10 +1144,10 @@ function setHistoryScView(view) {
     const gBtn = document.getElementById(prefix + '-toggle-gross');
     const nBtn = document.getElementById(prefix + '-toggle-net');
     if (gBtn && nBtn) {
-      gBtn.style.background = view === 'gross' ? 'var(--gold)' : 'none';
-      gBtn.style.color      = view === 'gross' ? 'var(--on-gold)' : 'var(--text-muted)';
-      nBtn.style.background = view === 'net'   ? 'var(--gold)' : 'none';
-      nBtn.style.color      = view === 'net'   ? 'var(--on-gold)' : 'var(--text-muted)';
+      gBtn.style.background = view === 'gross' ? 'var(--btn-primary)' : 'none';
+      gBtn.style.color      = view === 'gross' ? 'var(--on-btn-primary)' : 'var(--text-muted)';
+      nBtn.style.background = view === 'net'   ? 'var(--btn-primary)' : 'none';
+      nBtn.style.color      = view === 'net'   ? 'var(--on-btn-primary)' : 'var(--text-muted)';
     }
   });
 }
@@ -1179,8 +1179,8 @@ function renderHistoryScorecard(index) {
 
   const gActive = historyScView === 'gross';
   let sc = `<div style="display:flex;gap:0;background:color-mix(in srgb, var(--bg) 50%, transparent);border-radius:10px;border:0.5px solid color-mix(in srgb, var(--gold) 20%, transparent);overflow:hidden;margin-bottom:10px;">
-    <button id="hsc-toggle-gross" onclick="setHistoryScView('gross')" style="flex:1;background:${gActive?'var(--gold)':'none'};color:${gActive?'var(--on-gold)':'var(--text-muted)'};border:none;padding:10px 6px;font-size:14px;font-weight:500;cursor:pointer;font-family:inherit;">Gross</button>
-    <button id="hsc-toggle-net"   onclick="setHistoryScView('net')"   style="flex:1;background:${!gActive?'var(--gold)':'none'};color:${!gActive?'var(--on-gold)':'var(--text-muted)'};border:none;padding:10px 6px;font-size:14px;font-weight:500;cursor:pointer;font-family:inherit;">Net</button>
+    <button id="hsc-toggle-gross" onclick="setHistoryScView('gross')" style="flex:1;background:${gActive?'var(--btn-primary)':'none'};color:${gActive?'var(--on-btn-primary)':'var(--text-muted)'};border:none;padding:10px 6px;font-size:14px;font-weight:500;cursor:pointer;font-family:inherit;">Gross</button>
+    <button id="hsc-toggle-net"   onclick="setHistoryScView('net')"   style="flex:1;background:${!gActive?'var(--btn-primary)':'none'};color:${!gActive?'var(--on-btn-primary)':'var(--text-muted)'};border:none;padding:10px 6px;font-size:14px;font-weight:500;cursor:pointer;font-family:inherit;">Net</button>
   </div>`;
 
   sc += `<div class="scorecard"><table class="scorecard-table">

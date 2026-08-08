@@ -261,7 +261,7 @@
   .auth-field-wrap { padding: 14px 20px; border-bottom: 0.5px solid color-mix(in srgb, var(--gold) 10%, transparent); }
   .auth-field { width: 100%; background: color-mix(in srgb, var(--bg) 70%, transparent); border: 0.5px solid color-mix(in srgb, var(--gold) 30%, transparent); border-radius: 9px; padding: 11px 14px; font-size: 15px; color: var(--text-primary); font-family: inherit; -webkit-appearance: none; }
   .auth-field:focus { outline: none; border-color: var(--gold); }
-  .auth-btn { width: calc(100% - 40px); margin: 14px 20px; display: block; background: var(--gold); color: var(--on-gold); border: none; border-radius: 10px; padding: 13px; font-size: 15px; font-weight: 600; cursor: pointer; font-family: inherit; text-align: center; }
+  .auth-btn { width: calc(100% - 40px); margin: 14px 20px; display: block; background: var(--btn-primary); color: var(--on-btn-primary); border: none; border-radius: 10px; padding: 13px; font-size: 15px; font-weight: 600; cursor: pointer; font-family: inherit; text-align: center; }
   .auth-btn.sign-out { background: transparent; color: var(--warning); border: 0.5px solid color-mix(in srgb, var(--warning) 40%, transparent); }
   .auth-btn:active { opacity: 0.8; }
   .auth-error { font-size: 12px; color: var(--warning); text-align: center; padding: 0 20px 12px; min-height: 18px; }
@@ -544,7 +544,7 @@ function showDialog(opts) {
   document.getElementById('dialog-sub').textContent   = opts.sub   || '';
   document.getElementById('dialog-actions').innerHTML = opts.buttons.map((b,i) =>
     '<button style="display:flex;align-items:center;justify-content:center;width:100%;padding:15px;border-radius:14px;border:none;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;' +
-    (b.style==='primary' ? 'background:var(--gold);color:var(--on-gold);' : 'background:color-mix(in srgb, var(--surface) 85%, transparent);color:var(--text-secondary);border:0.5px solid color-mix(in srgb, var(--gold) 15%, transparent);') +
+    (b.style==='primary' ? 'background:var(--btn-primary);color:var(--on-btn-primary);' : 'background:color-mix(in srgb, var(--surface) 85%, transparent);color:var(--text-secondary);border:0.5px solid color-mix(in srgb, var(--gold) 15%, transparent);') +
     '" onclick="dialogAction('+i+')">' + b.label + '</button>'
   ).join('');
   window._dialogActions = opts.buttons.map(b => b.action);

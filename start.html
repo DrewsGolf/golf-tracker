@@ -21,7 +21,7 @@
     --card:            var(--surface);
     --border:          color-mix(in srgb, var(--gold) 15%, transparent);
     --border-mid:      color-mix(in srgb, var(--gold) 25%, transparent);
-    --green-dark:      var(--gold);
+    --green-dark:      var(--btn-primary);
   }
   :root {
     --radius: 14px; --radius-sm: 9px;
@@ -51,7 +51,7 @@
   .suggest-name { font-size: 18px; font-weight: 300; color: var(--text-primary); margin-bottom: 4px; }
   .suggest-detail { font-size: 13px; color: var(--text-secondary); margin-bottom: 12px; }
   .suggest-btns { display: flex; gap: 8px; }
-  .suggest-btn-yes { flex: 2; padding: 13px; background: var(--gold); color: var(--on-gold); border: none; border-radius: var(--radius-sm); font-size: 14px; font-weight: 500; cursor: pointer; font-family: inherit; }
+  .suggest-btn-yes { flex: 2; padding: 13px; background: var(--btn-primary); color: var(--on-btn-primary); border: none; border-radius: var(--radius-sm); font-size: 14px; font-weight: 500; cursor: pointer; font-family: inherit; }
   .suggest-btn-no { flex: 1; padding: 13px; background: color-mix(in srgb, var(--surface) 85%, transparent); color: var(--text-muted); border: 0.5px solid var(--border); border-radius: var(--radius-sm); font-size: 14px; font-weight: 500; cursor: pointer; font-family: inherit; }
 
   /* Nearby list */
@@ -72,7 +72,7 @@
   .manual-input-row { display: flex; gap: 8px; }
   .manual-input { flex: 1; border: 0.5px solid color-mix(in srgb, var(--gold) 25%, transparent); border-radius: var(--radius-sm); padding: 12px 14px; font-size: 15px; color: var(--text-primary); background: color-mix(in srgb, var(--bg) 70%, transparent); outline: none; font-family: inherit; }
   .manual-input:focus { border-color: var(--gold); }
-  .manual-search-btn { background: var(--gold); color: var(--on-gold); border: none; border-radius: var(--radius-sm); padding: 12px 14px; font-size: 13px; font-weight: 500; cursor: pointer; white-space: nowrap; font-family: inherit; }
+  .manual-search-btn { background: var(--btn-primary); color: var(--on-btn-primary); border: none; border-radius: var(--radius-sm); padding: 12px 14px; font-size: 13px; font-weight: 500; cursor: pointer; white-space: nowrap; font-family: inherit; }
 
   /* Selected course confirmation */
   .selected-card { background: color-mix(in srgb, var(--surface) 85%, transparent); border: 1px solid var(--gold); border-radius: var(--radius); padding: 16px; margin-bottom: 16px; backdrop-filter: blur(8px); }
@@ -82,7 +82,7 @@
   .selected-change { font-size: 13px; color: var(--gold); font-weight: 500; cursor: pointer; margin-top: 10px; display: inline-block; }
 
   /* Start button */
-  .btn-start { width: 100%; padding: 17px; background: var(--gold); color: var(--on-gold); border: none; border-radius: var(--radius); font-size: 17px; font-weight: 500; cursor: pointer; margin-bottom: 10px; font-family: inherit; letter-spacing: 0.04em; }
+  .btn-start { width: 100%; padding: 17px; background: var(--btn-primary); color: var(--on-btn-primary); border: none; border-radius: var(--radius); font-size: 17px; font-weight: 500; cursor: pointer; margin-bottom: 10px; font-family: inherit; letter-spacing: 0.04em; }
   .btn-start:active { opacity: 0.85; }
   .btn-skip { width: 100%; padding: 13px; background: transparent; color: var(--text-muted); border: none; font-size: 13px; cursor: pointer; font-family: inherit; }
 
@@ -107,7 +107,7 @@
   .options-label { font-size: 10px; font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 10px; }
   .options-toggle { display: flex; background: color-mix(in srgb, var(--bg) 50%, transparent); border-radius: 10px; border: 0.5px solid color-mix(in srgb, var(--gold) 20%, transparent); overflow: hidden; }
   .options-toggle button { flex: 1; background: none; border: none; padding: 10px 6px; font-size: 14px; font-weight: 500; color: var(--text-muted); cursor: pointer; font-family: inherit; transition: background 0.15s, color 0.15s; }
-  .options-toggle button.active { background: var(--gold); color: var(--on-gold); }
+  .options-toggle button.active { background: var(--btn-primary); color: var(--on-btn-primary); }
 </style>
 </head>
 <body>
@@ -268,7 +268,7 @@ function searchManual() {
   const el = document.getElementById('manual-results');
   if (matches.length === 0) {
     el.innerHTML = '<div style="font-size:13px;color:var(--text-muted);padding:8px 0;">No matches found — you can still use the name you typed</div>' +
-      '<button style="width:100%;margin-top:8px;padding:12px;background:var(--green-dark);color:var(--on-gold);border:none;border-radius:9px;font-size:14px;font-weight:600;cursor:pointer;" ' +
+      '<button style="width:100%;margin-top:8px;padding:12px;background:var(--green-dark);color:var(--on-btn-primary);border:none;border-radius:9px;font-size:14px;font-weight:600;cursor:pointer;" ' +
       'onclick="selectManual()">Use \'' + document.getElementById('manual-input').value.trim() + '\'</button>';
     return;
   }
@@ -370,7 +370,7 @@ function startRound() {
         ? 'Stableford scoring requires your handicap. Please set it in Settings before starting.'
         : 'Net scoring requires your handicap. Please set it in Settings before starting.';
       document.getElementById('dialog-actions').innerHTML =
-        '<button style="display:flex;align-items:center;justify-content:center;width:100%;padding:15px;border-radius:14px;border:none;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;margin-bottom:8px;background:var(--gold);color:var(--on-gold);" onclick="closeDialog();window.location.href=\'settings.html\'">Go to Settings</button>' +
+        '<button style="display:flex;align-items:center;justify-content:center;width:100%;padding:15px;border-radius:14px;border:none;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;margin-bottom:8px;background:var(--btn-primary);color:var(--on-btn-primary);" onclick="closeDialog();window.location.href=\'settings.html\'">Go to Settings</button>' +
         '<button style="display:flex;align-items:center;justify-content:center;width:100%;padding:15px;border-radius:14px;border:none;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;margin-bottom:8px;background:color-mix(in srgb, var(--surface) 85%, transparent);color:var(--text-muted);border:0.5px solid color-mix(in srgb, var(--gold) 15%, transparent);" onclick="closeDialog();selectedMode=\'gross\';proceedToRound()">Play Gross instead</button>' +
         '<button style="display:flex;align-items:center;justify-content:center;width:100%;padding:15px;border-radius:14px;border:none;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;background:color-mix(in srgb, var(--surface) 85%, transparent);color:var(--text-muted);border:0.5px solid color-mix(in srgb, var(--gold) 15%, transparent);" onclick="closeDialog();proceedToRound()">Continue anyway</button>';
       return;
@@ -405,7 +405,7 @@ function showDialog(opts) {
   document.getElementById('dialog-sub').textContent   = opts.sub   || '';
   document.getElementById('dialog-actions').innerHTML = opts.buttons.map((b,i) =>
     '<button style="display:flex;align-items:center;justify-content:center;width:100%;padding:15px;border-radius:14px;border:none;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;margin-bottom:8px;' +
-    (b.style==='primary' ? 'background:var(--gold);color:var(--on-gold);' : 'background:color-mix(in srgb, var(--surface) 85%, transparent);color:var(--text-muted);border:0.5px solid color-mix(in srgb, var(--gold) 15%, transparent);') +
+    (b.style==='primary' ? 'background:var(--btn-primary);color:var(--on-btn-primary);' : 'background:color-mix(in srgb, var(--surface) 85%, transparent);color:var(--text-muted);border:0.5px solid color-mix(in srgb, var(--gold) 15%, transparent);') +
     '" onclick="dialogAction('+i+')">' + b.label + '</button>'
   ).join('');
   window._dialogActions = opts.buttons.map(b => b.action);

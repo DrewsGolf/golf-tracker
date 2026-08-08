@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+<script src="theme.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -11,14 +12,42 @@
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap');
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  :root, [data-theme="dark"] {
+    --bg:              #0D0D0D;
+    --surface:         #171717;
+    --text-primary:    #F3E7CC;
+    --text-secondary:  #B8A98A;
+    --gold:            #C8A96A;
+    --highlight:       #D4B36A;
+    --warning:         #7B3F3F;
+    --success:         #8F7A2A;
+    --gold-muted:      #9A7C47;
+    --text-muted:      #9A9A9A;
+    --on-gold:         #0D0D0D;
+    --bg-primary:      var(--bg);
+    --bg-card:         var(--surface);
+    --card:            var(--surface);
+    --border:          color-mix(in srgb, var(--gold) 12%, transparent);
+  }
+  [data-theme="light"] {
+    --bg:              #E8DFC8;
+    --surface:         #F7F1E2;
+    --text-primary:    #111111;
+    --text-secondary:  #4A463D;
+    --gold:            #9A7C47;
+    --highlight:       #1F3328;
+    --warning:         #B35454;
+    --success:         #2E7D32;
+    --gold-muted:      #6B5730;
+    --text-muted:      #4A463D;
+    --on-gold:         #0D0D0D;
+    --bg-primary:      var(--bg);
+    --bg-card:         var(--surface);
+    --card:            var(--surface);
+    --border:          color-mix(in srgb, var(--gold) 12%, transparent);
+  }
   :root {
-    --green-dark: #1a6b3a; --green-mid: #2d8a52; --green-light: #e8f5ed; --green-pale: #f2faf5;
-    --bg-primary: #0D0D0D; --bg-card: #1C1C1C; --bg-secondary: #151515;
-    --gold: #C8A96A; --gold-muted: #9A7C47;
-    --text-primary: #F2F2F2; --text-secondary: #BDBDBD; --text-muted: #9A9A9A;
-    --bg: #0D0D0D; --card: #1C1C1C; --border: rgba(200,169,106,0.12);
     --radius: 16px; --safe-top: env(safe-area-inset-top, 0px); --safe-bottom: env(safe-area-inset-bottom, 0px);
-    --red: #8E4B4B; --red-light: #2a1a1a;
   }
   html, body { height: 100%; font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; background: var(--bg-primary); overflow: hidden; }
 
@@ -27,20 +56,20 @@
   /* ── Background ── */
 
     /* Header */
-  .header { background: var(--bg-primary); padding: calc(var(--safe-top) + 20px) 24px 20px; display: flex; align-items: center; gap: 16px; border-bottom: 0.5px solid rgba(200,169,106,0.12); }
+  .header { background: var(--bg-primary); padding: calc(var(--safe-top) + 20px) 24px 20px; display: flex; align-items: center; gap: 16px; border-bottom: 0.5px solid color-mix(in srgb, var(--gold) 12%, transparent); }
   .header-img-wrap { position: relative; z-index: 10; width: 100%; flex-shrink: 0; }
   .header-img { width: 100%; height: auto; display: block; }
   .header-title { font-size: 13px; font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-muted); flex: 1; }
   .back-btn { display: flex; align-items: center; }
-  .header-action { background: transparent; border: 0.5px solid rgba(200,169,106,0.4); color: var(--gold); font-size: 12px; font-weight: 500; padding: 7px 14px; border-radius: 20px; cursor: pointer; white-space: nowrap; letter-spacing: 0.06em; }
+  .header-action { background: transparent; border: 0.5px solid color-mix(in srgb, var(--gold) 40%, transparent); color: var(--gold); font-size: 12px; font-weight: 500; padding: 7px 14px; border-radius: 20px; cursor: pointer; white-space: nowrap; letter-spacing: 0.06em; }
   .header-action:active { opacity: 0.7; }
 
   /* Nav */
   .nav-shell { position: absolute; bottom: 0; left: 0; right: 0; z-index: 100; }
   .nav-row { display: flex; background: rgba(13,13,13,0.95); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
-  .nav-primary { border-top: 0.5px solid rgba(200,169,106,0.2); padding-bottom: calc(var(--safe-bottom) + 6px); position: relative; z-index: 2; transform: translateY(0); transition: transform 350ms cubic-bezier(0.4,0,0.2,1); }
+  .nav-primary { border-top: 0.5px solid color-mix(in srgb, var(--gold) 20%, transparent); padding-bottom: calc(var(--safe-bottom) + 6px); position: relative; z-index: 2; transform: translateY(0); transition: transform 350ms cubic-bezier(0.4,0,0.2,1); }
   .nav-primary.raised { transform: translateY(-100%); }
-  .nav-secondary { border-top: 0.5px solid rgba(200,169,106,0.12); padding-bottom: calc(var(--safe-bottom) + 6px); position: absolute; bottom: 0; left: 0; right: 0; transform: translateY(100%); transition: transform 350ms cubic-bezier(0.4,0,0.2,1); z-index: 1; }
+  .nav-secondary { border-top: 0.5px solid color-mix(in srgb, var(--gold) 12%, transparent); padding-bottom: calc(var(--safe-bottom) + 6px); position: absolute; bottom: 0; left: 0; right: 0; transform: translateY(100%); transition: transform 350ms cubic-bezier(0.4,0,0.2,1); z-index: 1; }
   .nav-secondary.open { transform: translateY(0); }
   .nav-item { flex: 1; display: flex; align-items: center; justify-content: center; padding: 10px 4px 6px; text-decoration: none; background: none; border: none; cursor: pointer; -webkit-tap-highlight-color: transparent; }
   .nav-item:active { opacity: 0.7; }
@@ -49,7 +78,7 @@
   .nav-overlay.open { opacity: 1; pointer-events: auto; }
 
   /* Content */
-  .content { padding: 20px 16px calc(var(--safe-bottom) + 110px); max-width: 430px; margin: 0 auto; width: 100%; overflow-y: auto; -webkit-overflow-scrolling: touch; flex: 1; min-height: 0; }
+  .content { padding: 20px 16px calc(var(--safe-bottom) + 110px); max-width: 430px; margin: 0 auto; width: 100%; overflow-y: auto; -webkit-overflow-scrolling: touch; flex: 1; min-height: 0; background: var(--bg); }
   .content > * { margin-bottom: 20px; }
   .content > *:last-child { margin-bottom: 0; }
 
@@ -58,7 +87,7 @@
   .empty-icon { font-size: 48px; margin-bottom: 16px; }
   .empty-title { font-size: 18px; font-weight: 700; margin-bottom: 8px; color: var(--text-primary); }
   .empty-desc { font-size: 14px; color: var(--text-secondary); line-height: 1.5; margin-bottom: 20px; }
-  .btn-primary { background: var(--green-dark); color: #fff; border: none; border-radius: 12px; padding: 14px 24px; font-size: 15px; font-weight: 700; cursor: pointer; width: 100%; }
+  .btn-primary { background: var(--gold); color: var(--on-gold); border: none; border-radius: 12px; padding: 14px 24px; font-size: 15px; font-weight: 700; cursor: pointer; width: 100%; }
   .btn-primary:active { opacity: 0.8; }
 
   /* Section label */
@@ -74,16 +103,16 @@
   .round-row { display: flex; align-items: center; gap: 0; border-radius: var(--radius); overflow: hidden; border: 0.5px solid var(--border); background: var(--card); flex-shrink: 0; }
   .round-card { flex: 1; padding: 16px 18px; cursor: pointer; transition: opacity 0.15s; display: flex; align-items: center; gap: 14px; min-width: 0; }
   .round-card:active { opacity: 0.7; }
-  .delete-btn { background: var(--red-light); border: none; color: var(--red); font-size: 18px; width: 52px; min-height: 100%; display: flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0; border-left: 0.5px solid rgba(192,57,43,0.15); }
-  .delete-btn:active { background: #f5c6c2; }
+  .delete-btn { background: color-mix(in srgb, var(--warning) 15%, white); border: none; color: var(--warning); font-size: 18px; width: 52px; min-height: 100%; display: flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0; border-left: 0.5px solid color-mix(in srgb, var(--warning) 15%, transparent); }
+  .delete-btn:active { background: color-mix(in srgb, var(--warning) 30%, white); }
   .round-score-badge { width: 52px; height: 52px; border-radius: 14px; display: flex; flex-direction: column; align-items: center; justify-content: center; flex-shrink: 0; }
-  .round-score-badge.over { background: var(--red-light); }
-  .round-score-badge.under { background: var(--green-light); }
+  .round-score-badge.over { background: color-mix(in srgb, var(--warning) 20%, white); }
+  .round-score-badge.under { background: color-mix(in srgb, var(--success) 20%, white); }
   .round-score-badge.even { background: #f0f0f0; }
   .round-score-badge.nopar { background: #f5f5f5; }
   .badge-diff { font-size: 18px; font-weight: 800; line-height: 1; }
-  .badge-diff.over { color: var(--red); }
-  .badge-diff.under { color: var(--green-dark); }
+  .badge-diff.over { color: var(--warning); }
+  .badge-diff.under { color: var(--success); }
   .badge-diff.even { color: #555; }
   .badge-diff.nopar { color: var(--text-muted); font-size: 13px; }
   .badge-label { font-size: 10px; font-weight: 600; color: var(--text-muted); margin-top: 1px; }
@@ -96,41 +125,41 @@
   #detail-view { display: none; position: absolute; inset: 0; flex-direction: column; background: var(--bg-primary); z-index: 150; }
   #detail-view.visible { display: flex; }
   #detail-content { flex: 1; min-height: 0; overflow-y: auto; -webkit-overflow-scrolling: touch; padding: 14px 14px calc(var(--safe-bottom) + 110px); }
-  .detail-tab-bar { background: transparent; border-bottom: 0.5px solid rgba(200,169,106,0.15); padding: 0 14px 12px; display: flex; gap: 6px; flex-shrink: 0; }
-  .detail-tab { flex: 1; padding: 8px; font-size: 13px; font-weight: 500; text-align: center; border-radius: 8px; border: 0.5px solid rgba(200,169,106,0.15); cursor: pointer; background: rgba(200,169,106,0.06); color: var(--text-muted); font-family: inherit; }
-  .detail-tab.active { background: var(--gold); color: #0D0D0D; border-color: var(--gold); }
+  .detail-tab-bar { background: transparent; border-bottom: 0.5px solid color-mix(in srgb, var(--gold) 15%, transparent); padding: 0 14px 12px; display: flex; gap: 6px; flex-shrink: 0; }
+  .detail-tab { flex: 1; padding: 8px; font-size: 13px; font-weight: 500; text-align: center; border-radius: 8px; border: 0.5px solid color-mix(in srgb, var(--gold) 15%, transparent); cursor: pointer; background: color-mix(in srgb, var(--gold) 6%, transparent); color: var(--text-muted); font-family: inherit; }
+  .detail-tab.active { background: var(--gold); color: var(--on-gold); border-color: var(--gold); }
   .detail-screen { display: none; }
   .detail-screen.active { display: block; }
-  .detail-header { background: var(--bg-primary); padding: calc(var(--safe-top) + 20px) 24px 20px; border-bottom: 0.5px solid rgba(200,169,106,0.12); }
+  .detail-header { background: var(--bg-primary); padding: calc(var(--safe-top) + 20px) 24px 20px; border-bottom: 0.5px solid color-mix(in srgb, var(--gold) 12%, transparent); }
   .detail-header-top { display: flex; align-items: center; gap: 16px; margin-bottom: 10px; }
   .detail-course { font-size: 16px; font-weight: 500; color: var(--text-primary); flex: 1; letter-spacing: 0.01em; }
   .detail-date { font-size: 12px; color: var(--text-muted); letter-spacing: 0.04em; }
   .detail-stats { display: flex; gap: 0; }
   .detail-stat { flex: 1; text-align: center; }
-  .detail-stat-num { font-size: 24px; font-weight: 800; color: #fff; }
+  .detail-stat-num { font-size: 24px; font-weight: 800; color: var(--text-primary); }
   .detail-stat-lbl { font-size: 11px; color: rgba(255,255,255,0.6); margin-top: 1px; }
 
   /* Scorecard */
-  .scorecard { background: rgba(28,28,28,0.85); border-radius: var(--radius); border: 0.5px solid rgba(200,169,106,0.15); overflow: hidden; }
+  .scorecard { background: color-mix(in srgb, var(--surface) 85%, transparent); border-radius: var(--radius); border: 0.5px solid color-mix(in srgb, var(--gold) 15%, transparent); overflow: hidden; }
   .scorecard-table { width: 100%; border-collapse: collapse; font-size: 14px; }
-  .scorecard-table th { background: rgba(200,169,106,0.12); color: var(--gold); font-size: 11px; font-weight: 500; padding: 10px 6px; text-align: center; letter-spacing: 0.06em; }
+  .scorecard-table th { background: color-mix(in srgb, var(--gold) 12%, transparent); color: var(--gold); font-size: 11px; font-weight: 500; padding: 10px 6px; text-align: center; letter-spacing: 0.06em; }
   .scorecard-table th:first-child { text-align: left; padding-left: 14px; }
-  .scorecard-table td { padding: 11px 6px; text-align: center; border-bottom: 0.5px solid rgba(200,169,106,0.08); color: var(--text-primary); }
+  .scorecard-table td { padding: 11px 6px; text-align: center; border-bottom: 0.5px solid color-mix(in srgb, var(--gold) 8%, transparent); color: var(--text-primary); }
   .scorecard-table td:first-child { text-align: left; padding-left: 14px; font-weight: 600; color: var(--text-primary); }
-  .scorecard-table tr:last-child td { border-bottom: none; font-weight: 600; background: rgba(200,169,106,0.06); }
-  .diff-over { color: #e74c3c; font-weight: 500; }
+  .scorecard-table tr:last-child td { border-bottom: none; font-weight: 600; background: color-mix(in srgb, var(--gold) 6%, transparent); }
+  .diff-over { color: var(--warning); font-weight: 500; }
   .diff-under { color: var(--gold); font-weight: 500; }
   .diff-even { color: var(--text-muted); }
   .score-icon-cell { width: 32px; text-align: center; padding: 6px 4px; }
   .score-icon-cell img { width: 28px; height: 28px; object-fit: contain; display: block; margin: 0 auto; }
 
   /* Comparison table */
-  .compare-card { background: rgba(28,28,28,0.85); border-radius: var(--radius); border: 0.5px solid rgba(200,169,106,0.15); overflow: hidden; margin-top: 12px; }
-  .compare-title { font-size: 11px; font-weight: 500; padding: 10px 14px; border-bottom: 0.5px solid rgba(200,169,106,0.1); color: var(--text-muted); letter-spacing: 0.1em; text-transform: uppercase; }
+  .compare-card { background: color-mix(in srgb, var(--surface) 85%, transparent); border-radius: var(--radius); border: 0.5px solid color-mix(in srgb, var(--gold) 15%, transparent); overflow: hidden; margin-top: 12px; }
+  .compare-title { font-size: 11px; font-weight: 500; padding: 10px 14px; border-bottom: 0.5px solid color-mix(in srgb, var(--gold) 10%, transparent); color: var(--text-muted); letter-spacing: 0.1em; text-transform: uppercase; }
   .compare-table { width: 100%; border-collapse: collapse; font-size: 13px; }
-  .compare-table th { background: rgba(200,169,106,0.08); font-size: 10px; font-weight: 500; padding: 8px 10px; text-align: center; color: var(--text-muted); letter-spacing: 0.06em; text-transform: uppercase; }
+  .compare-table th { background: color-mix(in srgb, var(--gold) 8%, transparent); font-size: 10px; font-weight: 500; padding: 8px 10px; text-align: center; color: var(--text-muted); letter-spacing: 0.06em; text-transform: uppercase; }
   .compare-table th:first-child { text-align: left; padding-left: 14px; }
-  .compare-table td { padding: 9px 10px; text-align: center; border-bottom: 0.5px solid rgba(200,169,106,0.08); color: var(--text-primary); }
+  .compare-table td { padding: 9px 10px; text-align: center; border-bottom: 0.5px solid color-mix(in srgb, var(--gold) 8%, transparent); color: var(--text-primary); }
   .compare-table td:first-child { text-align: left; padding-left: 14px; font-weight: 600; color: var(--text-primary); }
   .compare-table tr:last-child td { border-bottom: none; }
   .compare-table td.best { color: var(--gold); font-weight: 500; }
@@ -138,33 +167,33 @@
   /* ── Bottom sheet ── */
   .sheet-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 110; }
   .sheet-overlay.active { display: block; }
-  .bottom-sheet { position: fixed; bottom: 0; left: 0; right: 0; max-width: 430px; margin: 0 auto; background: #1C1C1C; border-radius: 20px 20px 0 0; border-top: 0.5px solid rgba(200,169,106,0.2); padding: 0; z-index: 111; transform: translateY(100%); transition: transform 0.3s cubic-bezier(0.32,0.72,0,1); max-height: 90vh; display: flex; flex-direction: column; }
+  .bottom-sheet { position: fixed; bottom: 0; left: 0; right: 0; max-width: 430px; margin: 0 auto; background: var(--surface); border-radius: 20px 20px 0 0; border-top: 0.5px solid color-mix(in srgb, var(--gold) 20%, transparent); padding: 0; z-index: 111; transform: translateY(100%); transition: transform 0.3s cubic-bezier(0.32,0.72,0,1); max-height: 90vh; display: flex; flex-direction: column; }
   .bottom-sheet.open { transform: translateY(0); }
-  .sheet-handle { width: 36px; height: 4px; background: rgba(200,169,106,0.3); border-radius: 2px; margin: 12px auto 4px; }
-  .sheet-title { font-size: 17px; font-weight: 600; color: var(--gold); padding: 12px 20px 16px; border-bottom: 0.5px solid rgba(200,169,106,0.12); }
+  .sheet-handle { width: 36px; height: 4px; background: color-mix(in srgb, var(--gold) 30%, transparent); border-radius: 2px; margin: 12px auto 4px; }
+  .sheet-title { font-size: 17px; font-weight: 600; color: var(--gold); padding: 12px 20px 16px; border-bottom: 0.5px solid color-mix(in srgb, var(--gold) 12%, transparent); }
 
   /* Add round form */
   .form-body { padding: 16px 20px; display: flex; flex-direction: column; gap: 16px; overflow-y: auto; flex: 1; }
   .form-group { display: flex; flex-direction: column; gap: 6px; }
   .form-label { font-size: 11px; font-weight: 500; color: var(--text-muted); letter-spacing: 0.1em; text-transform: uppercase; }
-  .form-input { background: rgba(13,13,13,0.7); border: 0.5px solid rgba(200,169,106,0.3); border-radius: 10px; padding: 12px 14px; font-size: 15px; font-family: inherit; color: var(--text-primary); width: 100%; -webkit-appearance: none; }
+  .form-input { background: color-mix(in srgb, var(--bg) 70%, transparent); border: 0.5px solid color-mix(in srgb, var(--gold) 30%, transparent); border-radius: 10px; padding: 12px 14px; font-size: 15px; font-family: inherit; color: var(--text-primary); width: 100%; -webkit-appearance: none; }
   .form-input:focus { outline: none; border-color: var(--gold); }
   .hole-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
-  .hole-entry { background: rgba(13,13,13,0.5); border: 0.5px solid rgba(200,169,106,0.15); border-radius: 10px; padding: 10px 8px; text-align: center; }
+  .hole-entry { background: color-mix(in srgb, var(--bg) 50%, transparent); border: 0.5px solid color-mix(in srgb, var(--gold) 15%, transparent); border-radius: 10px; padding: 10px 8px; text-align: center; }
   .hole-entry-label { font-size: 10px; font-weight: 500; color: var(--gold-muted); margin-bottom: 6px; letter-spacing: 0.06em; text-transform: uppercase; }
   .hole-entry-inputs { display: flex; gap: 4px; align-items: center; }
-  .hole-mini-input { flex: 1; background: rgba(13,13,13,0.7); border: 0.5px solid rgba(200,169,106,0.25); border-radius: 7px; padding: 7px 4px; font-size: 14px; font-weight: 500; color: var(--text-primary); text-align: center; font-family: inherit; width: 0; -webkit-appearance: none; }
+  .hole-mini-input { flex: 1; background: color-mix(in srgb, var(--bg) 70%, transparent); border: 0.5px solid color-mix(in srgb, var(--gold) 25%, transparent); border-radius: 7px; padding: 7px 4px; font-size: 14px; font-weight: 500; color: var(--text-primary); text-align: center; font-family: inherit; width: 0; -webkit-appearance: none; }
   .hole-mini-input:focus { outline: none; border-color: var(--gold); color: var(--gold); }
   .hole-sep { font-size: 11px; color: var(--text-muted); flex-shrink: 0; }
   .hole-col-labels { display: flex; gap: 4px; justify-content: center; margin-bottom: 2px; }
   .hole-col-label { flex: 1; font-size: 9px; color: var(--text-muted); text-align: center; font-weight: 500; letter-spacing: 0.06em; text-transform: uppercase; }
   .holes-section-label { font-size: 13px; font-weight: 500; color: var(--text-primary); display: flex; align-items: center; justify-content: space-between; }
-  .holes-toggle { display: flex; gap: 0; background: rgba(13,13,13,0.5); border-radius: 10px; border: 0.5px solid rgba(200,169,106,0.2); overflow: hidden; width: 160px; flex-shrink: 0; }
+  .holes-toggle { display: flex; gap: 0; background: color-mix(in srgb, var(--bg) 50%, transparent); border-radius: 10px; border: 0.5px solid color-mix(in srgb, var(--gold) 20%, transparent); overflow: hidden; width: 160px; flex-shrink: 0; }
   .holes-toggle button { flex: 1; background: none; border: none; padding: 10px 0; font-size: 15px; font-weight: 500; color: var(--text-muted); cursor: pointer; font-family: inherit; }
-  .holes-toggle button.active { background: var(--gold); color: #0D0D0D; }
-  .form-actions { display: flex; gap: 10px; padding: 12px 20px calc(var(--safe-bottom) + 16px); flex-shrink: 0; border-top: 0.5px solid rgba(200,169,106,0.12); background: #1C1C1C; }
-  .btn-save { flex: 1; background: var(--gold); color: #0D0D0D; border: none; border-radius: 12px; padding: 14px; font-size: 15px; font-weight: 600; cursor: pointer; font-family: inherit; }
-  .btn-cancel { background: rgba(13,13,13,0.7); color: var(--text-muted); border: 0.5px solid rgba(200,169,106,0.2); border-radius: 12px; padding: 14px 20px; font-size: 15px; font-weight: 500; cursor: pointer; font-family: inherit; }
+  .holes-toggle button.active { background: var(--gold); color: var(--on-gold); }
+  .form-actions { display: flex; gap: 10px; padding: 12px 20px calc(var(--safe-bottom) + 16px); flex-shrink: 0; border-top: 0.5px solid color-mix(in srgb, var(--gold) 12%, transparent); background: var(--surface); }
+  .btn-save { flex: 1; background: var(--gold); color: var(--on-gold); border: none; border-radius: 12px; padding: 14px; font-size: 15px; font-weight: 600; cursor: pointer; font-family: inherit; }
+  .btn-cancel { background: color-mix(in srgb, var(--bg) 70%, transparent); color: var(--text-muted); border: 0.5px solid color-mix(in srgb, var(--gold) 20%, transparent); border-radius: 12px; padding: 14px 20px; font-size: 15px; font-weight: 500; cursor: pointer; font-family: inherit; }
   .btn-save:active { opacity: 0.8; }
   .btn-cancel:active { opacity: 0.7; }
 
@@ -172,31 +201,31 @@
   .confirm-body { padding: 16px 20px 8px; }
   .confirm-msg { font-size: 15px; color: var(--text-secondary); line-height: 1.5; margin-bottom: 20px; }
   .confirm-actions { display: flex; gap: 10px; }
-  .btn-delete { flex: 1; background: #c0392b; color: #fff; border: none; border-radius: 12px; padding: 14px; font-size: 15px; font-weight: 600; cursor: pointer; font-family: inherit; }
+  .btn-delete { flex: 1; background: var(--warning); color: #fff; border: none; border-radius: 12px; padding: 14px; font-size: 15px; font-weight: 600; cursor: pointer; font-family: inherit; }
   .btn-delete:active { opacity: 0.8; }
 
   /* Course picker dropdown */
-  .course-suggestions { background: #1C1C1C; border: 0.5px solid rgba(200,169,106,0.2); border-radius: 10px; margin-top: 4px; overflow: hidden; display: none; }
-  .course-suggestion-item { padding: 11px 14px; font-size: 14px; cursor: pointer; border-bottom: 0.5px solid rgba(200,169,106,0.1); color: var(--text-primary); }
+  .course-suggestions { background: var(--surface); border: 0.5px solid color-mix(in srgb, var(--gold) 20%, transparent); border-radius: 10px; margin-top: 4px; overflow: hidden; display: none; }
+  .course-suggestion-item { padding: 11px 14px; font-size: 14px; cursor: pointer; border-bottom: 0.5px solid color-mix(in srgb, var(--gold) 10%, transparent); color: var(--text-primary); }
   .course-suggestion-item:last-child { border-bottom: none; }
-  .course-suggestion-item:active { background: rgba(200,169,106,0.08); }
+  .course-suggestion-item:active { background: color-mix(in srgb, var(--gold) 8%, transparent); }
   .course-suggestion-name { font-weight: 600; color: var(--text-primary); }
   .course-suggestion-suburb { font-size: 12px; color: var(--text-muted); margin-top: 1px; }
 
   /* Edit button on round rows */
-  .edit-btn { background: #1C1C1C; border: none; color: var(--text-muted); font-size: 16px; width: 44px; min-height: 100%; display: flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0; border-left: 0.5px solid rgba(200,169,106,0.12); }
-  .edit-btn:active { background: #252525; }
+  .edit-btn { background: var(--surface); border: none; color: var(--text-muted); font-size: 16px; width: 44px; min-height: 100%; display: flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0; border-left: 0.5px solid color-mix(in srgb, var(--gold) 12%, transparent); }
+  .edit-btn:active { background: color-mix(in srgb, var(--surface) 85%, black); }
   /* Auth badge */
-  .header-auth-badge { position: absolute; top: 10px; right: 14px; display: none; align-items: center; gap: 6px; background: rgba(13,13,13,0.6); backdrop-filter: blur(6px); border: 0.5px solid rgba(200,169,106,0.2); border-radius: 20px; padding: 5px 10px 5px 8px; z-index: 20; }
+  .header-auth-badge { position: absolute; top: 10px; right: 14px; display: none; align-items: center; gap: 6px; background: color-mix(in srgb, var(--bg) 60%, transparent); backdrop-filter: blur(6px); border: 0.5px solid color-mix(in srgb, var(--gold) 20%, transparent); border-radius: 20px; padding: 5px 10px 5px 8px; z-index: 20; }
   .header-auth-badge.visible { display: flex; }
-  .header-auth-dot { width: 8px; height: 8px; border-radius: 50%; background: #2ecc71; flex-shrink: 0; }
+  .header-auth-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--success); flex-shrink: 0; }
   .header-auth-email { font-size: 11px; font-weight: 500; color: var(--gold); white-space: nowrap; }
 
   /* Home button — bottom-left of header, under logo */
     .home-btn { position: absolute; top: 0; left: 0; width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; z-index: 60; text-decoration: none; cursor: pointer; }
   .home-btn img { width: 44px; height: 44px; object-fit: contain; display: block; }
   .home-btn:active { opacity: 0.7; }
-#toast { position: fixed; bottom: calc(var(--safe-bottom) + 100px); left: 50%; transform: translateX(-50%) translateY(20px); background: rgba(28,28,28,0.97); color: var(--gold); border: 0.5px solid rgba(200,169,106,0.4); padding: 12px 24px; border-radius: 14px; font-size: 14px; font-weight: 500; letter-spacing: 0.03em; opacity: 0; transition: opacity 0.3s, transform 0.3s; pointer-events: none; white-space: nowrap; z-index: 999; backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); box-shadow: 0 4px 24px rgba(0,0,0,0.4); }
+#toast { position: fixed; bottom: calc(var(--safe-bottom) + 100px); left: 50%; transform: translateX(-50%) translateY(20px); background: color-mix(in srgb, var(--surface) 97%, transparent); color: var(--gold); border: 0.5px solid color-mix(in srgb, var(--gold) 40%, transparent); padding: 12px 24px; border-radius: 14px; font-size: 14px; font-weight: 500; letter-spacing: 0.03em; opacity: 0; transition: opacity 0.3s, transform 0.3s; pointer-events: none; white-space: nowrap; z-index: 999; backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); box-shadow: 0 4px 24px rgba(0,0,0,0.4); }
 #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 </style>
 </head>
@@ -1013,7 +1042,7 @@ function showDetail(index) {
   document.getElementById('detail-total-par').textContent = totalPar || '–';
   const vsParEl = document.getElementById('detail-vs-par');
   vsParEl.textContent = formatVsPar(diff);
-  vsParEl.style.color = diff > 0 ? '#e74c3c' : diff < 0 ? 'var(--gold)' : 'var(--text-muted)';
+  vsParEl.style.color = diff > 0 ? 'var(--warning)' : diff < 0 ? 'var(--gold)' : 'var(--text-muted)';
 
   const holes = Object.keys(sph).map(Number).sort((a,b) => a-b);
   let compareContent = '';
@@ -1058,7 +1087,7 @@ function renderHistorySummary(index) {
     return { played: played.length, shots, totalPar: parHoles.length ? tPar : null, overPar, avgOver, tPutts, avgPutts, stablefordPts, hasPoints };
   }
   function overStr(v) { if (v===null) return '–'; if (v===0) return 'E'; return (v>0?'+':'')+v; }
-  function overCol(v) { if (v===null||v===0) return 'color:var(--text-muted)'; return v>0?'color:#e74c3c':'color:var(--gold)'; }
+  function overCol(v) { if (v===null||v===0) return 'color:var(--text-muted)'; return v>0?'color:var(--warning)':'color:var(--gold)'; }
   function avgOverStr(v) { if (v===null) return '–'; const n=parseFloat(v); if(n===0)return'E'; return (n>0?'+':'')+v; }
 
   function summaryBlock(label, holeList) {
@@ -1066,17 +1095,17 @@ function renderHistorySummary(index) {
     if (!d) return '';
     const parLabel = d.totalPar !== null ? 'Par '+d.totalPar : '';
     return `<div class="scorecard" style="margin-top:12px;">
-      <div style="background:rgba(200,169,106,0.12);padding:10px 14px;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;border-bottom:0.5px solid rgba(200,169,106,0.12);">
+      <div style="background:color-mix(in srgb, var(--gold) 12%, transparent);padding:10px 14px;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;border-bottom:0.5px solid color-mix(in srgb, var(--gold) 12%, transparent);">
         <span style="font-size:15px;font-weight:500;color:var(--gold);">${label}</span>
         <span style="font-size:13px;font-weight:400;color:var(--text-muted);text-align:center;">${parLabel}</span>
         <span style="font-size:13px;color:var(--text-muted);text-align:right;">${d.played} hole${d.played===1?'':'s'}</span>
       </div>
-      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;border-bottom:0.5px solid rgba(200,169,106,0.12);">
-        <div style="display:flex;flex-direction:column;align-items:center;padding:10px 6px;border-right:0.5px solid rgba(200,169,106,0.12);">
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;border-bottom:0.5px solid color-mix(in srgb, var(--gold) 12%, transparent);">
+        <div style="display:flex;flex-direction:column;align-items:center;padding:10px 6px;border-right:0.5px solid color-mix(in srgb, var(--gold) 12%, transparent);">
           <span style="font-size:9px;letter-spacing:0.1em;text-transform:uppercase;color:var(--text-muted);margin-bottom:4px;">Shots</span>
           <span style="font-size:15px;font-weight:500;color:var(--text-primary);">${d.shots}</span>
         </div>
-        <div style="display:flex;flex-direction:column;align-items:center;padding:10px 6px;border-right:0.5px solid rgba(200,169,106,0.12);">
+        <div style="display:flex;flex-direction:column;align-items:center;padding:10px 6px;border-right:0.5px solid color-mix(in srgb, var(--gold) 12%, transparent);">
           <span style="font-size:9px;letter-spacing:0.1em;text-transform:uppercase;color:var(--text-muted);margin-bottom:4px;">Over/Under</span>
           <span style="font-size:15px;font-weight:500;${overCol(d.overPar)}">${overStr(d.overPar)}</span>
         </div>
@@ -1085,11 +1114,11 @@ function renderHistorySummary(index) {
           <span style="font-size:15px;font-weight:500;color:var(--gold);">${d.tPutts||'–'}</span>
         </div>
       </div>
-      <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-bottom:0.5px solid rgba(200,169,106,0.08);">
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-bottom:0.5px solid color-mix(in srgb, var(--gold) 8%, transparent);">
         <span style="font-size:13px;color:var(--text-muted);">Avg shots over par / hole</span>
         <span style="font-size:13px;font-weight:500;${overCol(d.overPar)}">${avgOverStr(d.avgOver)}</span>
       </div>
-      ${d.avgPutts ? `<div style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-bottom:0.5px solid rgba(200,169,106,0.08);">
+      ${d.avgPutts ? `<div style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-bottom:0.5px solid color-mix(in srgb, var(--gold) 8%, transparent);">
         <span style="font-size:13px;color:var(--text-muted);">Avg putts per hole</span>
         <span style="font-size:13px;font-weight:500;color:var(--gold);">${d.avgPutts}</span>
       </div>` : ''}
@@ -1105,9 +1134,9 @@ function renderHistorySummary(index) {
   const all18  = Array.from({length:18},(_,i) => i+1);
 
   const gActive = historyScView === 'gross';
-  let summaryContent = `<div style="display:flex;gap:0;background:rgba(13,13,13,0.5);border-radius:10px;border:0.5px solid rgba(200,169,106,0.2);overflow:hidden;">
-    <button id="hsum-toggle-gross" onclick="setHistoryScView('gross')" style="flex:1;background:${gActive?'#C8A96A':'none'};color:${gActive?'#0D0D0D':'var(--text-muted)'};border:none;padding:10px 6px;font-size:14px;font-weight:500;cursor:pointer;font-family:inherit;">Gross</button>
-    <button id="hsum-toggle-net"   onclick="setHistoryScView('net')"   style="flex:1;background:${!gActive?'#C8A96A':'none'};color:${!gActive?'#0D0D0D':'var(--text-muted)'};border:none;padding:10px 6px;font-size:14px;font-weight:500;cursor:pointer;font-family:inherit;">Net</button>
+  let summaryContent = `<div style="display:flex;gap:0;background:color-mix(in srgb, var(--bg) 50%, transparent);border-radius:10px;border:0.5px solid color-mix(in srgb, var(--gold) 20%, transparent);overflow:hidden;">
+    <button id="hsum-toggle-gross" onclick="setHistoryScView('gross')" style="flex:1;background:${gActive?'var(--gold)':'none'};color:${gActive?'var(--on-gold)':'var(--text-muted)'};border:none;padding:10px 6px;font-size:14px;font-weight:500;cursor:pointer;font-family:inherit;">Gross</button>
+    <button id="hsum-toggle-net"   onclick="setHistoryScView('net')"   style="flex:1;background:${!gActive?'var(--gold)':'none'};color:${!gActive?'var(--on-gold)':'var(--text-muted)'};border:none;padding:10px 6px;font-size:14px;font-weight:500;cursor:pointer;font-family:inherit;">Net</button>
   </div>`;
 
   summaryContent += summaryBlock('Front 9', front9);
@@ -1140,10 +1169,10 @@ function setHistoryScView(view) {
     const gBtn = document.getElementById(prefix + '-toggle-gross');
     const nBtn = document.getElementById(prefix + '-toggle-net');
     if (gBtn && nBtn) {
-      gBtn.style.background = view === 'gross' ? '#C8A96A' : 'none';
-      gBtn.style.color      = view === 'gross' ? '#0D0D0D' : 'var(--text-muted)';
-      nBtn.style.background = view === 'net'   ? '#C8A96A' : 'none';
-      nBtn.style.color      = view === 'net'   ? '#0D0D0D' : 'var(--text-muted)';
+      gBtn.style.background = view === 'gross' ? 'var(--gold)' : 'none';
+      gBtn.style.color      = view === 'gross' ? 'var(--on-gold)' : 'var(--text-muted)';
+      nBtn.style.background = view === 'net'   ? 'var(--gold)' : 'none';
+      nBtn.style.color      = view === 'net'   ? 'var(--on-gold)' : 'var(--text-muted)';
     }
   });
 }
@@ -1174,9 +1203,9 @@ function renderHistoryScorecard(index) {
   const { extras: historyExtras } = getHandicapContext(round);
 
   const gActive = historyScView === 'gross';
-  let sc = `<div style="display:flex;gap:0;background:rgba(13,13,13,0.5);border-radius:10px;border:0.5px solid rgba(200,169,106,0.2);overflow:hidden;margin-bottom:10px;">
-    <button id="hsc-toggle-gross" onclick="setHistoryScView('gross')" style="flex:1;background:${gActive?'#C8A96A':'none'};color:${gActive?'#0D0D0D':'var(--text-muted)'};border:none;padding:10px 6px;font-size:14px;font-weight:500;cursor:pointer;font-family:inherit;">Gross</button>
-    <button id="hsc-toggle-net"   onclick="setHistoryScView('net')"   style="flex:1;background:${!gActive?'#C8A96A':'none'};color:${!gActive?'#0D0D0D':'var(--text-muted)'};border:none;padding:10px 6px;font-size:14px;font-weight:500;cursor:pointer;font-family:inherit;">Net</button>
+  let sc = `<div style="display:flex;gap:0;background:color-mix(in srgb, var(--bg) 50%, transparent);border-radius:10px;border:0.5px solid color-mix(in srgb, var(--gold) 20%, transparent);overflow:hidden;margin-bottom:10px;">
+    <button id="hsc-toggle-gross" onclick="setHistoryScView('gross')" style="flex:1;background:${gActive?'var(--gold)':'none'};color:${gActive?'var(--on-gold)':'var(--text-muted)'};border:none;padding:10px 6px;font-size:14px;font-weight:500;cursor:pointer;font-family:inherit;">Gross</button>
+    <button id="hsc-toggle-net"   onclick="setHistoryScView('net')"   style="flex:1;background:${!gActive?'var(--gold)':'none'};color:${!gActive?'var(--on-gold)':'var(--text-muted)'};border:none;padding:10px 6px;font-size:14px;font-weight:500;cursor:pointer;font-family:inherit;">Net</button>
   </div>`;
 
   sc += `<div class="scorecard"><table class="scorecard-table">
@@ -1240,7 +1269,7 @@ function renderComparison(thisRound, otherRounds, holes) {
   });
 
   const thisTotal = getTotalStrokes(thisRound);
-  html += `<tr style="font-weight:600;background:rgba(200,169,106,0.06);color:var(--text-primary);"><td>Total</td><td>${getTotalPar(thisRound)||'–'}</td><td>${thisTotal}</td>`;
+  html += `<tr style="font-weight:600;background:color-mix(in srgb, var(--gold) 6%, transparent);color:var(--text-primary);"><td>Total</td><td>${getTotalPar(thisRound)||'–'}</td><td>${thisTotal}</td>`;
   others.forEach(r => { html += `<td>${getTotalStrokes(r)}</td>`; });
   html += `</tr></tbody></table>
   <div style="font-size:11px;color:var(--text-muted);padding:8px 14px 12px;">Gold = best score for that hole</div>

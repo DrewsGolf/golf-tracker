@@ -969,6 +969,7 @@ function renderHistorySummary(index) {
   const { extras: getExtras } = getHandicapContext(round);
   const netActive = historyScView === 'net';
   const shotsFor = h => netActive ? (sph[h] - getExtras(h)) : sph[h];
+  const netShotsFor = h => sph[h] - getExtras(h); // Stableford points are always net-based, regardless of the toggle
 
   function calcBlock(holeList) {
     const played = holeList.filter(h => sph[h] > 0);
@@ -981,8 +982,8 @@ function renderHistorySummary(index) {
     const puttHoles= played.filter(h => round.holePutts && round.holePutts[h] > 0);
     const tPutts   = played.reduce((a,h) => a + (round.holePutts && round.holePutts[h] ? round.holePutts[h] : 0), 0);
     const avgPutts = puttHoles.length ? (tPutts / puttHoles.length).toFixed(1) : null;
-    const stablefordPts = played.reduce((a,h) => { const p = holePoints(shotsFor(h), round.pars && round.pars[h]); return p !== null ? a+p : a; }, 0);
-    const hasPoints = played.some(h => holePoints(shotsFor(h), round.pars && round.pars[h]) !== null);
+    const stablefordPts = played.reduce((a,h) => { const p = holePoints(netShotsFor(h), round.pars && round.pars[h]); return p !== null ? a+p : a; }, 0);
+    const hasPoints = played.some(h => holePoints(netShotsFor(h), round.pars && round.pars[h]) !== null);
     return { played: played.length, shots, totalPar: parHoles.length ? tPar : null, overPar, avgOver, tPutts, avgPutts, stablefordPts, hasPoints };
   }
   function overStr(v) { if (v===null) return '–'; if (v===0) return 'E'; return (v>0?'+':'')+v; }
@@ -1118,11 +1119,12 @@ function renderHistoryScorecard(index) {
     totalPutts  += putts;
     const extras = historyExtras(h);
     const display = historyScView === 'net' ? (shots - extras) : shots;
+    const netDisplay = shots - extras; // Stableford points are always net-based, regardless of the Gross/Net toggle
     const d      = par !== null ? display - par : null;
     const dStr   = d === null ? '–' : (d === 0 ? 'E' : (d > 0 ? '+'+d : ''+d));
     const dCls   = d === null ? 'diff-even' : d > 0 ? 'diff-over' : d < 0 ? 'diff-under' : 'diff-even';
     const icon   = scoreIconImg(display, par);
-    const pts    = holePoints(display, par);
+    const pts    = holePoints(netDisplay, par);
     if (pts !== null) { totalPts += pts; hasPts = true; }
     sc += `<tr><td>${h}</td><td class="score-icon-cell">${icon}</td><td>${par ?? '–'}</td><td>${shots}</td><td class="${dCls}">${dStr}</td><td style="color:var(--gold);">${putts||'–'}</td><td style="color:var(--gold);font-weight:500;">${pts??'–'}</td></tr>`;
   });

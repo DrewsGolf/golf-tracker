@@ -1,4 +1,4 @@
-const CACHE = 'golf-tracker-v17';
+const CACHE = 'golf-tracker-v18';
 const STATIC = [
   '/courses.js',
   '/manifest.json',
@@ -37,7 +37,6 @@ const HTML_FILENAMES = [
   'history.html',
   'clubs.html',
   'distance.html',
-  'range.html',
   'settings.html',
   'suggest.html'
 ];

@@ -411,8 +411,14 @@ function newRound() {
   });
 }
 
+// Tracks a round already saved once this session (e.g. user chose "Go back and check"
+// after a par mismatch) so re-saving updates that same round instead of duplicating it.
+let lastSavedRoundId = null;
+let lastSavedLocalId = null;
+
 function resetState() {
   holeScores = {}; holePars = {}; holePutts = {}; holeStrokeIndex = {}; shots = []; currentHole = 1; currentCourse = null;
+  lastSavedRoundId = null; lastSavedLocalId = null;
   localStorage.removeItem('golf-scores-v1');
   localStorage.removeItem('golf-pars-v1');
   localStorage.removeItem('golf-si-v1');
@@ -621,16 +627,85 @@ function finishRound() {
   });
 }
 
+// ── Post-round: check if pars you actually played differ from Supabase course data ──
+async function checkParMismatch(courseName, pars, scoredHoles) {
+  if (!courseName || !currentUser) return null;
+  try {
+    const { data: courses } = await sb.from('courses').select('id').ilike('name', courseName).limit(1);
+    if (!courses || courses.length === 0) return null;
+    const courseId = courses[0].id;
+    const { data: holes } = await sb.from('course_holes').select('hole, par').eq('course_id', courseId);
+    if (!holes || holes.length === 0) return null;
+    const storedPar = {};
+    holes.forEach(h => { if (h.par) storedPar[h.hole] = h.par; });
+    const mismatches = [];
+    scoredHoles.forEach(h => {
+      const entered = pars[h];
+      const stored  = storedPar[h];
+      if (entered && stored && entered !== stored) mismatches.push({ hole: h, entered, stored });
+    });
+    return { courseId, mismatches };
+  } catch(e) { console.error('Par mismatch check error:', e); return null; }
+}
+
+function showParMismatchDialog(courseName, result) {
+  const mismatches = result.mismatches;
+  const summary = mismatches.map(m => 'hole '+m.hole+' (you played par '+m.entered+', course has par '+m.stored+')').join(', ');
+  showDialog({
+    icon: '&#9888;&#65039;',
+    title: 'Par Differs From Course Data',
+    sub: (courseName || 'This course') + ' — ' + summary + '. Update the course record, leave it as is, or go back and check your entry?',
+    buttons: [
+      { label: 'Update course data', style: 'primary',   action: () => applyParMismatchUpdate(result.courseId, mismatches) },
+      { label: 'Leave course as is', style: 'secondary', action: finishAndLeaveCourseData },
+      { label: 'Go back and check',  style: 'secondary', action: () => { /* stay on round.html — state is untouched, nothing to do */ } }
+    ]
+  });
+}
+
+function finishAndLeaveCourseData() {
+  resetState();
+  setTimeout(() => window.location.href = 'index.html', 300);
+}
+
+async function applyParMismatchUpdate(courseId, mismatches) {
+  try {
+    for (const m of mismatches) {
+      await sb.from('course_holes').update({ par: m.entered }).eq('course_id', courseId).eq('hole', m.hole);
+    }
+    showToast('Course par data updated');
+  } catch(e) {
+    console.error('Course par update error:', e);
+    showToast('Update failed \u2014 course data unchanged');
+  } finally {
+    resetState();
+    setTimeout(() => window.location.href = 'index.html', 1400);
+  }
+}
+
 async function doFinishRound() {
   showToast('Saving round\u2026');
   const cloudSynced = await saveRoundToHistory();
-  resetState();
+
+  // Snapshot what's needed for the course-par check. Don't reset state yet —
+  // if there's a mismatch, the user may choose to go back and fix it first.
+  const courseNameSnapshot = currentCourse ? currentCourse.name : null;
+  const parsSnapshot        = { ...holePars };
+  const scoredHolesSnapshot = Object.keys(holeScores).map(Number).filter(h => holeScores[h] > 0);
+
   if (cloudSynced) {
     showToast('Round saved!');
-    setTimeout(() => window.location.href = 'index.html', 1200);
   } else {
     showToast('Saved locally — cloud sync failed');
-    setTimeout(() => window.location.href = 'index.html', 2000);
+  }
+
+  const result = await checkParMismatch(courseNameSnapshot, parsSnapshot, scoredHolesSnapshot);
+  if (result && result.mismatches && result.mismatches.length > 0) {
+    showParMismatchDialog(courseNameSnapshot, result);
+  } else {
+    // No mismatch — safe to fully finish and clear state now
+    resetState();
+    setTimeout(() => window.location.href = 'index.html', cloudSynced ? 1200 : 2000);
   }
 }
 
@@ -641,10 +716,13 @@ async function saveRoundToHistory() {
   const parHoles   = scoredHoles.filter(h => holePars[h]);
   const totalPar   = parHoles.reduce((a,h) => a + holePars[h], 0);
   const date       = new Date();
+  const isReSave   = !!lastSavedLocalId; // true if we already saved this round once this session
 
-  // Always save to localStorage as backup
+  // Always save to localStorage as backup. If this round was already saved once
+  // (user chose "Go back and check" after a par mismatch and is re-saving with
+  // corrected data), update that same entry rather than adding a duplicate.
   const localRound = {
-    id:         Date.now().toString(),
+    id:         isReSave ? lastSavedLocalId : Date.now().toString(),
     date:       date.toLocaleDateString('en-AU'),
     dateISO:    date.toISOString(),
     course:     currentCourse ? currentCourse.name   : 'Unknown Course',
@@ -662,27 +740,49 @@ async function saveRoundToHistory() {
     shotData:   scoredHoles.sort((a,b)=>a-b).map(h => ({ hole: h, score: holeScores[h], par: holePars[h]||null }))
   };
   const history = JSON.parse(localStorage.getItem('golf-round-history') || '[]');
-  history.unshift(localRound);
+  if (isReSave) {
+    const idx = history.findIndex(r => r.id === lastSavedLocalId);
+    if (idx !== -1) history[idx] = localRound; else history.unshift(localRound);
+  } else {
+    history.unshift(localRound);
+  }
   localStorage.setItem('golf-round-history', JSON.stringify(history));
+  lastSavedLocalId = localRound.id;
 
   // Save to Supabase if logged in. Not signed in is expected/local-only by design, not a failure.
   if (!currentUser) return true;
   try {
-    // Insert round row
-    const { data: roundRow, error: roundErr } = await sb.from('rounds').insert({
-      user_id:      currentUser.id,
-      date:         date.toISOString().split('T')[0],
-      date_iso:     date.toISOString(),
-      course:       currentCourse ? currentCourse.name   : 'Unknown Course',
-      suburb:       currentCourse ? currentCourse.suburb : null,
-      holes_played: scoredHoles.length,
-      total_score:  totalScore,
-      total_par:    totalPar || null,
-      score_diff:   totalPar ? totalScore - totalPar : null,
-      handicap_at_time: handicapIndex
-    }).select().single();
-
-    if (roundErr) { console.error('Round save error:', roundErr); return false; }
+    let roundRow;
+    if (isReSave && lastSavedRoundId) {
+      // Update the existing round row instead of inserting a duplicate
+      const { data, error: updErr } = await sb.from('rounds').update({
+        holes_played: scoredHoles.length,
+        total_score:  totalScore,
+        total_par:    totalPar || null,
+        score_diff:   totalPar ? totalScore - totalPar : null,
+        handicap_at_time: handicapIndex
+      }).eq('id', lastSavedRoundId).eq('user_id', currentUser.id).select().single();
+      if (updErr) { console.error('Round update error:', updErr); return false; }
+      roundRow = data;
+      // Replace hole_scores wholesale — simplest way to keep them in sync with the corrected pars
+      await sb.from('hole_scores').delete().eq('round_id', roundRow.id).eq('user_id', currentUser.id);
+    } else {
+      const { data, error: roundErr } = await sb.from('rounds').insert({
+        user_id:      currentUser.id,
+        date:         date.toISOString().split('T')[0],
+        date_iso:     date.toISOString(),
+        course:       currentCourse ? currentCourse.name   : 'Unknown Course',
+        suburb:       currentCourse ? currentCourse.suburb : null,
+        holes_played: scoredHoles.length,
+        total_score:  totalScore,
+        total_par:    totalPar || null,
+        score_diff:   totalPar ? totalScore - totalPar : null,
+        handicap_at_time: handicapIndex
+      }).select().single();
+      if (roundErr) { console.error('Round save error:', roundErr); return false; }
+      roundRow = data;
+    }
+    lastSavedRoundId = roundRow.id;
 
     // Insert one row per hole
     const holeRows = scoredHoles.sort((a,b)=>a-b).map(h => ({
@@ -702,6 +802,7 @@ async function saveRoundToHistory() {
     return false;
   }
 }
+
 
 // ── Summary ───────────────────────────────────────────────────────────────────
 function renderSummary() {

@@ -139,9 +139,54 @@
     .home-btn { position: absolute; top: 0; left: 0; width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; z-index: 60; text-decoration: none; cursor: pointer; }
   .home-btn img { width: 44px; height: 44px; object-fit: contain; display: block; }
   .home-btn:active { opacity: 0.7; }
+
+  /* ── Course detail view ── */
+  .course-detail-view { position: absolute; inset: 0; background: var(--bg-primary); z-index: 200; display: none; flex-direction: column; }
+  .course-detail-view.open { display: flex; }
+  .course-detail-header { display: flex; align-items: center; gap: 12px; padding: calc(var(--safe-top) + 16px) 16px 14px; border-bottom: 0.5px solid rgba(200,169,106,0.15); flex-shrink: 0; }
+  .course-detail-back { width: 36px; height: 36px; border-radius: 10px; border: 0.5px solid rgba(200,169,106,0.3); background: rgba(13,13,13,0.6); color: var(--gold); font-size: 18px; display: flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0; }
+  .course-detail-back:active { opacity: 0.7; }
+  .course-detail-title { font-size: 16px; font-weight: 600; color: var(--text-primary); flex: 1; line-height: 1.3; }
+  .course-detail-content { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; padding: 16px 16px calc(var(--safe-bottom) + 40px); }
+
+  .cd-info-card { background: rgba(28,28,28,0.9); border: 0.5px solid var(--border); border-radius: var(--radius); padding: 6px 16px; margin-bottom: 14px; }
+  .cd-info-row { display: flex; justify-content: space-between; align-items: center; padding: 9px 0; font-size: 14px; border-bottom: 0.5px solid rgba(200,169,106,0.08); }
+  .cd-info-row:last-child { border-bottom: none; }
+  .cd-info-label { color: var(--text-muted); }
+  .cd-info-value { color: var(--text-primary); font-weight: 500; text-align: right; }
+
+  .cd-slope-row { display: flex; align-items: center; justify-content: space-between; background: rgba(28,28,28,0.9); border: 0.5px solid var(--border); border-radius: var(--radius); padding: 14px 16px; margin-bottom: 14px; }
+  .cd-slope-label { font-size: 13px; color: var(--text-muted); }
+  .cd-slope-input { width: 80px; text-align: center; background: rgba(13,13,13,0.7); border: 0.5px solid rgba(200,169,106,0.3); border-radius: 8px; padding: 9px; font-size: 16px; color: var(--gold); font-family: inherit; }
+
+  .cd-holes-title { font-size: 11px; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase; color: var(--gold-muted); margin: 4px 0 8px; }
+  .cd-hole-row { display: grid; grid-template-columns: 30px 1fr 1fr; gap: 10px; align-items: center; padding: 8px 4px; border-bottom: 0.5px solid rgba(200,169,106,0.08); }
+  .cd-hole-num { font-size: 14px; font-weight: 600; color: var(--text-primary); }
+  .cd-hole-field-label { font-size: 9px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); margin-bottom: 3px; display: block; }
+  .cd-hole-input { width: 100%; text-align: center; background: rgba(13,13,13,0.7); border: 0.5px solid rgba(200,169,106,0.25); border-radius: 8px; padding: 8px 4px; font-size: 14px; color: var(--text-primary); font-family: inherit; -webkit-appearance: none; }
+  .cd-hole-input:focus { outline: none; border-color: var(--gold); }
+
+  .cd-save-btn { width: 100%; padding: 15px; background: var(--gold); color: #0D0D0D; border: none; border-radius: var(--radius); font-size: 15px; font-weight: 600; cursor: pointer; margin-top: 10px; font-family: inherit; }
+  .cd-save-btn:active { opacity: 0.85; }
+  .cd-save-btn:disabled { opacity: 0.4; cursor: default; }
+  .cd-status { text-align: center; font-size: 13px; color: var(--text-muted); padding: 10px 0 0; min-height: 20px; }
 </style>
 </head>
 <body>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+const sb = supabase.createClient('https://ryqehsqqriavmuqfnzpx.supabase.co', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ5cWVoc3Fxcmlhdm11cWZuenB4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM3NTQ4MzcsImV4cCI6MjA5OTMzMDgzN30.Po2m7uhlMTc43Pdg8pohwvDsQ_UDFRS-n9UnTQ44nXA');
+let currentUser = null;
+sb.auth.getSession().then(function({ data }) {
+  if (data.session) {
+    currentUser = data.session.user;
+    var badge = document.getElementById('header-badge');
+    var email = document.getElementById('header-email');
+    if (badge) badge.classList.add('visible');
+    if (email) email.textContent = data.session.user.email;
+  }
+});
+</script>
 <div class="app">
 <a class="home-btn" href="index.html"><img src="icons/Home.png" alt="Home"></a>
 
@@ -227,6 +272,15 @@
     </div>
   </div>
 
+  <!-- Course Detail View -->
+  <div class="course-detail-view" id="course-detail-view">
+    <div class="course-detail-header">
+      <button class="course-detail-back" onclick="closeCourseDetail()">&#8592;</button>
+      <div class="course-detail-title" id="cd-title">Course</div>
+    </div>
+    <div class="course-detail-content" id="cd-content"></div>
+  </div>
+
 </div>
 
 <script>
@@ -234,6 +288,10 @@ let searchLat = null, searchLng = null, searchLabel = '';
 let selectedRadius = 25;
 let selectedAccess = 'all';
 let mode = 'gps';
+let currentResults = [];
+let currentDetailCourseId = null;
+let currentDetailCourseName = null;
+let currentDetailCourseFallback = null;
 
 // ── Set content top dynamically after header renders ──────────────────────────
 window.addEventListener('DOMContentLoaded', () => {
@@ -367,6 +425,7 @@ function doSearch() {
   let results = COURSES.map(c => ({...c, distKm: distKm(searchLat, searchLng, c.lat, c.lng)})).filter(c => c.distKm <= selectedRadius);
   if (selectedAccess !== 'all') results = results.filter(c => c.access === selectedAccess);
   results.sort((a,b) => a.distKm - b.distKm);
+  currentResults = results;
   if (results.length === 0) {
     area.innerHTML = '<div class="empty-state"><span class="empty-icon">🔍</span>No courses found within ' + selectedRadius + 'km of ' + searchLabel + '.<br><br>Try increasing the distance radius.</div>';
     return;
@@ -394,7 +453,8 @@ function courseCard(c) {
   const dist = c.distKm < 1 ? Math.round(c.distKm*1000)+'m' : Math.round(c.distKm)+'km';
   const tagClass = {'Public':'tag-public','Semi-Private':'tag-semi','Members – Visitors Welcome':'tag-members','Resort / Public':'tag-resort','Private':'tag-private'}[c.access] || 'tag-neutral';
   const fee = c.holes === 9 ? (c.fee9 && c.fee9 !== 'N/A' ? c.fee9 : null) : (c.fee18 && c.fee18 !== 'N/A' && !c.fee18.includes('Private') ? c.fee18 : null);
-  return '<div class="course-card" onclick="toggleCard(this)">' +
+  const idx = currentResults.indexOf(c);
+  return '<div class="course-card" onclick="openCourseDetail(' + idx + ')">' +
     '<div class="course-top"><div class="course-dist-badge">' + dist + '</div><div class="course-name">' + c.name + '</div></div>' +
     '<div class="course-suburb-row"><div class="course-suburb">' + c.suburb + '</div><span class="course-tag ' + tagClass + '">' + c.access + '</span></div>' +
     '<div class="course-meta"><span class="course-tag tag-neutral">' + c.holes + ' holes</span><span class="course-tag tag-neutral">Par ' + c.par + '</span>' + (fee ? '<span class="course-tag tag-neutral">' + fee + '</span>' : '') + '</div>' +
@@ -404,23 +464,127 @@ function courseCard(c) {
 
 function toggleCard(card) { card.classList.toggle('expanded'); }
 
+// ── Course Detail View ──────────────────────────────────────────────────────
+async function openCourseDetail(idx) {
+  const c = currentResults[idx];
+  if (!c) return;
+  document.getElementById('cd-title').textContent = c.name;
+  document.getElementById('cd-content').innerHTML = '<div class="cd-status">Loading course data\u2026</div>';
+  document.getElementById('course-detail-view').classList.add('open');
+
+  let sbCourse = null, sbHoles = [];
+  try {
+    const { data: courses } = await sb.from('courses').select('*').ilike('name', c.name).limit(1);
+    if (courses && courses.length) {
+      sbCourse = courses[0];
+      const { data: holes } = await sb.from('course_holes').select('hole, par, stroke_index').eq('course_id', sbCourse.id).order('hole');
+      sbHoles = holes || [];
+    }
+  } catch(e) { console.error('Course detail load error:', e); }
+
+  currentDetailCourseId = sbCourse ? sbCourse.id : null;
+  currentDetailCourseName = c.name;
+  currentDetailCourseFallback = c;
+
+  renderCourseDetail(c, sbCourse, sbHoles);
+}
+
+function renderCourseDetail(c, sbCourse, sbHoles) {
+  const access = (sbCourse && sbCourse.access_type) || c.access || '\u2014';
+  const phone  = (sbCourse && sbCourse.phone) || null;
+  const slope  = (sbCourse && sbCourse.slope) || '';
+  const holeMap = {};
+  sbHoles.forEach(h => { holeMap[h.hole] = h; });
+
+  let html = '<div class="cd-info-card">';
+  html += '<div class="cd-info-row"><span class="cd-info-label">Access</span><span class="cd-info-value">' + access + '</span></div>';
+  html += '<div class="cd-info-row"><span class="cd-info-label">Phone</span><span class="cd-info-value">' + (phone || 'Not available') + '</span></div>';
+  html += '</div>';
+
+  html += '<div class="cd-slope-row"><span class="cd-slope-label">Slope Rating</span><input class="cd-slope-input" id="cd-slope" type="number" min="55" max="155" inputmode="numeric" value="' + slope + '" placeholder="113"></div>';
+
+  html += '<div class="cd-holes-title">Par &amp; Stroke Index \u2014 18 Holes</div>';
+  for (let h = 1; h <= 18; h++) {
+    const par = holeMap[h] && holeMap[h].par ? holeMap[h].par : '';
+    const si  = holeMap[h] && holeMap[h].stroke_index ? holeMap[h].stroke_index : '';
+    html += '<div class="cd-hole-row">' +
+      '<div class="cd-hole-num">' + h + '</div>' +
+      '<div><span class="cd-hole-field-label">Par</span><input class="cd-hole-input" id="cd-par-' + h + '" type="number" min="3" max="5" inputmode="numeric" value="' + par + '"></div>' +
+      '<div><span class="cd-hole-field-label">Stroke Index</span><input class="cd-hole-input" id="cd-si-' + h + '" type="number" min="1" max="18" inputmode="numeric" value="' + si + '"></div>' +
+      '</div>';
+  }
+
+  html += '<button class="cd-save-btn" id="cd-save-btn" onclick="saveCourseDetail()">Save Course Data</button>';
+  html += '<div class="cd-status" id="cd-status"></div>';
+
+  document.getElementById('cd-content').innerHTML = html;
+}
+
+function closeCourseDetail() {
+  document.getElementById('course-detail-view').classList.remove('open');
+}
+
+async function saveCourseDetail() {
+  const btn = document.getElementById('cd-save-btn');
+  const status = document.getElementById('cd-status');
+
+  if (!currentUser) { status.textContent = 'Sign in to save course data'; status.style.color = '#e74c3c'; return; }
+
+  btn.disabled = true;
+  status.style.color = 'var(--text-muted)';
+  status.textContent = 'Saving\u2026';
+
+  const slopeRaw = parseInt(document.getElementById('cd-slope').value);
+  const slopeVal = isNaN(slopeRaw) ? null : slopeRaw;
+
+  const holesData = [];
+  for (let h = 1; h <= 18; h++) {
+    const parVal = parseInt(document.getElementById('cd-par-'+h).value);
+    const siVal  = parseInt(document.getElementById('cd-si-'+h).value);
+    holesData.push({ hole: h, par: isNaN(parVal) ? null : parVal, stroke_index: isNaN(siVal) ? null : siVal });
+  }
+
+  try {
+    let courseId = currentDetailCourseId;
+    if (courseId) {
+      const { error: updErr } = await sb.from('courses').update({ slope: slopeVal }).eq('id', courseId);
+      if (updErr) throw updErr;
+    } else {
+      const fb = currentDetailCourseFallback || {};
+      const { data: inserted, error: insErr } = await sb.from('courses').insert({
+        name:      currentDetailCourseName,
+        suburb:    fb.suburb || null,
+        access_type: fb.access || null,
+        latitude:  fb.lat != null ? fb.lat : null,
+        longitude: fb.lng != null ? fb.lng : null,
+        slope:     slopeVal
+      }).select().single();
+      if (insErr) throw insErr;
+      courseId = inserted.id;
+      currentDetailCourseId = courseId;
+    }
+
+    const rowsToSave = holesData.filter(h => h.par !== null || h.stroke_index !== null);
+    if (rowsToSave.length) {
+      const upsertRows = rowsToSave.map(h => ({ course_id: courseId, hole: h.hole, par: h.par, stroke_index: h.stroke_index }));
+      const { error: holesErr } = await sb.from('course_holes').upsert(upsertRows, { onConflict: 'course_id,hole' });
+      if (holesErr) throw holesErr;
+    }
+
+    status.style.color = 'var(--gold)';
+    status.textContent = '\u2713 Saved';
+  } catch(e) {
+    console.error('Course detail save error:', e);
+    status.style.color = '#e74c3c';
+    status.textContent = 'Save failed \u2014 check par (3\u20135) and stroke index (1\u201318) values';
+  } finally {
+    btn.disabled = false;
+  }
+}
+
 document.addEventListener('keydown', e => { if (e.key==='Enter' && searchLat!==null) doSearch(); });
 
 // ── Nav drawer ────────────────────────────────────────────────────────────────
-
-</script>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script>
-const _sb = supabase.createClient('https://ryqehsqqriavmuqfnzpx.supabase.co', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ5cWVoc3Fxcmlhdm11cWZuenB4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM3NTQ4MzcsImV4cCI6MjA5OTMzMDgzN30.Po2m7uhlMTc43Pdg8pohwvDsQ_UDFRS-n9UnTQ44nXA');
-_sb.auth.getSession().then(function({ data }) {
-  if (data.session) {
-    var badge = document.getElementById('header-badge');
-    var email = document.getElementById('header-email');
-    if (badge) badge.classList.add('visible');
-    if (email) email.textContent = data.session.user.email;
-  }
-});
-</script>
 
 // ── Continue round — go to round.html if in progress ─────────────────────────
 (function() {
@@ -431,5 +595,6 @@ _sb.auth.getSession().then(function({ data }) {
     if (el) el.setAttribute('href', 'round.html');
   }
 })();
+</script>
 </body>
 </html>

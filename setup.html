@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+<script src="theme.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -14,15 +15,39 @@
 
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
 
+  :root, [data-theme="dark"] {
+    --bg:              #0D0D0D;
+    --surface:         #171717;
+    --text-primary:    #F3E7CC;
+    --text-secondary:  #B8A98A;
+    --gold:            #C8A96A;
+    --highlight:       #D4B36A;
+    --warning:         #7B3F3F;
+    --success:         #8F7A2A;
+    --gold-muted:      #9A7C47;
+    --text-muted:      #9A9A9A;
+    --on-gold:         #0D0D0D;
+    --bg-primary:      var(--bg);
+    --bg-card:         var(--surface);
+    --border:          color-mix(in srgb, var(--gold) 15%, transparent);
+  }
+  [data-theme="light"] {
+    --bg:              #E8DFC8;
+    --surface:         #F7F1E2;
+    --text-primary:    #111111;
+    --text-secondary:  #4A463D;
+    --gold:            #9A7C47;
+    --highlight:       #1F3328;
+    --warning:         #B35454;
+    --success:         #2E7D32;
+    --gold-muted:      #6B5730;
+    --text-muted:      #4A463D;
+    --on-gold:         #0D0D0D;
+    --bg-primary:      var(--bg);
+    --bg-card:         var(--surface);
+    --border:          color-mix(in srgb, var(--gold) 15%, transparent);
+  }
   :root {
-    --bg-primary:   #0D0D0D;
-    --bg-card:      #1C1C1C;
-    --gold:         #C8A96A;
-    --gold-muted:   #9A7C47;
-    --text-primary: #F2F2F2;
-    --text-secondary: #BDBDBD;
-    --text-muted:   #9A9A9A;
-    --border:       rgba(200,169,106,0.15);
     --radius:       14px;
     --safe-top:     env(safe-area-inset-top, 0px);
     --safe-bottom:  env(safe-area-inset-bottom, 0px);
@@ -33,54 +58,51 @@
   .app { position: relative; width: 100%; height: 100%; max-width: 430px; margin: 0 auto; overflow: hidden; }
 
   /* ── Background ── */
-  .hero { position: absolute; inset: 0; width: 100%; height: 100%; }
-  .hero-img { width: 100%; height: 100%; object-fit: cover; object-position: center; display: block; }
-  .hero-overlay { position: absolute; inset: 0; background: rgba(13,13,13,0.82); }
+  .content { position: absolute; left: 0; right: 0; bottom: 0; overflow-y: auto; -webkit-overflow-scrolling: touch; padding: 16px 16px calc(var(--safe-bottom) + 180px); z-index: 10; background: var(--bg); }
 
   /* ── Header ── */
-  .header { position: absolute; top: 0; left: 0; right: 0; padding: calc(var(--safe-top) + 20px) 24px 16px; display: flex; align-items: center; gap: 16px; border-bottom: 0.5px solid rgba(200,169,106,0.2); z-index: 20; }
+  .header { position: absolute; top: 0; left: 0; right: 0; padding: calc(var(--safe-top) + 20px) 24px 16px; display: flex; align-items: center; gap: 16px; border-bottom: 0.5px solid color-mix(in srgb, var(--gold) 20%, transparent); z-index: 20; }
   .header-img-wrap { position: relative; z-index: 10; width: 100%; flex-shrink: 0; }
   .header-img { width: 100%; height: auto; display: block; }
   .header-title { font-size: 13px; font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-muted); flex: 1; }
 
   /* ── Counter bar ── */
   .counter-bar { position: absolute; left: 0; right: 0; padding: 0 20px 16px; z-index: 20; }
-  .counter-inner { background: rgba(28,28,28,0.9); border: 0.5px solid var(--border); border-radius: 12px; padding: 12px 16px; display: flex; align-items: center; justify-content: space-between; backdrop-filter: blur(8px); }
+  .counter-inner { background: color-mix(in srgb, var(--surface) 90%, transparent); border: 0.5px solid var(--border); border-radius: 12px; padding: 12px 16px; display: flex; align-items: center; justify-content: space-between; backdrop-filter: blur(8px); }
   .counter-text { font-size: 13px; color: var(--text-muted); font-weight: 500; letter-spacing: 0.04em; }
   .counter-num { font-size: 22px; font-weight: 300; color: var(--gold); }
   .counter-max { font-size: 13px; color: var(--text-muted); }
-  .counter-bar-fill-wrap { margin-top: 8px; height: 3px; background: rgba(200,169,106,0.15); border-radius: 10px; overflow: hidden; }
+  .counter-bar-fill-wrap { margin-top: 8px; height: 3px; background: color-mix(in srgb, var(--gold) 15%, transparent); border-radius: 10px; overflow: hidden; }
   .counter-bar-fill { height: 100%; background: var(--gold); border-radius: 10px; transition: width 0.25s; }
-  .counter-bar-fill.full { background: #8E4B4B; }
+  .counter-bar-fill.full { background: var(--warning); }
 
   /* ── Scrollable club list ── */
-  .content { position: absolute; left: 0; right: 0; bottom: 0; overflow-y: auto; -webkit-overflow-scrolling: touch; padding: 16px 16px calc(var(--safe-bottom) + 180px); z-index: 10; }
 
   /* ── Category ── */
   .category { margin-bottom: 20px; }
   .category-header { font-size: 10px; font-weight: 500; letter-spacing: 0.14em; text-transform: uppercase; color: var(--gold-muted); margin-bottom: 10px; padding-left: 2px; }
-  .club-list { background: rgba(28,28,28,0.85); border-radius: var(--radius); border: 0.5px solid var(--border); overflow: hidden; backdrop-filter: blur(8px); }
-  .club-row { display: flex; align-items: center; padding: 14px 16px; border-bottom: 0.5px solid rgba(200,169,106,0.08); cursor: pointer; gap: 14px; transition: background 0.1s; }
+  .club-list { background: color-mix(in srgb, var(--surface) 85%, transparent); border-radius: var(--radius); border: 0.5px solid var(--border); overflow: hidden; backdrop-filter: blur(8px); }
+  .club-row { display: flex; align-items: center; padding: 14px 16px; border-bottom: 0.5px solid color-mix(in srgb, var(--gold) 8%, transparent); cursor: pointer; gap: 14px; transition: background 0.1s; }
   .club-row:last-child { border-bottom: none; }
-  .club-row:active { background: rgba(200,169,106,0.06); }
-  .club-row.selected { background: rgba(200,169,106,0.08); }
-  .club-check { width: 24px; height: 24px; border-radius: 50%; border: 1.5px solid rgba(200,169,106,0.3); display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: background 0.15s, border-color 0.15s; }
+  .club-row:active { background: color-mix(in srgb, var(--gold) 6%, transparent); }
+  .club-row.selected { background: color-mix(in srgb, var(--gold) 8%, transparent); }
+  .club-check { width: 24px; height: 24px; border-radius: 50%; border: 1.5px solid color-mix(in srgb, var(--gold) 30%, transparent); display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: background 0.15s, border-color 0.15s; }
   .club-row.selected .club-check { background: var(--gold); border-color: var(--gold); }
-  .club-check-tick { display: none; color: #0D0D0D; font-size: 13px; font-weight: 700; }
+  .club-check-tick { display: none; color: var(--on-gold); font-size: 13px; font-weight: 700; }
   .club-row.selected .club-check-tick { display: block; }
   .club-info { flex: 1; }
   .club-name { font-size: 15px; font-weight: 500; color: var(--text-primary); }
   .club-desc { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
-  .club-badge { font-size: 11px; font-weight: 600; padding: 3px 8px; border-radius: 20px; background: rgba(13,13,13,0.6); color: var(--text-muted); border: 0.5px solid rgba(200,169,106,0.2); flex-shrink: 0; }
-  .club-row.selected .club-badge { color: var(--gold); border-color: rgba(200,169,106,0.4); }
+  .club-badge { font-size: 11px; font-weight: 600; padding: 3px 8px; border-radius: 20px; background: color-mix(in srgb, var(--bg) 60%, transparent); color: var(--text-muted); border: 0.5px solid color-mix(in srgb, var(--gold) 20%, transparent); flex-shrink: 0; }
+  .club-row.selected .club-badge { color: var(--gold); border-color: color-mix(in srgb, var(--gold) 40%, transparent); }
 
   /* ── Sticky footer ── */
-  .footer { position: absolute; bottom: 0; left: 0; right: 0; background: rgba(13,13,13,0.95); border-top: 0.5px solid var(--border); padding: 12px 16px calc(var(--safe-bottom) + 110px); z-index: 20; backdrop-filter: blur(12px); }
+  .footer { position: absolute; bottom: 0; left: 0; right: 0; background: color-mix(in srgb, var(--bg) 95%, transparent); border-top: 0.5px solid var(--border); padding: 12px 16px calc(var(--safe-bottom) + 110px); z-index: 20; backdrop-filter: blur(12px); }
   .btn { display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; padding: 15px; border-radius: var(--radius); border: none; font-size: 15px; font-weight: 500; cursor: pointer; transition: opacity 0.15s, transform 0.1s; margin-bottom: 8px; font-family: inherit; letter-spacing: 0.04em; }
   .btn:last-child { margin-bottom: 0; }
   .btn:active { opacity: 0.82; transform: scale(0.985); }
-  .btn-primary { background: var(--gold); color: #0D0D0D; }
-  .btn-secondary { background: rgba(28,28,28,0.9); color: var(--text-muted); border: 0.5px solid var(--border); }
+  .btn-primary { background: var(--gold); color: var(--on-gold); }
+  .btn-secondary { background: color-mix(in srgb, var(--surface) 90%, transparent); color: var(--text-muted); border: 0.5px solid var(--border); }
   .btn-round { background: transparent; color: var(--gold); border: 0.5px solid var(--gold); }
   .btn:disabled { opacity: 0.4; cursor: default; }
   .post-save { display: none; flex-direction: column; gap: 8px; }
@@ -88,12 +110,12 @@
   /* ── Bottom sheet dialog ── */
   .dialog-overlay { position: absolute; inset: 0; background: rgba(0,0,0,0.6); z-index: 200; opacity: 0; pointer-events: none; transition: opacity 0.25s; }
   .dialog-overlay.open { opacity: 1; pointer-events: auto; }
-  .dialog-sheet { position: absolute; bottom: 0; left: 0; right: 0; background: #1C1C1C; border-radius: 20px 20px 0 0; border-top: 0.5px solid rgba(200,169,106,0.2); padding: 20px 24px calc(var(--safe-bottom) + 24px); z-index: 201; transform: translateY(100%); transition: transform 0.3s cubic-bezier(0.4,0,0.2,1); }
+  .dialog-sheet { position: absolute; bottom: 0; left: 0; right: 0; background: var(--surface); border-radius: 20px 20px 0 0; border-top: 0.5px solid color-mix(in srgb, var(--gold) 20%, transparent); padding: 20px 24px calc(var(--safe-bottom) + 24px); z-index: 201; transform: translateY(100%); transition: transform 0.3s cubic-bezier(0.4,0,0.2,1); }
   .dialog-sheet.open { transform: translateY(0); }
-  .dialog-handle { width: 36px; height: 3px; background: rgba(200,169,106,0.3); border-radius: 2px; margin: 0 auto 20px; }
+  .dialog-handle { width: 36px; height: 3px; background: color-mix(in srgb, var(--gold) 30%, transparent); border-radius: 2px; margin: 0 auto 20px; }
   .dialog-title { font-size: 17px; font-weight: 500; color: var(--text-primary); margin-bottom: 8px; letter-spacing: 0.01em; }
   .dialog-sub { font-size: 13px; color: var(--text-muted); margin-bottom: 20px; line-height: 1.6; }
-  .dialog-btn { width: 100%; padding: 14px; border: none; border-radius: 12px; font-size: 14px; font-weight: 500; cursor: pointer; font-family: inherit; letter-spacing: 0.04em; background: var(--gold); color: #0D0D0D; }
+  .dialog-btn { width: 100%; padding: 14px; border: none; border-radius: 12px; font-size: 14px; font-weight: 500; cursor: pointer; font-family: inherit; letter-spacing: 0.04em; background: var(--gold); color: var(--on-gold); }
   .dialog-btn:active { opacity: 0.8; }
 
   /* ── Toast ── */
@@ -101,9 +123,9 @@
   /* ── Nav — identical to index.html ── */
   .nav-shell { position: absolute; bottom: 0; left: 0; right: 0; z-index: 100; }
   .nav-row { display: flex; background: rgba(13,13,13,0.92); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
-  .nav-primary { border-top: 0.5px solid rgba(200,169,106,0.2); padding-bottom: calc(var(--safe-bottom) + 6px); transform: translateY(0); transition: transform 350ms cubic-bezier(0.4,0,0.2,1); will-change: transform; position: relative; z-index: 2; }
+  .nav-primary { border-top: 0.5px solid color-mix(in srgb, var(--gold) 20%, transparent); padding-bottom: calc(var(--safe-bottom) + 6px); transform: translateY(0); transition: transform 350ms cubic-bezier(0.4,0,0.2,1); will-change: transform; position: relative; z-index: 2; }
   .nav-primary.raised { transform: translateY(-100%); }
-  .nav-secondary { border-top: 0.5px solid rgba(200,169,106,0.12); padding-bottom: calc(var(--safe-bottom) + 6px); position: absolute; bottom: 0; left: 0; right: 0; transform: translateY(100%); transition: transform 350ms cubic-bezier(0.4,0,0.2,1); will-change: transform; z-index: 1; }
+  .nav-secondary { border-top: 0.5px solid color-mix(in srgb, var(--gold) 12%, transparent); padding-bottom: calc(var(--safe-bottom) + 6px); position: absolute; bottom: 0; left: 0; right: 0; transform: translateY(100%); transition: transform 350ms cubic-bezier(0.4,0,0.2,1); will-change: transform; z-index: 1; }
   .nav-secondary.open { transform: translateY(0); }
   .nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 10px 4px 6px; cursor: pointer; text-decoration: none; background: none; border: none; -webkit-tap-highlight-color: transparent; transition: opacity 0.15s; }
   .nav-item:active { opacity: 0.7; }
@@ -114,12 +136,6 @@
 </head>
 <body>
 <div class="app">
-
-  <!-- Background -->
-  <div class="hero">
-    <img class="hero-img" src="Back_ground_New.jpg" alt="">
-    <div class="hero-overlay"></div>
-  </div>
 
   <!-- Header -->
   <div class="header-img-wrap">
@@ -150,7 +166,7 @@
     </div>
     <div class="post-save" id="post-save">
       <button class="btn btn-round" onclick="window.location.href='start.html'">&#9971; Start a Round</button>
-      <button class="btn btn-round" onclick="window.location.href='range.html'">&#9873; Driving Range</button>
+      <button class="btn btn-round" onclick="window.location.href='distance.html'">&#9873; Driving Range</button>
       <button class="btn btn-round" onclick="window.location.href='settings.html'">&#8592; Back</button>
     </div>
   </div>

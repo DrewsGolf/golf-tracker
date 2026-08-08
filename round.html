@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+<script src="theme.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -24,10 +25,40 @@
   @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap');
 
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  /* ── Theme variables — see settings.html for the canonical spec ── */
+  :root, [data-theme="dark"] {
+    --bg:              #0D0D0D;
+    --surface:         #171717;
+    --text-primary:    #F3E7CC;
+    --text-secondary:  #B8A98A;
+    --gold:            #C8A96A;
+    --highlight:       #D4B36A;
+    --warning:         #7B3F3F;
+    --success:         #8F7A2A;
+    --gold-muted:      #9A7C47;
+    --text-muted:      #9A9A9A;
+    --on-gold:         #0D0D0D;
+    --card:            color-mix(in srgb, var(--surface) 85%, transparent);
+    --border:          color-mix(in srgb, var(--gold) 15%, transparent);
+    --border-mid:      color-mix(in srgb, var(--gold) 25%, transparent);
+  }
+  [data-theme="light"] {
+    --bg:              #E8DFC8;
+    --surface:         #F7F1E2;
+    --text-primary:    #111111;
+    --text-secondary:  #4A463D;
+    --gold:            #9A7C47;
+    --highlight:       #1F3328;
+    --warning:         #B35454;
+    --success:         #2E7D32;
+    --gold-muted:      #6B5730;
+    --text-muted:      #4A463D;
+    --on-gold:         #0D0D0D;
+    --card:            color-mix(in srgb, var(--surface) 85%, transparent);
+    --border:          color-mix(in srgb, var(--gold) 15%, transparent);
+    --border-mid:      color-mix(in srgb, var(--gold) 25%, transparent);
+  }
   :root {
-    --gold: #C8A96A; --gold-muted: #9A7C47;
-    --text-primary: #F2F2F2; --text-secondary: #BDBDBD; --text-muted: #9A9A9A;
-    --bg: #0D0D0D; --card: rgba(28,28,28,0.85); --border: rgba(200,169,106,0.15); --border-mid: rgba(200,169,106,0.25);
     --radius: 14px; --radius-sm: 9px;
     --safe-bottom: env(safe-area-inset-bottom, 0px);
   }
@@ -43,12 +74,12 @@
   /* Header */
   .header-img-wrap { position: relative; z-index: 10; width: 100%; flex-shrink: 0; }
   .header-img { width: 100%; height: auto; display: block; }
-  .topbar-action { background: transparent; border: 0.5px solid rgba(200,169,106,0.4); border-radius: 8px; padding: 6px 12px; color: var(--gold); font-size: 13px; font-weight: 500; cursor: pointer; white-space: nowrap; font-family: inherit; position: absolute; right: 14px; bottom: 10px; }
+  .topbar-action { background: transparent; border: 0.5px solid color-mix(in srgb, var(--gold) 40%, transparent); border-radius: 8px; padding: 6px 12px; color: var(--gold); font-size: 13px; font-weight: 500; cursor: pointer; white-space: nowrap; font-family: inherit; position: absolute; right: 14px; bottom: 10px; }
 
   /* Tab bar */
-  .tab-bar { background: transparent; border-bottom: 0.5px solid rgba(200,169,106,0.15); padding: 0 16px 12px; display: flex; gap: 6px; flex-shrink: 0; }
-  .tab { flex: 1; padding: 8px; font-size: 13px; font-weight: 500; text-align: center; border-radius: 8px; border: 0.5px solid rgba(200,169,106,0.15); cursor: pointer; background: rgba(200,169,106,0.06); color: var(--text-muted); font-family: inherit; }
-  .tab.active { background: var(--gold); color: #0D0D0D; border-color: var(--gold); }
+  .tab-bar { background: transparent; border-bottom: 0.5px solid color-mix(in srgb, var(--gold) 15%, transparent); padding: 0 16px 12px; display: flex; gap: 6px; flex-shrink: 0; }
+  .tab { flex: 1; padding: 8px; font-size: 13px; font-weight: 500; text-align: center; border-radius: 8px; border: 0.5px solid color-mix(in srgb, var(--gold) 15%, transparent); cursor: pointer; background: color-mix(in srgb, var(--gold) 6%, transparent); color: var(--text-muted); font-family: inherit; }
+  .tab.active { background: var(--gold); color: var(--on-gold); border-color: var(--gold); }
 
   /* Content */
   .content { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; padding: 14px 14px calc(var(--safe-bottom) + 110px); }
@@ -60,7 +91,7 @@
   .top-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
 
   .hole-nav-card { background: var(--card); border: 0.5px solid var(--border); border-radius: var(--radius); backdrop-filter: blur(8px); display: flex; align-items: center; justify-content: space-between; padding: 14px 10px; }
-  .hole-nav-btn { width: 38px; height: 38px; background: rgba(200,169,106,0.12); border: 0.5px solid rgba(200,169,106,0.25); border-radius: 8px; font-size: 18px; color: var(--gold); display: flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0; }
+  .hole-nav-btn { width: 38px; height: 38px; background: color-mix(in srgb, var(--gold) 12%, transparent); border: 0.5px solid color-mix(in srgb, var(--gold) 25%, transparent); border-radius: 8px; font-size: 18px; color: var(--gold); display: flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0; }
   .hole-nav-btn:disabled { opacity: 0.3; cursor: default; }
   .hole-title-text { font-size: 20px; font-weight: 300; color: var(--text-primary); flex: 1; text-align: center; letter-spacing: 0.04em; }
 
@@ -78,14 +109,14 @@
   .score-card { background: var(--card); border: 0.5px solid var(--border); border-radius: var(--radius); backdrop-filter: blur(8px); padding: 12px 14px 14px; margin-bottom: 12px; display: flex; flex-direction: column; align-items: center; }
   .score-card-label { font-size: 10px; font-weight: 500; letter-spacing: 0.14em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 6px; }
   .score-row { display: flex; align-items: center; width: 100%; }
-  .score-btn { width: 45px; height: 45px; border-radius: var(--radius); background: rgba(200,169,106,0.1); border: 0.5px solid rgba(200,169,106,0.25); color: var(--gold); font-size: 24px; font-weight: 300; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-family: inherit; line-height: 1; }
-  .score-btn:active { background: rgba(200,169,106,0.22); transform: scale(0.94); }
+  .score-btn { width: 45px; height: 45px; border-radius: var(--radius); background: color-mix(in srgb, var(--gold) 10%, transparent); border: 0.5px solid color-mix(in srgb, var(--gold) 25%, transparent); color: var(--gold); font-size: 24px; font-weight: 300; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-family: inherit; line-height: 1; }
+  .score-btn:active { background: color-mix(in srgb, var(--gold) 22%, transparent); transform: scale(0.94); }
   .score-display { display: flex; align-items: center; justify-content: center; }
   .score-number { font-size: 56px; font-weight: 300; color: var(--text-primary); line-height: 1; letter-spacing: -0.04em; }
   .score-spacer { flex: 1; }
   .score-diff-zone { flex: 1; display: flex; align-items: center; justify-content: flex-start; padding-left: 8px; }
   .score-diff { font-size: 18px; font-weight: 500; }
-  .score-diff.over  { color: #e74c3c; }
+  .score-diff.over  { color: var(--warning); }
   .score-diff.under { color: var(--gold); }
   .score-diff.even  { color: var(--text-muted); }
 
@@ -93,23 +124,23 @@
   .btn { display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; padding: 16px; border-radius: var(--radius); border: none; font-size: 16px; font-weight: 500; cursor: pointer; transition: opacity 0.15s, transform 0.1s; margin-bottom: 10px; font-family: inherit; letter-spacing: 0.03em; }
   .btn:last-child { margin-bottom: 0; }
   .btn:active { opacity: 0.82; transform: scale(0.985); }
-  .btn-primary { background: var(--gold); color: #0D0D0D; }
+  .btn-primary { background: var(--gold); color: var(--on-gold); }
   .btn-outline { background: transparent; color: var(--gold); border: 0.5px solid var(--gold); }
 
   /* Summary */
   .summary-card { background: var(--card); border: 0.5px solid var(--border); border-radius: var(--radius); overflow: hidden; margin-bottom: 12px; }
-  .sum-header { background: rgba(200,169,106,0.12); border-bottom: 0.5px solid rgba(200,169,106,0.2); padding: 10px 14px; display: flex; align-items: center; justify-content: space-between; }
+  .sum-header { background: color-mix(in srgb, var(--gold) 12%, transparent); border-bottom: 0.5px solid color-mix(in srgb, var(--gold) 20%, transparent); padding: 10px 14px; display: flex; align-items: center; justify-content: space-between; }
   .sum-header-title { font-size: 15px; font-weight: 500; color: var(--gold); }
   .sum-header-sub { font-size: 13px; color: var(--text-muted); }
-  .sum-row { display: flex; align-items: center; gap: 10px; padding: 10px 14px; border-bottom: 0.5px solid rgba(200,169,106,0.08); }
+  .sum-row { display: flex; align-items: center; gap: 10px; padding: 10px 14px; border-bottom: 0.5px solid color-mix(in srgb, var(--gold) 8%, transparent); }
   .sum-row:last-child { border-bottom: none; }
-  .sum-bubble { width: 24px; height: 24px; border-radius: 50%; background: rgba(200,169,106,0.12); font-size: 11px; font-weight: 700; color: var(--gold); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .sum-bubble { width: 24px; height: 24px; border-radius: 50%; background: color-mix(in srgb, var(--gold) 12%, transparent); font-size: 11px; font-weight: 700; color: var(--gold); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
   .sum-club { flex: 1; font-size: 14px; font-weight: 500; }
   .sum-dist { font-size: 14px; color: var(--text-secondary); }
-  .sum-stats { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0; border-top: 0.5px solid rgba(200,169,106,0.12); }
-  .sum-stat { display: flex; align-items: center; justify-content: center; padding: 10px 6px; border-right: 0.5px solid rgba(200,169,106,0.12); font-size: 15px; font-weight: 500; color: var(--text-primary); }
+  .sum-stats { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0; border-top: 0.5px solid color-mix(in srgb, var(--gold) 12%, transparent); }
+  .sum-stat { display: flex; align-items: center; justify-content: center; padding: 10px 6px; border-right: 0.5px solid color-mix(in srgb, var(--gold) 12%, transparent); font-size: 15px; font-weight: 500; color: var(--text-primary); }
   .sum-stat:last-child { border-right: none; }
-  .sum-footer { display: flex; align-items: center; justify-content: space-between; padding: 10px 14px; background: rgba(200,169,106,0.06); border-top: 0.5px solid var(--border); }
+  .sum-footer { display: flex; align-items: center; justify-content: space-between; padding: 10px 14px; background: color-mix(in srgb, var(--gold) 6%, transparent); border-top: 0.5px solid var(--border); }
   .sum-footer-label { font-size: 13px; font-weight: 600; color: var(--text-secondary); }
   .sum-footer-val { font-size: 15px; font-weight: 500; color: var(--gold); }
   .empty-state { text-align: center; padding: 32px 16px; color: var(--text-muted); font-size: 14px; line-height: 1.6; }
@@ -118,12 +149,12 @@
   /* Scorecard */
   .score-table-wrap { background: var(--card); border: 0.5px solid var(--border); border-radius: var(--radius); overflow: hidden; margin-bottom: 14px; }
   .score-table { width: 100%; border-collapse: collapse; font-size: 16px; }
-  .score-table th { background: rgba(200,169,106,0.12); color: var(--gold); padding: 11px 6px; text-align: center; font-weight: 500; letter-spacing: 0.06em; font-size: 14px; }
+  .score-table th { background: color-mix(in srgb, var(--gold) 12%, transparent); color: var(--gold); padding: 11px 6px; text-align: center; font-weight: 500; letter-spacing: 0.06em; font-size: 14px; }
   .score-table th:first-child { text-align: left; padding-left: 14px; }
   .score-table td { padding: 12px 6px; text-align: center; border-bottom: 0.5px solid var(--border); }
   .score-table td:first-child { font-weight: 600; text-align: left; padding-left: 14px; }
-  .score-table tr:last-child td { border-bottom: none; font-weight: 600; background: rgba(200,169,106,0.06); }
-  .sc-input { width: 44px; background: rgba(13,13,13,0.7); border: 0.5px solid rgba(200,169,106,0.3); border-radius: 6px; padding: 4px 6px; font-size: 15px; font-weight: 500; color: var(--gold); text-align: center; font-family: inherit; -moz-appearance: textfield; }
+  .score-table tr:last-child td { border-bottom: none; font-weight: 600; background: color-mix(in srgb, var(--gold) 6%, transparent); }
+  .sc-input { width: 44px; background: color-mix(in srgb, var(--bg) 70%, transparent); border: 0.5px solid color-mix(in srgb, var(--gold) 30%, transparent); border-radius: 6px; padding: 4px 6px; font-size: 15px; font-weight: 500; color: var(--gold); text-align: center; font-family: inherit; -moz-appearance: textfield; }
   .sc-input::-webkit-outer-spin-button, .sc-input::-webkit-inner-spin-button { -webkit-appearance: none; }
   .sc-input:focus { outline: none; border-color: var(--gold); }
   .sc-save-btn { background: transparent; border: 0.5px solid var(--gold); color: var(--gold); border-radius: 6px; padding: 3px 10px; font-size: 11px; font-weight: 500; cursor: pointer; font-family: inherit; display: flex; align-items: center; justify-content: center; }
@@ -131,7 +162,7 @@
   /* Dialog */
   .dialog-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 200; display: flex; align-items: flex-end; justify-content: center; animation: fadeIn 0.15s ease; }
   @keyframes fadeIn { from{opacity:0} to{opacity:1} }
-  .dialog-sheet { background: #1C1C1C; border-top: 0.5px solid rgba(200,169,106,0.2); border-radius: 22px 22px 0 0; padding: 8px 0 calc(var(--safe-bottom) + 8px); width: 100%; max-width: 430px; animation: slideUp 0.2s ease; }
+  .dialog-sheet { background: var(--surface); border-top: 0.5px solid color-mix(in srgb, var(--gold) 20%, transparent); border-radius: 22px 22px 0 0; padding: 8px 0 calc(var(--safe-bottom) + 8px); width: 100%; max-width: 430px; animation: slideUp 0.2s ease; }
   @keyframes slideUp { from{transform:translateY(40px);opacity:0} to{transform:translateY(0);opacity:1} }
   .dialog-handle { width: 36px; height: 4px; background: var(--border-mid); border-radius: 2px; margin: 8px auto 16px; }
   .dialog-icon { text-align: center; margin-bottom: 8px; min-height: 36px; display: flex; align-items: center; justify-content: center; font-size: 36px; }
@@ -140,12 +171,12 @@
   .dialog-actions { padding: 0 16px; display: flex; flex-direction: column; gap: 8px; }
   .dialog-btn { display: flex; align-items: center; justify-content: center; width: 100%; padding: 15px; border-radius: var(--radius); border: none; font-size: 15px; font-weight: 600; cursor: pointer; transition: opacity 0.15s; font-family: inherit; }
   .dialog-btn:active { opacity: 0.82; }
-  .dialog-btn-primary { background: var(--gold); color: #0D0D0D; }
-  .dialog-btn-danger { background: #c0392b; color: #fff; }
-  .dialog-btn-secondary { background: rgba(28,28,28,0.85); color: var(--text-muted); border: 0.5px solid var(--border); }
+  .dialog-btn-primary { background: var(--gold); color: var(--on-gold); }
+  .dialog-btn-danger { background: var(--warning); color: #fff; }
+  .dialog-btn-secondary { background: color-mix(in srgb, var(--surface) 85%, transparent); color: var(--text-muted); border: 0.5px solid var(--border); }
 
   /* Toast */
-  #toast { position: fixed; bottom: calc(var(--safe-bottom) + 120px); left: 50%; transform: translateX(-50%) translateY(20px); background: rgba(28,28,28,0.97); color: var(--gold); border: 0.5px solid rgba(200,169,106,0.4); padding: 12px 24px; border-radius: 14px; font-size: 14px; font-weight: 500; letter-spacing: 0.03em; opacity: 0; transition: opacity 0.3s, transform 0.3s; pointer-events: none; white-space: nowrap; z-index: 999; backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); box-shadow: 0 4px 24px rgba(0,0,0,0.4); }
+  #toast { position: fixed; bottom: calc(var(--safe-bottom) + 120px); left: 50%; transform: translateX(-50%) translateY(20px); background: color-mix(in srgb, var(--surface) 97%, transparent); color: var(--gold); border: 0.5px solid color-mix(in srgb, var(--gold) 40%, transparent); padding: 12px 24px; border-radius: 14px; font-size: 14px; font-weight: 500; letter-spacing: 0.03em; opacity: 0; transition: opacity 0.3s, transform 0.3s; pointer-events: none; white-space: nowrap; z-index: 999; backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); box-shadow: 0 4px 24px rgba(0,0,0,0.4); }
   #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 
   .nav-shell {
@@ -161,7 +192,7 @@
     background: rgba(13,13,13,0.92);
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
-    border-top: 0.5px solid rgba(200,169,106,0.2);
+    border-top: 0.5px solid color-mix(in srgb, var(--gold) 20%, transparent);
     padding-bottom: calc(var(--safe-bottom) + 6px);
   }
 
@@ -189,9 +220,9 @@
     display: block;
   }
   /* Auth badge */
-  .header-auth-badge { position: absolute; top: 10px; right: 14px; display: none; align-items: center; gap: 6px; background: rgba(13,13,13,0.6); backdrop-filter: blur(6px); border: 0.5px solid rgba(200,169,106,0.2); border-radius: 20px; padding: 5px 10px 5px 8px; z-index: 20; }
+  .header-auth-badge { position: absolute; top: 10px; right: 14px; display: none; align-items: center; gap: 6px; background: rgba(13,13,13,0.6); backdrop-filter: blur(6px); border: 0.5px solid color-mix(in srgb, var(--gold) 20%, transparent); border-radius: 20px; padding: 5px 10px 5px 8px; z-index: 20; }
   .header-auth-badge.visible { display: flex; }
-  .header-auth-dot { width: 8px; height: 8px; border-radius: 50%; background: #2ecc71; flex-shrink: 0; }
+  .header-auth-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--success); flex-shrink: 0; }
   .header-auth-email { font-size: 11px; font-weight: 500; color: var(--gold); white-space: nowrap; }
 </style>
 </head>
@@ -204,7 +235,7 @@
 <div id="app">
   <div class="header-img-wrap" style="position:relative;">
     <img class="header-img" src="Header.webp" alt="Shot Tracker">
-    <a href="index.html" style="position:absolute;top:0;left:0;display:flex;align-items:center;justify-content:center;width:44px;height:44px;z-index:60;"><img src="icons/Home.png" alt="Home" style="width:44px;height:44px;object-fit:contain;"></a>
+    <a href="index.html" style="position:absolute;left:10px;bottom:8px;display:flex;align-items:center;justify-content:center;width:36px;height:36px;"><img src="icons/Home.png" alt="Home" style="width:32px;height:32px;object-fit:contain;"></a>
     <div class="header-auth-badge" id="header-badge"><div class="header-auth-dot"></div><span class="header-auth-email" id="header-email"></span></div>
     <button class="topbar-action" onclick="newRound()">New Round</button>
   </div>
@@ -274,8 +305,8 @@
 
     <!-- SCORECARD TAB -->
     <div class="screen" id="screen-scorecard">
-      <div style="display:flex;gap:0;background:rgba(13,13,13,0.5);border-radius:10px;border:0.5px solid rgba(200,169,106,0.2);overflow:hidden;margin-bottom:10px;">
-        <button id="sc-toggle-gross" onclick="setScorecardView('gross')" style="flex:1;background:#C8A96A;color:#0D0D0D;border:none;padding:10px 6px;font-size:14px;font-weight:500;cursor:pointer;font-family:inherit;">Gross</button>
+      <div style="display:flex;gap:0;background:color-mix(in srgb, var(--bg) 50%, transparent);border-radius:10px;border:0.5px solid color-mix(in srgb, var(--gold) 20%, transparent);overflow:hidden;margin-bottom:10px;">
+        <button id="sc-toggle-gross" onclick="setScorecardView('gross')" style="flex:1;background:var(--gold);color:var(--on-gold);border:none;padding:10px 6px;font-size:14px;font-weight:500;cursor:pointer;font-family:inherit;">Gross</button>
         <button id="sc-toggle-net"   onclick="setScorecardView('net')"   style="flex:1;background:none;color:var(--text-muted);border:none;padding:10px 6px;font-size:14px;font-weight:500;cursor:pointer;font-family:inherit;">Net</button>
       </div>
       <div class="score-table-wrap">
@@ -411,14 +442,8 @@ function newRound() {
   });
 }
 
-// Tracks a round already saved once this session (e.g. user chose "Go back and check"
-// after a par mismatch) so re-saving updates that same round instead of duplicating it.
-let lastSavedRoundId = null;
-let lastSavedLocalId = null;
-
 function resetState() {
   holeScores = {}; holePars = {}; holePutts = {}; holeStrokeIndex = {}; shots = []; currentHole = 1; currentCourse = null;
-  lastSavedRoundId = null; lastSavedLocalId = null;
   localStorage.removeItem('golf-scores-v1');
   localStorage.removeItem('golf-pars-v1');
   localStorage.removeItem('golf-si-v1');
@@ -627,102 +652,25 @@ function finishRound() {
   });
 }
 
-// ── Post-round: check if pars you actually played differ from Supabase course data ──
-async function checkParMismatch(courseName, pars, scoredHoles) {
-  if (!courseName || !currentUser) return null;
-  try {
-    const { data: courses } = await sb.from('courses').select('id').ilike('name', courseName).limit(1);
-    if (!courses || courses.length === 0) return null;
-    const courseId = courses[0].id;
-    const { data: holes } = await sb.from('course_holes').select('hole, par').eq('course_id', courseId);
-    if (!holes || holes.length === 0) return null;
-    const storedPar = {};
-    holes.forEach(h => { if (h.par) storedPar[h.hole] = h.par; });
-    const mismatches = [];
-    scoredHoles.forEach(h => {
-      const entered = pars[h];
-      const stored  = storedPar[h];
-      if (entered && stored && entered !== stored) mismatches.push({ hole: h, entered, stored });
-    });
-    return { courseId, mismatches };
-  } catch(e) { console.error('Par mismatch check error:', e); return null; }
-}
-
-function showParMismatchDialog(courseName, result) {
-  const mismatches = result.mismatches;
-  const summary = mismatches.map(m => 'hole '+m.hole+' (you played par '+m.entered+', course has par '+m.stored+')').join(', ');
-  showDialog({
-    icon: '&#9888;&#65039;',
-    title: 'Par Differs From Course Data',
-    sub: (courseName || 'This course') + ' — ' + summary + '. Update the course record, leave it as is, or go back and check your entry?',
-    buttons: [
-      { label: 'Update course data', style: 'primary',   action: () => applyParMismatchUpdate(result.courseId, mismatches) },
-      { label: 'Leave course as is', style: 'secondary', action: finishAndLeaveCourseData },
-      { label: 'Go back and check',  style: 'secondary', action: () => { /* stay on round.html — state is untouched, nothing to do */ } }
-    ]
-  });
-}
-
-function finishAndLeaveCourseData() {
-  resetState();
-  setTimeout(() => window.location.href = 'index.html', 300);
-}
-
-async function applyParMismatchUpdate(courseId, mismatches) {
-  try {
-    for (const m of mismatches) {
-      await sb.from('course_holes').update({ par: m.entered }).eq('course_id', courseId).eq('hole', m.hole);
-    }
-    showToast('Course par data updated');
-  } catch(e) {
-    console.error('Course par update error:', e);
-    showToast('Update failed \u2014 course data unchanged');
-  } finally {
-    resetState();
-    setTimeout(() => window.location.href = 'index.html', 1400);
-  }
-}
-
 async function doFinishRound() {
   showToast('Saving round\u2026');
-  const cloudSynced = await saveRoundToHistory();
-
-  // Snapshot what's needed for the course-par check. Don't reset state yet —
-  // if there's a mismatch, the user may choose to go back and fix it first.
-  const courseNameSnapshot = currentCourse ? currentCourse.name : null;
-  const parsSnapshot        = { ...holePars };
-  const scoredHolesSnapshot = Object.keys(holeScores).map(Number).filter(h => holeScores[h] > 0);
-
-  if (cloudSynced) {
-    showToast('Round saved!');
-  } else {
-    showToast('Saved locally — cloud sync failed');
-  }
-
-  const result = await checkParMismatch(courseNameSnapshot, parsSnapshot, scoredHolesSnapshot);
-  if (result && result.mismatches && result.mismatches.length > 0) {
-    showParMismatchDialog(courseNameSnapshot, result);
-  } else {
-    // No mismatch — safe to fully finish and clear state now
-    resetState();
-    setTimeout(() => window.location.href = 'index.html', cloudSynced ? 1200 : 2000);
-  }
+  await saveRoundToHistory();
+  resetState();
+  showToast('Round saved!');
+  setTimeout(() => window.location.href = 'index.html', 1200);
 }
 
 async function saveRoundToHistory() {
   const scoredHoles = Object.keys(holeScores).map(Number).filter(h => holeScores[h] > 0);
-  if (!scoredHoles.length) return true;
+  if (!scoredHoles.length) return;
   const totalScore = scoredHoles.reduce((a,h) => a + holeScores[h], 0);
   const parHoles   = scoredHoles.filter(h => holePars[h]);
   const totalPar   = parHoles.reduce((a,h) => a + holePars[h], 0);
   const date       = new Date();
-  const isReSave   = !!lastSavedLocalId; // true if we already saved this round once this session
 
-  // Always save to localStorage as backup. If this round was already saved once
-  // (user chose "Go back and check" after a par mismatch and is re-saving with
-  // corrected data), update that same entry rather than adding a duplicate.
+  // Always save to localStorage as backup
   const localRound = {
-    id:         isReSave ? lastSavedLocalId : Date.now().toString(),
+    id:         Date.now().toString(),
     date:       date.toLocaleDateString('en-AU'),
     dateISO:    date.toISOString(),
     course:     currentCourse ? currentCourse.name   : 'Unknown Course',
@@ -736,53 +684,29 @@ async function saveRoundToHistory() {
     holePutts:  { ...holePutts },
     shots:      totalScore,
     totalDist:  0,
-    handicapAtTime: handicapIndex,
     shotData:   scoredHoles.sort((a,b)=>a-b).map(h => ({ hole: h, score: holeScores[h], par: holePars[h]||null }))
   };
   const history = JSON.parse(localStorage.getItem('golf-round-history') || '[]');
-  if (isReSave) {
-    const idx = history.findIndex(r => r.id === lastSavedLocalId);
-    if (idx !== -1) history[idx] = localRound; else history.unshift(localRound);
-  } else {
-    history.unshift(localRound);
-  }
+  history.unshift(localRound);
   localStorage.setItem('golf-round-history', JSON.stringify(history));
-  lastSavedLocalId = localRound.id;
 
-  // Save to Supabase if logged in. Not signed in is expected/local-only by design, not a failure.
-  if (!currentUser) return true;
+  // Save to Supabase if logged in
+  if (!currentUser) return;
   try {
-    let roundRow;
-    if (isReSave && lastSavedRoundId) {
-      // Update the existing round row instead of inserting a duplicate
-      const { data, error: updErr } = await sb.from('rounds').update({
-        holes_played: scoredHoles.length,
-        total_score:  totalScore,
-        total_par:    totalPar || null,
-        score_diff:   totalPar ? totalScore - totalPar : null,
-        handicap_at_time: handicapIndex
-      }).eq('id', lastSavedRoundId).eq('user_id', currentUser.id).select().single();
-      if (updErr) { console.error('Round update error:', updErr); return false; }
-      roundRow = data;
-      // Replace hole_scores wholesale — simplest way to keep them in sync with the corrected pars
-      await sb.from('hole_scores').delete().eq('round_id', roundRow.id).eq('user_id', currentUser.id);
-    } else {
-      const { data, error: roundErr } = await sb.from('rounds').insert({
-        user_id:      currentUser.id,
-        date:         date.toISOString().split('T')[0],
-        date_iso:     date.toISOString(),
-        course:       currentCourse ? currentCourse.name   : 'Unknown Course',
-        suburb:       currentCourse ? currentCourse.suburb : null,
-        holes_played: scoredHoles.length,
-        total_score:  totalScore,
-        total_par:    totalPar || null,
-        score_diff:   totalPar ? totalScore - totalPar : null,
-        handicap_at_time: handicapIndex
-      }).select().single();
-      if (roundErr) { console.error('Round save error:', roundErr); return false; }
-      roundRow = data;
-    }
-    lastSavedRoundId = roundRow.id;
+    // Insert round row
+    const { data: roundRow, error: roundErr } = await sb.from('rounds').insert({
+      user_id:      currentUser.id,
+      date:         date.toISOString().split('T')[0],
+      date_iso:     date.toISOString(),
+      course:       currentCourse ? currentCourse.name   : 'Unknown Course',
+      suburb:       currentCourse ? currentCourse.suburb : null,
+      holes_played: scoredHoles.length,
+      total_score:  totalScore,
+      total_par:    totalPar || null,
+      score_diff:   totalPar ? totalScore - totalPar : null
+    }).select().single();
+
+    if (roundErr) { console.error('Round save error:', roundErr); return; }
 
     // Insert one row per hole
     const holeRows = scoredHoles.sort((a,b)=>a-b).map(h => ({
@@ -794,15 +718,12 @@ async function saveRoundToHistory() {
       putts:    holePutts[h] || 0
     }));
     const { error: holesErr } = await sb.from('hole_scores').insert(holeRows);
-    if (holesErr) { console.error('Hole scores save error:', holesErr); return false; }
-    return true;
+    if (holesErr) console.error('Hole scores save error:', holesErr);
   } catch(e) {
     console.error('Supabase save failed (offline?):', e);
-    // localStorage backup already saved above — data is safe, will auto-retry next time History opens
-    return false;
+    // localStorage backup already saved above — data is safe
   }
 }
-
 
 // ── Summary ───────────────────────────────────────────────────────────────────
 function renderSummary() {
@@ -838,7 +759,7 @@ function renderSummary() {
   }
   function overParCol(v) {
     if (v === null || v === 0) return 'color:var(--text-muted)';
-    return v > 0 ? 'color:#e74c3c' : 'color:var(--gold)';
+    return v > 0 ? 'color:var(--warning)' : 'color:var(--gold)';
   }
   function avgOverStr(v) {
     if (v === null) return '&#8212;';
@@ -873,8 +794,8 @@ function renderSummary() {
         '</div>' +
       '</div>' +
       '<div class="sum-footer"><span class="sum-footer-label">Avg shots over par / hole</span><span class="sum-footer-val" style="' + overParCol(d.overPar) + '">' + avgOverStr(d.avgOverPar) + '</span></div>' +
-      (d.avgPutts ? '<div class="sum-footer" style="border-top:0.5px solid rgba(200,169,106,0.08);"><span class="sum-footer-label">Avg putts per hole</span><span class="sum-footer-val">' + d.avgPutts + '</span></div>' : '') +
-      (d.stablefordPts !== null ? '<div class="sum-footer" style="border-top:0.5px solid rgba(200,169,106,0.08);"><span class="sum-footer-label">Stableford points</span><span class="sum-footer-val" style="color:var(--gold);">' + d.stablefordPts + '</span></div>' : '') +
+      (d.avgPutts ? '<div class="sum-footer" style="border-top:0.5px solid color-mix(in srgb, var(--gold) 8%, transparent);"><span class="sum-footer-label">Avg putts per hole</span><span class="sum-footer-val">' + d.avgPutts + '</span></div>' : '') +
+      (d.stablefordPts !== null ? '<div class="sum-footer" style="border-top:0.5px solid color-mix(in srgb, var(--gold) 8%, transparent);"><span class="sum-footer-label">Stableford points</span><span class="sum-footer-val" style="color:var(--gold);">' + d.stablefordPts + '</span></div>' : '') +
       '</div>';
   }
 
@@ -908,10 +829,10 @@ function setScorecardView(view) {
   const gBtn = document.getElementById('sc-toggle-gross');
   const nBtn = document.getElementById('sc-toggle-net');
   if (gBtn && nBtn) {
-    gBtn.style.background = view === 'gross' ? '#C8A96A' : 'none';
-    gBtn.style.color      = view === 'gross' ? '#0D0D0D' : 'var(--text-muted)';
-    nBtn.style.background = view === 'net'   ? '#C8A96A' : 'none';
-    nBtn.style.color      = view === 'net'   ? '#0D0D0D' : 'var(--text-muted)';
+    gBtn.style.background = view === 'gross' ? 'var(--gold)' : 'none';
+    gBtn.style.color      = view === 'gross' ? 'var(--on-gold)' : 'var(--text-muted)';
+    nBtn.style.background = view === 'net'   ? 'var(--gold)' : 'none';
+    nBtn.style.color      = view === 'net'   ? 'var(--on-gold)' : 'var(--text-muted)';
   }
   renderScorecard();
 }
@@ -929,7 +850,7 @@ function renderScorecard() {
       const displayScore = scorecardView === 'net' ? (score - extras) : score;
       const diff   = par ? displayScore - par : null;
       const ds     = diff===null ? '&#8212;' : (diff===0?'E':(diff>0?'+'+diff:diff));
-      const diffCol = diff===null?'':(diff>0?'color:#e74c3c':diff<0?'color:var(--gold)':'color:var(--text-muted)');
+      const diffCol = diff===null?'':(diff>0?'color:var(--warning)':diff<0?'color:var(--gold)':'color:var(--text-muted)');
       const siDot  = extras > 0 ? '<span style="color:var(--gold);font-size:10px;"> +'+extras+'</span>' : '';
       const pts    = stablefordPoints(h);
       const ptsStr = pts !== null ? pts : '&#8212;';
@@ -946,7 +867,7 @@ function renderScorecard() {
   if (!rows.length) { tbody.innerHTML='<tr><td colspan="7" style="text-align:center;color:var(--text-muted);padding:24px">No scores yet</td></tr>'; return; }
   const tdiff=tp?ts-tp:null;
   const tds=tdiff===null?'&#8212;':(tdiff===0?'E':(tdiff>0?'+'+tdiff:tdiff));
-  const tdsCol=tdiff===null?'':(tdiff>0?'color:#e74c3c':tdiff<0?'color:var(--gold)':'color:var(--text-muted)');
+  const tdsCol=tdiff===null?'':(tdiff>0?'color:var(--warning)':tdiff<0?'color:var(--gold)':'color:var(--text-muted)');
   const totalPts = Object.keys(holeScores).filter(h=>holeScores[h]>0).reduce((a,h)=>{ const p=stablefordPoints(parseInt(h)); return p!==null?a+p:a; }, 0);
   tbody.innerHTML = rows.join('') +
     '<tr><td style="padding-left:14px;">Total</td><td></td><td>'+(tp||'&#8212;')+'</td><td>'+ts+'</td><td style="'+tdsCol+'">'+tds+'</td><td style="color:var(--gold);">'+(tputts||'&#8212;')+'</td><td style="font-weight:500;color:var(--gold);">'+(handicapIndex!==null?totalPts:'&#8212;')+'</td></tr>' +

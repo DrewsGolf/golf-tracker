@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+<script src="theme.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -15,15 +16,39 @@
 
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
 
+  :root, [data-theme="dark"] {
+    --bg:              #0D0D0D;
+    --surface:         #171717;
+    --text-primary:    #F3E7CC;
+    --text-secondary:  #B8A98A;
+    --gold:            #C8A96A;
+    --highlight:       #D4B36A;
+    --warning:         #7B3F3F;
+    --success:         #8F7A2A;
+    --gold-muted:      #9A7C47;
+    --text-muted:      #9A9A9A;
+    --on-gold:         #0D0D0D;
+    --bg-primary:      var(--bg);
+    --bg-card:         var(--surface);
+    --border:          color-mix(in srgb, var(--gold) 15%, transparent);
+  }
+  [data-theme="light"] {
+    --bg:              #E8DFC8;
+    --surface:         #F7F1E2;
+    --text-primary:    #111111;
+    --text-secondary:  #4A463D;
+    --gold:            #9A7C47;
+    --highlight:       #1F3328;
+    --warning:         #B35454;
+    --success:         #2E7D32;
+    --gold-muted:      #6B5730;
+    --text-muted:      #4A463D;
+    --on-gold:         #0D0D0D;
+    --bg-primary:      var(--bg);
+    --bg-card:         var(--surface);
+    --border:          color-mix(in srgb, var(--gold) 15%, transparent);
+  }
   :root {
-    --bg-primary:   #0D0D0D;
-    --bg-card:      #1C1C1C;
-    --gold:         #C8A96A;
-    --gold-muted:   #9A7C47;
-    --text-primary: #F2F2F2;
-    --text-secondary: #BDBDBD;
-    --text-muted:   #9A9A9A;
-    --border:       rgba(200,169,106,0.15);
     --radius:       14px; --radius-sm: 9px;
     --safe-top:     env(safe-area-inset-top, 0px);
     --safe-bottom:  env(safe-area-inset-bottom, 0px);
@@ -33,56 +58,52 @@
 
   .app { position: relative; width: 100%; height: 100%; max-width: 430px; margin: 0 auto; overflow: hidden; display: flex; flex-direction: column; }
 
-  /* ── Background ── */
-  .hero { position: absolute; inset: 0; width: 100%; height: 100%; }
-  .hero-img { width: 100%; height: 100%; object-fit: cover; object-position: center; display: block; }
-  .hero-overlay { position: absolute; inset: 0; background: rgba(13,13,13,0.88); }
 
   /* ── Header ── */
-  .header { position: absolute; top: 0; left: 0; right: 0; padding: calc(var(--safe-top) + 20px) 24px 16px; display: flex; align-items: center; gap: 16px; border-bottom: 0.5px solid rgba(200,169,106,0.2); z-index: 20; }
+  .header { position: absolute; top: 0; left: 0; right: 0; padding: calc(var(--safe-top) + 20px) 24px 16px; display: flex; align-items: center; gap: 16px; border-bottom: 0.5px solid color-mix(in srgb, var(--gold) 20%, transparent); z-index: 20; }
   .header-img-wrap { position: relative; z-index: 10; width: 100%; flex-shrink: 0; }
   .header-img { width: 100%; height: auto; display: block; }
   .header-title { font-size: 13px; font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-muted); flex: 1; }
 
   /* ── Scrollable content ── */
-  .content { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; padding: 16px 16px calc(var(--safe-bottom) + 110px); z-index: 10; position: relative; }
+  .content { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; padding: 16px 16px calc(var(--safe-bottom) + 110px); z-index: 10; position: relative; background: var(--bg); }
 
   /* ── Search card ── */
-  .search-card { background: rgba(28,28,28,0.9); border: 0.5px solid var(--border); border-radius: var(--radius); padding: 16px; margin-bottom: 14px; backdrop-filter: blur(8px); }
+  .search-card { background: color-mix(in srgb, var(--surface) 90%, transparent); border: 0.5px solid var(--border); border-radius: var(--radius); padding: 16px; margin-bottom: 14px; backdrop-filter: blur(8px); }
   .search-card-title { font-size: 10px; font-weight: 500; letter-spacing: 0.14em; text-transform: uppercase; color: var(--gold-muted); margin-bottom: 12px; }
 
   /* ── Mode toggle ── */
   .mode-toggle { display: flex; gap: 6px; margin-bottom: 14px; }
-  .mode-btn { flex: 1; padding: 10px 6px; font-size: 13px; font-weight: 500; border-radius: var(--radius-sm); border: 0.5px solid rgba(200,169,106,0.2); background: rgba(13,13,13,0.6); color: var(--text-muted); cursor: pointer; text-align: center; transition: background 0.12s; font-family: inherit; }
-  .mode-btn.active { background: rgba(200,169,106,0.12); color: var(--gold); border-color: var(--gold); }
+  .mode-btn { flex: 1; padding: 10px 6px; font-size: 13px; font-weight: 500; border-radius: var(--radius-sm); border: 0.5px solid color-mix(in srgb, var(--gold) 20%, transparent); background: color-mix(in srgb, var(--bg) 60%, transparent); color: var(--text-muted); cursor: pointer; text-align: center; transition: background 0.12s; font-family: inherit; }
+  .mode-btn.active { background: color-mix(in srgb, var(--gold) 12%, transparent); color: var(--gold); border-color: var(--gold); }
 
   /* ── Location input ── */
   .location-row { display: flex; gap: 8px; margin-bottom: 14px; }
-  .location-input { flex: 1; border: 0.5px solid rgba(200,169,106,0.2); border-radius: var(--radius-sm); padding: 12px 14px; font-size: 15px; color: var(--text-primary); background: rgba(13,13,13,0.7); outline: none; font-family: inherit; }
+  .location-input { flex: 1; border: 0.5px solid color-mix(in srgb, var(--gold) 20%, transparent); border-radius: var(--radius-sm); padding: 12px 14px; font-size: 15px; color: var(--text-primary); background: color-mix(in srgb, var(--bg) 70%, transparent); outline: none; font-family: inherit; }
   .location-input:focus { border-color: var(--gold); }
   .location-input::placeholder { color: var(--text-muted); }
-  .location-go-btn { background: var(--gold); color: #0D0D0D; border: none; border-radius: var(--radius-sm); padding: 12px 16px; font-size: 14px; font-weight: 600; cursor: pointer; white-space: nowrap; font-family: inherit; }
+  .location-go-btn { background: var(--gold); color: var(--on-gold); border: none; border-radius: var(--radius-sm); padding: 12px 16px; font-size: 14px; font-weight: 600; cursor: pointer; white-space: nowrap; font-family: inherit; }
 
   /* ── GPS status ── */
-  .gps-status-row { display: flex; align-items: center; gap: 8px; padding: 13px 14px; background: rgba(200,169,106,0.08); border: 0.5px solid rgba(200,169,106,0.2); border-radius: var(--radius-sm); margin-bottom: 10px; }
+  .gps-status-row { display: flex; align-items: center; gap: 8px; padding: 13px 14px; background: color-mix(in srgb, var(--gold) 8%, transparent); border: 0.5px solid color-mix(in srgb, var(--gold) 20%, transparent); border-radius: var(--radius-sm); margin-bottom: 10px; }
   .gps-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--gold); flex-shrink: 0; }
   .gps-dot.pulse { animation: pulse 1.2s infinite; }
   @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.5;transform:scale(1.4)} }
-  .gps-retry-btn { width: 100%; padding: 11px; background: rgba(13,13,13,0.6); border: 0.5px solid var(--border); border-radius: var(--radius-sm); font-size: 13px; font-weight: 500; color: var(--text-muted); cursor: pointer; margin-bottom: 14px; font-family: inherit; }
+  .gps-retry-btn { width: 100%; padding: 11px; background: color-mix(in srgb, var(--bg) 60%, transparent); border: 0.5px solid var(--border); border-radius: var(--radius-sm); font-size: 13px; font-weight: 500; color: var(--text-muted); cursor: pointer; margin-bottom: 14px; font-family: inherit; }
 
   /* ── Radius selector ── */
   .radius-label { font-size: 11px; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 8px; }
   .radius-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-bottom: 14px; }
-  .radius-btn { padding: 10px 4px; font-size: 13px; font-weight: 500; border-radius: var(--radius-sm); border: 0.5px solid rgba(200,169,106,0.2); background: rgba(13,13,13,0.6); color: var(--text-muted); cursor: pointer; text-align: center; font-family: inherit; }
-  .radius-btn.active { background: rgba(200,169,106,0.12); color: var(--gold); border-color: var(--gold); }
+  .radius-btn { padding: 10px 4px; font-size: 13px; font-weight: 500; border-radius: var(--radius-sm); border: 0.5px solid color-mix(in srgb, var(--gold) 20%, transparent); background: color-mix(in srgb, var(--bg) 60%, transparent); color: var(--text-muted); cursor: pointer; text-align: center; font-family: inherit; }
+  .radius-btn.active { background: color-mix(in srgb, var(--gold) 12%, transparent); color: var(--gold); border-color: var(--gold); }
 
   /* ── Filter row ── */
   .filter-row { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 6px; }
-  .filter-btn { padding: 7px 11px; font-size: 12px; font-weight: 500; border-radius: 20px; border: 0.5px solid rgba(200,169,106,0.2); background: rgba(13,13,13,0.6); color: var(--text-muted); cursor: pointer; font-family: inherit; }
-  .filter-btn.active { background: rgba(200,169,106,0.12); color: var(--gold); border-color: var(--gold); }
+  .filter-btn { padding: 7px 11px; font-size: 12px; font-weight: 500; border-radius: 20px; border: 0.5px solid color-mix(in srgb, var(--gold) 20%, transparent); background: color-mix(in srgb, var(--bg) 60%, transparent); color: var(--text-muted); cursor: pointer; font-family: inherit; }
+  .filter-btn.active { background: color-mix(in srgb, var(--gold) 12%, transparent); color: var(--gold); border-color: var(--gold); }
 
   /* ── Search button ── */
-  .btn-search { width: 100%; padding: 15px; background: var(--gold); color: #0D0D0D; border: none; border-radius: var(--radius); font-size: 15px; font-weight: 600; cursor: pointer; margin-top: 14px; font-family: inherit; letter-spacing: 0.04em; }
+  .btn-search { width: 100%; padding: 15px; background: var(--gold); color: var(--on-gold); border: none; border-radius: var(--radius); font-size: 15px; font-weight: 600; cursor: pointer; margin-top: 14px; font-family: inherit; letter-spacing: 0.04em; }
   .btn-search:active { opacity: 0.85; }
   .btn-search:disabled { opacity: 0.35; cursor: default; }
 
@@ -93,21 +114,21 @@
   .results-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
   .results-count { font-size: 11px; font-weight: 500; color: var(--gold-muted); text-transform: uppercase; letter-spacing: 0.1em; }
 
-  .course-card { background: rgba(28,28,28,0.9); border: 0.5px solid var(--border); border-radius: var(--radius); padding: 14px 16px; margin-bottom: 10px; cursor: pointer; backdrop-filter: blur(8px); }
-  .course-card:active { background: rgba(200,169,106,0.06); }
+  .course-card { background: color-mix(in srgb, var(--surface) 90%, transparent); border: 0.5px solid var(--border); border-radius: var(--radius); padding: 14px 16px; margin-bottom: 10px; cursor: pointer; backdrop-filter: blur(8px); }
+  .course-card:active { background: color-mix(in srgb, var(--gold) 6%, transparent); }
   .course-top { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 8px; }
-  .course-dist-badge { background: rgba(200,169,106,0.15); color: var(--gold); border: 0.5px solid rgba(200,169,106,0.3); font-size: 12px; font-weight: 600; padding: 4px 10px; border-radius: 20px; white-space: nowrap; flex-shrink: 0; }
+  .course-dist-badge { background: color-mix(in srgb, var(--gold) 15%, transparent); color: var(--gold); border: 0.5px solid color-mix(in srgb, var(--gold) 30%, transparent); font-size: 12px; font-weight: 600; padding: 4px 10px; border-radius: 20px; white-space: nowrap; flex-shrink: 0; }
   .course-name { font-size: 15px; font-weight: 500; color: var(--text-primary); flex: 1; line-height: 1.3; }
   .course-suburb-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 8px; flex-wrap: wrap; }
   .course-suburb { font-size: 13px; color: var(--text-muted); flex: 1; min-width: 0; }
   .course-meta { display: flex; flex-wrap: wrap; gap: 6px; }
-  .course-tag { font-size: 11px; font-weight: 600; padding: 3px 9px; border-radius: 20px; border: 0.5px solid rgba(200,169,106,0.2); white-space: nowrap; }
+  .course-tag { font-size: 11px; font-weight: 600; padding: 3px 9px; border-radius: 20px; border: 0.5px solid color-mix(in srgb, var(--gold) 20%, transparent); white-space: nowrap; }
   .tag-public    { background: rgba(117,139,105,0.15); color: #9ab88a; border-color: rgba(117,139,105,0.3); }
   .tag-semi      { background: rgba(100,120,200,0.12); color: #8a9fd4; border-color: rgba(100,120,200,0.25); }
-  .tag-members   { background: rgba(200,169,106,0.1); color: var(--gold); border-color: rgba(200,169,106,0.25); }
+  .tag-members   { background: color-mix(in srgb, var(--gold) 10%, transparent); color: var(--gold); border-color: color-mix(in srgb, var(--gold) 25%, transparent); }
   .tag-resort    { background: rgba(180,100,160,0.1); color: #c88ab0; border-color: rgba(180,100,160,0.25); }
   .tag-private   { background: rgba(142,75,75,0.12); color: #c08080; border-color: rgba(142,75,75,0.25); }
-  .tag-neutral   { background: rgba(200,169,106,0.12); color: var(--gold); border-color: rgba(200,169,106,0.25); font-weight: 700; }
+  .tag-neutral   { background: color-mix(in srgb, var(--gold) 12%, transparent); color: var(--gold); border-color: color-mix(in srgb, var(--gold) 25%, transparent); font-weight: 700; }
   .course-notes  { font-size: 12px; color: var(--text-muted); margin-top: 8px; line-height: 1.4; }
 
   /* ── Empty state ── */
@@ -115,14 +136,14 @@
   .empty-icon { font-size: 40px; margin-bottom: 10px; display: block; }
 
   /* ── Section divider ── */
-  .section-divider { font-size: 10px; font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase; color: var(--gold-muted); padding: 6px 0 8px; border-bottom: 0.5px solid rgba(200,169,106,0.12); margin-bottom: 10px; }
+  .section-divider { font-size: 10px; font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase; color: var(--gold-muted); padding: 6px 0 8px; border-bottom: 0.5px solid color-mix(in srgb, var(--gold) 12%, transparent); margin-bottom: 10px; }
 
   /* ── Nav — identical to index.html ── */
   .nav-shell { position: absolute; bottom: 0; left: 0; right: 0; z-index: 100; }
   .nav-row { display: flex; background: rgba(13,13,13,0.92); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
-  .nav-primary { border-top: 0.5px solid rgba(200,169,106,0.2); padding-bottom: calc(var(--safe-bottom) + 6px); transform: translateY(0); transition: transform 350ms cubic-bezier(0.4,0,0.2,1); will-change: transform; position: relative; z-index: 2; }
+  .nav-primary { border-top: 0.5px solid color-mix(in srgb, var(--gold) 20%, transparent); padding-bottom: calc(var(--safe-bottom) + 6px); transform: translateY(0); transition: transform 350ms cubic-bezier(0.4,0,0.2,1); will-change: transform; position: relative; z-index: 2; }
   .nav-primary.raised { transform: translateY(-100%); }
-  .nav-secondary { border-top: 0.5px solid rgba(200,169,106,0.12); padding-bottom: calc(var(--safe-bottom) + 6px); position: absolute; bottom: 0; left: 0; right: 0; transform: translateY(100%); transition: transform 350ms cubic-bezier(0.4,0,0.2,1); will-change: transform; z-index: 1; }
+  .nav-secondary { border-top: 0.5px solid color-mix(in srgb, var(--gold) 12%, transparent); padding-bottom: calc(var(--safe-bottom) + 6px); position: absolute; bottom: 0; left: 0; right: 0; transform: translateY(100%); transition: transform 350ms cubic-bezier(0.4,0,0.2,1); will-change: transform; z-index: 1; }
   .nav-secondary.open { transform: translateY(0); }
   .nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 10px 4px 6px; cursor: pointer; text-decoration: none; background: none; border: none; -webkit-tap-highlight-color: transparent; transition: opacity 0.15s; }
   .nav-item:active { opacity: 0.7; }
@@ -130,9 +151,9 @@
   .nav-overlay { position: absolute; inset: 0; background: rgba(0,0,0,0.5); opacity: 0; pointer-events: none; transition: opacity 350ms ease; z-index: 90; }
   .nav-overlay.open { opacity: 1; pointer-events: auto; }
   /* Auth badge */
-  .header-auth-badge { position: absolute; top: 10px; right: 14px; display: none; align-items: center; gap: 6px; background: rgba(13,13,13,0.6); backdrop-filter: blur(6px); border: 0.5px solid rgba(200,169,106,0.2); border-radius: 20px; padding: 5px 10px 5px 8px; z-index: 20; }
+  .header-auth-badge { position: absolute; top: 10px; right: 14px; display: none; align-items: center; gap: 6px; background: rgba(13,13,13,0.6); backdrop-filter: blur(6px); border: 0.5px solid color-mix(in srgb, var(--gold) 20%, transparent); border-radius: 20px; padding: 5px 10px 5px 8px; z-index: 20; }
   .header-auth-badge.visible { display: flex; }
-  .header-auth-dot { width: 8px; height: 8px; border-radius: 50%; background: #2ecc71; flex-shrink: 0; }
+  .header-auth-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--success); flex-shrink: 0; }
   .header-auth-email { font-size: 11px; font-weight: 500; color: var(--gold); white-space: nowrap; }
 
   /* Home button — top right, below auth badge */
@@ -143,19 +164,19 @@
   /* ── Course detail view ── */
   .course-detail-view { position: absolute; inset: 0; background: var(--bg-primary); z-index: 200; display: none; flex-direction: column; }
   .course-detail-view.open { display: flex; }
-  .course-detail-header { display: flex; align-items: center; gap: 12px; padding: calc(var(--safe-top) + 16px) 16px 14px; border-bottom: 0.5px solid rgba(200,169,106,0.15); flex-shrink: 0; }
-  .course-detail-back { width: 36px; height: 36px; border-radius: 10px; border: 0.5px solid rgba(200,169,106,0.3); background: rgba(13,13,13,0.6); color: var(--gold); font-size: 18px; display: flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0; }
+  .course-detail-header { display: flex; align-items: center; gap: 12px; padding: calc(var(--safe-top) + 16px) 16px 14px; border-bottom: 0.5px solid color-mix(in srgb, var(--gold) 15%, transparent); flex-shrink: 0; }
+  .course-detail-back { width: 36px; height: 36px; border-radius: 10px; border: 0.5px solid color-mix(in srgb, var(--gold) 30%, transparent); background: color-mix(in srgb, var(--bg) 60%, transparent); color: var(--gold); font-size: 18px; display: flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0; }
   .course-detail-back:active { opacity: 0.7; }
   .course-detail-title { font-size: 16px; font-weight: 600; color: var(--text-primary); flex: 1; line-height: 1.3; }
   .course-detail-content { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; padding: 16px 16px calc(var(--safe-bottom) + 40px); }
 
   /* Same card/table language as round.html's Scorecard tab */
-  .score-table-wrap { background: rgba(28,28,28,0.85); border: 0.5px solid var(--border); border-radius: var(--radius); overflow: hidden; margin-bottom: 14px; }
+  .score-table-wrap { background: color-mix(in srgb, var(--surface) 85%, transparent); border: 0.5px solid var(--border); border-radius: var(--radius); overflow: hidden; margin-bottom: 14px; }
   .score-table { width: 100%; border-collapse: collapse; font-size: 16px; }
-  .score-table th { background: rgba(200,169,106,0.12); color: var(--gold); padding: 11px 6px; text-align: center; font-weight: 500; letter-spacing: 0.06em; font-size: 14px; }
+  .score-table th { background: color-mix(in srgb, var(--gold) 12%, transparent); color: var(--gold); padding: 11px 6px; text-align: center; font-weight: 500; letter-spacing: 0.06em; font-size: 14px; }
   .score-table td { padding: 12px 6px; text-align: center; border-bottom: 0.5px solid var(--border); }
   .score-table tr:last-child td { border-bottom: none; }
-  .sc-input { width: 48px; background: rgba(13,13,13,0.7); border: 0.5px solid rgba(200,169,106,0.3); border-radius: 6px; padding: 4px 6px; font-size: 15px; font-weight: 500; color: var(--gold); text-align: center; font-family: inherit; -moz-appearance: textfield; }
+  .sc-input { width: 48px; background: color-mix(in srgb, var(--bg) 70%, transparent); border: 0.5px solid color-mix(in srgb, var(--gold) 30%, transparent); border-radius: 6px; padding: 4px 6px; font-size: 15px; font-weight: 500; color: var(--gold); text-align: center; font-family: inherit; -moz-appearance: textfield; }
   .sc-input::-webkit-outer-spin-button, .sc-input::-webkit-inner-spin-button { -webkit-appearance: none; }
   .sc-input:focus { outline: none; border-color: var(--gold); }
 
@@ -164,7 +185,7 @@
   .cd-info-label { color: var(--text-muted); }
   .cd-info-value { color: var(--text-primary); font-weight: 500; text-align: right; }
 
-  .cd-save-btn { width: 100%; padding: 15px; background: var(--gold); color: #0D0D0D; border: none; border-radius: var(--radius); font-size: 15px; font-weight: 600; cursor: pointer; margin-top: 10px; font-family: inherit; letter-spacing: 0.04em; }
+  .cd-save-btn { width: 100%; padding: 15px; background: var(--gold); color: var(--on-gold); border: none; border-radius: var(--radius); font-size: 15px; font-weight: 600; cursor: pointer; margin-top: 10px; font-family: inherit; letter-spacing: 0.04em; }
   .cd-save-btn:active { opacity: 0.85; }
   .cd-save-btn:disabled { opacity: 0.4; cursor: default; }
   .cd-status { text-align: center; font-size: 13px; color: var(--text-muted); padding: 10px 0 0; min-height: 20px; }
@@ -187,12 +208,6 @@ sb.auth.getSession().then(function({ data }) {
 </script>
 <div class="app">
 <a class="home-btn" href="index.html"><img src="icons/Home.png" alt="Home"></a>
-
-  <!-- Background -->
-  <div class="hero">
-    <img class="hero-img" src="Back_ground_New.jpg" alt="">
-    <div class="hero-overlay"></div>
-  </div>
 
   <!-- Header -->
   <div class="header-img-wrap" style="position:relative;">
@@ -525,7 +540,7 @@ async function saveCourseDetail() {
   const btn = document.getElementById('cd-save-btn');
   const status = document.getElementById('cd-status');
 
-  if (!currentUser) { status.textContent = 'Sign in to save course data'; status.style.color = '#e74c3c'; return; }
+  if (!currentUser) { status.textContent = 'Sign in to save course data'; status.style.color = 'var(--warning)'; return; }
 
   btn.disabled = true;
   status.style.color = 'var(--text-muted)';
@@ -572,7 +587,7 @@ async function saveCourseDetail() {
     status.textContent = '\u2713 Saved';
   } catch(e) {
     console.error('Course detail save error:', e);
-    status.style.color = '#e74c3c';
+    status.style.color = 'var(--warning)';
     status.textContent = 'Save failed \u2014 check par (3\u20135) and stroke index (1\u201318) values';
   } finally {
     btn.disabled = false;

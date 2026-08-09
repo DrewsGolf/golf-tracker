@@ -1165,13 +1165,13 @@ function renderHistoryScorecard(index) {
     if (!par || !shots) return '';
     const d = shots - par;
     let src = '';
-    if (shots === 1)    src = 'hole_in_one.PNG';
-    else if (d <= -2)   src = 'egale.PNG';
-    else if (d === -1)  src = 'Birdie.PNG';
-    else if (d === 0)   src = 'par.PNG';
-    else if (d === 1)   src = '1over.PNG';
-    else if (d === 2)   src = '2over.PNG';
-    else if (d === 3)   src = '3over.PNG';
+    if (shots === 1)    src = 'icons/hole_in_one.png';
+    else if (d <= -2)   src = 'icons/egale.png';
+    else if (d === -1)  src = 'icons/Birdie.png';
+    else if (d === 0)   src = 'icons/par.png';
+    else if (d === 1)   src = 'icons/1over.png';
+    else if (d === 2)   src = 'icons/2over.png';
+    else if (d === 3)   src = 'icons/3over.png';
     return src ? `<img src="${src}" style="width:28px;height:28px;object-fit:contain;display:block;margin:0 auto;">` : '';
   }
 

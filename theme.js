@@ -19,7 +19,12 @@ function applyThemeColorMeta(theme) {
 // since paths are being migrated to icons/ one batch at a time — add a line
 // here as each icon's HTML reference is updated to live in icons/.
 var ICON_LIGHT_MAP = {
-  'icons/Settings.png': 'icons/Settings-light.png'
+  'icons/Settings.png': 'icons/Settings-light.png',
+  'icons/Courses.png':  'icons/Courses-light.png',
+  'icons/Play.png':     'icons/Play-light.png',
+  'icons/Distance.png': 'icons/Distance-light.png',
+  'icons/Suggest.png':  'icons/Suggest-light.png',
+  'icons/History.png':  'icons/History-light.png'
 };
 
 function applyIconTheme(theme) {

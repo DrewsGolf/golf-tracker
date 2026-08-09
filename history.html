@@ -1212,6 +1212,11 @@ function renderHistoryScorecard(index) {
   }
   sc += `</tbody></table></div>`;
   document.getElementById('detail-screen-scorecard').innerHTML = sc;
+  // Score icons above are freshly inserted <img> tags — theme.js's icon-swap only
+  // runs at page load and on toggle, so re-sweep now to pick up the current theme.
+  if (typeof applyIconTheme === 'function' && typeof getTheme === 'function') {
+    applyIconTheme(getTheme());
+  }
 }
 
 // ── Same-Course Comparison ────────────────────────────────────────────────────

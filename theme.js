@@ -24,7 +24,8 @@ var ICON_LIGHT_MAP = {
   'icons/Play.png':     'icons/Play-light.png',
   'icons/Distance.png': 'icons/Distance-light.png',
   'icons/Suggest.png':  'icons/Suggest-light.png',
-  'icons/History.png':  'icons/History-light.png'
+  'icons/History.png':  'icons/History-light.png',
+  'icons/Home.png':     'icons/Home-light.png'
 };
 
 function applyIconTheme(theme) {

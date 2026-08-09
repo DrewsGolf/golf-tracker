@@ -36,7 +36,8 @@ var ICON_LIGHT_MAP = {
   'icons/Handicap.png':    'icons/Handicap-light.png',
   'icons/Set_Clubs.png':   'icons/Set_Clubs-light.png',
   'icons/Sound.png':       'icons/Sound-light.png',
-  'icons/Back.png':        'icons/Back-light.png'
+  'icons/Back.png':        'icons/Back-light.png',
+  'images/Background_with_logo_and_tag.jpg': 'images/Background_with_logo_and_tag-light.jpg'
 };
 
 function applyIconTheme(theme) {

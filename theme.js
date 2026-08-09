@@ -47,6 +47,9 @@ function applyIconTheme(theme) {
     if (!src) return;
     if (!img.dataset.darkSrc) img.dataset.darkSrc = src;
     var darkSrc = img.dataset.darkSrc;
+    // Some icons (e.g. index.html's nav row) are marked to always use their
+    // dark version regardless of theme — skip the swap for those.
+    if (img.dataset.forceDark === 'true') { img.src = darkSrc; return; }
     var lightSrc = ICON_LIGHT_MAP[darkSrc];
     img.src = (theme === 'light' && lightSrc) ? lightSrc : darkSrc;
   });

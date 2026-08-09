@@ -20,6 +20,8 @@
   --gold-muted:      #9A7C47;
   --text-muted:      #9A9A9A;
   --on-gold:         #0D0D0D;
+  --btn-primary:     #C8A96A;
+  --on-btn-primary:  #0D0D0D;
 }
 
 [data-theme="light"] {
@@ -34,12 +36,6 @@
   --gold-muted:      #6B5730;
   --text-muted:      #4A463D;
   --on-gold:         #0D0D0D;
-}
-
-/* Primary action buttons (Save, Start Round, active toggle states, etc.)
-   use this dedicated green, independent of --gold and the same in both
-   themes for consistent brand identity on interactive elements. */
-:root {
   --btn-primary:     #2E7D32;
   --on-btn-primary:  #F5F5F0;
 }

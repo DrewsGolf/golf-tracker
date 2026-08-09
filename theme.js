@@ -32,7 +32,10 @@ var ICON_LIGHT_MAP = {
   'icons/par.png':         'icons/par-light.png',
   'icons/1over.png':       'icons/1over-light.png',
   'icons/2over.png':       'icons/2over-light.png',
-  'icons/3over.png':       'icons/3over-light.png'
+  'icons/3over.png':       'icons/3over-light.png',
+  'icons/Handicap.png':    'icons/Handicap-light.png',
+  'icons/Set_Clubs.png':   'icons/Set_Clubs-light.png',
+  'icons/Sound.png':       'icons/Sound-light.png'
 };
 
 function applyIconTheme(theme) {

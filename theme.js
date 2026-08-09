@@ -19,13 +19,20 @@ function applyThemeColorMeta(theme) {
 // since paths are being migrated to icons/ one batch at a time — add a line
 // here as each icon's HTML reference is updated to live in icons/.
 var ICON_LIGHT_MAP = {
-  'icons/Settings.png': 'icons/Settings-light.png',
-  'icons/Courses.png':  'icons/Courses-light.png',
-  'icons/Play.png':     'icons/Play-light.png',
-  'icons/Distance.png': 'icons/Distance-light.png',
-  'icons/Suggest.png':  'icons/Suggest-light.png',
-  'icons/History.png':  'icons/History-light.png',
-  'icons/Home.png':     'icons/Home-light.png'
+  'icons/Settings.png':    'icons/Settings-light.png',
+  'icons/Courses.png':     'icons/Courses-light.png',
+  'icons/Play.png':        'icons/Play-light.png',
+  'icons/Distance.png':    'icons/Distance-light.png',
+  'icons/Suggest.png':     'icons/Suggest-light.png',
+  'icons/History.png':     'icons/History-light.png',
+  'icons/Home.png':        'icons/Home-light.png',
+  'icons/hole_in_one.png': 'icons/hole_in_one-light.png',
+  'icons/egale.png':       'icons/egale-light.png',
+  'icons/Birdie.png':      'icons/Birdie-light.png',
+  'icons/par.png':         'icons/par-light.png',
+  'icons/1over.png':       'icons/1over-light.png',
+  'icons/2over.png':       'icons/2over-light.png',
+  'icons/3over.png':       'icons/3over-light.png'
 };
 
 function applyIconTheme(theme) {

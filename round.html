@@ -777,13 +777,13 @@ function scoreIcon(score, par) {
   if (!par || !score) return '';
   const diff = score - par;
   let src = '';
-  if (score === 1)       src = 'hole_in_one.PNG';
-  else if (diff <= -2)   src = 'egale.PNG';
-  else if (diff === -1)  src = 'Birdie.PNG';
-  else if (diff === 0)   src = 'par.PNG';
-  else if (diff === 1)   src = '1over.PNG';
-  else if (diff === 2)   src = '2over.PNG';
-  else if (diff === 3)   src = '3over.PNG';
+  if (score === 1)       src = 'icons/hole_in_one.png';
+  else if (diff <= -2)   src = 'icons/egale.png';
+  else if (diff === -1)  src = 'icons/Birdie.png';
+  else if (diff === 0)   src = 'icons/par.png';
+  else if (diff === 1)   src = 'icons/1over.png';
+  else if (diff === 2)   src = 'icons/2over.png';
+  else if (diff === 3)   src = 'icons/3over.png';
   return src ? '<img src="' + src + '" style="width:31px;height:31px;object-fit:contain;display:block;margin:0 auto;" alt="">' : '';
 }
 

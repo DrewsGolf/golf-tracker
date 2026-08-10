@@ -47,10 +47,10 @@ function applyIconTheme(theme) {
     if (!src) return;
     if (!img.dataset.darkSrc) img.dataset.darkSrc = src;
     var darkSrc = img.dataset.darkSrc;
-    // Some icons (e.g. index.html's nav row) are marked to always use their
-    // dark version regardless of theme — skip the swap for those.
-    if (img.dataset.forceDark === 'true') { img.src = darkSrc; return; }
-    var lightSrc = ICON_LIGHT_MAP[darkSrc];
+    // Some icons need a custom light-mode image instead of the global map
+    // (e.g. index.html's nav row uses white icons in light mode, not the
+    // usual green ones) — data-light-src on the <img> tag overrides the map.
+    var lightSrc = img.dataset.lightSrc || ICON_LIGHT_MAP[darkSrc];
     img.src = (theme === 'light' && lightSrc) ? lightSrc : darkSrc;
   });
 }

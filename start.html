@@ -98,6 +98,13 @@
   /* ── Bottom nav ── */
   .nav-shell { position: absolute; bottom: 0; left: 0; right: 0; z-index: 100; }
   .nav-row { display: flex; background: color-mix(in srgb, var(--bg) 95%, transparent); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border-top: 0.5px solid color-mix(in srgb, var(--gold) 20%, transparent); padding-bottom: calc(var(--safe-bottom) + 6px); }
+  .home-btn { position: absolute; top: 0; left: 0; width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; z-index: 60; text-decoration: none; cursor: pointer; }
+  .home-btn img { width: 44px; height: 44px; object-fit: contain; display: block; }
+  .home-btn:active { opacity: 0.7; }
+  .header-auth-badge { position: absolute; top: 10px; right: 14px; display: none; align-items: center; gap: 6px; background: rgba(13,13,13,0.6); backdrop-filter: blur(6px); border: 0.5px solid color-mix(in srgb, var(--gold) 20%, transparent); border-radius: 20px; padding: 5px 10px 5px 8px; z-index: 20; }
+  .header-auth-badge.visible { display: flex; }
+  .header-auth-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--success); flex-shrink: 0; }
+  .header-auth-email { font-size: 11px; font-weight: 500; color: var(--gold); white-space: nowrap; }
   .nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 10px 4px 6px; text-decoration: none; background: none; border: none; cursor: pointer; -webkit-tap-highlight-color: transparent; transition: opacity 0.15s; }
   .nav-item:active { opacity: 0.7; }
   .nav-item img { width: 56px; height: 56px; object-fit: contain; display: block; }
@@ -111,7 +118,22 @@
 </style>
 </head>
 <body>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+const sb = supabase.createClient('https://ryqehsqqriavmuqfnzpx.supabase.co', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ5cWVoc3Fxcmlhdm11cWZuenB4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM3NTQ4MzcsImV4cCI6MjA5OTMzMDgzN30.Po2m7uhlMTc43Pdg8pohwvDsQ_UDFRS-n9UnTQ44nXA');
+let currentUser = null;
+sb.auth.getSession().then(function({ data }) {
+  if (data.session) {
+    currentUser = data.session.user;
+    var badge = document.getElementById('header-badge');
+    var email = document.getElementById('header-email');
+    if (badge) badge.classList.add('visible');
+    if (email) email.textContent = data.session.user.email;
+  }
+});
+</script>
 <div class="app">
+<a class="home-btn" href="index.html"><img src="icons/Home.png" alt="Home"></a>
   <div class="header-img-wrap">
     <div class="header-auth-badge" id="header-badge"><div class="header-auth-dot"></div><span class="header-auth-email" id="header-email"></span></div>
     <img class="header-img" src="images/Header.jpg" alt="Shot Tracker">

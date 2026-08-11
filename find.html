@@ -172,14 +172,36 @@
 <script>
 const sb = supabase.createClient('https://ryqehsqqriavmuqfnzpx.supabase.co', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ5cWVoc3Fxcmlhdm11cWZuenB4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM3NTQ4MzcsImV4cCI6MjA5OTMzMDgzN30.Po2m7uhlMTc43Pdg8pohwvDsQ_UDFRS-n9UnTQ44nXA');
 let currentUser = null;
-sb.auth.getSession().then(function({ data }) {
+
+// ── TEMPORARY diagnostic overlay — remove once the auth badge bug is found ──
+(function() {
+  var box = document.createElement('div');
+  box.id = 'debug-overlay';
+  box.style.cssText = 'position:fixed;top:60px;left:8px;right:8px;background:rgba(0,0,0,0.9);color:#0f0;font-family:monospace;font-size:11px;padding:10px;border-radius:8px;z-index:99999;white-space:pre-wrap;word-break:break-all;max-height:40vh;overflow-y:auto;';
+  box.textContent = 'debug: script started\n';
+  document.addEventListener('DOMContentLoaded', function() {
+    document.body.appendChild(box);
+    box.textContent += 'DOM ready. badge exists: ' + (!!document.getElementById('header-badge')) + '\n';
+  });
+  window.addEventListener('error', function(e) {
+    box.textContent += 'JS ERROR: ' + e.message + ' (' + e.filename + ':' + e.lineno + ')\n';
+  });
+  window._debugLog = function(msg) { box.textContent += msg + '\n'; };
+})();
+
+sb.auth.getSession().then(function({ data, error }) {
+  if (window._debugLog) window._debugLog('getSession resolved. error=' + (error ? error.message : 'none') + ' hasSession=' + (!!data.session));
   if (data.session) {
     currentUser = data.session.user;
     var badge = document.getElementById('header-badge');
     var email = document.getElementById('header-email');
+    if (window._debugLog) window._debugLog('badge found: ' + (!!badge) + ' email found: ' + (!!email) + ' user: ' + data.session.user.email);
     if (badge) badge.classList.add('visible');
     if (email) email.textContent = data.session.user.email;
+    if (window._debugLog) window._debugLog('badge classes after: ' + (badge ? badge.className : 'n/a'));
   }
+}).catch(function(err) {
+  if (window._debugLog) window._debugLog('getSession THREW: ' + err.message);
 });
 </script>
 <div class="app">

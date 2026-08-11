@@ -309,10 +309,18 @@ let currentUser = null;
 sb.auth.getSession().then(({ data }) => {
   if (data.session) {
     currentUser = data.session.user;
-    const badge = document.getElementById('header-badge');
-    const email = document.getElementById('header-email');
-    if (badge) badge.classList.add('visible');
-    if (email) email.textContent = data.session.user.email;
+    // getSession() can resolve before the DOM finishes parsing — defer if so.
+    function showBadge() {
+      const badge = document.getElementById('header-badge');
+      const email = document.getElementById('header-email');
+      if (badge) badge.classList.add('visible');
+      if (email) email.textContent = data.session.user.email;
+    }
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', showBadge);
+    } else {
+      showBadge();
+    }
   }
 });
 

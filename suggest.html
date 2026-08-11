@@ -104,10 +104,18 @@
 const _sb = supabase.createClient('https://ryqehsqqriavmuqfnzpx.supabase.co', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ5cWVoc3Fxcmlhdm11cWZuenB4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM3NTQ4MzcsImV4cCI6MjA5OTMzMDgzN30.Po2m7uhlMTc43Pdg8pohwvDsQ_UDFRS-n9UnTQ44nXA');
 _sb.auth.getSession().then(function({ data }) {
   if (data.session) {
-    var badge = document.getElementById('header-badge');
-    var email = document.getElementById('header-email');
-    if (badge) badge.classList.add('visible');
-    if (email) email.textContent = data.session.user.email;
+    // getSession() can resolve before the DOM finishes parsing — defer if so.
+    var showBadge = function() {
+      var badge = document.getElementById('header-badge');
+      var email = document.getElementById('header-email');
+      if (badge) badge.classList.add('visible');
+      if (email) email.textContent = data.session.user.email;
+    };
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', showBadge);
+    } else {
+      showBadge();
+    }
   }
 });
 </script>

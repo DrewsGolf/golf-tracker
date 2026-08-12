@@ -18,12 +18,17 @@
   :root {
     --bg-primary:      var(--bg);
     --bg-card:         var(--surface);
+    --card:            color-mix(in srgb, var(--surface) 85%, transparent);
+    --border:          color-mix(in srgb, var(--gold) 15%, transparent);
+    --border-mid:      color-mix(in srgb, var(--gold) 25%, transparent);
+    --radius: 14px; --radius-sm: 9px;
   }
   :root {
     --safe-top: env(safe-area-inset-top, 0px); --safe-bottom: env(safe-area-inset-bottom, 0px);
   }
   html, body { height: 100%; font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; background: var(--bg-primary); overflow: hidden; }
   .app { position: relative; width: 100%; height: 100%; max-width: 430px; margin: 0 auto; overflow: hidden; }
+  #app { display: flex; flex-direction: column; height: 100%; position: relative; z-index: 5; }
 
 
     /* Header */
@@ -33,12 +38,88 @@
   .header-title { font-size: 13px; font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-muted); }
 
   /* Content */
-  .content { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 48px 32px calc(var(--safe-bottom) + 110px); text-align: center; gap: 20px; background: var(--bg); position: relative; z-index: 5; }
+  .content { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; padding: 14px 14px calc(var(--safe-bottom) + 110px); position: relative; z-index: 5; background: var(--bg); }
+  .placeholder-block { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 48px 16px 20px; text-align: center; gap: 20px; }
   .placeholder-icon { width: 110px; height: 110px; object-fit: contain; opacity: 0.75; }
   .placeholder-title { font-size: 24px; font-weight: 300; color: var(--text-primary); letter-spacing: 0.04em; }
   .placeholder-divider { width: 32px; height: 1px; background: var(--gold); opacity: 0.6; }
   .placeholder-desc { font-size: 13px; color: var(--text-muted); line-height: 1.8; letter-spacing: 0.02em; max-width: 260px; }
   .placeholder-pill { font-size: 10px; font-weight: 500; letter-spacing: 0.16em; text-transform: uppercase; color: var(--gold-muted); border: 0.5px solid color-mix(in srgb, var(--gold) 30%, transparent); border-radius: 20px; padding: 7px 18px; }
+
+  /* Tab bar — matches distance.html / history.html */
+  .detail-tab-bar { background: transparent; padding: 0 0 14px; display: flex; gap: 6px; flex-shrink: 0; }
+  .detail-tab { flex: 1; padding: 10px 8px; font-size: 13px; font-weight: 500; text-align: center; border-radius: 8px; border: 0.5px solid color-mix(in srgb, var(--gold) 15%, transparent); cursor: pointer; background: color-mix(in srgb, var(--gold) 6%, transparent); color: var(--text-muted); font-family: inherit; }
+  .detail-tab.active { background: var(--btn-primary); color: var(--on-btn-primary); border-color: var(--btn-primary); }
+  .sugg-panel { display: none; }
+  .sugg-panel.active { display: block; }
+
+  .card { background: var(--card); border: 0.5px solid var(--border); border-radius: var(--radius); backdrop-filter: blur(8px); padding: 16px 14px; margin-bottom: 12px; }
+
+  /* Source filter — On Course / At Range / Both */
+  .source-filter-bar { display: flex; gap: 6px; margin-bottom: 12px; }
+  .source-filter-btn { flex: 1; padding: 9px 6px; font-size: 12px; font-weight: 500; text-align: center; border-radius: 8px; border: 0.5px solid color-mix(in srgb, var(--gold) 15%, transparent); cursor: pointer; background: color-mix(in srgb, var(--gold) 6%, transparent); color: var(--text-muted); font-family: inherit; }
+  .source-filter-btn.active { background: var(--btn-primary); color: var(--on-btn-primary); border-color: var(--btn-primary); }
+
+  /* Recorded shots list + accordion — matches distance.html exactly */
+  .history-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+  .history-title { font-size: 13px; font-weight: 600; color: var(--gold); letter-spacing: 0.06em; text-transform: uppercase; }
+  .history-clear { background: transparent; border: none; color: var(--text-muted); font-size: 12px; cursor: pointer; font-family: inherit; }
+  .shot-list { display: flex; flex-direction: column; gap: 7px; }
+  .shot-item { background: color-mix(in srgb, var(--surface) 70%, transparent); border: 0.5px solid var(--border); border-radius: var(--radius-sm); display: flex; align-items: center; padding: 12px 13px; gap: 11px; cursor: pointer; }
+  .shot-item:active { background: color-mix(in srgb, var(--gold) 8%, transparent); }
+  .shot-item.expanded { border-color: color-mix(in srgb, var(--gold) 40%, transparent); border-radius: var(--radius-sm) var(--radius-sm) 0 0; }
+  .shot-club { font-size: 14px; font-weight: 600; flex: 1; color: var(--text-primary); }
+  .shot-stats-inline { display: flex; gap: 12px; font-size: 12px; color: var(--text-muted); }
+  .shot-stats-inline b { color: var(--gold); font-weight: 600; }
+  .shot-expand-arrow { font-size: 11px; color: var(--text-muted); flex-shrink: 0; }
+  .empty-state { text-align: center; padding: 24px 16px; color: var(--text-muted); font-size: 14px; }
+  .empty-icon { font-size: 32px; margin-bottom: 8px; display: block; }
+
+  .shot-expand { background: color-mix(in srgb, var(--surface) 45%, transparent); border: 0.5px solid color-mix(in srgb, var(--gold) 40%, transparent); border-top: none; border-radius: 0 0 var(--radius-sm) var(--radius-sm); padding: 4px 13px 12px; margin-bottom: 7px; }
+  .shot-expand-section { padding-top: 10px; }
+  .shot-expand-heading { font-size: 10px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--gold-muted); margin-bottom: 6px; }
+  .shot-expand-stats { display: flex; gap: 16px; font-size: 13px; color: var(--text-primary); margin-bottom: 8px; }
+  .shot-expand-stats b { color: var(--gold); font-weight: 600; }
+  .shot-expand-shots { display: flex; flex-direction: column; gap: 4px; }
+  .shot-expand-row { display: flex; align-items: center; justify-content: space-between; padding: 6px 8px; background: color-mix(in srgb, var(--bg) 40%, transparent); border-radius: 6px; font-size: 13px; }
+  .shot-expand-dist { color: var(--gold); font-weight: 500; }
+  .shot-expand-meta { display: flex; align-items: center; gap: 8px; }
+  .shot-expand-src { font-size: 10px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); }
+  .shot-expand-del { background: transparent; border: none; color: var(--text-muted); font-size: 13px; cursor: pointer; padding: 2px 4px; }
+  .shot-expand-del:active { color: var(--warning); }
+  .shot-expand-empty { font-size: 12px; color: var(--text-muted); font-style: italic; }
+  .shot-expand-heading-row { display: flex; align-items: center; gap: 8px; cursor: pointer; margin-bottom: 6px; }
+  .shot-expand-heading-row:active { opacity: 0.75; }
+  .shot-expand-heading-stats { flex: 1; font-size: 12px; color: var(--text-secondary); }
+  .shot-expand-heading-stats b { color: var(--gold); font-weight: 600; }
+  .shot-rounds-list { display: flex; flex-direction: column; gap: 4px; margin-top: 4px; }
+  .shot-round-wrap { background: color-mix(in srgb, var(--bg) 40%, transparent); border-radius: 8px; overflow: hidden; }
+  .shot-round-row { display: flex; align-items: center; gap: 8px; padding: 9px 10px; cursor: pointer; }
+  .shot-round-row:active { background: color-mix(in srgb, var(--gold) 8%, transparent); }
+  .shot-round-row.expanded { background: color-mix(in srgb, var(--gold) 10%, transparent); }
+  .shot-round-date { font-size: 12px; color: var(--text-primary); font-weight: 500; }
+  .shot-round-stats { flex: 1; font-size: 12px; color: var(--text-secondary); text-align: right; }
+  .shot-round-stats b { color: var(--gold); font-weight: 600; }
+  .shot-round-wrap .shot-expand-shots { padding: 0 8px 8px; }
+
+  /* Dialog */
+  @keyframes fadeIn { from{opacity:0} to{opacity:1} }
+  @keyframes slideUp { from{transform:translateY(40px);opacity:0} to{transform:translateY(0);opacity:1} }
+  .dialog-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 200; display: flex; align-items: flex-end; justify-content: center; animation: fadeIn 0.15s ease; }
+  .dialog-sheet { background: var(--surface); border-top: 0.5px solid color-mix(in srgb, var(--gold) 20%, transparent); border-radius: 22px 22px 0 0; padding: 8px 0 calc(var(--safe-bottom) + 8px); width: 100%; max-width: 430px; animation: slideUp 0.2s ease; }
+  .dialog-handle { width: 36px; height: 4px; background: var(--border-mid); border-radius: 2px; margin: 8px auto 16px; }
+  .dialog-icon { text-align: center; margin-bottom: 8px; min-height: 36px; display: flex; align-items: center; justify-content: center; font-size: 36px; }
+  .dialog-title { font-size: 18px; font-weight: 700; text-align: center; color: var(--text-primary); padding: 0 20px; margin-bottom: 6px; }
+  .dialog-sub { font-size: 14px; color: var(--text-secondary); text-align: center; padding: 0 24px; margin-bottom: 20px; line-height: 1.5; }
+  .dialog-actions { padding: 0 16px; display: flex; flex-direction: column; gap: 8px; }
+  .dialog-btn { display: flex; align-items: center; justify-content: center; width: 100%; padding: 15px; border-radius: var(--radius); border: none; font-size: 15px; font-weight: 600; cursor: pointer; font-family: inherit; }
+  .dialog-btn-primary { background: var(--btn-primary); color: var(--on-btn-primary); }
+  .dialog-btn-danger { background: var(--warning); color: #fff; }
+  .dialog-btn-secondary { background: color-mix(in srgb, var(--surface) 85%, transparent); color: var(--text-muted); border: 0.5px solid var(--border); }
+
+  /* Toast */
+  #toast { position: fixed; bottom: calc(var(--safe-bottom) + 120px); left: 50%; transform: translateX(-50%) translateY(20px); background: color-mix(in srgb, var(--surface) 95%, transparent); color: var(--text-primary); border: 0.5px solid var(--border); padding: 10px 20px; border-radius: 100px; font-size: 13px; font-weight: 500; opacity: 0; transition: opacity 0.25s, transform 0.25s; pointer-events: none; white-space: nowrap; z-index: 999; }
+  #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 
   /* Nav */
   .nav-shell { position: absolute; bottom: 0; left: 0; right: 0; z-index: 100; }
@@ -67,7 +148,7 @@
 <body>
 <div class="app">
 <a class="home-btn" href="index.html"><img src="icons/Home.png" alt="Home"></a>
-
+<div id="app">
   <div class="header-img-wrap" style="position:relative;">
     <img class="header-img" src="images/Header.jpg" alt="Shot Tracker">
     <div class="header-auth-badge" id="header-badge">
@@ -77,12 +158,55 @@
   </div>
 
   <div class="content">
-    <img class="placeholder-icon" src="Suggest_1.png" alt="Suggest">
-    <div class="placeholder-title">Club Suggester</div>
-    <div class="placeholder-divider"></div>
-    <div class="placeholder-desc">Enter your distance to the pin and the app will recommend the right club based on your personal shot history.</div>
-    <div class="placeholder-pill">Coming Soon</div>
+
+    <!-- TABS -->
+    <div class="detail-tab-bar">
+      <button class="detail-tab active" onclick="showSuggTab('suggest')" id="sgtab-suggest">Suggest</button>
+      <button class="detail-tab" onclick="showSuggTab('data')" id="sgtab-data">History/Data</button>
+    </div>
+
+    <!-- SUGGEST TAB — placeholder for now, live recommendation is a later build -->
+    <div class="sugg-panel active" id="sugg-panel-suggest">
+      <div class="placeholder-block">
+        <img class="placeholder-icon" src="Suggest_1.png" alt="Suggest">
+        <div class="placeholder-title">Club Suggester</div>
+        <div class="placeholder-divider"></div>
+        <div class="placeholder-desc">Enter your distance to the pin and the app will recommend the right club based on your personal shot history.</div>
+        <div class="placeholder-pill">Coming Soon</div>
+      </div>
+    </div>
+
+    <!-- HISTORY/DATA TAB — mirrors distance.html's Data tab, same underlying shot data -->
+    <div class="sugg-panel" id="sugg-panel-data">
+      <div class="source-filter-bar">
+        <button class="source-filter-btn" onclick="setSourceFilter('course')" id="sfilter-course">On Course</button>
+        <button class="source-filter-btn" onclick="setSourceFilter('range')" id="sfilter-range">At Range</button>
+        <button class="source-filter-btn active" onclick="setSourceFilter('both')" id="sfilter-both">Both</button>
+      </div>
+      <div class="card">
+        <div class="history-header">
+          <span class="history-title">Recorded Shots</span>
+          <button class="history-clear" onclick="confirmClearAll()">Clear all</button>
+        </div>
+        <div id="shot-history"></div>
+      </div>
+    </div>
+
   </div>
+</div>
+
+<!-- Dialog -->
+<div id="dialog-overlay" class="dialog-overlay" style="display:none" onclick="closeDialogOutside(event)">
+  <div class="dialog-sheet" onclick="event.stopPropagation()">
+    <div class="dialog-handle"></div>
+    <div id="dialog-icon" class="dialog-icon"></div>
+    <div id="dialog-title" class="dialog-title"></div>
+    <div id="dialog-sub" class="dialog-sub"></div>
+    <div id="dialog-actions" class="dialog-actions"></div>
+  </div>
+</div>
+
+<div id="toast"></div>
 
     <!-- Nav shell -->
   <div class="nav-shell">
@@ -96,14 +220,14 @@
   </div>
 
 </div>
-<script>
-
-</script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-const _sb = supabase.createClient('https://ryqehsqqriavmuqfnzpx.supabase.co', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ5cWVoc3Fxcmlhdm11cWZuenB4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM3NTQ4MzcsImV4cCI6MjA5OTMzMDgzN30.Po2m7uhlMTc43Pdg8pohwvDsQ_UDFRS-n9UnTQ44nXA');
-_sb.auth.getSession().then(function({ data }) {
+// ── Supabase ──────────────────────────────────────────────────────────────────
+const sb = supabase.createClient('https://ryqehsqqriavmuqfnzpx.supabase.co', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ5cWVoc3Fxcmlhdm11cWZuenB4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM3NTQ4MzcsImV4cCI6MjA5OTMzMDgzN30.Po2m7uhlMTc43Pdg8pohwvDsQ_UDFRS-n9UnTQ44nXA');
+let currentUser = null;
+sb.auth.getSession().then(function({ data }) {
   if (data.session) {
+    currentUser = data.session.user;
     // getSession() can resolve before the DOM finishes parsing — defer if so.
     var showBadge = function() {
       var badge = document.getElementById('header-badge');
@@ -116,9 +240,9 @@ _sb.auth.getSession().then(function({ data }) {
     } else {
       showBadge();
     }
+    loadDistancesFromSupabase();
   }
 });
-</script>
 
 // ── Continue round — go to round.html if in progress ─────────────────────────
 (function() {
@@ -129,5 +253,250 @@ _sb.auth.getSession().then(function({ data }) {
     if (el) el.setAttribute('href', 'round.html');
   }
 })();
+
+// ── Club definitions — same data model as distance.html ────────────────────────
+const ALL_CLUBS_FULL = {
+  'driver':'Driver','3wood':'3-Wood','4wood':'4-Wood','5wood':'5-Wood','7wood':'7-Wood','9wood':'9-Wood',
+  '2hybrid':'2-Hybrid','3hybrid':'3-Hybrid','4hybrid':'4-Hybrid','5hybrid':'5-Hybrid','6hybrid':'6-Hybrid',
+  '2iron':'2-Iron','3iron':'3-Iron','4iron':'4-Iron','5iron':'5-Iron','6iron':'6-Iron',
+  '7iron':'7-Iron','8iron':'8-Iron','9iron':'9-Iron',
+  'pw':'Pitching Wedge','gw':'Gap Wedge','sw':'Sand Wedge','lw':'Lob Wedge','putter':'Putter'
+};
+const savedBag = JSON.parse(localStorage.getItem('golf-bag-v1') || 'null');
+const BAG = savedBag || ['driver','3wood','5wood','4hybrid','5iron','6iron','7iron','8iron','9iron','pw','gw','sw','lw','putter'];
+
+// ── Shot data — reads/writes the SAME localStorage key + Supabase table as
+// distance.html, so this page is a live mirror, not a separate dataset ───────
+let clubDistances = JSON.parse(localStorage.getItem('golf-club-distances') || '{}');
+
+function persist() {
+  localStorage.setItem('golf-club-distances', JSON.stringify(clubDistances));
+}
+
+async function loadDistancesFromSupabase() {
+  if (!currentUser) return;
+  try {
+    const { data } = await sb.from('club_distances')
+      .select('club, distance, date, source').eq('user_id', currentUser.id)
+      .order('created_at', { ascending: true });
+    if (!data || data.length === 0) return;
+    data.forEach(row => {
+      if (!clubDistances[row.club]) clubDistances[row.club] = [];
+      const exists = clubDistances[row.club].some(s => s.dist === row.distance && s.date === new Date(row.date).toLocaleDateString('en-AU'));
+      if (!exists) clubDistances[row.club].push({ dist: row.distance, date: new Date(row.date).toLocaleDateString('en-AU'), source: row.source || 'course' });
+    });
+    persist();
+    renderHistory();
+  } catch(e) { console.error('Supabase club load error:', e); }
+}
+
+// ── Tabs ────────────────────────────────────────────────────────────────────
+function showSuggTab(t) {
+  ['suggest','data'].forEach(id => {
+    document.getElementById('sugg-panel-'+id).classList.toggle('active', id===t);
+    document.getElementById('sgtab-'+id).classList.toggle('active', id===t);
+  });
+}
+
+// ── Data tab: source filter + expandable club rows — ported from distance.html ─
+let dataSourceFilter = 'both'; // 'course' | 'range' | 'both'
+let expandedClubId   = null;
+let last5RoundsOpen  = false;
+let expandedRoundDate = null;
+
+function setSourceFilter(f) {
+  dataSourceFilter = f;
+  ['course','range','both'].forEach(id => {
+    document.getElementById('sfilter-'+id).classList.toggle('active', id===f);
+  });
+  renderHistory();
+}
+
+function shotsMatchingFilter(shots) {
+  if (dataSourceFilter === 'both') return shots;
+  return shots.filter(s => (s.source || 'course') === dataSourceFilter);
+}
+
+function todayStr() { return new Date().toLocaleDateString('en-AU'); }
+
+function parseAuDate(str) {
+  const p = str.split('/');
+  return new Date(parseInt(p[2]), parseInt(p[1])-1, parseInt(p[0])).getTime();
+}
+
+function statsFor(shots) {
+  if (!shots.length) return null;
+  const dists = shots.map(s => s.dist);
+  return { best: Math.max(...dists), avg: Math.round(dists.reduce((a,v)=>a+v,0)/dists.length) };
+}
+
+function toggleClubExpand(id) {
+  expandedClubId = (expandedClubId === id) ? null : id;
+  last5RoundsOpen = false;
+  expandedRoundDate = null;
+  renderHistory();
+}
+
+function toggleLast5Rounds() {
+  last5RoundsOpen = !last5RoundsOpen;
+  expandedRoundDate = null;
+  renderHistory();
+}
+
+function toggleRoundDate(date) {
+  expandedRoundDate = (expandedRoundDate === date) ? null : date;
+  renderHistory();
+}
+
+function deleteShot(clubId, index) {
+  showDialog({
+    icon: '&#128465;',
+    title: 'Delete This Shot?',
+    sub: 'Remove the ' + (clubDistances[clubId][index].dist) + 'm shot recorded on ' + clubDistances[clubId][index].date + '?',
+    buttons: [
+      { label: 'Delete', style: 'danger', action: () => {
+        clubDistances[clubId].splice(index, 1);
+        if (clubDistances[clubId].length === 0) delete clubDistances[clubId];
+        persist();
+        renderHistory();
+        showToast('Shot deleted');
+      }},
+      { label: 'Cancel', style: 'secondary', action: () => {} }
+    ]
+  });
+}
+
+function renderHistory() {
+  const el = document.getElementById('shot-history');
+  const entries = BAG.filter(id => clubDistances[id] && shotsMatchingFilter(clubDistances[id]).length > 0);
+  if (!entries.length) {
+    el.innerHTML = '<div class="empty-state"><span class="empty-icon">&#127953;</span>No shots recorded yet.<br>Head to the Distance page to start tracking.</div>';
+    return;
+  }
+  const today = todayStr();
+
+  el.innerHTML = '<div class="shot-list">' + entries.map(id => {
+    const allShots = shotsMatchingFilter(clubDistances[id]);
+    const overall  = statsFor(allShots);
+    const isOpen   = expandedClubId === id;
+
+    let expandedHtml = '';
+    if (isOpen) {
+      const todayShots = allShots.filter(s => s.date === today);
+      const todayStats = statsFor(todayShots);
+      const last5Today = [...todayShots].reverse().slice(0, 5);
+
+      let thisRoundHtml = '';
+      if (todayStats) {
+        thisRoundHtml = '<div class="shot-expand-section">' +
+          '<div class="shot-expand-heading">This Round</div>' +
+          '<div class="shot-expand-stats"><span>Best <b>' + todayStats.best + 'm</b></span><span>Avg <b>' + todayStats.avg + 'm</b></span></div>' +
+          '<div class="shot-expand-shots">' + last5Today.map(s => {
+            const realIndex = clubDistances[id].indexOf(s);
+            return '<div class="shot-expand-row"><span class="shot-expand-dist">' + s.dist + 'm</span>' +
+              '<div class="shot-expand-meta"><span class="shot-expand-src">' + (s.source==='range'?'Range':'Course') + '</span>' +
+              '<button class="shot-expand-del" onclick="event.stopPropagation();deleteShot(\''+id+'\','+realIndex+')" aria-label="Delete">&#128465;</button></div></div>';
+          }).join('') + '</div>' +
+        '</div>';
+      }
+
+      const pastDates = [...new Set(allShots.filter(s => s.date !== today).map(s => s.date))];
+      pastDates.sort((a,b) => parseAuDate(b) - parseAuDate(a));
+      const last5Dates = pastDates.slice(0, 5);
+      const last5RoundsShots = allShots.filter(s => last5Dates.includes(s.date));
+      const last5RoundsStats = statsFor(last5RoundsShots);
+
+      let last5Html;
+      if (last5RoundsStats) {
+        let datesListHtml = '';
+        if (last5RoundsOpen) {
+          datesListHtml = '<div class="shot-rounds-list">' + last5Dates.map(date => {
+            const dateShots = allShots.filter(s => s.date === date);
+            const dateStats = statsFor(dateShots);
+            const dateOpen = expandedRoundDate === date;
+            let shotsListHtml = '';
+            if (dateOpen) {
+              shotsListHtml = '<div class="shot-expand-shots">' + dateShots.map(s => {
+                const realIndex = clubDistances[id].indexOf(s);
+                return '<div class="shot-expand-row"><span class="shot-expand-dist">' + s.dist + 'm</span>' +
+                  '<div class="shot-expand-meta"><span class="shot-expand-src">' + (s.source==='range'?'Range':'Course') + '</span>' +
+                  '<button class="shot-expand-del" onclick="event.stopPropagation();deleteShot(\''+id+'\','+realIndex+')" aria-label="Delete">&#128465;</button></div></div>';
+              }).join('') + '</div>';
+            }
+            return '<div class="shot-round-wrap">' +
+              '<div class="shot-round-row' + (dateOpen?' expanded':'') + '" onclick="event.stopPropagation();toggleRoundDate(\''+date+'\')">' +
+                '<span class="shot-round-date">' + date + '</span>' +
+                '<span class="shot-round-stats">Best <b>' + dateStats.best + 'm</b> &middot; Avg <b>' + dateStats.avg + 'm</b></span>' +
+                '<span class="shot-expand-arrow">' + (dateOpen?'&#9652;':'&#9662;') + '</span>' +
+              '</div>' +
+              shotsListHtml +
+            '</div>';
+          }).join('') + '</div>';
+        }
+        last5Html = '<div class="shot-expand-section">' +
+          '<div class="shot-expand-heading-row' + (last5RoundsOpen?' expanded':'') + '" onclick="event.stopPropagation();toggleLast5Rounds()">' +
+            '<span class="shot-expand-heading" style="margin:0;">Last 5 Rounds</span>' +
+            '<span class="shot-expand-heading-stats">Best <b>' + last5RoundsStats.best + 'm</b> &middot; Avg <b>' + last5RoundsStats.avg + 'm</b></span>' +
+            '<span class="shot-expand-arrow">' + (last5RoundsOpen?'&#9652;':'&#9662;') + '</span>' +
+          '</div>' +
+          datesListHtml +
+        '</div>';
+      } else {
+        last5Html = '<div class="shot-expand-section">' +
+          '<div class="shot-expand-heading">Last 5 Rounds</div>' +
+          '<div class="shot-expand-empty">No prior rounds recorded</div>' +
+        '</div>';
+      }
+
+      expandedHtml = '<div class="shot-expand">' + thisRoundHtml + last5Html + '</div>';
+    }
+
+    return '<div class="shot-item-wrap">' +
+      '<div class="shot-item' + (isOpen?' expanded':'') + '" onclick="toggleClubExpand(\'' + id + '\')">' +
+        '<div class="shot-club">' + (ALL_CLUBS_FULL[id]||id) + '</div>' +
+        '<div class="shot-stats-inline"><span>Best <b>' + overall.best + 'm</b></span><span>Avg <b>' + overall.avg + 'm</b></span></div>' +
+        '<span class="shot-expand-arrow">' + (isOpen?'&#9652;':'&#9662;') + '</span>' +
+      '</div>' +
+      expandedHtml +
+    '</div>';
+  }).join('') + '</div>';
+}
+
+function confirmClearAll() {
+  showDialog({
+    icon: '&#128465;',
+    title: 'Clear All Shots?',
+    sub: 'This will permanently delete all recorded club distances.',
+    buttons: [
+      { label: 'Clear everything', style: 'danger', action: () => { clubDistances = {}; expandedClubId = null; persist(); renderHistory(); showToast('All shots cleared'); }},
+      { label: 'Cancel', style: 'secondary', action: () => {} }
+    ]
+  });
+}
+
+// ── Dialog ────────────────────────────────────────────────────────────────────
+function showDialog(opts) {
+  document.getElementById('dialog-icon').innerHTML    = opts.icon  || '';
+  document.getElementById('dialog-title').textContent = opts.title || '';
+  document.getElementById('dialog-sub').textContent   = opts.sub   || '';
+  document.getElementById('dialog-actions').innerHTML = opts.buttons.map((b,i) =>
+    '<button class="dialog-btn dialog-btn-'+(b.style||'secondary')+'" onclick="dialogAction('+i+')">'+b.label+'</button>'
+  ).join('');
+  window._dialogActions = opts.buttons.map(b => b.action);
+  document.getElementById('dialog-overlay').style.display = 'flex';
+}
+function dialogAction(i) { closeDialog(); window._dialogActions?.[i]?.(); }
+function closeDialogOutside(e) { if (e.target===document.getElementById('dialog-overlay')) closeDialog(); }
+function closeDialog() { document.getElementById('dialog-overlay').style.display = 'none'; }
+
+// ── Toast ─────────────────────────────────────────────────────────────────────
+function showToast(msg) {
+  const t = document.getElementById('toast'); t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2200);
+}
+
+// ── Init ──────────────────────────────────────────────────────────────────────
+renderHistory();
+</script>
 </body>
 </html>

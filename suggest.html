@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <script src="theme.js"></script>
 <link rel="stylesheet" href="theme.css">
+<link rel="stylesheet" href="gps-indicator.css">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -45,6 +46,22 @@
   .placeholder-divider { width: 32px; height: 1px; background: var(--gold); opacity: 0.6; }
   .placeholder-desc { font-size: 13px; color: var(--text-muted); line-height: 1.8; letter-spacing: 0.02em; max-width: 260px; }
   .placeholder-pill { font-size: 10px; font-weight: 500; letter-spacing: 0.16em; text-transform: uppercase; color: var(--gold-muted); border: 0.5px solid color-mix(in srgb, var(--gold) 30%, transparent); border-radius: 20px; padding: 7px 18px; }
+
+  /* Live suggestion display */
+  .sugg-dist-card { text-align: center; padding: 20px 14px; }
+  .sugg-dist-label { font-size: 11px; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 6px; }
+  .sugg-dist-value { font-size: 44px; font-weight: 300; color: var(--gold); letter-spacing: -0.02em; line-height: 1; }
+  .sugg-dist-unit { font-size: 18px; font-weight: 300; color: var(--gold); margin-left: 4px; }
+  .sugg-club-card { text-align: center; padding: 18px 14px; }
+  .sugg-club-label { font-size: 11px; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 8px; }
+  .sugg-club-name { font-size: 28px; font-weight: 500; color: var(--text-primary); }
+  .sugg-club-sub { font-size: 12px; color: var(--text-muted); margin-top: 6px; }
+  .sugg-empty { text-align: center; padding: 20px 16px; color: var(--text-muted); font-size: 13px; line-height: 1.6; }
+  .green-status { text-align: center; font-size: 12px; color: var(--text-muted); margin-top: 4px; }
+  .green-status b { color: var(--gold); font-weight: 500; }
+  .btn { display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; padding: 16px; border-radius: var(--radius); border: none; font-size: 16px; font-weight: 500; cursor: pointer; transition: opacity 0.15s, transform 0.1s; margin-bottom: 10px; font-family: inherit; letter-spacing: 0.03em; }
+  .btn-primary { background: var(--btn-primary); color: var(--on-btn-primary); }
+  .btn-outline { background: transparent; color: var(--gold); border: 0.5px solid var(--gold); }
 
   /* Tab bar — matches distance.html / history.html */
   .detail-tab-bar { background: transparent; padding: 0 0 14px; display: flex; gap: 6px; flex-shrink: 0; }
@@ -167,12 +184,28 @@
 
     <!-- SUGGEST TAB — placeholder for now, live recommendation is a later build -->
     <div class="sugg-panel active" id="sugg-panel-suggest">
-      <div class="placeholder-block">
-        <img class="placeholder-icon" src="Suggest_1.png" alt="Suggest">
-        <div class="placeholder-title">Club Suggester</div>
-        <div class="placeholder-divider"></div>
-        <div class="placeholder-desc">Enter your distance to the pin and the app will recommend the right club based on your personal shot history.</div>
-        <div class="placeholder-pill">Coming Soon</div>
+      <div class="card sugg-dist-card">
+        <div class="sugg-dist-label">Distance to Green</div>
+        <div id="sugg-dist-display"><span class="sugg-dist-value">&mdash;</span></div>
+      </div>
+
+      <div class="card sugg-club-card" id="sugg-club-card">
+        <div class="sugg-club-label">Recommended Club</div>
+        <div id="sugg-club-display"><div class="sugg-empty">Waiting for a green location and GPS fix&hellip;</div></div>
+      </div>
+
+      <div class="card">
+        <div class="card-label">Green Location</div>
+        <div class="gps-status">
+          <div class="gps-status-row">
+            <span class="gps-indicator searching" id="gps-indicator"></span>
+            <span class="gps-status-text" id="gps-status-text">Acquiring GPS&hellip;</span>
+          </div>
+          <div class="gps-accuracy" id="gps-accuracy">—</div>
+          <div class="gps-debug" id="gps-debug">no fix yet</div>
+        </div>
+        <button class="btn btn-outline" onclick="captureGreenLocation()" id="btn-capture-green">&#128205; Capture Green Location</button>
+        <div class="green-status" id="green-status"></div>
       </div>
     </div>
 
@@ -221,6 +254,7 @@
 
 </div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="gps-indicator.js"></script>
 <script>
 // ── Supabase ──────────────────────────────────────────────────────────────────
 const sb = supabase.createClient('https://ryqehsqqriavmuqfnzpx.supabase.co', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ5cWVoc3Fxcmlhdm11cWZuenB4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM3NTQ4MzcsImV4cCI6MjA5OTMzMDgzN30.Po2m7uhlMTc43Pdg8pohwvDsQ_UDFRS-n9UnTQ44nXA');
@@ -243,6 +277,174 @@ sb.auth.getSession().then(function({ data }) {
     loadDistancesFromSupabase();
   }
 });
+
+// ── Current hole/course — reads the same state round.html tracks ───────────────
+let currentHole = parseInt(localStorage.getItem('golf-current-hole') || '1');
+let currentCourse = JSON.parse(localStorage.getItem('golf-current-course') || 'null');
+let currentCourseId = null;
+let currentGreenLat = null;
+let currentGreenLng = null;
+let greenCapturedAt = null;
+
+function haversine(a, b) {
+  const R = 6371000, f1 = a.latitude*Math.PI/180, f2 = b.latitude*Math.PI/180;
+  const df = (b.latitude-a.latitude)*Math.PI/180;
+  const dl = (b.longitude-a.longitude)*Math.PI/180;
+  const x  = Math.sin(df/2)**2 + Math.cos(f1)*Math.cos(f2)*Math.sin(dl/2)**2;
+  return Math.round(2*R*Math.asin(Math.sqrt(x)));
+}
+
+async function resolveCourseId() {
+  if (currentCourseId) return currentCourseId;
+  if (!currentCourse || !currentCourse.name) return null;
+  const { data: found } = await sb.from('courses').select('id').ilike('name', currentCourse.name).limit(1);
+  if (found && found.length > 0) {
+    currentCourseId = found[0].id;
+    return currentCourseId;
+  }
+  const { data: created, error } = await sb.from('courses')
+    .insert({ name: currentCourse.name, suburb: currentCourse.suburb || null })
+    .select('id').single();
+  if (error || !created) { console.error('Course create error:', error); return null; }
+  currentCourseId = created.id;
+  return currentCourseId;
+}
+
+async function loadGreenLocation() {
+  const courseId = await resolveCourseId();
+  if (!courseId) return;
+  try {
+    const { data } = await sb.from('course_holes')
+      .select('green_lat, green_lng, green_captured_at')
+      .eq('course_id', courseId).eq('hole', currentHole).limit(1);
+    if (data && data.length > 0 && data[0].green_lat != null) {
+      currentGreenLat = data[0].green_lat;
+      currentGreenLng = data[0].green_lng;
+      greenCapturedAt = data[0].green_captured_at;
+    } else {
+      currentGreenLat = null;
+      currentGreenLng = null;
+      greenCapturedAt = null;
+    }
+  } catch(e) { console.error('Green location load error:', e); }
+  renderGreenStatus();
+  updateSuggestionDisplay();
+}
+
+function renderGreenStatus() {
+  const el = document.getElementById('green-status');
+  if (!el) return;
+  el.innerHTML = greenCapturedAt
+    ? 'Last captured <b>' + new Date(greenCapturedAt).toLocaleDateString('en-AU') + '</b>'
+    : 'Not captured yet for this hole';
+  const btn = document.getElementById('btn-capture-green');
+  if (btn) btn.innerHTML = greenCapturedAt ? '&#128205; Update Green Location' : '&#128205; Capture Green Location';
+}
+
+async function saveGreenLocation() {
+  const courseId = await resolveCourseId();
+  if (!courseId) { showToast('Could not resolve course \u2014 try again'); return; }
+  try {
+    await sb.from('course_holes').upsert({
+      course_id: courseId,
+      hole: currentHole,
+      green_lat: currentFix.latitude,
+      green_lng: currentFix.longitude,
+      green_source: 'capture',
+      green_captured_at: new Date().toISOString()
+    }, { onConflict: 'course_id,hole' });
+    currentGreenLat = currentFix.latitude;
+    currentGreenLng = currentFix.longitude;
+    greenCapturedAt = new Date().toISOString();
+    renderGreenStatus();
+    updateSuggestionDisplay();
+    showToast('Green location saved (\u00b1' + Math.round(currentFix.accuracy) + 'm)');
+  } catch(e) {
+    console.error('Green location save error:', e);
+    showToast('Save failed \u2014 check connection');
+  }
+}
+
+function captureGreenLocation() {
+  if (!currentFix) { showToast('Waiting for a GPS fix\u2026'); return; }
+  const tier = accuracyTier(currentFix.accuracy);
+  const alreadyCaptured = !!greenCapturedAt;
+  if (tier === 'poor' || tier === 'unknown') {
+    showDialog({
+      icon: '&#128205;',
+      title: 'Low GPS Accuracy',
+      sub: 'Current accuracy is \u00b1' + Math.round(currentFix.accuracy) + 'm.' +
+        (alreadyCaptured ? ' This will overwrite the existing saved location.' : '') +
+        ' Save anyway?',
+      buttons: [
+        { label: 'Save Anyway', style: 'danger', action: () => saveGreenLocation() },
+        { label: 'Cancel', style: 'secondary', action: () => {} }
+      ]
+    });
+    return;
+  }
+  if (alreadyCaptured) {
+    showDialog({
+      icon: '&#128205;',
+      title: 'Overwrite Green Location?',
+      sub: 'This hole already has a saved location. Replace it with your current position (\u00b1' + Math.round(currentFix.accuracy) + 'm)?',
+      buttons: [
+        { label: 'Overwrite', style: 'primary', action: () => saveGreenLocation() },
+        { label: 'Cancel', style: 'secondary', action: () => {} }
+      ]
+    });
+    return;
+  }
+  saveGreenLocation();
+}
+
+// ── Live distance + club recommendation ─────────────────────────────────────
+// Recommendation strategy: prefer the club whose personal average distance
+// gets closest to the target WITHOUT going over (avoids flying the green);
+// if every club's average falls short, fall back to the longest club.
+function recommendClub(targetDist) {
+  const candidates = BAG
+    .filter(id => clubDistances[id] && clubDistances[id].length > 0)
+    .map(id => {
+      const dists = clubDistances[id].map(s => s.dist);
+      const avg = Math.round(dists.reduce((a,v)=>a+v,0)/dists.length);
+      return { id, avg };
+    });
+  if (!candidates.length) return null;
+  const underOrEqual = candidates.filter(c => c.avg <= targetDist);
+  if (underOrEqual.length) {
+    return underOrEqual.reduce((best, c) => c.avg > best.avg ? c : best);
+  }
+  return candidates.reduce((best, c) => c.avg < best.avg ? c : best);
+}
+
+function updateSuggestionDisplay() {
+  const distEl = document.getElementById('sugg-dist-display');
+  const clubEl = document.getElementById('sugg-club-display');
+  if (!distEl || !clubEl) return;
+
+  if (currentGreenLat == null) {
+    distEl.innerHTML = '<span class="sugg-dist-value">&mdash;</span>';
+    clubEl.innerHTML = '<div class="sugg-empty">No green location saved for this hole yet. Capture it below to get a live distance.</div>';
+    return;
+  }
+  if (!currentFix) {
+    distEl.innerHTML = '<span class="sugg-dist-value">&mdash;</span>';
+    clubEl.innerHTML = '<div class="sugg-empty">Waiting for a GPS fix\u2026</div>';
+    return;
+  }
+
+  const dist = haversine(currentFix, { latitude: currentGreenLat, longitude: currentGreenLng });
+  distEl.innerHTML = '<span class="sugg-dist-value">' + dist + '</span><span class="sugg-dist-unit">m</span>';
+
+  const rec = recommendClub(dist);
+  if (!rec) {
+    clubEl.innerHTML = '<div class="sugg-empty">No shot data yet \u2014 log some shots on the Distance page to get a recommendation.</div>';
+    return;
+  }
+  clubEl.innerHTML = '<div class="sugg-club-name">' + (ALL_CLUBS_FULL[rec.id]||rec.id) + '</div>' +
+    '<div class="sugg-club-sub">Your average: ' + rec.avg + 'm</div>';
+}
 
 // ── Continue round — go to round.html if in progress ─────────────────────────
 (function() {
@@ -497,6 +699,10 @@ function showToast(msg) {
 
 // ── Init ──────────────────────────────────────────────────────────────────────
 renderHistory();
+renderGreenStatus();
+loadGreenLocation();
+startGpsWatch(function() { updateSuggestionDisplay(); });
+window.addEventListener('beforeunload', () => { stopGpsWatch(); });
 </script>
 </body>
 </html>

@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <script src="theme.js"></script>
 <link rel="stylesheet" href="theme.css">
+<link rel="stylesheet" href="gps-indicator.css">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -57,6 +58,8 @@
 
   /* Top row: Hole nav | Par */
   .top-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
+  .green-status { text-align: center; font-size: 12px; color: var(--text-muted); margin-top: 4px; }
+  .green-status b { color: var(--gold); font-weight: 500; }
 
   .hole-nav-card { background: var(--card); border: 0.5px solid var(--border); border-radius: var(--radius); backdrop-filter: blur(8px); display: flex; align-items: center; justify-content: space-between; padding: 14px 10px; }
   .hole-nav-btn { width: 38px; height: 38px; background: color-mix(in srgb, var(--gold) 12%, transparent); border: 0.5px solid color-mix(in srgb, var(--gold) 25%, transparent); border-radius: 8px; font-size: 18px; color: var(--gold); display: flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0; }
@@ -225,6 +228,21 @@
         </div>
       </div>
 
+      <!-- Green location capture -->
+      <div class="card" style="margin-bottom:12px;">
+        <div class="card-label">Green Location</div>
+        <div class="gps-status">
+          <div class="gps-status-row">
+            <span class="gps-indicator searching" id="gps-indicator"></span>
+            <span class="gps-status-text" id="gps-status-text">Acquiring GPS&hellip;</span>
+          </div>
+          <div class="gps-accuracy" id="gps-accuracy">—</div>
+          <div class="gps-debug" id="gps-debug">no fix yet</div>
+        </div>
+        <button class="btn btn-outline" onclick="captureGreenLocation()">&#128205; Capture Green Location</button>
+        <div class="green-status" id="green-status"></div>
+      </div>
+
       <!-- Row 2: Score entry -->
       <div class="score-card">
         <span class="score-card-label">This Hole</span>
@@ -298,6 +316,7 @@
 <div id="toast"></div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="gps-indicator.js"></script>
 <script>
 // ── Supabase ──────────────────────────────────────────────────────────────────
 const SUPABASE_URL = 'https://ryqehsqqriavmuqfnzpx.supabase.co';
@@ -333,6 +352,8 @@ let holePutts    = JSON.parse(localStorage.getItem('golf-putts-v1')   || '{}');
 // Legacy shot data — kept so Summary tab can show old shot-by-shot rounds
 let shots        = JSON.parse(localStorage.getItem('golf-shots-v3')  || '[]');
 let currentCourse = JSON.parse(localStorage.getItem('golf-current-course') || 'null');
+let currentCourseId = null;      // Supabase courses.id, resolved lazily
+let holeGreenCaptured = {};      // hole number -> ISO date string of last green capture, if any
 
 // ── Scoring mode & handicap ──────────────────────────────────────────────────
 const scoringMode   = localStorage.getItem('golf-scoring-mode') || 'gross';
@@ -439,13 +460,14 @@ async function loadCourseData() {
       .limit(1);
     if (!courses || courses.length === 0) return;
     const courseId = courses[0].id;
+    currentCourseId = courseId;
     // Store course rating and slope
     currentCourse.courseRating = courses[0].course_rating;
     currentCourse.slope        = courses[0].slope;
     // Fetch all hole data
     const { data: holes } = await sb
       .from('course_holes')
-      .select('hole, par, stroke_index')
+      .select('hole, par, stroke_index, green_captured_at')
       .eq('course_id', courseId)
       .order('hole');
     if (!holes || holes.length === 0) return;
@@ -454,6 +476,7 @@ async function loadCourseData() {
     holes.forEach(h => {
       if (h.par && !parsAlreadySet) holePars[h.hole] = h.par;
       if (h.stroke_index) holeStrokeIndex[h.hole] = h.stroke_index;
+      if (h.green_captured_at) holeGreenCaptured[h.hole] = h.green_captured_at;
     });
     persist();
     renderRound();
@@ -599,8 +622,90 @@ function renderRound() {
   document.getElementById('hole-prev').disabled = currentHole === 1;
   document.getElementById('hole-next').disabled = currentHole === 18;
   renderParArea();
+  renderGreenStatus();
   updateScoreDisplay();
   updatePuttsDisplay();
+}
+
+function renderGreenStatus() {
+  const el = document.getElementById('green-status');
+  if (!el) return;
+  const captured = holeGreenCaptured[currentHole];
+  el.innerHTML = captured
+    ? 'Last captured <b>' + new Date(captured).toLocaleDateString('en-AU') + '</b>'
+    : 'Not captured yet for this hole';
+}
+
+// ── Green location capture (GPS hole capture, Method 1) ────────────────────────
+async function resolveCourseId() {
+  if (currentCourseId) return currentCourseId;
+  if (!currentCourse || !currentCourse.name) return null;
+  const { data: found } = await sb.from('courses').select('id').ilike('name', currentCourse.name).limit(1);
+  if (found && found.length > 0) {
+    currentCourseId = found[0].id;
+    return currentCourseId;
+  }
+  // Course doesn't exist in Supabase yet — create it on the fly
+  const { data: created, error } = await sb.from('courses')
+    .insert({ name: currentCourse.name, suburb: currentCourse.suburb || null })
+    .select('id').single();
+  if (error || !created) { console.error('Course create error:', error); return null; }
+  currentCourseId = created.id;
+  return currentCourseId;
+}
+
+async function saveGreenLocation() {
+  const courseId = await resolveCourseId();
+  if (!courseId) { showToast('Could not resolve course \u2014 try again'); return; }
+  try {
+    await sb.from('course_holes').upsert({
+      course_id: courseId,
+      hole: currentHole,
+      green_lat: currentFix.latitude,
+      green_lng: currentFix.longitude,
+      green_source: 'capture',
+      green_captured_at: new Date().toISOString()
+    }, { onConflict: 'course_id,hole' });
+    holeGreenCaptured[currentHole] = new Date().toISOString();
+    renderGreenStatus();
+    showToast('Green location saved (\u00b1' + Math.round(currentFix.accuracy) + 'm)');
+  } catch(e) {
+    console.error('Green location save error:', e);
+    showToast('Save failed \u2014 check connection');
+  }
+}
+
+function captureGreenLocation() {
+  if (!currentFix) { showToast('Waiting for a GPS fix\u2026'); return; }
+  const tier = accuracyTier(currentFix.accuracy);
+  const alreadyCaptured = !!holeGreenCaptured[currentHole];
+  if (tier === 'poor' || tier === 'unknown') {
+    showDialog({
+      icon: '&#128205;',
+      title: 'Low GPS Accuracy',
+      sub: 'Current accuracy is \u00b1' + Math.round(currentFix.accuracy) + 'm.' +
+        (alreadyCaptured ? ' This will overwrite the existing saved location.' : '') +
+        ' Save anyway?',
+      buttons: [
+        { label: 'Save Anyway', style: 'danger', action: () => saveGreenLocation() },
+        { label: 'Cancel', style: 'secondary', action: () => {} }
+      ]
+    });
+    return;
+  }
+  if (alreadyCaptured) {
+    showDialog({
+      icon: '&#128205;',
+      title: 'Overwrite Green Location?',
+      sub: 'This hole already has a saved location. Replace it with your current position (\u00b1' + Math.round(currentFix.accuracy) + 'm)?',
+      buttons: [
+        { label: 'Overwrite', style: 'primary', action: () => saveGreenLocation() },
+        { label: 'Cancel', style: 'secondary', action: () => {} }
+      ]
+    });
+    return;
+  }
+  saveGreenLocation();
 }
 
 // ── Finish round ──────────────────────────────────────────────────────────────
@@ -919,6 +1024,8 @@ function showToast(msg) {
 renderRound();
 updateFinishBtn();
 loadCourseData();
+startGpsWatch();
+window.addEventListener('beforeunload', () => { stopGpsWatch(); });
 if('serviceWorker' in navigator){navigator.serviceWorker.register('/sw.js').catch(()=>{});}
 </script>
 

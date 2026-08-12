@@ -131,6 +131,19 @@
   .shot-expand-del { background: transparent; border: none; color: var(--text-muted); font-size: 13px; cursor: pointer; padding: 2px 4px; }
   .shot-expand-del:active { color: var(--warning); }
   .shot-expand-empty { font-size: 12px; color: var(--text-muted); font-style: italic; }
+  .shot-expand-heading-row { display: flex; align-items: center; gap: 8px; cursor: pointer; margin-bottom: 6px; }
+  .shot-expand-heading-row:active { opacity: 0.75; }
+  .shot-expand-heading-stats { flex: 1; font-size: 12px; color: var(--text-secondary); }
+  .shot-expand-heading-stats b { color: var(--gold); font-weight: 600; }
+  .shot-rounds-list { display: flex; flex-direction: column; gap: 4px; margin-top: 4px; }
+  .shot-round-wrap { background: color-mix(in srgb, var(--bg) 40%, transparent); border-radius: 8px; overflow: hidden; }
+  .shot-round-row { display: flex; align-items: center; gap: 8px; padding: 9px 10px; cursor: pointer; }
+  .shot-round-row:active { background: color-mix(in srgb, var(--gold) 8%, transparent); }
+  .shot-round-row.expanded { background: color-mix(in srgb, var(--gold) 10%, transparent); }
+  .shot-round-date { font-size: 12px; color: var(--text-primary); font-weight: 500; }
+  .shot-round-stats { flex: 1; font-size: 12px; color: var(--text-secondary); text-align: right; }
+  .shot-round-stats b { color: var(--gold); font-weight: 600; }
+  .shot-round-wrap .shot-expand-shots { padding: 0 8px 8px; }
   .empty-icon { font-size: 32px; margin-bottom: 8px; display: block; }
 
   @keyframes fadeIn { from{opacity:0} to{opacity:1} }
@@ -597,6 +610,8 @@ function resetTracker() {
 // ── Data tab: source filter + expandable club rows ─────────────────────────────
 let dataSourceFilter = 'both'; // 'course' | 'range' | 'both'
 let expandedClubId   = null;
+let last5RoundsOpen  = false;  // whether "Last 5 Rounds" is expanded into per-round rows
+let expandedRoundDate = null;  // which specific past date's shots are shown, if any
 
 function setSourceFilter(f) {
   dataSourceFilter = f;
@@ -627,6 +642,19 @@ function statsFor(shots) {
 
 function toggleClubExpand(id) {
   expandedClubId = (expandedClubId === id) ? null : id;
+  last5RoundsOpen = false;
+  expandedRoundDate = null;
+  renderHistory();
+}
+
+function toggleLast5Rounds() {
+  last5RoundsOpen = !last5RoundsOpen;
+  expandedRoundDate = null;
+  renderHistory();
+}
+
+function toggleRoundDate(date) {
+  expandedRoundDate = (expandedRoundDate === date) ? null : date;
   renderHistory();
 }
 
@@ -670,33 +698,73 @@ function renderHistory() {
       const todayStats = statsFor(todayShots);
       const last5Today = [...todayShots].reverse().slice(0, 5);
 
-      // Last 5 rounds = the 5 most recent distinct dates before today with shots
+      // Only show "This Round" at all if there's actually something today
+      let thisRoundHtml = '';
+      if (todayStats) {
+        thisRoundHtml = '<div class="shot-expand-section">' +
+          '<div class="shot-expand-heading">This Round</div>' +
+          '<div class="shot-expand-stats"><span>Best <b>' + todayStats.best + 'm</b></span><span>Avg <b>' + todayStats.avg + 'm</b></span></div>' +
+          '<div class="shot-expand-shots">' + last5Today.map(s => {
+            const realIndex = clubDistances[id].indexOf(s);
+            return '<div class="shot-expand-row"><span class="shot-expand-dist">' + s.dist + 'm</span>' +
+              '<div class="shot-expand-meta"><span class="shot-expand-src">' + (s.source==='range'?'Range':'Course') + '</span>' +
+              '<button class="shot-expand-del" onclick="event.stopPropagation();deleteShot(\''+id+'\','+realIndex+')" aria-label="Delete">&#128465;</button></div></div>';
+          }).join('') + '</div>' +
+        '</div>';
+      }
+
+      // Last 5 rounds = the 5 most recent distinct dates before today with shots.
+      // Tapping it expands into one row per round; tapping a round reveals every
+      // individual shot from that date (uncapped) so a bad outlier can be found and deleted.
       const pastDates = [...new Set(allShots.filter(s => s.date !== today).map(s => s.date))];
       pastDates.sort((a,b) => parseAuDate(b) - parseAuDate(a));
       const last5Dates = pastDates.slice(0, 5);
       const last5RoundsShots = allShots.filter(s => last5Dates.includes(s.date));
       const last5RoundsStats = statsFor(last5RoundsShots);
 
-      expandedHtml = '<div class="shot-expand">' +
-        '<div class="shot-expand-section">' +
-          '<div class="shot-expand-heading">This Round</div>' +
-          (todayStats ?
-            '<div class="shot-expand-stats"><span>Best <b>' + todayStats.best + 'm</b></span><span>Avg <b>' + todayStats.avg + 'm</b></span></div>' +
-            '<div class="shot-expand-shots">' + last5Today.map(s => {
-              const realIndex = clubDistances[id].indexOf(s);
-              return '<div class="shot-expand-row"><span class="shot-expand-dist">' + s.dist + 'm</span>' +
-                '<div class="shot-expand-meta"><span class="shot-expand-src">' + (s.source==='range'?'Range':'Course') + '</span>' +
-                '<button class="shot-expand-del" onclick="event.stopPropagation();deleteShot(\''+id+'\','+realIndex+')" aria-label="Delete">&#128465;</button></div></div>';
-            }).join('') + '</div>'
-          : '<div class="shot-expand-empty">No shots recorded today yet</div>') +
-        '</div>' +
-        '<div class="shot-expand-section">' +
+      let last5Html;
+      if (last5RoundsStats) {
+        let datesListHtml = '';
+        if (last5RoundsOpen) {
+          datesListHtml = '<div class="shot-rounds-list">' + last5Dates.map(date => {
+            const dateShots = allShots.filter(s => s.date === date);
+            const dateStats = statsFor(dateShots);
+            const dateOpen = expandedRoundDate === date;
+            let shotsListHtml = '';
+            if (dateOpen) {
+              shotsListHtml = '<div class="shot-expand-shots">' + dateShots.map(s => {
+                const realIndex = clubDistances[id].indexOf(s);
+                return '<div class="shot-expand-row"><span class="shot-expand-dist">' + s.dist + 'm</span>' +
+                  '<div class="shot-expand-meta"><span class="shot-expand-src">' + (s.source==='range'?'Range':'Course') + '</span>' +
+                  '<button class="shot-expand-del" onclick="event.stopPropagation();deleteShot(\''+id+'\','+realIndex+')" aria-label="Delete">&#128465;</button></div></div>';
+              }).join('') + '</div>';
+            }
+            return '<div class="shot-round-wrap">' +
+              '<div class="shot-round-row' + (dateOpen?' expanded':'') + '" onclick="event.stopPropagation();toggleRoundDate(\''+date+'\')">' +
+                '<span class="shot-round-date">' + date + '</span>' +
+                '<span class="shot-round-stats">Best <b>' + dateStats.best + 'm</b> &middot; Avg <b>' + dateStats.avg + 'm</b></span>' +
+                '<span class="shot-expand-arrow">' + (dateOpen?'&#9652;':'&#9662;') + '</span>' +
+              '</div>' +
+              shotsListHtml +
+            '</div>';
+          }).join('') + '</div>';
+        }
+        last5Html = '<div class="shot-expand-section">' +
+          '<div class="shot-expand-heading-row' + (last5RoundsOpen?' expanded':'') + '" onclick="event.stopPropagation();toggleLast5Rounds()">' +
+            '<span class="shot-expand-heading" style="margin:0;">Last 5 Rounds</span>' +
+            '<span class="shot-expand-heading-stats">Best <b>' + last5RoundsStats.best + 'm</b> &middot; Avg <b>' + last5RoundsStats.avg + 'm</b></span>' +
+            '<span class="shot-expand-arrow">' + (last5RoundsOpen?'&#9652;':'&#9662;') + '</span>' +
+          '</div>' +
+          datesListHtml +
+        '</div>';
+      } else {
+        last5Html = '<div class="shot-expand-section">' +
           '<div class="shot-expand-heading">Last 5 Rounds</div>' +
-          (last5RoundsStats ?
-            '<div class="shot-expand-stats"><span>Best <b>' + last5RoundsStats.best + 'm</b></span><span>Avg <b>' + last5RoundsStats.avg + 'm</b></span></div>'
-          : '<div class="shot-expand-empty">No prior rounds recorded</div>') +
-        '</div>' +
-      '</div>';
+          '<div class="shot-expand-empty">No prior rounds recorded</div>' +
+        '</div>';
+      }
+
+      expandedHtml = '<div class="shot-expand">' + thisRoundHtml + last5Html + '</div>';
     }
 
     return '<div class="shot-item-wrap">' +

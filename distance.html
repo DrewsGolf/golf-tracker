@@ -41,24 +41,11 @@
   .card { background: var(--card); border: 0.5px solid var(--border); border-radius: var(--radius); backdrop-filter: blur(8px); padding: 16px 14px; margin-bottom: 12px; }
   .card-label { font-size: 10px; font-weight: 500; letter-spacing: 0.14em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 10px; }
 
-  /* Club picker trigger */
-  .club-picker-trigger { width: 100%; background: color-mix(in srgb, var(--bg) 70%, transparent); border: 0.5px solid color-mix(in srgb, var(--gold) 35%, transparent); border-radius: var(--radius-sm); padding: 14px 16px; font-size: 17px; font-weight: 500; color: var(--gold); font-family: inherit; cursor: pointer; display: flex; align-items: center; justify-content: space-between; text-align: left; }
-  .club-picker-trigger.placeholder { color: var(--text-muted); font-size: 15px; }
-  .club-picker-arrow { font-size: 14px; color: var(--gold); flex-shrink: 0; }
-
-  /* Club picker bottom sheet */
-  .club-picker-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 300; opacity: 0; pointer-events: none; transition: opacity 0.25s; }
-  .club-picker-overlay.open { opacity: 1; pointer-events: auto; }
-  .club-picker-sheet { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%) translateY(100%); width: 100%; max-width: 430px; background: var(--surface); border-radius: 20px 20px 0 0; border-top: 0.5px solid color-mix(in srgb, var(--gold) 20%, transparent); z-index: 301; transition: transform 0.3s cubic-bezier(0.4,0,0.2,1); max-height: 70vh; display: flex; flex-direction: column; }
-  .club-picker-sheet.open { transform: translateX(-50%) translateY(0); }
-  .club-picker-handle { width: 36px; height: 3px; background: color-mix(in srgb, var(--gold) 30%, transparent); border-radius: 2px; margin: 12px auto 4px; flex-shrink: 0; }
-  .club-picker-title { font-size: 12px; font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-muted); text-align: center; padding: 8px 0 12px; border-bottom: 0.5px solid color-mix(in srgb, var(--gold) 12%, transparent); flex-shrink: 0; }
-  .club-picker-list { overflow-y: auto; -webkit-overflow-scrolling: touch; padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 16px); }
-  .club-picker-item { padding: 16px 24px; font-size: 16px; font-weight: 400; color: var(--text-primary); cursor: pointer; border-bottom: 0.5px solid color-mix(in srgb, var(--gold) 8%, transparent); font-family: inherit; display: flex; align-items: center; justify-content: space-between; }
-  .club-picker-item:last-child { border-bottom: none; }
-  .club-picker-item:active { background: color-mix(in srgb, var(--gold) 8%, transparent); }
-  .club-picker-item.selected { color: var(--gold); }
-  .club-picker-item.selected::after { content: '✓'; font-size: 14px; color: var(--gold); }
+  /* Club selector — compact button grid */
+  .club-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; }
+  .club-grid-btn { padding: 12px 2px; border-radius: 10px; border: 0.5px solid color-mix(in srgb, var(--gold) 35%, transparent); background: color-mix(in srgb, var(--bg) 70%, transparent); color: var(--text-primary); font-size: 13px; font-weight: 600; text-align: center; cursor: pointer; font-family: inherit; letter-spacing: 0.02em; }
+  .club-grid-btn:active { opacity: 0.75; }
+  .club-grid-btn.selected { background: var(--btn-primary); color: var(--on-btn-primary); border-color: var(--btn-primary); }
 
   /* GPS stability indicator */
   .gps-status { display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 6px 0 16px; }
@@ -191,10 +178,7 @@
     <!-- CLUB SELECTOR -->
     <div class="card">
       <div class="card-label">Select Club</div>
-      <button class="club-picker-trigger placeholder" id="club-trigger" onclick="openClubPicker()">
-        <span id="club-label">— Choose a club —</span>
-        <span class="club-picker-arrow">&#9662;</span>
-      </button>
+      <div class="club-grid" id="club-grid"></div>
     </div>
 
     <!-- SHOT TRACKER -->
@@ -277,14 +261,6 @@
 
 <div id="toast"></div>
 
-<!-- Club picker bottom sheet -->
-<div class="club-picker-overlay" id="club-picker-overlay" onclick="closeClubPicker()"></div>
-<div class="club-picker-sheet" id="club-picker-sheet">
-  <div class="club-picker-handle"></div>
-  <div class="club-picker-title">Select Club</div>
-  <div class="club-picker-list" id="club-picker-list"></div>
-</div>
-
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 // ── Supabase ──────────────────────────────────────────────────────────────────
@@ -319,6 +295,14 @@ const ALL_CLUBS_FULL = {
   '2iron':'2-Iron','3iron':'3-Iron','4iron':'4-Iron','5iron':'5-Iron','6iron':'6-Iron',
   '7iron':'7-Iron','8iron':'8-Iron','9iron':'9-Iron',
   'pw':'Pitching Wedge','gw':'Gap Wedge','sw':'Sand Wedge','lw':'Lob Wedge','putter':'Putter'
+};
+// Short labels for the compact grid buttons (full names shown elsewhere, e.g. Recorded Shots)
+const ALL_CLUBS_SHORT = {
+  'driver':'DR','3wood':'3W','4wood':'4W','5wood':'5W','7wood':'7W','9wood':'9W',
+  '2hybrid':'2H','3hybrid':'3H','4hybrid':'4H','5hybrid':'5H','6hybrid':'6H',
+  '2iron':'2i','3iron':'3i','4iron':'4i','5iron':'5i','6iron':'6i',
+  '7iron':'7i','8iron':'8i','9iron':'9i',
+  'pw':'PW','gw':'GW','sw':'SW','lw':'LW','putter':'PT'
 };
 const savedBag = JSON.parse(localStorage.getItem('golf-bag-v1') || 'null');
 const BAG = savedBag || ['driver','3wood','5wood','4hybrid','5iron','6iron','7iron','8iron','9iron','pw','gw','sw','lw','putter'];
@@ -362,28 +346,19 @@ async function loadDistancesFromSupabase() {
   } catch(e) { console.error('Supabase club load error:', e); }
 }
 
-// ── Club picker ───────────────────────────────────────────────────────────────
-function openClubPicker() {
-  const list = document.getElementById('club-picker-list');
-  list.innerHTML = BAG.map(id =>
-    '<div class="club-picker-item' + (selectedClub===id?' selected':'') + '" onclick="selectClub(\''+id+'\')">' +
-    (ALL_CLUBS_FULL[id]||id) + '</div>'
+// ── Club selector grid ────────────────────────────────────────────────────────
+function renderClubGrid() {
+  const grid = document.getElementById('club-grid');
+  grid.innerHTML = BAG.map(id =>
+    '<button class="club-grid-btn' + (selectedClub===id?' selected':'') + '" onclick="selectClub(\''+id+'\')" title="' + (ALL_CLUBS_FULL[id]||id) + '">' +
+    (ALL_CLUBS_SHORT[id] || (ALL_CLUBS_FULL[id]||id)) +
+    '</button>'
   ).join('');
-  document.getElementById('club-picker-overlay').classList.add('open');
-  document.getElementById('club-picker-sheet').classList.add('open');
-}
-
-function closeClubPicker() {
-  document.getElementById('club-picker-overlay').classList.remove('open');
-  document.getElementById('club-picker-sheet').classList.remove('open');
 }
 
 function selectClub(id) {
   selectedClub = id;
-  closeClubPicker();
-  const trigger = document.getElementById('club-trigger');
-  document.getElementById('club-label').textContent = ALL_CLUBS_FULL[id] || id;
-  trigger.classList.remove('placeholder');
+  renderClubGrid();
   document.getElementById('btn-start').disabled = false;
 }
 
@@ -644,6 +619,7 @@ function showToast(msg) {
 
 
 // ── Init ──────────────────────────────────────────────────────────────────────
+renderClubGrid();
 renderHistory();
 startWatch();
 if ('serviceWorker' in navigator) { navigator.serviceWorker.register('/sw.js').catch(() => {}); }

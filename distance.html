@@ -42,6 +42,18 @@
   .card-label { font-size: 10px; font-weight: 500; letter-spacing: 0.14em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 10px; }
 
   /* Club selector — compact button grid */
+  /* Tab bar — matches history.html's Scorecard/Summary/Compare tab style */
+  .detail-tab-bar { background: transparent; padding: 0 0 14px; display: flex; gap: 6px; flex-shrink: 0; }
+  .detail-tab { flex: 1; padding: 10px 8px; font-size: 13px; font-weight: 500; text-align: center; border-radius: 8px; border: 0.5px solid color-mix(in srgb, var(--gold) 15%, transparent); cursor: pointer; background: color-mix(in srgb, var(--gold) 6%, transparent); color: var(--text-muted); font-family: inherit; }
+  .detail-tab.active { background: var(--btn-primary); color: var(--on-btn-primary); border-color: var(--btn-primary); }
+  .dist-tab-panel { display: none; }
+  .dist-tab-panel.active { display: block; }
+
+  /* Range tab — manual distance entry */
+  .range-dist-input { width: 100%; background: color-mix(in srgb, var(--bg) 70%, transparent); border: 0.5px solid color-mix(in srgb, var(--gold) 35%, transparent); border-radius: var(--radius-sm); padding: 14px 16px; font-size: 20px; font-weight: 600; color: var(--text-primary); font-family: inherit; text-align: center; -webkit-appearance: none; }
+  .range-dist-input::placeholder { color: var(--text-muted); font-weight: 400; font-size: 15px; }
+  .range-dist-unit { text-align: center; font-size: 12px; color: var(--text-muted); margin-top: 6px; letter-spacing: 0.05em; text-transform: uppercase; }
+
   .club-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; }
   .club-grid-btn { padding: 12px 2px; border-radius: 10px; border: 0.5px solid color-mix(in srgb, var(--gold) 35%, transparent); background: color-mix(in srgb, var(--bg) 70%, transparent); color: var(--text-primary); font-size: 13px; font-weight: 600; text-align: center; cursor: pointer; font-family: inherit; letter-spacing: 0.02em; }
   .club-grid-btn:active { opacity: 0.75; }
@@ -175,61 +187,88 @@
   </div>
   <div class="content">
 
-    <!-- CLUB SELECTOR -->
-    <div class="card">
-      <div class="card-label">Select Club</div>
-      <div class="club-grid" id="club-grid"></div>
+    <!-- TABS -->
+    <div class="detail-tab-bar">
+      <button class="detail-tab active" onclick="showDistTab('measure')" id="dtab-measure">Measure</button>
+      <button class="detail-tab" onclick="showDistTab('range')" id="dtab-range">Range</button>
+      <button class="detail-tab" onclick="showDistTab('data')" id="dtab-data">Data</button>
     </div>
 
-    <!-- SHOT TRACKER -->
-    <div class="card" id="tracker-card">
-      <div class="card-label" id="tracker-label">Ready</div>
+    <!-- MEASURE TAB -->
+    <div class="dist-tab-panel active" id="dist-panel-measure">
 
-      <!-- GPS stability indicator -->
-      <div class="gps-status">
-        <div class="gps-status-row">
-          <span class="gps-indicator searching" id="gps-indicator"></span>
-          <span class="gps-status-text" id="gps-status-text">Acquiring GPS&hellip;</span>
-        </div>
-        <div class="gps-accuracy" id="gps-accuracy">—</div>
-        <div class="gps-debug" id="gps-debug">no fix yet</div>
+      <!-- CLUB SELECTOR -->
+      <div class="card">
+        <div class="card-label">Select Club</div>
+        <div class="club-grid" id="club-grid"></div>
       </div>
 
-      <!-- Stage: idle -->
-      <div id="stage-idle">
-        <p class="stage-instruction">Select a club, stand at the ball, then tap Start Shot</p>
-        <button class="btn btn-primary" id="btn-start" onclick="startShot()" disabled>&#9679; Start Shot</button>
-      </div>
+      <!-- SHOT TRACKER -->
+      <div class="card" id="tracker-card">
+        <div class="card-label" id="tracker-label">Ready</div>
 
-      <!-- Stage: walking -->
-      <div id="stage-walking" style="display:none">
-        <div class="walking-dist-card">
-          <span class="walking-dist-value" id="walking-dist">0</span><span class="walking-dist-unit">m</span>
-          <div class="walking-dist-label">Distance so far</div>
+        <!-- GPS stability indicator -->
+        <div class="gps-status">
+          <div class="gps-status-row">
+            <span class="gps-indicator searching" id="gps-indicator"></span>
+            <span class="gps-status-text" id="gps-status-text">Acquiring GPS&hellip;</span>
+          </div>
+          <div class="gps-accuracy" id="gps-accuracy">—</div>
+          <div class="gps-debug" id="gps-debug">no fix yet</div>
         </div>
-        <p class="stage-instruction">Walk to your ball, then tap Save Shot</p>
-        <button class="btn btn-primary" onclick="markLanding()">&#10003; Save Shot</button>
-        <button class="btn btn-danger" onclick="cancelShot()">&#10007; Cancel</button>
-      </div>
 
-      <!-- Stage: result -->
-      <div id="stage-result" style="display:none">
-        <div class="result-card">
-          <span class="result-dist" id="result-dist">—</span><span class="result-unit">m</span>
-          <div class="result-club" id="result-club"></div>
+        <!-- Stage: idle -->
+        <div id="stage-idle">
+          <p class="stage-instruction">Select a club, stand at the ball, then tap Start Shot</p>
+          <button class="btn btn-primary" id="btn-start" onclick="startShot()" disabled>&#9679; Start Shot</button>
         </div>
-        <button class="btn btn-primary" onclick="saveShot()">&#10003; Save This Shot</button>
-        <button class="btn btn-outline" onclick="retakeShot()">&#8635; Retake</button>
+
+        <!-- Stage: walking -->
+        <div id="stage-walking" style="display:none">
+          <div class="walking-dist-card">
+            <span class="walking-dist-value" id="walking-dist">0</span><span class="walking-dist-unit">m</span>
+            <div class="walking-dist-label">Distance so far</div>
+          </div>
+          <p class="stage-instruction">Walk to your ball, then tap Save Shot</p>
+          <button class="btn btn-primary" onclick="markLanding()">&#10003; Save Shot</button>
+          <button class="btn btn-danger" onclick="cancelShot()">&#10007; Cancel</button>
+        </div>
+
+        <!-- Stage: result -->
+        <div id="stage-result" style="display:none">
+          <div class="result-card">
+            <span class="result-dist" id="result-dist">—</span><span class="result-unit">m</span>
+            <div class="result-club" id="result-club"></div>
+          </div>
+          <button class="btn btn-primary" onclick="saveShot()">&#10003; Save This Shot</button>
+          <button class="btn btn-outline" onclick="retakeShot()">&#8635; Retake</button>
+        </div>
       </div>
     </div>
 
-    <!-- HISTORY -->
-    <div class="card">
-      <div class="history-header">
-        <span class="history-title">Recorded Shots</span>
-        <button class="history-clear" onclick="confirmClearAll()">Clear all</button>
+    <!-- RANGE TAB -->
+    <div class="dist-tab-panel" id="dist-panel-range">
+      <div class="card">
+        <div class="card-label">Select Club</div>
+        <div class="club-grid" id="club-grid-range"></div>
       </div>
-      <div id="shot-history"></div>
+      <div class="card">
+        <div class="card-label">Distance</div>
+        <input type="number" inputmode="numeric" class="range-dist-input" id="range-dist-input" placeholder="0" oninput="updateRangeSaveButton()">
+        <div class="range-dist-unit">meters</div>
+        <button class="btn btn-primary" style="margin-top:16px;" id="btn-range-save" onclick="saveRangeShot()" disabled>&#10003; Save Shot</button>
+      </div>
+    </div>
+
+    <!-- DATA TAB -->
+    <div class="dist-tab-panel" id="dist-panel-data">
+      <div class="card">
+        <div class="history-header">
+          <span class="history-title">Recorded Shots</span>
+          <button class="history-clear" onclick="confirmClearAll()">Clear all</button>
+        </div>
+        <div id="shot-history"></div>
+      </div>
     </div>
 
   </div>
@@ -319,12 +358,13 @@ function persist() {
 }
 
 // ── Supabase save/load ────────────────────────────────────────────────────────
-async function saveDistanceToSupabase(club, dist) {
+async function saveDistanceToSupabase(club, dist, source) {
   if (!currentUser) return;
   try {
     await sb.from('club_distances').insert({
       user_id: currentUser.id, club: club, distance: dist,
-      date: new Date().toISOString().split('T')[0]
+      date: new Date().toISOString().split('T')[0],
+      source: source || 'course'
     });
   } catch(e) { console.error('Supabase club save error:', e); }
 }
@@ -333,33 +373,78 @@ async function loadDistancesFromSupabase() {
   if (!currentUser) return;
   try {
     const { data } = await sb.from('club_distances')
-      .select('club, distance, date').eq('user_id', currentUser.id)
+      .select('club, distance, date, source').eq('user_id', currentUser.id)
       .order('created_at', { ascending: true });
     if (!data || data.length === 0) return;
     data.forEach(row => {
       if (!clubDistances[row.club]) clubDistances[row.club] = [];
       const exists = clubDistances[row.club].some(s => s.dist === row.distance && s.date === new Date(row.date).toLocaleDateString('en-AU'));
-      if (!exists) clubDistances[row.club].push({ dist: row.distance, date: new Date(row.date).toLocaleDateString('en-AU') });
+      if (!exists) clubDistances[row.club].push({ dist: row.distance, date: new Date(row.date).toLocaleDateString('en-AU'), source: row.source || 'course' });
     });
     persist();
     renderHistory();
   } catch(e) { console.error('Supabase club load error:', e); }
 }
 
-// ── Club selector grid ────────────────────────────────────────────────────────
-function renderClubGrid() {
-  const grid = document.getElementById('club-grid');
+// ── Club selector grid — reusable for both Measure and Range tabs ─────────────
+function renderClubGridInto(gridId, selected, onSelectFn) {
+  const grid = document.getElementById(gridId);
+  if (!grid) return;
   grid.innerHTML = BAG.map(id =>
-    '<button class="club-grid-btn' + (selectedClub===id?' selected':'') + '" onclick="selectClub(\''+id+'\')" title="' + (ALL_CLUBS_FULL[id]||id) + '">' +
+    '<button class="club-grid-btn' + (selected===id?' selected':'') + '" onclick="'+onSelectFn+'(\''+id+'\')" title="' + (ALL_CLUBS_FULL[id]||id) + '">' +
     (ALL_CLUBS_SHORT[id] || (ALL_CLUBS_FULL[id]||id)) +
     '</button>'
   ).join('');
+}
+
+function renderClubGrid() {
+  renderClubGridInto('club-grid', selectedClub, 'selectClub');
 }
 
 function selectClub(id) {
   selectedClub = id;
   renderClubGrid();
   document.getElementById('btn-start').disabled = false;
+}
+
+// ── Range tab ───────────────────────────────────────────────────────────────
+let selectedClubRange = null;
+
+function renderClubGridRange() {
+  renderClubGridInto('club-grid-range', selectedClubRange, 'selectClubRange');
+}
+
+function selectClubRange(id) {
+  selectedClubRange = id;
+  renderClubGridRange();
+  updateRangeSaveButton();
+}
+
+function updateRangeSaveButton() {
+  const distVal = parseFloat(document.getElementById('range-dist-input').value);
+  document.getElementById('btn-range-save').disabled = !selectedClubRange || isNaN(distVal) || distVal <= 0;
+}
+
+function saveRangeShot() {
+  const distVal = Math.round(parseFloat(document.getElementById('range-dist-input').value));
+  if (!selectedClubRange || isNaN(distVal) || distVal <= 0) return;
+  if (!clubDistances[selectedClubRange]) clubDistances[selectedClubRange] = [];
+  clubDistances[selectedClubRange].push({ dist: distVal, date: new Date().toLocaleDateString('en-AU'), source: 'range' });
+  persist();
+  saveDistanceToSupabase(selectedClubRange, distVal, 'range');
+  showToast((ALL_CLUBS_FULL[selectedClubRange]||selectedClubRange) + ' \u2014 ' + distVal + 'm saved (Range)');
+  document.getElementById('range-dist-input').value = '';
+  updateRangeSaveButton();
+  renderHistory();
+}
+
+// ── Tabs ────────────────────────────────────────────────────────────────────
+function showDistTab(t) {
+  ['measure','range','data'].forEach(id => {
+    document.getElementById('dist-panel-'+id).classList.toggle('active', id===t);
+    document.getElementById('dtab-'+id).classList.toggle('active', id===t);
+  });
+  if (t === 'range') renderClubGridRange();
 }
 
 // ── GPS ───────────────────────────────────────────────────────────────────────
@@ -489,9 +574,9 @@ function lockFinish() {
 function saveShot() {
   if (!pendingClub || pendingDist === null) return;
   if (!clubDistances[pendingClub]) clubDistances[pendingClub] = [];
-  clubDistances[pendingClub].push({ dist: pendingDist, date: new Date().toLocaleDateString('en-AU') });
+  clubDistances[pendingClub].push({ dist: pendingDist, date: new Date().toLocaleDateString('en-AU'), source: 'course' });
   persist();
-  saveDistanceToSupabase(pendingClub, pendingDist);
+  saveDistanceToSupabase(pendingClub, pendingDist, 'course');
   showToast((ALL_CLUBS_FULL[pendingClub]||pendingClub) + ' \u2014 ' + pendingDist + 'm saved');
   resetTracker();
   renderHistory();

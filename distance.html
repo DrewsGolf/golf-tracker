@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <script src="theme.js"></script>
 <link rel="stylesheet" href="theme.css">
+<link rel="stylesheet" href="gps-indicator.css">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -59,18 +60,6 @@
   .club-grid-btn:active { opacity: 0.75; }
   .club-grid-btn.selected { background: var(--btn-primary); color: var(--on-btn-primary); border-color: var(--btn-primary); }
 
-  /* GPS stability indicator */
-  .gps-status { display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 6px 0 16px; }
-  .gps-status-row { display: flex; align-items: center; gap: 8px; }
-  .gps-indicator { width: 12px; height: 12px; border-radius: 50%; background: var(--text-muted); flex-shrink: 0; transition: background 0.3s; }
-  .gps-indicator.searching { background: var(--text-muted); animation: gpsPulse 1.2s infinite; }
-  .gps-indicator.poor { background: var(--warning); }
-  .gps-indicator.fair { background: #d4a63a; }
-  .gps-indicator.good { background: var(--success); }
-  @keyframes gpsPulse { 0% { box-shadow: 0 0 0 0 rgba(189,189,189,0.35); } 70% { box-shadow: 0 0 0 9px rgba(189,189,189,0); } 100% { box-shadow: 0 0 0 0 rgba(189,189,189,0); } }
-  .gps-status-text { font-size: 13px; font-weight: 500; color: var(--text-secondary); }
-  .gps-accuracy { font-size: 26px; font-weight: 300; color: var(--gold); letter-spacing: -0.02em; }
-  .gps-debug { font-size: 10.5px; color: var(--text-muted); font-family: 'SF Mono', 'Menlo', monospace; margin-top: 2px; text-align: center; }
 
   /* Live walking distance */
   .walking-dist-card { text-align: center; padding: 4px 0 16px; }
@@ -311,6 +300,7 @@
 <div id="toast"></div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="gps-indicator.js"></script>
 <script>
 // ── Supabase ──────────────────────────────────────────────────────────────────
 const SUPABASE_URL = 'https://ryqehsqqriavmuqfnzpx.supabase.co';
@@ -458,55 +448,12 @@ function showDistTab(t) {
 }
 
 // ── GPS ───────────────────────────────────────────────────────────────────────
-let watchId    = null;
-let currentFix = null;
-const ACC_GOOD = 8;
-const ACC_FAIR = 15;
-
-function accuracyTier(acc) {
-  if (acc == null || !isFinite(acc)) return 'unknown';
-  if (acc <= ACC_GOOD) return 'good';
-  if (acc <= ACC_FAIR) return 'fair';
-  return 'poor';
-}
-
+// currentFix, watchId, accuracyTier(), and the indicator UI itself are all
+// provided by gps-indicator.js (shared component — see that file).
 function startWatch() {
-  if (!('geolocation' in navigator)) {
-    document.getElementById('gps-status-text').textContent = 'Geolocation not supported';
-    return;
-  }
-  watchId = navigator.geolocation.watchPosition(
-    pos => {
-      currentFix = {
-        latitude: pos.coords.latitude, longitude: pos.coords.longitude,
-        accuracy: pos.coords.accuracy, timestamp: pos.timestamp
-      };
-      updateGpsStatusUI();
-      if (currentStage === 'walking' && startPosition) updateWalkingDistance();
-    },
-    err => { document.getElementById('gps-status-text').textContent = 'GPS error: ' + err.message; },
-    { enableHighAccuracy: true, maximumAge: 1000, timeout: 15000 }
-  );
-}
-
-function updateGpsStatusUI() {
-  const dot   = document.getElementById('gps-indicator');
-  const text  = document.getElementById('gps-status-text');
-  const acc   = document.getElementById('gps-accuracy');
-  const debug = document.getElementById('gps-debug');
-  if (!currentFix) {
-    dot.className = 'gps-indicator searching';
-    text.textContent = 'Acquiring GPS\u2026';
-    acc.textContent = '\u2014';
-    debug.textContent = 'no fix yet';
-    return;
-  }
-  const tier = accuracyTier(currentFix.accuracy);
-  const labels = { good: 'Good fix', fair: 'Fair \u2014 may drift', poor: 'Poor \u2014 move to open sky', unknown: 'Unknown accuracy' };
-  dot.className = 'gps-indicator ' + tier;
-  text.textContent = labels[tier];
-  acc.textContent = '\u00b1' + Math.round(currentFix.accuracy) + 'm';
-  debug.textContent = currentFix.latitude.toFixed(6) + ', ' + currentFix.longitude.toFixed(6);
+  startGpsWatch(function(fix) {
+    if (currentStage === 'walking' && startPosition) updateWalkingDistance();
+  });
 }
 
 function updateWalkingDistance() {
@@ -820,7 +767,7 @@ renderHistory();
 startWatch();
 if ('serviceWorker' in navigator) { navigator.serviceWorker.register('/sw.js').catch(() => {}); }
 window.addEventListener('beforeunload', () => {
-  if (watchId !== null && navigator.geolocation) navigator.geolocation.clearWatch(watchId);
+  stopGpsWatch();
 });
 </script>
 

@@ -8,6 +8,19 @@
    --border, etc.) and layout variables (--radius, --safe-top, etc.) stay in
    each page's own <style> block since they vary slightly page to page. */
 
+/* ── Shared design tokens (spacing/radius/shadow) — daylight style guide §6-8.
+   Theme-independent: same values in light and dark. Available for pages to
+   adopt; not yet wired into any page's own local --radius/--border/etc. ── */
+:root {
+  --space-1: 4px;  --space-2: 8px;  --space-3: 12px; --space-4: 16px;
+  --space-5: 20px; --space-6: 24px; --space-8: 32px;
+
+  --radius-sm: 10px; --radius-md: 14px; --radius-lg: 18px; --radius-xl: 24px;
+
+  --shadow-card: 0 4px 14px rgba(30, 25, 15, 0.08);
+  --shadow-soft: 0 2px 8px rgba(30, 25, 15, 0.05);
+}
+
 :root, [data-theme="dark"] {
   --bg:              #0D0D0D;
   --surface:         #171717;

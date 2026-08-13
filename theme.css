@@ -25,17 +25,17 @@
 }
 
 [data-theme="light"] {
-  --bg:              #E8DFC8;
-  --surface:         #F7F1E2;
-  --text-primary:    #111111;
-  --text-secondary:  #4A463D;
-  --gold:            #9A7C47;
-  --highlight:       #1F3328;
-  --warning:         #B35454;
-  --success:         #2E7D32;
-  --gold-muted:      #6B5730;
-  --text-muted:      #4A463D;
-  --on-gold:         #0D0D0D;
-  --btn-primary:     #2E7D32;
-  --on-btn-primary:  #F5F5F0;
+  --bg:              #F7F3EA;  /* guide §3: bg-page — warm ivory */
+  --surface:         #FFFFFF;  /* guide §3: bg-card — clean white cards */
+  --text-primary:    #151515;  /* guide §3: text-primary */
+  --text-secondary:  #3F3A34;  /* guide §3: text-secondary */
+  --gold:            #B08A45;  /* guide §3: gold-primary — accent only, not main color */
+  --highlight:       #2F6F45;  /* guide §3: green-secondary (currently unused anywhere) */
+  --warning:         #B35454;  /* unchanged — not addressed by the new guide */
+  --success:         #1F5A38;  /* guide §3: green-primary — main brand/functional green */
+  --gold-muted:      #8A6D38;  /* darker gold for subdued text, keeps §3's accent-only role legible */
+  --text-muted:      #6F675D;  /* guide §3: text-muted — now distinct from text-secondary */
+  --on-gold:         #151515;  /* dark text on gold, matches new text-primary */
+  --btn-primary:     #1F5A38;  /* guide §3: green-primary used for primary buttons */
+  --on-btn-primary:  #FFFFFF;  /* guide §11: explicit white text on primary button */
 }

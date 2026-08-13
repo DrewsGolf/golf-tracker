@@ -114,12 +114,11 @@
   }
 
   .settings-card {
-    background: color-mix(in srgb, var(--surface) 85%, transparent);
-    border: 0.5px solid var(--gold);
-    border-radius: 16px;
+    background: var(--surface);
+    border: 1px solid var(--gold);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-soft);
     overflow: hidden;
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
   }
 
   .settings-item {
@@ -138,7 +137,7 @@
 
   .settings-item-icon { width: 36px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
   .settings-item-body { flex: 1; }
-  .settings-item-title { font-size: 15px; font-weight: 500; color: var(--gold); margin-bottom: 2px; }
+  .settings-item-title { font-size: 15px; font-weight: 600; color: var(--gold); margin-bottom: 2px; }
   .settings-item-desc { font-size: 12px; color: var(--text-muted); letter-spacing: 0.01em; }
   .settings-item-arrow { font-size: 18px; color: var(--gold-muted); }
 
@@ -147,7 +146,7 @@
   .toggle-switch input { opacity: 0; width: 0; height: 0; position: absolute; }
   .toggle-track {
     position: absolute; inset: 0; border-radius: 14px;
-    background: rgba(154,124,71,0.35);
+    background: color-mix(in srgb, var(--gold) 35%, transparent);
     border: 0.5px solid color-mix(in srgb, var(--gold) 30%, transparent);
     transition: background 0.2s ease;
     cursor: pointer;
@@ -252,7 +251,7 @@
   .handicap-updated { font-size: 12px; color: var(--text-muted); }
 
   /* Auth section */
-  .auth-card { background: color-mix(in srgb, var(--surface) 85%, transparent); border: 0.5px solid var(--gold); border-radius: 16px; overflow: hidden; backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); margin-top: 12px; flex-shrink: 0; }
+  .auth-card { background: var(--surface); border: 1px solid var(--gold); border-radius: var(--radius-lg); box-shadow: var(--shadow-soft); overflow: hidden; margin-top: 12px; flex-shrink: 0; }
   .auth-status { padding: 16px 20px; display: flex; align-items: center; gap: 12px; border-bottom: 0.5px solid color-mix(in srgb, var(--gold) 10%, transparent); }
   .auth-dot { width: 10px; height: 10px; border-radius: 50%; background: #666; flex-shrink: 0; }
   .auth-dot.connected { background: var(--success); }

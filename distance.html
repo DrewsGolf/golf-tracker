@@ -359,27 +359,35 @@ function persist() {
 
 // ── Supabase save/load ────────────────────────────────────────────────────────
 async function saveDistanceToSupabase(club, dist, source) {
-  if (!currentUser) return;
+  if (!currentUser) return null;
   try {
-    await sb.from('club_distances').insert({
+    const { data, error } = await sb.from('club_distances').insert({
       user_id: currentUser.id, club: club, distance: dist,
       date: new Date().toISOString().split('T')[0],
       source: source || 'course'
-    });
-  } catch(e) { console.error('Supabase club save error:', e); }
+    }).select('id').single();
+    if (error) throw error;
+    return data ? data.id : null;
+  } catch(e) { console.error('Supabase club save error:', e); return null; }
 }
 
 async function loadDistancesFromSupabase() {
   if (!currentUser) return;
   try {
     const { data } = await sb.from('club_distances')
-      .select('club, distance, date, source').eq('user_id', currentUser.id)
+      .select('id, club, distance, date, source').eq('user_id', currentUser.id)
       .order('created_at', { ascending: true });
     if (!data || data.length === 0) return;
     data.forEach(row => {
       if (!clubDistances[row.club]) clubDistances[row.club] = [];
-      const exists = clubDistances[row.club].some(s => s.dist === row.distance && s.date === new Date(row.date).toLocaleDateString('en-AU'));
-      if (!exists) clubDistances[row.club].push({ dist: row.distance, date: new Date(row.date).toLocaleDateString('en-AU'), source: row.source || 'course' });
+      const rowDate = new Date(row.date).toLocaleDateString('en-AU');
+      const match = clubDistances[row.club].find(s => s.dist === row.distance && s.date === rowDate);
+      if (!match) {
+        clubDistances[row.club].push({ dist: row.distance, date: rowDate, source: row.source || 'course', id: row.id });
+      } else if (!match.id) {
+        // Backfill: shots saved before this fix existed have no id locally — attach it now
+        match.id = row.id;
+      }
     });
     persist();
     renderHistory();
@@ -429,9 +437,12 @@ function saveRangeShot() {
   const distVal = Math.round(parseFloat(document.getElementById('range-dist-input').value));
   if (!selectedClubRange || isNaN(distVal) || distVal <= 0) return;
   if (!clubDistances[selectedClubRange]) clubDistances[selectedClubRange] = [];
-  clubDistances[selectedClubRange].push({ dist: distVal, date: new Date().toLocaleDateString('en-AU'), source: 'range' });
+  const shotEntry = { dist: distVal, date: new Date().toLocaleDateString('en-AU'), source: 'range' };
+  clubDistances[selectedClubRange].push(shotEntry);
   persist();
-  saveDistanceToSupabase(selectedClubRange, distVal, 'range');
+  saveDistanceToSupabase(selectedClubRange, distVal, 'range').then(id => {
+    if (id) { shotEntry.id = id; persist(); }
+  });
   showToast((ALL_CLUBS_FULL[selectedClubRange]||selectedClubRange) + ' \u2014 ' + distVal + 'm saved (Range)');
   document.getElementById('range-dist-input').value = '';
   updateRangeSaveButton();
@@ -531,9 +542,12 @@ function lockFinish() {
 function saveShot() {
   if (!pendingClub || pendingDist === null) return;
   if (!clubDistances[pendingClub]) clubDistances[pendingClub] = [];
-  clubDistances[pendingClub].push({ dist: pendingDist, date: new Date().toLocaleDateString('en-AU'), source: 'course' });
+  const shotEntry = { dist: pendingDist, date: new Date().toLocaleDateString('en-AU'), source: 'course' };
+  clubDistances[pendingClub].push(shotEntry);
   persist();
-  saveDistanceToSupabase(pendingClub, pendingDist, 'course');
+  saveDistanceToSupabase(pendingClub, pendingDist, 'course').then(id => {
+    if (id) { shotEntry.id = id; persist(); }
+  });
   showToast((ALL_CLUBS_FULL[pendingClub]||pendingClub) + ' \u2014 ' + pendingDist + 'm saved');
   resetTracker();
   renderHistory();
@@ -606,16 +620,24 @@ function toggleRoundDate(date) {
 }
 
 function deleteShot(clubId, index) {
+  const shot = clubDistances[clubId][index];
   showDialog({
     icon: '&#128465;',
     title: 'Delete This Shot?',
-    sub: 'Remove the ' + (clubDistances[clubId][index].dist) + 'm shot recorded on ' + clubDistances[clubId][index].date + '?',
+    sub: 'Remove the ' + shot.dist + 'm shot recorded on ' + shot.date + '?',
     buttons: [
       { label: 'Delete', style: 'danger', action: () => {
         clubDistances[clubId].splice(index, 1);
         if (clubDistances[clubId].length === 0) delete clubDistances[clubId];
         persist();
         renderHistory();
+        if (shot.id) {
+          sb.from('club_distances').delete().eq('id', shot.id).then(({ error }) => {
+            if (error) { console.error('Supabase delete error:', error); showToast('Deleted locally, but sync failed'); }
+          });
+        } else {
+          console.warn('Shot has no Supabase id — deleted locally only. This should self-heal next time the page loads and re-syncs.');
+        }
         showToast('Shot deleted');
       }},
       { label: 'Cancel', style: 'secondary', action: () => {} }
@@ -731,7 +753,14 @@ function confirmClearAll() {
     title: 'Clear All Shots?',
     sub: 'This will permanently delete all recorded club distances.',
     buttons: [
-      { label: 'Clear everything', style: 'danger', action: () => { clubDistances = {}; expandedClubId = null; persist(); renderHistory(); showToast('All shots cleared'); }},
+      { label: 'Clear everything', style: 'danger', action: () => {
+        clubDistances = {}; expandedClubId = null; persist(); renderHistory(); showToast('All shots cleared');
+        if (currentUser) {
+          sb.from('club_distances').delete().eq('user_id', currentUser.id).then(({ error }) => {
+            if (error) { console.error('Supabase clear-all error:', error); showToast('Cleared locally, but sync failed'); }
+          });
+        }
+      }},
       { label: 'Cancel', style: 'secondary', action: () => {} }
     ]
   });

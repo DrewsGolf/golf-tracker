@@ -480,13 +480,18 @@ async function loadDistancesFromSupabase() {
   if (!currentUser) return;
   try {
     const { data } = await sb.from('club_distances')
-      .select('club, distance, date, source').eq('user_id', currentUser.id)
+      .select('id, club, distance, date, source').eq('user_id', currentUser.id)
       .order('created_at', { ascending: true });
     if (!data || data.length === 0) return;
     data.forEach(row => {
       if (!clubDistances[row.club]) clubDistances[row.club] = [];
-      const exists = clubDistances[row.club].some(s => s.dist === row.distance && s.date === new Date(row.date).toLocaleDateString('en-AU'));
-      if (!exists) clubDistances[row.club].push({ dist: row.distance, date: new Date(row.date).toLocaleDateString('en-AU'), source: row.source || 'course' });
+      const rowDate = new Date(row.date).toLocaleDateString('en-AU');
+      const match = clubDistances[row.club].find(s => s.dist === row.distance && s.date === rowDate);
+      if (!match) {
+        clubDistances[row.club].push({ dist: row.distance, date: rowDate, source: row.source || 'course', id: row.id });
+      } else if (!match.id) {
+        match.id = row.id;
+      }
     });
     persist();
     renderHistory();
@@ -552,16 +557,24 @@ function toggleRoundDate(date) {
 }
 
 function deleteShot(clubId, index) {
+  const shot = clubDistances[clubId][index];
   showDialog({
     icon: '&#128465;',
     title: 'Delete This Shot?',
-    sub: 'Remove the ' + (clubDistances[clubId][index].dist) + 'm shot recorded on ' + clubDistances[clubId][index].date + '?',
+    sub: 'Remove the ' + shot.dist + 'm shot recorded on ' + shot.date + '?',
     buttons: [
       { label: 'Delete', style: 'danger', action: () => {
         clubDistances[clubId].splice(index, 1);
         if (clubDistances[clubId].length === 0) delete clubDistances[clubId];
         persist();
         renderHistory();
+        if (shot.id) {
+          sb.from('club_distances').delete().eq('id', shot.id).then(({ error }) => {
+            if (error) { console.error('Supabase delete error:', error); showToast('Deleted locally, but sync failed'); }
+          });
+        } else {
+          console.warn('Shot has no Supabase id — deleted locally only. This should self-heal next time the page loads and re-syncs.');
+        }
         showToast('Shot deleted');
       }},
       { label: 'Cancel', style: 'secondary', action: () => {} }
@@ -671,7 +684,14 @@ function confirmClearAll() {
     title: 'Clear All Shots?',
     sub: 'This will permanently delete all recorded club distances.',
     buttons: [
-      { label: 'Clear everything', style: 'danger', action: () => { clubDistances = {}; expandedClubId = null; persist(); renderHistory(); showToast('All shots cleared'); }},
+      { label: 'Clear everything', style: 'danger', action: () => {
+        clubDistances = {}; expandedClubId = null; persist(); renderHistory(); showToast('All shots cleared');
+        if (currentUser) {
+          sb.from('club_distances').delete().eq('user_id', currentUser.id).then(({ error }) => {
+            if (error) { console.error('Supabase clear-all error:', error); showToast('Cleared locally, but sync failed'); }
+          });
+        }
+      }},
       { label: 'Cancel', style: 'secondary', action: () => {} }
     ]
   });

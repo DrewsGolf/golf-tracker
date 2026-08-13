@@ -66,7 +66,7 @@
   .btn-primary:active { opacity: 0.8; }
 
   /* Section label */
-  .section-label { font-size: 11px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-muted); padding: 0 4px; }
+  .section-label { font-size: 12px; font-weight: 700; letter-spacing: 0.15em; text-transform: uppercase; color: var(--gold); padding: 0 4px; }
 
   /* Progress chart */
   .chart-card { background: var(--card); border-radius: var(--radius); border: 0.5px solid var(--border); padding: 18px 16px; }
@@ -75,7 +75,7 @@
   svg.chart { width: 100%; height: 100%; overflow: visible; }
 
   /* Round list */
-  .round-row { display: flex; align-items: center; gap: 0; border-radius: var(--radius); overflow: hidden; border: 0.5px solid var(--border); background: var(--card); flex-shrink: 0; }
+  .round-row { display: flex; align-items: center; gap: 0; border-radius: var(--radius); overflow: hidden; border: 1px solid var(--border); background: var(--card); box-shadow: var(--shadow-soft); flex-shrink: 0; }
   .round-card { flex: 1; padding: 16px 18px; cursor: pointer; transition: opacity 0.15s; display: flex; align-items: center; gap: 14px; min-width: 0; }
   .round-card:active { opacity: 0.7; }
   .delete-btn { background: color-mix(in srgb, var(--warning) 15%, white); border: none; color: var(--warning); font-size: 18px; width: 52px; min-height: 100%; display: flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0; border-left: 0.5px solid color-mix(in srgb, var(--warning) 15%, transparent); }
@@ -112,10 +112,10 @@
   .detail-stats { display: flex; gap: 0; }
   .detail-stat { flex: 1; text-align: center; }
   .detail-stat-num { font-size: 24px; font-weight: 800; color: var(--text-primary); }
-  .detail-stat-lbl { font-size: 11px; color: rgba(255,255,255,0.6); margin-top: 1px; }
+  .detail-stat-lbl { font-size: 11px; color: var(--text-muted); margin-top: 1px; }
 
   /* Scorecard */
-  .scorecard { background: color-mix(in srgb, var(--surface) 85%, transparent); border-radius: var(--radius); border: 0.5px solid color-mix(in srgb, var(--gold) 15%, transparent); overflow: hidden; }
+  .scorecard { background: var(--surface); border-radius: var(--radius); border: 1px solid var(--border); box-shadow: var(--shadow-soft); overflow: hidden; }
   .scorecard-table { width: 100%; border-collapse: collapse; font-size: 14px; }
   .scorecard-table th { background: color-mix(in srgb, var(--gold) 12%, transparent); color: var(--gold); font-size: 11px; font-weight: 500; padding: 10px 6px; text-align: center; letter-spacing: 0.06em; }
   .scorecard-table th:first-child { text-align: left; padding-left: 14px; }
@@ -129,8 +129,8 @@
   .score-icon-cell img { width: 28px; height: 28px; object-fit: contain; display: block; margin: 0 auto; }
 
   /* Comparison table */
-  .compare-card { background: color-mix(in srgb, var(--surface) 85%, transparent); border-radius: var(--radius); border: 0.5px solid color-mix(in srgb, var(--gold) 15%, transparent); overflow: hidden; margin-top: 12px; }
-  .compare-title { font-size: 11px; font-weight: 500; padding: 10px 14px; border-bottom: 0.5px solid color-mix(in srgb, var(--gold) 10%, transparent); color: var(--text-muted); letter-spacing: 0.1em; text-transform: uppercase; }
+  .compare-card { background: var(--surface); border-radius: var(--radius); border: 1px solid var(--border); box-shadow: var(--shadow-soft); overflow: hidden; margin-top: 12px; }
+  .compare-title { font-size: 12px; font-weight: 700; padding: 10px 14px; border-bottom: 0.5px solid color-mix(in srgb, var(--gold) 10%, transparent); color: var(--gold); letter-spacing: 0.15em; text-transform: uppercase; }
   .compare-table { width: 100%; border-collapse: collapse; font-size: 13px; }
   .compare-table th { background: color-mix(in srgb, var(--gold) 8%, transparent); font-size: 10px; font-weight: 500; padding: 8px 10px; text-align: center; color: var(--text-muted); letter-spacing: 0.06em; text-transform: uppercase; }
   .compare-table th:first-child { text-align: left; padding-left: 14px; }

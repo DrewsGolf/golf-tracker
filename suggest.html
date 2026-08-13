@@ -19,7 +19,7 @@
   :root {
     --bg-primary:      var(--bg);
     --bg-card:         var(--surface);
-    --card:            color-mix(in srgb, var(--surface) 85%, transparent);
+    --card:            var(--surface);
     --border:          color-mix(in srgb, var(--gold) 15%, transparent);
     --border-mid:      color-mix(in srgb, var(--gold) 25%, transparent);
     --radius: 14px; --radius-sm: 9px;
@@ -49,12 +49,12 @@
 
   /* Live suggestion display */
   .sugg-dist-card { text-align: center; padding: 20px 14px; }
-  .sugg-dist-label { font-size: 11px; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 6px; }
-  .sugg-dist-value { font-size: 44px; font-weight: 300; color: var(--gold); letter-spacing: -0.02em; line-height: 1; }
+  .sugg-dist-label { font-size: 12px; font-weight: 700; letter-spacing: 0.15em; text-transform: uppercase; color: var(--gold); margin-bottom: 6px; }
+  .sugg-dist-value { font-size: 48px; font-weight: 400; color: var(--gold); letter-spacing: -0.02em; line-height: 1; }
   .sugg-dist-unit { font-size: 18px; font-weight: 300; color: var(--gold); margin-left: 4px; }
   .sugg-club-card { text-align: center; padding: 18px 14px; }
-  .sugg-club-label { font-size: 11px; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 8px; }
-  .sugg-club-name { font-size: 28px; font-weight: 500; color: var(--text-primary); }
+  .sugg-club-label { font-size: 12px; font-weight: 700; letter-spacing: 0.15em; text-transform: uppercase; color: var(--gold); margin-bottom: 8px; }
+  .sugg-club-name { font-size: 28px; font-weight: 600; color: var(--text-primary); }
   .sugg-club-sub { font-size: 12px; color: var(--text-muted); margin-top: 6px; }
   .sugg-empty { text-align: center; padding: 20px 16px; color: var(--text-muted); font-size: 13px; line-height: 1.6; }
   .green-status { text-align: center; font-size: 12px; color: var(--text-muted); margin-top: 4px; }
@@ -70,7 +70,8 @@
   .sugg-panel { display: none; }
   .sugg-panel.active { display: block; }
 
-  .card { background: var(--card); border: 0.5px solid var(--border); border-radius: var(--radius); backdrop-filter: blur(8px); padding: 16px 14px; margin-bottom: 12px; }
+  .card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-lg); box-shadow: var(--shadow-soft); padding: 16px 14px; margin-bottom: 12px; }
+  .card-label { font-size: 12px; font-weight: 700; letter-spacing: 0.15em; text-transform: uppercase; color: var(--gold); margin-bottom: 10px; }
 
   /* Source filter — On Course / At Range / Both */
   .source-filter-bar { display: flex; gap: 6px; margin-bottom: 12px; }
@@ -79,26 +80,26 @@
 
   /* Recorded shots list + accordion — matches distance.html exactly */
   .history-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
-  .history-title { font-size: 13px; font-weight: 600; color: var(--gold); letter-spacing: 0.06em; text-transform: uppercase; }
+  .history-title { font-size: 12px; font-weight: 700; color: var(--gold); letter-spacing: 0.15em; text-transform: uppercase; }
   .history-clear { background: transparent; border: none; color: var(--text-muted); font-size: 12px; cursor: pointer; font-family: inherit; }
   .shot-list { display: flex; flex-direction: column; gap: 7px; }
-  .shot-item { background: color-mix(in srgb, var(--surface) 70%, transparent); border: 0.5px solid var(--border); border-radius: var(--radius-sm); display: flex; align-items: center; padding: 12px 13px; gap: 11px; cursor: pointer; }
+  .shot-item { background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius-sm); display: flex; align-items: center; padding: 12px 13px; gap: 11px; cursor: pointer; }
   .shot-item:active { background: color-mix(in srgb, var(--gold) 8%, transparent); }
   .shot-item.expanded { border-color: color-mix(in srgb, var(--gold) 40%, transparent); border-radius: var(--radius-sm) var(--radius-sm) 0 0; }
-  .shot-club { font-size: 14px; font-weight: 600; flex: 1; color: var(--text-primary); }
+  .shot-club { font-size: 16px; font-weight: 700; flex: 1; color: var(--text-primary); }
   .shot-stats-inline { display: flex; gap: 12px; font-size: 12px; color: var(--text-muted); }
   .shot-stats-inline b { color: var(--gold); font-weight: 600; }
   .shot-expand-arrow { font-size: 11px; color: var(--text-muted); flex-shrink: 0; }
   .empty-state { text-align: center; padding: 24px 16px; color: var(--text-muted); font-size: 14px; }
   .empty-icon { font-size: 32px; margin-bottom: 8px; display: block; }
 
-  .shot-expand { background: color-mix(in srgb, var(--surface) 45%, transparent); border: 0.5px solid color-mix(in srgb, var(--gold) 40%, transparent); border-top: none; border-radius: 0 0 var(--radius-sm) var(--radius-sm); padding: 4px 13px 12px; margin-bottom: 7px; }
+  .shot-expand { background: var(--bg); border: 1px solid color-mix(in srgb, var(--gold) 40%, transparent); border-top: none; border-radius: 0 0 var(--radius-sm) var(--radius-sm); padding: 4px 13px 12px; margin-bottom: 7px; }
   .shot-expand-section { padding-top: 10px; }
   .shot-expand-heading { font-size: 10px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--gold-muted); margin-bottom: 6px; }
   .shot-expand-stats { display: flex; gap: 16px; font-size: 13px; color: var(--text-primary); margin-bottom: 8px; }
   .shot-expand-stats b { color: var(--gold); font-weight: 600; }
   .shot-expand-shots { display: flex; flex-direction: column; gap: 4px; }
-  .shot-expand-row { display: flex; align-items: center; justify-content: space-between; padding: 6px 8px; background: color-mix(in srgb, var(--bg) 40%, transparent); border-radius: 6px; font-size: 13px; }
+  .shot-expand-row { display: flex; align-items: center; justify-content: space-between; padding: 6px 8px; background: var(--surface); border-radius: 6px; font-size: 13px; }
   .shot-expand-dist { color: var(--gold); font-weight: 500; }
   .shot-expand-meta { display: flex; align-items: center; gap: 8px; }
   .shot-expand-src { font-size: 10px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); }
@@ -110,7 +111,7 @@
   .shot-expand-heading-stats { flex: 1; font-size: 12px; color: var(--text-secondary); }
   .shot-expand-heading-stats b { color: var(--gold); font-weight: 600; }
   .shot-rounds-list { display: flex; flex-direction: column; gap: 4px; margin-top: 4px; }
-  .shot-round-wrap { background: color-mix(in srgb, var(--bg) 40%, transparent); border-radius: 8px; overflow: hidden; }
+  .shot-round-wrap { background: var(--surface); border-radius: 8px; overflow: hidden; }
   .shot-round-row { display: flex; align-items: center; gap: 8px; padding: 9px 10px; cursor: pointer; }
   .shot-round-row:active { background: color-mix(in srgb, var(--gold) 8%, transparent); }
   .shot-round-row.expanded { background: color-mix(in srgb, var(--gold) 10%, transparent); }

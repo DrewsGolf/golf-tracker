@@ -259,6 +259,14 @@
   .auth-email { font-size: 13px; font-weight: 500; color: var(--gold); }
   .auth-field-wrap { padding: 14px 20px; border-bottom: 0.5px solid color-mix(in srgb, var(--gold) 10%, transparent); }
   .auth-field { width: 100%; background: color-mix(in srgb, var(--bg) 70%, transparent); border: 0.5px solid color-mix(in srgb, var(--gold) 30%, transparent); border-radius: 9px; padding: 11px 14px; font-size: 15px; color: var(--text-primary); font-family: inherit; -webkit-appearance: none; }
+  .auth-field:-webkit-autofill,
+  .auth-field:-webkit-autofill:hover,
+  .auth-field:-webkit-autofill:focus {
+    -webkit-text-fill-color: var(--text-primary);
+    -webkit-box-shadow: 0 0 0px 1000px color-mix(in srgb, var(--bg) 70%, var(--surface)) inset;
+    box-shadow: 0 0 0px 1000px color-mix(in srgb, var(--bg) 70%, var(--surface)) inset;
+    transition: background-color 5000s ease-in-out 0s;
+  }
   .auth-field:focus { outline: none; border-color: var(--gold); }
   .auth-btn { width: calc(100% - 40px); margin: 14px 20px; display: block; background: var(--btn-primary); color: var(--on-btn-primary); border: none; border-radius: 10px; padding: 13px; font-size: 15px; font-weight: 600; cursor: pointer; font-family: inherit; text-align: center; }
   .auth-btn.sign-out { background: transparent; color: var(--warning); border: 0.5px solid color-mix(in srgb, var(--warning) 40%, transparent); }

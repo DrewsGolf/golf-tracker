@@ -2,57 +2,259 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+<script src="theme.js"></script>
+<link rel="stylesheet" href="theme.css">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="theme-color" content="#0D0D0D">
 <link rel="manifest" href="manifest.json">
-<title>Shot Tracker — Sign In</title>
+<title>Login — Shot Tracker</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap');
+
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+  /* ── Page-specific aliases + layout vars. Core theme colors (--bg, --gold,
+     etc.) come from theme.css, loaded in <head>. ── */
   :root {
-    --gold: #C8A96A; --gold-muted: #9A7C47;
-    --text-primary: #F2F2F2; --text-secondary: #BDBDBD; --text-muted: #9A9A9A;
-    --bg: #0D0D0D; --card: rgba(28,28,28,0.92); --border: rgba(200,169,106,0.15);
-    --radius: 14px; --safe-bottom: env(safe-area-inset-bottom, 0px);
+    --bg-primary:  var(--bg);
+    --bg-card:     var(--surface);
+    --text-muted:  var(--text-secondary);
+    --safe-top:      env(safe-area-inset-top, 0px);
+    --safe-bottom:   env(safe-area-inset-bottom, 0px);
   }
-  html, body { height: 100%; font-family: 'Inter', -apple-system, sans-serif; background: var(--bg); color: var(--text-primary); overflow: hidden; }
-  .app { position: relative; width: 100%; height: 100%; max-width: 430px; margin: 0 auto; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 24px; }
-  .hero { position: fixed; inset: 0; z-index: 0; }
-  .hero img { width: 100%; height: 100%; object-fit: cover; display: block; }
-  .hero-overlay { position: absolute; inset: 0; background: rgba(13,13,13,0.88); }
-  .login-card { position: relative; z-index: 5; width: 100%; background: var(--card); border: 0.5px solid var(--border); border-radius: var(--radius); backdrop-filter: blur(12px); padding: 32px 24px 28px; }
-  .logo-wrap { text-align: center; margin-bottom: 28px; }
-  .logo-wrap img { width: 180px; height: auto; }
-  .field-label { font-size: 11px; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 6px; display: block; }
-  .field { width: 100%; background: rgba(13,13,13,0.7); border: 0.5px solid rgba(200,169,106,0.3); border-radius: 9px; padding: 13px 14px; font-size: 16px; color: var(--text-primary); font-family: inherit; margin-bottom: 14px; -webkit-appearance: none; }
-  .field:focus { outline: none; border-color: var(--gold); }
-  .btn-login { width: 100%; background: var(--gold); color: #0D0D0D; border: none; border-radius: var(--radius); padding: 15px; font-size: 16px; font-weight: 600; cursor: pointer; font-family: inherit; margin-top: 6px; }
-  .btn-login:active { opacity: 0.85; }
-  .btn-login:disabled { opacity: 0.45; cursor: default; }
-  .error-msg { font-size: 13px; color: #e74c3c; text-align: center; margin-top: 12px; min-height: 18px; }
-  .loading { display: none; text-align: center; color: var(--text-muted); font-size: 14px; margin-top: 12px; }
+
+  html, body {
+    height: 100%;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: var(--bg-primary);
+    overflow: hidden;
+  }
+
+  /* ── App container — identical to settings.html ── */
+  .app {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    max-width: 430px;
+    margin: 0 auto;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* ── Background image ── */
+  .hero {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+  }
+
+  .hero-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+    display: block;
+  }
+
+  /* ── Dark overlay on background ── */
+  .hero-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(13,13,13,0.65);
+  }
+
+  /* ── Header ── */
+  .header-img-wrap { position: relative; z-index: 10; width: 100%; flex-shrink: 0; }
+  .header-img { width: 100%; height: auto; display: block; }
+
+  /* ── Scrollable page content wrapper ── */
+  .page-scroll {
+    position: relative;
+    z-index: 5;
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: calc(110px + var(--safe-bottom));
+    background: var(--bg);
+  }
+
+  .settings-content {
+    position: relative;
+    z-index: 10;
+    padding: 0;
+    flex-shrink: 0;
+  }
+
+  /* ── Nav — identical to settings.html ── */
+  .nav-shell {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 100;
+  }
+
+  .nav-row {
+    display: flex;
+    background: color-mix(in srgb, var(--bg) 92%, transparent);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+  }
+
+  .nav-primary {
+    border-top: 0.5px solid color-mix(in srgb, var(--gold) 20%, transparent);
+    padding-bottom: calc(var(--safe-bottom) + 6px);
+    transform: translateY(0);
+    transition: transform 350ms cubic-bezier(0.4, 0, 0.2, 1);
+    will-change: transform;
+    position: relative;
+    z-index: 2;
+  }
+
+  .nav-primary.raised { transform: translateY(-100%); }
+
+  .nav-secondary {
+    border-top: 0.5px solid color-mix(in srgb, var(--gold) 12%, transparent);
+    padding-bottom: calc(var(--safe-bottom) + 6px);
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    transform: translateY(100%);
+    transition: transform 350ms cubic-bezier(0.4, 0, 0.2, 1);
+    will-change: transform;
+    z-index: 1;
+  }
+
+  .nav-secondary.open { transform: translateY(0); }
+
+  .nav-item {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 10px 4px 6px;
+    cursor: pointer;
+    text-decoration: none;
+    background: none;
+    border: none;
+    -webkit-tap-highlight-color: transparent;
+    transition: opacity 0.15s;
+  }
+
+  .nav-item:active { opacity: 0.7; }
+  .nav-item img { width: 56px; height: 56px; object-fit: contain; display: block; }
+
+  .nav-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 350ms ease;
+    z-index: 90;
+  }
+
+  .nav-overlay.open { opacity: 1; pointer-events: auto; }
+
+  /* Header auth badge */
+  .header-auth-badge { position: absolute; top: 10px; right: 14px; display: none; align-items: center; gap: 6px; background: rgba(13,13,13,0.6); backdrop-filter: blur(6px); border: 0.5px solid color-mix(in srgb, var(--gold) 20%, transparent); border-radius: 20px; padding: 5px 10px 5px 8px; }
+  .header-auth-badge.visible { display: flex; }
+  .header-auth-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--success); flex-shrink: 0; }
+  .header-auth-email { font-size: 11px; font-weight: 500; color: var(--gold); white-space: nowrap; }
+
+  /* Auth section */
+  .auth-card { background: var(--surface); border: 1px solid var(--gold); border-radius: var(--radius-lg); box-shadow: var(--shadow-soft); overflow: hidden; margin-top: 12px; flex-shrink: 0; }
+  .auth-status { padding: 16px 20px; display: flex; align-items: center; gap: 12px; border-bottom: 0.5px solid color-mix(in srgb, var(--gold) 10%, transparent); }
+  .auth-dot { width: 10px; height: 10px; border-radius: 50%; background: #666; flex-shrink: 0; }
+  .auth-dot.connected { background: var(--success); }
+  .auth-label { font-size: 13px; color: var(--text-muted); flex: 1; }
+  .auth-email { font-size: 13px; font-weight: 500; color: var(--gold); }
+  .auth-field-wrap { padding: 14px 20px; border-bottom: 0.5px solid color-mix(in srgb, var(--gold) 10%, transparent); }
+  .auth-field { width: 100%; background: color-mix(in srgb, var(--bg) 70%, transparent); border: 0.5px solid color-mix(in srgb, var(--gold) 30%, transparent); border-radius: 9px; padding: 11px 14px; font-size: 15px; color: var(--text-primary); font-family: inherit; -webkit-appearance: none; }
+  .auth-field:-webkit-autofill,
+  .auth-field:-webkit-autofill:hover,
+  .auth-field:-webkit-autofill:focus {
+    -webkit-text-fill-color: var(--text-primary);
+    -webkit-box-shadow: 0 0 0px 1000px color-mix(in srgb, var(--bg) 70%, var(--surface)) inset;
+    box-shadow: 0 0 0px 1000px color-mix(in srgb, var(--bg) 70%, var(--surface)) inset;
+    transition: background-color 5000s ease-in-out 0s;
+  }
+  .auth-field:focus { outline: none; border-color: var(--gold); }
+  .auth-btn { width: calc(100% - 40px); margin: 14px 20px; display: block; background: var(--btn-primary); color: var(--on-btn-primary); border: none; border-radius: 10px; padding: 13px; font-size: 15px; font-weight: 600; cursor: pointer; font-family: inherit; text-align: center; }
+  .auth-btn.sign-out { background: transparent; color: var(--warning); border: 0.5px solid color-mix(in srgb, var(--warning) 40%, transparent); }
+  .auth-btn:active { opacity: 0.8; }
+  .auth-error { font-size: 12px; color: var(--warning); text-align: center; padding: 0 20px 12px; min-height: 18px; }
+  .auth-section-label { font-size: 10px; font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-muted); padding: 14px 20px 4px; }
+
+  /* Home button — top left of header */
+  .home-btn { position: absolute; top: 0; left: 0; width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; z-index: 60; text-decoration: none; cursor: pointer; }
+  .home-btn img { width: 44px; height: 44px; object-fit: contain; display: block; }
+  .home-btn:active { opacity: 0.7; }
 </style>
 </head>
 <body>
-<div class="hero">
-  <img src="Back_ground_New.jpg" alt="">
-  <div class="hero-overlay"></div>
-</div>
 <div class="app">
-  <div class="login-card">
-    <div class="logo-wrap">
-      <img src="Logo_1.png" alt="Shot Tracker">
-    </div>
-    <label class="field-label">Email</label>
-    <input class="field" type="email" id="email" placeholder="your@email.com" autocomplete="email" inputmode="email">
-    <label class="field-label">Password</label>
-    <input class="field" type="password" id="password" placeholder="••••••••" autocomplete="current-password">
-    <button class="btn-login" id="btn-login" onclick="signIn()">Sign In</button>
-    <div class="error-msg" id="error-msg"></div>
-    <div class="loading" id="loading">Signing in…</div>
+<a class="home-btn" href="index.html"><img src="icons/Home.png" alt="Home"></a>
+
+  <!-- Background image -->
+  <div class="hero">
+    <img class="hero-img" src="Back_ground_New.jpg" alt="">
+    <div class="hero-overlay"></div>
   </div>
+
+  <!-- Scrollable content: header + account -->
+  <div class="page-scroll">
+
+  <!-- Header -->
+  <div class="header-img-wrap" style="position:relative;">
+    <img class="header-img" src="images/Header.jpg" alt="Shot Tracker">
+    <div class="header-auth-badge" id="header-badge">
+      <div class="header-auth-dot"></div>
+      <span class="header-auth-email" id="header-email"></span>
+    </div>
+  </div>
+
+  <!-- Account / Sign In -->
+  <div class="auth-card" id="auth-card">
+    <!-- Sign in form (shown when logged out) — visible by default so it never disappears if the auth check is slow/fails -->
+    <div id="signin-form" style="display:block;">
+      <div class="auth-section-label">Sign In to Sync Your Data</div>
+      <div class="auth-field-wrap">
+        <input class="auth-field" type="email" id="auth-email-input" placeholder="Email" autocomplete="email" inputmode="email">
+      </div>
+      <div class="auth-field-wrap" style="border-bottom:none;">
+        <input class="auth-field" type="password" id="auth-pass-input" placeholder="Password" autocomplete="current-password">
+      </div>
+      <div class="auth-error" id="auth-error"></div>
+      <button class="auth-btn" onclick="doSignIn()">Sign In</button>
+    </div>
+    <!-- Sign out button (shown when logged in) -->
+    <div id="signout-form" style="display:none;">
+      <button class="auth-btn sign-out" onclick="doSignOut()">Sign Out</button>
+    </div>
+  </div>
+
+  </div>
+  <!-- /page-scroll -->
+
+    <!-- Nav shell -->
+  <div class="nav-shell">
+    <div class="nav-row">
+      <a class="nav-item" href="find.html"><img src="icons/Courses.png" alt="Courses"></a>
+      <a class="nav-item" id="nav-play" href="start.html"><img src="icons/Play.png" alt="Play"></a>
+      <a class="nav-item" href="distance.html"><img src="icons/Distance.png" alt="Distance"></a>
+      <a class="nav-item" href="suggest.html"><img src="icons/Suggest.png" alt="Suggest"></a>
+      <a class="nav-item" href="history.html"><img src="icons/History.png" alt="History"></a>
+    </div>
+  </div>
+
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -60,36 +262,57 @@
 const SUPABASE_URL = 'https://ryqehsqqriavmuqfnzpx.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ5cWVoc3Fxcmlhdm11cWZuenB4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM3NTQ4MzcsImV4cCI6MjA5OTMzMDgzN30.Po2m7uhlMTc43Pdg8pohwvDsQ_UDFRS-n9UnTQ44nXA';
 const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+let currentUser = null;
 
-// If already logged in, go straight to app
-sb.auth.getSession().then(({ data }) => {
-  if (data.session) window.location.href = 'index.html';
-});
-
-async function signIn() {
-  const email    = document.getElementById('email').value.trim();
-  const password = document.getElementById('password').value;
-  const btn      = document.getElementById('btn-login');
-  const err      = document.getElementById('error-msg');
-  const loading  = document.getElementById('loading');
-
-  err.textContent = '';
-  if (!email || !password) { err.textContent = 'Please enter your email and password.'; return; }
-
-  btn.disabled = true;
-  loading.style.display = 'block';
-
-  const { error } = await sb.auth.signInWithPassword({ email, password });
-
-  loading.style.display = 'none';
-  btn.disabled = false;
-
-  if (error) { err.textContent = error.message; return; }
-  window.location.href = 'index.html';
+function setAuthUI(session) {
+  const badge    = document.getElementById('header-badge');
+  const hEmail   = document.getElementById('header-email');
+  const signIn   = document.getElementById('signin-form');
+  const signOut  = document.getElementById('signout-form');
+  if (session) {
+    currentUser = session.user;
+    badge.classList.add('visible');
+    hEmail.textContent    = session.user.email;
+    signIn.style.display  = 'none';
+    signOut.style.display = 'block';
+  } else {
+    currentUser = null;
+    badge.classList.remove('visible');
+    hEmail.textContent    = '';
+    signIn.style.display  = 'block';
+    signOut.style.display = 'none';
+  }
 }
 
-// Allow Enter key to submit
-document.addEventListener('keydown', e => { if (e.key === 'Enter') signIn(); });
+sb.auth.getSession().then(({ data }) => setAuthUI(data.session)).catch(() => setAuthUI(null));
+
+async function doSignIn() {
+  const email    = document.getElementById('auth-email-input').value.trim();
+  const password = document.getElementById('auth-pass-input').value;
+  const errEl    = document.getElementById('auth-error');
+  errEl.textContent = '';
+  if (!email || !password) { errEl.textContent = 'Enter your email and password.'; return; }
+  const { data, error } = await sb.auth.signInWithPassword({ email, password });
+  if (error) { errEl.textContent = error.message; return; }
+  setAuthUI(data.session);
+}
+
+async function doSignOut() {
+  await sb.auth.signOut();
+  setAuthUI(null);
+}
+</script>
+
+<script>
+// ── Continue round ────────────────────────────────────────────────────────────
+(function() {
+  var scores = JSON.parse(localStorage.getItem('golf-scores-v1') || '{}');
+  var hole   = localStorage.getItem('golf-current-hole');
+  if (Object.keys(scores).length > 0 || (hole && parseInt(hole) > 1)) {
+    var el = document.getElementById('nav-play');
+    if (el) el.setAttribute('href', 'round.html');
+  }
+})();
 </script>
 </body>
 </html>

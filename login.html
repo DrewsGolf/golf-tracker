@@ -169,6 +169,15 @@
   .header-auth-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--success); flex-shrink: 0; }
   .header-auth-email { font-size: 11px; font-weight: 500; color: var(--gold); white-space: nowrap; }
 
+  /* Daylight mode: white badge, black text, per the design brief */
+  [data-theme="light"] .header-auth-badge {
+    background: var(--surface);
+    border: 0.5px solid color-mix(in srgb, var(--gold) 30%, transparent);
+  }
+  [data-theme="light"] .header-auth-email {
+    color: var(--text-primary);
+  }
+
   /* Auth section */
   .auth-card { background: var(--surface); border: 1px solid var(--gold); border-radius: var(--radius-lg); box-shadow: var(--shadow-soft); overflow: hidden; margin-top: 12px; flex-shrink: 0; }
   .auth-status { padding: 16px 20px; display: flex; align-items: center; gap: 12px; border-bottom: 0.5px solid color-mix(in srgb, var(--gold) 10%, transparent); }

@@ -230,6 +230,15 @@
   .header-auth-badge.visible { display: flex; }
   .header-auth-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--success); flex-shrink: 0; }
   .header-auth-email { font-size: 11px; font-weight: 500; color: var(--gold); white-space: nowrap; }
+
+  /* Daylight mode: white badge, black text, per the design brief */
+  [data-theme="light"] .header-auth-badge {
+    background: var(--surface);
+    border: 0.5px solid color-mix(in srgb, var(--gold) 30%, transparent);
+  }
+  [data-theme="light"] .header-auth-email {
+    color: var(--text-primary);
+  }
 </style>
 </head>
 <body>

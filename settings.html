@@ -222,7 +222,7 @@
   }
 
   .nav-item:active { opacity: 0.7; }
-  .nav-item img { width: 56px; height: 56px; object-fit: contain; display: block; }
+  .nav-item img { width: 70px; height: 70px; object-fit: contain; object-position: bottom; display: block; }
 
   .nav-overlay {
     position: absolute;
@@ -250,39 +250,39 @@
   .handicap-save-btn:active { opacity: 0.75; }
   .handicap-updated { font-size: 12px; color: var(--text-muted); }
 
-  /* Auth section */
-  .auth-card { background: var(--surface); border: 1px solid var(--gold); border-radius: var(--radius-lg); box-shadow: var(--shadow-soft); overflow: hidden; margin-top: 12px; flex-shrink: 0; }
-  .auth-status { padding: 16px 20px; display: flex; align-items: center; gap: 12px; border-bottom: 0.5px solid color-mix(in srgb, var(--gold) 10%, transparent); }
-  .auth-dot { width: 10px; height: 10px; border-radius: 50%; background: #666; flex-shrink: 0; }
-  .auth-dot.connected { background: var(--success); }
-  .auth-label { font-size: 13px; color: var(--text-muted); flex: 1; }
-  .auth-email { font-size: 13px; font-weight: 500; color: var(--gold); }
-  .auth-field-wrap { padding: 14px 20px; border-bottom: 0.5px solid color-mix(in srgb, var(--gold) 10%, transparent); }
-  .auth-field { width: 100%; background: color-mix(in srgb, var(--bg) 70%, transparent); border: 0.5px solid color-mix(in srgb, var(--gold) 30%, transparent); border-radius: 9px; padding: 11px 14px; font-size: 15px; color: var(--text-primary); font-family: inherit; -webkit-appearance: none; }
-  .auth-field:-webkit-autofill,
-  .auth-field:-webkit-autofill:hover,
-  .auth-field:-webkit-autofill:focus {
-    -webkit-text-fill-color: var(--text-primary);
-    -webkit-box-shadow: 0 0 0px 1000px color-mix(in srgb, var(--bg) 70%, var(--surface)) inset;
-    box-shadow: 0 0 0px 1000px color-mix(in srgb, var(--bg) 70%, var(--surface)) inset;
-    transition: background-color 5000s ease-in-out 0s;
+  /* ── Header icons — top right, overlaid on the header image. Matches
+     login.html's layout: Login takes the slot Settings occupied there,
+     Home stays in the same position. ── */
+  .header-icons {
+    position: absolute;
+    top: 14px;
+    right: 14px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    z-index: 60;
   }
-  .auth-field:focus { outline: none; border-color: var(--gold); }
-  .auth-btn { width: calc(100% - 40px); margin: 14px 20px; display: block; background: var(--btn-primary); color: var(--on-btn-primary); border: none; border-radius: 10px; padding: 13px; font-size: 15px; font-weight: 600; cursor: pointer; font-family: inherit; text-align: center; }
-  .auth-btn.sign-out { background: transparent; color: var(--warning); border: 0.5px solid color-mix(in srgb, var(--warning) 40%, transparent); }
-  .auth-btn:active { opacity: 0.8; }
-  .auth-error { font-size: 12px; color: var(--warning); text-align: center; padding: 0 20px 12px; min-height: 18px; }
-  .auth-section-label { font-size: 10px; font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-muted); padding: 14px 20px 4px; }
 
-  /* Home button — bottom-left of header, under logo */
-    .home-btn { position: absolute; top: 0; left: 0; width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; z-index: 60; text-decoration: none; cursor: pointer; }
-  .home-btn img { width: 44px; height: 44px; object-fit: contain; display: block; }
-  .home-btn:active { opacity: 0.7; }
+  .header-icons a {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    text-decoration: none;
+  }
+
+  .header-icons img {
+    width: 38px;
+    height: 38px;
+    object-fit: contain;
+    display: block;
+  }
+
+  .header-icons a:active { opacity: 0.7; }
 </style>
 </head>
 <body>
 <div class="app">
-<a class="home-btn" href="index.html"><img src="icons/Home.png" alt="Home"></a>
 
   <!-- Background image -->
   <div class="hero">
@@ -290,15 +290,23 @@
     <div class="hero-overlay"></div>
   </div>
 
-  <!-- Scrollable content: header + settings + account -->
+  <!-- Scrollable content: header + settings -->
   <div class="page-scroll">
 
   <!-- Header -->
   <div class="header-img-wrap" style="position:relative;">
-    <img class="header-img" src="images/Header.jpg" alt="Shot Tracker">
+    <img class="header-img" src="images/header.png" alt="Shot Tracker">
     <div class="header-auth-badge" id="header-badge">
       <div class="header-auth-dot"></div>
       <span class="header-auth-email" id="header-email"></span>
+    </div>
+    <div class="header-icons">
+      <a href="index.html">
+        <img src="icons/Home.png" alt="Home">
+      </a>
+      <a href="login.html">
+        <img src="icons/login.png" alt="Login">
+      </a>
     </div>
   </div>
 
@@ -357,26 +365,6 @@
     </div>
   </div>
 
-  <!-- Account / Sign In -->
-  <div class="auth-card" id="auth-card">
-    <!-- Sign in form (shown when logged out) — visible by default so it never disappears if the auth check is slow/fails -->
-    <div id="signin-form" style="display:block;">
-      <div class="auth-section-label">Sign In to Sync Your Data</div>
-      <div class="auth-field-wrap">
-        <input class="auth-field" type="email" id="auth-email-input" placeholder="Email" autocomplete="email" inputmode="email">
-      </div>
-      <div class="auth-field-wrap" style="border-bottom:none;">
-        <input class="auth-field" type="password" id="auth-pass-input" placeholder="Password" autocomplete="current-password">
-      </div>
-      <div class="auth-error" id="auth-error"></div>
-      <button class="auth-btn" onclick="doSignIn()">Sign In</button>
-    </div>
-    <!-- Sign out button (shown when logged in) -->
-    <div id="signout-form" style="display:none;">
-      <button class="auth-btn sign-out" onclick="doSignOut()">Sign Out</button>
-    </div>
-  </div>
-
   </div>
   <!-- /page-scroll -->
 
@@ -404,21 +392,15 @@ let currentUser = null;
 function setAuthUI(session) {
   const badge    = document.getElementById('header-badge');
   const hEmail   = document.getElementById('header-email');
-  const signIn   = document.getElementById('signin-form');
-  const signOut  = document.getElementById('signout-form');
   if (session) {
     currentUser = session.user;
     badge.classList.add('visible');
-    hEmail.textContent    = session.user.email;
-    signIn.style.display  = 'none';
-    signOut.style.display = 'block';
+    hEmail.textContent = session.user.email;
     loadHandicap();
   } else {
     currentUser = null;
     badge.classList.remove('visible');
-    hEmail.textContent    = '';
-    signIn.style.display  = 'block';
-    signOut.style.display = 'none';
+    hEmail.textContent = '';
   }
 }
 
@@ -502,22 +484,6 @@ function toggleThemeSwitch(checked) {
   refreshThemeUI();
 }
 refreshThemeUI();
-
-async function doSignIn() {
-  const email    = document.getElementById('auth-email-input').value.trim();
-  const password = document.getElementById('auth-pass-input').value;
-  const errEl    = document.getElementById('auth-error');
-  errEl.textContent = '';
-  if (!email || !password) { errEl.textContent = 'Enter your email and password.'; return; }
-  const { data, error } = await sb.auth.signInWithPassword({ email, password });
-  if (error) { errEl.textContent = error.message; return; }
-  setAuthUI(data.session);
-}
-
-async function doSignOut() {
-  await sb.auth.signOut();
-  setAuthUI(null);
-}
 
 
 </script>

@@ -254,14 +254,6 @@
     color: var(--text-primary);
   }
 
-  /* Handicap card */
-  .handicap-input { width: 64px; background: color-mix(in srgb, var(--bg) 70%, transparent); border: 0.5px solid color-mix(in srgb, var(--gold) 30%, transparent); border-radius: 8px; padding: 7px 8px; font-size: 18px; font-weight: 300; color: var(--gold); font-family: inherit; text-align: center; -webkit-appearance: none; -moz-appearance: textfield; }
-  .handicap-input::-webkit-outer-spin-button, .handicap-input::-webkit-inner-spin-button { -webkit-appearance: none; }
-  .handicap-input:focus { outline: none; border-color: var(--gold); }
-  .handicap-save-btn { background: transparent; color: var(--gold); border: 0.5px solid var(--gold); border-radius: 8px; padding: 7px 12px; font-size: 13px; font-weight: 500; cursor: pointer; font-family: inherit; white-space: nowrap; }
-  .handicap-save-btn:active { opacity: 0.75; }
-  .handicap-updated { font-size: 12px; color: var(--text-muted); }
-
   /* ── Header menu — single hamburger button, top right, overlaid on the
      header image, in the slot the Login icon used to occupy. Opens a
      dropdown (Home / My Profile / Settings / Sign In-Out) instead of the
@@ -381,30 +373,6 @@
   <div class="settings-content">
 
     <div class="settings-card">
-      <!-- Handicap -->
-      <div class="settings-item">
-        <div class="settings-item-icon">
-          <img src="icons/Handicap.png" style="width:32px;height:32px;object-fit:contain;display:block;">
-        </div>
-        <div class="settings-item-body">
-          <div class="settings-item-title">Handicap</div>
-          <div class="settings-item-desc handicap-updated" id="handicap-updated">Not set</div>
-        </div>
-        <div style="display:flex;align-items:center;gap:8px;">
-          <input class="handicap-input" type="number" id="handicap-input" min="0" max="54" step="0.1" inputmode="decimal" placeholder="–">
-          <button class="handicap-save-btn" onclick="saveHandicap()">Save</button>
-        </div>
-      </div>
-      <a class="settings-item" href="setup.html">
-        <div class="settings-item-icon">
-          <img src="icons/Set_Clubs.png" style="width:32px;height:32px;object-fit:contain;display:block;">
-        </div>
-        <div class="settings-item-body">
-          <div class="settings-item-title">Set Up Your Clubs</div>
-          <div class="settings-item-desc">Choose which clubs are in your bag</div>
-        </div>
-        <div class="settings-item-arrow">›</div>
-      </a>
       <div class="settings-item">
         <div class="settings-item-icon">
           <img src="icons/Sound.png" style="width:32px;height:32px;object-fit:contain;display:block;">
@@ -464,7 +432,6 @@ function setAuthUI(session) {
     currentUser = session.user;
     badge.classList.add('visible');
     hEmail.textContent = session.user.email;
-    loadHandicap();
     if (authItem) {
       authItem.textContent = 'Sign Out';
       authItem.removeAttribute('href');
@@ -509,49 +476,6 @@ document.addEventListener('click', function(e) {
 });
 
 // ── Sound toggle ─────────────────────────────────────────────────────────────
-// ── Handicap ──────────────────────────────────────────────────────────────────
-async function loadHandicap() {
-  // Try localStorage first
-  const local = localStorage.getItem('golf-handicap');
-  if (local) {
-    const h = JSON.parse(local);
-    document.getElementById('handicap-input').value = h.value;
-    document.getElementById('handicap-updated').textContent = 'Last updated: ' + h.date;
-  }
-  // Then try Supabase
-  if (!currentUser) return;
-  try {
-    const { data } = await sb.from('handicap').select('handicap, updated_at').eq('user_id', currentUser.id).single();
-    if (data) {
-      const date = new Date(data.updated_at).toLocaleDateString('en-AU');
-      document.getElementById('handicap-input').value = data.handicap;
-      document.getElementById('handicap-updated').textContent = 'Last updated: ' + date;
-      localStorage.setItem('golf-handicap', JSON.stringify({ value: data.handicap, date: date }));
-    }
-  } catch(e) {}
-}
-
-async function saveHandicap() {
-  const val = parseFloat(document.getElementById('handicap-input').value);
-  if (isNaN(val) || val < 0 || val > 54) {
-    showDialog({
-      icon: '&#9971;',
-      title: 'Invalid Handicap',
-      sub: 'Please enter a handicap between 0 and 54.',
-      buttons: [{ label: 'OK', style: 'primary', action: () => {} }]
-    });
-    return;
-  }
-  const date = new Date().toLocaleDateString('en-AU');
-  localStorage.setItem('golf-handicap', JSON.stringify({ value: val, date: date }));
-  document.getElementById('handicap-updated').textContent = 'Last updated: ' + date;
-  showToast('Handicap saved');
-  if (!currentUser) return;
-  try {
-    await sb.from('handicap').upsert({ user_id: currentUser.id, handicap: val, updated_at: new Date().toISOString() }, { onConflict: 'user_id' });
-  } catch(e) { console.error('Handicap save error:', e); }
-}
-
 function showToast(msg) {
   const existing = document.getElementById('hcp-toast');
   if (existing) existing.remove();
@@ -566,7 +490,6 @@ function showToast(msg) {
 
 const soundToggle = document.getElementById('sound-toggle');
 soundToggle.checked = localStorage.getItem('golf-sound-enabled') !== 'false';
-loadHandicap(); // default: on
 function toggleSound(enabled) {
   localStorage.setItem('golf-sound-enabled', enabled ? 'true' : 'false');
 }
@@ -600,35 +523,6 @@ refreshThemeUI();
     if (el) el.setAttribute('href', 'round.html');
   }
 })();
-</script>
-<!-- Dialog -->
-<div id="dialog-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:200;display:none;align-items:flex-end;justify-content:center;" onclick="closeDialogOutside(event)">
-  <div style="background:var(--surface);border-top:0.5px solid color-mix(in srgb, var(--gold) 20%, transparent);border-radius:22px 22px 0 0;padding:8px 0 calc(env(safe-area-inset-bottom,0px) + 8px);width:100%;max-width:430px;" onclick="event.stopPropagation()">
-    <div style="width:36px;height:4px;background:color-mix(in srgb, var(--gold) 25%, transparent);border-radius:2px;margin:8px auto 16px;"></div>
-    <div id="dialog-icon" style="text-align:center;margin-bottom:8px;font-size:36px;"></div>
-    <div id="dialog-title" style="font-size:18px;font-weight:700;text-align:center;color:var(--text-primary);padding:0 20px;margin-bottom:6px;"></div>
-    <div id="dialog-sub" style="font-size:14px;color:var(--text-secondary);text-align:center;padding:0 24px;margin-bottom:20px;line-height:1.5;"></div>
-    <div id="dialog-actions" style="padding:0 16px;display:flex;flex-direction:column;gap:8px;"></div>
-  </div>
-</div>
-
-<script>
-function showDialog(opts) {
-  document.getElementById('dialog-icon').innerHTML    = opts.icon  || '';
-  document.getElementById('dialog-title').textContent = opts.title || '';
-  document.getElementById('dialog-sub').textContent   = opts.sub   || '';
-  document.getElementById('dialog-actions').innerHTML = opts.buttons.map((b,i) =>
-    '<button style="display:flex;align-items:center;justify-content:center;width:100%;padding:15px;border-radius:14px;border:none;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;' +
-    (b.style==='primary' ? 'background:var(--btn-primary);color:var(--on-btn-primary);' : 'background:color-mix(in srgb, var(--surface) 85%, transparent);color:var(--text-secondary);border:0.5px solid color-mix(in srgb, var(--gold) 15%, transparent);') +
-    '" onclick="dialogAction('+i+')">' + b.label + '</button>'
-  ).join('');
-  window._dialogActions = opts.buttons.map(b => b.action);
-  const overlay = document.getElementById('dialog-overlay');
-  overlay.style.display = 'flex';
-}
-function dialogAction(i) { closeDialog(); window._dialogActions?.[i]?.(); }
-function closeDialogOutside(e) { if (e.target===document.getElementById('dialog-overlay')) closeDialog(); }
-function closeDialog() { document.getElementById('dialog-overlay').style.display = 'none'; }
 </script>
 </body>
 </html>

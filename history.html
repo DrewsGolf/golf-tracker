@@ -48,7 +48,7 @@
   .nav-secondary.open { transform: translateY(0); }
   .nav-item { flex: 1; display: flex; align-items: center; justify-content: center; padding: 10px 4px 6px; text-decoration: none; background: none; border: none; cursor: pointer; -webkit-tap-highlight-color: transparent; }
   .nav-item:active { opacity: 0.7; }
-  .nav-item img { width: 56px; height: 56px; object-fit: contain; object-position: bottom; display: block; }
+  .nav-item img { width: 70px; height: 70px; object-fit: contain; object-position: bottom; display: block; }
   .nav-overlay { position: absolute; inset: 0; background: rgba(0,0,0,0.5); opacity: 0; pointer-events: none; transition: opacity 350ms ease; z-index: 90; }
   .nav-overlay.open { opacity: 1; pointer-events: auto; }
 
@@ -197,9 +197,33 @@
   .header-auth-email { font-size: 11px; font-weight: 500; color: var(--gold); white-space: nowrap; }
 
   /* Home button — bottom-left of header, under logo */
-    .home-btn { position: absolute; top: 0; left: 0; width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; z-index: 60; text-decoration: none; cursor: pointer; }
-  .home-btn img { width: 44px; height: 44px; object-fit: contain; display: block; }
-  .home-btn:active { opacity: 0.7; }
+    /* ── Header icons — top right, overlaid on the header image ────────── */
+  .header-icons {
+    position: absolute;
+    bottom: 5px;
+    right: 14px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    z-index: 60;
+  }
+
+  .header-icons a {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    text-decoration: none;
+  }
+
+  .header-icons img {
+    width: 38px;
+    height: 38px;
+    object-fit: contain;
+    display: block;
+  }
+
+  .header-icons a:active { opacity: 0.7; }
 #toast { position: fixed; bottom: calc(var(--safe-bottom) + 100px); left: 50%; transform: translateX(-50%) translateY(20px); background: color-mix(in srgb, var(--surface) 97%, transparent); color: var(--gold); border: 0.5px solid color-mix(in srgb, var(--gold) 40%, transparent); padding: 12px 24px; border-radius: 14px; font-size: 14px; font-weight: 500; letter-spacing: 0.03em; opacity: 0; transition: opacity 0.3s, transform 0.3s; pointer-events: none; white-space: nowrap; z-index: 999; backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); box-shadow: 0 4px 24px rgba(0,0,0,0.4); }
 #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 </style>
@@ -207,15 +231,22 @@
 <body>
 <div id="toast"></div>
 <div class="app">
-<a class="home-btn" href="index.html"><img src="icons/Home.png" alt="Home"></a>
 
 <!-- LIST VIEW -->
 <div id="list-view" style="position:absolute;inset:0;z-index:5;display:flex;flex-direction:column;">
   <div class="header-img-wrap" style="position:relative;">
-    <img class="header-img" src="images/Header.jpg" alt="Shot Tracker">
+    <img class="header-img" src="images/header.png" alt="Shot Tracker">
     <div class="header-auth-badge" id="header-badge">
       <div class="header-auth-dot"></div>
       <span class="header-auth-email" id="header-email"></span>
+    </div>
+    <div class="header-icons">
+      <a href="index.html">
+        <img src="icons/Home.png" alt="Home">
+      </a>
+      <a href="login.html">
+        <img src="icons/login.png" alt="Login">
+      </a>
     </div>
   </div>
   <div class="content" id="list-content"></div>

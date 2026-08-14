@@ -37,7 +37,7 @@
 
   /* ── Header ── */
   .header { position: absolute; top: 0; left: 0; right: 0; padding: calc(var(--safe-top) + 20px) 24px 16px; display: flex; align-items: center; gap: 16px; border-bottom: 0.5px solid color-mix(in srgb, var(--gold) 20%, transparent); z-index: 20; }
-  .header-img-wrap { position: relative; z-index: 10; width: 100%; flex-shrink: 0; }
+  .header-img-wrap { position: relative; z-index: 30; width: 100%; flex-shrink: 0; } /* bumped above .content (also z-index:10) -- tied z-index falls back to DOM order, which would let .content paint over the header-menu dropdown */
   .header-img { width: 100%; height: auto; display: block; }
   .header-title { font-size: 13px; font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-muted); flex: 1; }
 
@@ -143,32 +143,86 @@
 
   /* Home button — top right, below auth badge */
   /* ── Header icons — top right, overlaid on the header image ────────── */
-  .header-icons {
+  /* -- Header menu -- single hamburger button, overlaid on the header image,
+     in the slot the Login icon used to occupy. Opens a dropdown (Home / My
+     Profile / Settings / Sign In-Out) instead of the old icon pair. -- */
+  .header-menu {
     position: absolute;
     bottom: 5px;
     right: 14px;
-    display: flex;
-    align-items: center;
-    gap: 10px;
     z-index: 60;
   }
 
-  .header-icons a {
+  .header-menu-btn {
     display: flex;
     align-items: center;
     justify-content: center;
+    width: 30px;
+    height: 30px;
+    background: none;
+    border: none;
+    padding: 0;
     cursor: pointer;
-    text-decoration: none;
+    -webkit-tap-highlight-color: transparent;
   }
 
-  .header-icons img {
-    width: 38px;
-    height: 38px;
+  .header-menu-btn img {
+    width: 30px;
+    height: 30px;
     object-fit: contain;
     display: block;
   }
 
-  .header-icons a:active { opacity: 0.7; }
+  .header-menu-btn:active { opacity: 0.7; }
+
+  .header-menu-dropdown {
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
+    min-width: 180px;
+    background: var(--surface);
+    border: 1px solid color-mix(in srgb, var(--gold) 20%, transparent);
+    border-radius: var(--radius-lg, 14px);
+    box-shadow: var(--shadow-soft);
+    overflow: hidden;
+    opacity: 0;
+    transform: translateY(-6px);
+    pointer-events: none;
+    transition: opacity 0.15s, transform 0.15s;
+  }
+
+  .header-menu-dropdown.open {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
+  }
+
+  .header-menu-item {
+    display: block;
+    width: 100%;
+    padding: 14px 16px;
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--gold);
+    text-decoration: none;
+    text-align: left;
+    background: none;
+    border: none;
+    border-bottom: 0.5px solid color-mix(in srgb, var(--gold) 10%, transparent);
+    cursor: pointer;
+    font-family: inherit;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .header-menu-item:last-child { border-bottom: none; }
+  .header-menu-item:active { background: color-mix(in srgb, var(--gold) 8%, transparent); }
+
+  .header-menu-item.disabled {
+    color: var(--text-muted);
+    cursor: default;
+    opacity: 0.55;
+  }
+  .header-menu-item.disabled:active { background: none; }
 
   /* ── Course detail view ── */
   .course-detail-view { position: absolute; inset: 0; background: var(--bg-primary); z-index: 200; display: none; flex-direction: column; }
@@ -216,6 +270,7 @@ sb.auth.getSession().then(function({ data }) {
       var email = document.getElementById('header-email');
       if (badge) badge.classList.add('visible');
       if (email) email.textContent = data.session.user.email;
+      setHeaderMenuAuth(data.session);
     };
     if (document.readyState === 'loading') {
       document.addEventListener('DOMContentLoaded', showBadge);
@@ -224,6 +279,43 @@ sb.auth.getSession().then(function({ data }) {
     }
   }
 });
+
+// -- Header menu dropdown --------------------------------------------------
+function toggleHeaderMenu() {
+  var dropdown = document.getElementById('header-menu-dropdown');
+  if (dropdown) dropdown.classList.toggle('open');
+}
+function closeHeaderMenu() {
+  var dropdown = document.getElementById('header-menu-dropdown');
+  if (dropdown) dropdown.classList.remove('open');
+}
+document.addEventListener('click', function(e) {
+  var menu = document.getElementById('header-menu');
+  var dropdown = document.getElementById('header-menu-dropdown');
+  if (menu && dropdown && dropdown.classList.contains('open') && !menu.contains(e.target)) {
+    dropdown.classList.remove('open');
+  }
+});
+function setHeaderMenuAuth(session) {
+  var authItem = document.getElementById('header-menu-auth');
+  if (!authItem) return;
+  if (session) {
+    authItem.textContent = 'Sign Out';
+    authItem.removeAttribute('href');
+    authItem.onclick = function(e) { e.preventDefault(); doMenuSignOut(); };
+  } else {
+    authItem.textContent = 'Sign In';
+    authItem.setAttribute('href', 'login.html');
+    authItem.onclick = null;
+  }
+}
+async function doMenuSignOut() {
+  closeHeaderMenu();
+  await sb.auth.signOut();
+  setHeaderMenuAuth(null);
+  if (typeof showToast === 'function') showToast('Signed out');
+  window.location.href = 'index.html';
+}
 </script>
 <div class="app">
 
@@ -234,13 +326,16 @@ sb.auth.getSession().then(function({ data }) {
       <div class="header-auth-dot"></div>
       <span class="header-auth-email" id="header-email"></span>
     </div>
-    <div class="header-icons">
-      <a href="index.html">
-        <img src="icons/Home.png" alt="Home">
-      </a>
-      <a href="login.html">
-        <img src="icons/login.png" alt="Login">
-      </a>
+    <div class="header-menu" id="header-menu">
+      <button class="header-menu-btn" onclick="toggleHeaderMenu()" aria-label="Menu">
+        <img src="icons/menu.png" alt="Menu">
+      </button>
+      <div class="header-menu-dropdown" id="header-menu-dropdown">
+        <a class="header-menu-item" href="index.html">Home</a>
+        <a class="header-menu-item" href="profile.html">My Profile</a>
+        <a class="header-menu-item" href="settings.html">Settings</a>
+        <a class="header-menu-item" href="login.html" id="header-menu-auth">Sign In</a>
+      </div>
     </div>
   </div>
 

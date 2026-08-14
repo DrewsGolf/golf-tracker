@@ -193,15 +193,39 @@
   .auth-error { font-size: 12px; color: var(--warning); text-align: center; padding: 0 20px 12px; min-height: 18px; }
   .auth-section-label { font-size: 10px; font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-muted); padding: 14px 20px 4px; }
 
-  /* Home button — top left of header */
-  .home-btn { position: absolute; top: 0; left: 0; width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; z-index: 60; text-decoration: none; cursor: pointer; }
-  .home-btn img { width: 44px; height: 44px; object-fit: contain; display: block; }
-  .home-btn:active { opacity: 0.7; }
+  /* ── Header icons — top right, overlaid on the header image. Matches
+     index2.html's layout: Home takes the slot Login occupied there,
+     Settings stays in the same position. ── */
+  .header-icons {
+    position: absolute;
+    top: 14px;
+    right: 14px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    z-index: 60;
+  }
+
+  .header-icons a {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    text-decoration: none;
+  }
+
+  .header-icons img {
+    width: 38px;
+    height: 38px;
+    object-fit: contain;
+    display: block;
+  }
+
+  .header-icons a:active { opacity: 0.7; }
 </style>
 </head>
 <body>
 <div class="app">
-<a class="home-btn" href="index.html"><img src="icons/Home.png" alt="Home"></a>
 
   <!-- Background image -->
   <div class="hero">
@@ -218,6 +242,14 @@
     <div class="header-auth-badge" id="header-badge">
       <div class="header-auth-dot"></div>
       <span class="header-auth-email" id="header-email"></span>
+    </div>
+    <div class="header-icons">
+      <a href="index.html">
+        <img src="icons/Home.png" alt="Home">
+      </a>
+      <a href="settings.html">
+        <img src="icons/Settings.png" alt="Settings">
+      </a>
     </div>
   </div>
 

@@ -166,6 +166,23 @@
 
   .header-icons a:active { opacity: 0.7; }
 
+  /* Header auth badge — sits above the icon pair (top:24px), not the usual
+     top:10px spot, since that would collide with them on this page's
+     tall hero image. */
+  .header-auth-badge { position: absolute; top: 0; right: 14px; display: none; align-items: center; gap: 6px; background: rgba(13,13,13,0.6); backdrop-filter: blur(6px); border: 0.5px solid color-mix(in srgb, var(--gold) 20%, transparent); border-radius: 20px; padding: 5px 10px 5px 8px; z-index: 60; }
+  .header-auth-badge.visible { display: flex; }
+  .header-auth-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--success); flex-shrink: 0; }
+  .header-auth-email { font-size: 11px; font-weight: 500; color: var(--gold); white-space: nowrap; }
+
+  /* Daylight mode: white badge, black text, per the design brief */
+  [data-theme="light"] .header-auth-badge {
+    background: var(--surface);
+    border: 0.5px solid color-mix(in srgb, var(--gold) 30%, transparent);
+  }
+  [data-theme="light"] .header-auth-email {
+    color: var(--text-primary);
+  }
+
   /* ── Bottom nav shell — standard 5-icon nav, same as every other page.
      Icons stay the normal green-in-light-mode treatment (NOT the white
      override used on index.html) since there's no grass photo behind the
@@ -214,6 +231,10 @@
   <!-- Top hero image — natural aspect ratio, full width -->
   <div class="top-hero-wrap">
     <img class="top-hero-img" src="images/Main_header.png" alt="Shot Tracker">
+    <div class="header-auth-badge" id="header-badge">
+      <div class="header-auth-dot"></div>
+      <span class="header-auth-email" id="header-email"></span>
+    </div>
     <div class="header-icons">
       <a href="login.html">
         <img src="icons/login.png" alt="Login">
@@ -308,6 +329,12 @@ function renderLastRoundCard(stats) {
 async function loadLastRoundCard() {
   try {
     const { data: { session } } = await sb.auth.getSession();
+    if (session) {
+      const badge = document.getElementById('header-badge');
+      const email = document.getElementById('header-email');
+      if (badge) badge.classList.add('visible');
+      if (email) email.textContent = session.user.email;
+    }
     if (!session) { renderLastRoundCard(null); return; }
     const userId = session.user.id;
 

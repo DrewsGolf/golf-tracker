@@ -49,10 +49,12 @@
   /* ── Top hero image — sits at natural aspect ratio, not full-bleed ── */
   .top-hero-wrap {
     position: relative;
-    /* z-index bumped above .body-fill (z-index:20) -- they're sibling
-       stacking contexts, and tied/lower z-index falls back to DOM order,
-       which would let .body-fill paint over the header-menu dropdown. */
-    z-index: 30;
+    /* No z-index bump here (unlike some other pages) -- the header-menu
+       dropdown opens near the top of the hero, well above the strip where
+       .last-round-card (z-index:20) deliberately overlaps the hero's
+       bottom edge. Raising this above .last-round-card would fix nothing
+       (the dropdown was never actually contested) while burying the
+       card's intentional overlap under the hero image. */
     width: 100%;
     flex-shrink: 0;
   }

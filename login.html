@@ -336,6 +336,7 @@ async function doSignIn() {
   const { data, error } = await sb.auth.signInWithPassword({ email, password });
   if (error) { errEl.textContent = error.message; return; }
   setAuthUI(data.session);
+  window.location.href = 'profile.html';
 }
 
 async function doSignOut() {

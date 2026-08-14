@@ -109,6 +109,19 @@
 
   .lr-viewall:active { opacity: 0.7; }
 
+  .lr-course {
+    font-size: 17px;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 2px;
+  }
+
+  .lr-date {
+    font-size: 13px;
+    color: var(--text-muted);
+    margin-bottom: 14px;
+  }
+
   .lr-stats {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
@@ -226,6 +239,8 @@
         <span class="lr-label">Last Round</span>
         <a class="lr-viewall" href="history.html?open=latest">View all &rsaquo;</a>
       </div>
+      <div class="lr-course" id="lr-course">&ndash;</div>
+      <div class="lr-date" id="lr-date">&nbsp;</div>
       <div class="lr-stats">
         <div class="lr-stat">
           <div class="lr-stat-value" id="lr-score">&ndash;</div>
@@ -278,18 +293,24 @@ const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 // ── Last Round card ────────────────────────────────────────────────────────
 function renderLastRoundCard(stats) {
-  const scoreEl = document.getElementById('lr-score');
-  const toParEl = document.getElementById('lr-topar');
-  const puttsEl = document.getElementById('lr-putts');
-  const ptsEl   = document.getElementById('lr-points');
+  const scoreEl  = document.getElementById('lr-score');
+  const toParEl  = document.getElementById('lr-topar');
+  const puttsEl  = document.getElementById('lr-putts');
+  const ptsEl    = document.getElementById('lr-points');
+  const courseEl = document.getElementById('lr-course');
+  const dateEl   = document.getElementById('lr-date');
   if (!stats) {
     scoreEl.textContent = '\u2013'; toParEl.textContent = '\u2013'; puttsEl.textContent = '\u2013'; ptsEl.textContent = '\u2013';
+    courseEl.textContent = 'No rounds yet';
+    dateEl.textContent = '\u00a0';
     return;
   }
   scoreEl.textContent = stats.score != null ? stats.score : '\u2013';
   toParEl.textContent = stats.toPar != null ? (stats.toPar > 0 ? '+'+stats.toPar : stats.toPar === 0 ? 'E' : String(stats.toPar)) : '\u2013';
   puttsEl.textContent = stats.avgPutts != null ? stats.avgPutts.toFixed(1) : '\u2013';
   ptsEl.textContent   = stats.points != null ? stats.points : '\u2013';
+  courseEl.textContent = stats.course || 'Unknown Course';
+  dateEl.textContent   = stats.date || '\u00a0';
 }
 
 async function loadLastRoundCard() {
@@ -299,7 +320,7 @@ async function loadLastRoundCard() {
     const userId = session.user.id;
 
     const { data: rounds, error } = await sb.from('rounds')
-      .select('course, total_score, total_par, score_diff, holes_played, handicap_at_time, hole_scores(hole, score, par, putts)')
+      .select('course, date_iso, total_score, total_par, score_diff, holes_played, handicap_at_time, hole_scores(hole, score, par, putts)')
       .eq('user_id', userId)
       .order('date_iso', { ascending: false })
       .limit(1);
@@ -309,7 +330,7 @@ async function loadLastRoundCard() {
     const holeScores = round.hole_scores || [];
 
     // Average putts per hole for this round
-    const puttsArr = holeScores.filter(h => h.putts != null).map(h => h.putts);
+    const puttsArr = holeScores.filter(h => h.putts != null && h.putts > 0).map(h => h.putts);
     const avgPutts = puttsArr.length ? puttsArr.reduce((a,v)=>a+v,0)/puttsArr.length : null;
 
     // Stableford points (net). Handicap strokes are applied evenly across all
@@ -345,7 +366,9 @@ async function loadLastRoundCard() {
       score: round.total_score,
       toPar: round.score_diff,
       avgPutts: avgPutts,
-      points: points
+      points: points,
+      course: round.course,
+      date: round.date_iso ? new Date(round.date_iso).toLocaleDateString('en-AU') : null
     });
   } catch(e) {
     console.error('Last round card load error:', e);

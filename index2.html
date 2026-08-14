@@ -3,6 +3,14 @@
 <head>
 <meta charset="UTF-8">
 <script src="theme.js"></script>
+<script>
+  // index2.html is specifically the light-mode variant of the home screen —
+  // it should always render light regardless of the app's stored theme
+  // preference. This only affects this page's own rendering; it does NOT
+  // write to localStorage, so navigating elsewhere still respects whatever
+  // theme is actually selected for the rest of the app.
+  document.documentElement.setAttribute('data-theme', 'light');
+</script>
 <link rel="stylesheet" href="theme.css">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="apple-mobile-web-app-capable" content="yes">

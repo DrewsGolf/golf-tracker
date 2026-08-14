@@ -1,15 +1,15 @@
 <!DOCTYPE html>
-<!-- saved from url=(0048)file:///C:/Users/aande/Downloads/settings_6.html -->
-<html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-
-<script src="file:///C:/Users/aande/Downloads/theme.js"></script>
-<link rel="stylesheet" href="file:///C:/Users/aande/Downloads/theme.css">
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<script src="theme.js"></script>
+<link rel="stylesheet" href="theme.css">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="theme-color" content="#0D0D0D">
-<link rel="manifest" href="file:///C:/Users/aande/Downloads/manifest.json">
-<title>Settings — Shot Tracker</title>
+<link rel="manifest" href="manifest.json">
+<title>My Profile — Shot Tracker</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap');
 
@@ -350,7 +350,7 @@
 
   <!-- Background image -->
   <div class="hero">
-    <img class="hero-img" src="file:///C:/Users/aande/Downloads/Back_ground_New.jpg" alt="">
+    <img class="hero-img" src="Back_ground_New.jpg" alt="">
     <div class="hero-overlay"></div>
   </div>
 
@@ -359,20 +359,20 @@
 
   <!-- Header -->
   <div class="header-img-wrap" style="position:relative;">
-    <img class="header-img" src="file:///C:/Users/aande/Downloads/images/header.png" alt="Shot Tracker">
+    <img class="header-img" src="images/header.png" alt="Shot Tracker">
     <div class="header-auth-badge" id="header-badge">
       <div class="header-auth-dot"></div>
       <span class="header-auth-email" id="header-email"></span>
     </div>
     <div class="header-menu" id="header-menu">
       <button class="header-menu-btn" onclick="toggleHeaderMenu()" aria-label="Menu">
-        <img src="file:///C:/Users/aande/Downloads/icons/menu.png" alt="Menu">
+        <img src="icons/menu.png" alt="Menu">
       </button>
       <div class="header-menu-dropdown" id="header-menu-dropdown">
-        <a class="header-menu-item" href="file:///C:/Users/aande/Downloads/index.html">Home</a>
-        <a class="header-menu-item" href="file:///C:/Users/aande/Downloads/profile.html">My Profile</a>
-        <a class="header-menu-item" href="file:///C:/Users/aande/Downloads/settings.html">Settings</a>
-        <a class="header-menu-item" href="file:///C:/Users/aande/Downloads/login.html" id="header-menu-auth">Sign In</a>
+        <a class="header-menu-item" href="index.html">Home</a>
+        <a class="header-menu-item" href="profile.html">My Profile</a>
+        <a class="header-menu-item" href="settings.html">Settings</a>
+        <a class="header-menu-item" href="login.html" id="header-menu-auth">Sign In</a>
       </div>
     </div>
   </div>
@@ -384,7 +384,7 @@
       <!-- Handicap -->
       <div class="settings-item">
         <div class="settings-item-icon">
-          <img src="file:///C:/Users/aande/Downloads/icons/Handicap.png" style="width:32px;height:32px;object-fit:contain;display:block;">
+          <img src="icons/Handicap.png" style="width:32px;height:32px;object-fit:contain;display:block;">
         </div>
         <div class="settings-item-body">
           <div class="settings-item-title">Handicap</div>
@@ -395,9 +395,9 @@
           <button class="handicap-save-btn" onclick="saveHandicap()">Save</button>
         </div>
       </div>
-      <a class="settings-item" href="file:///C:/Users/aande/Downloads/setup.html">
+      <a class="settings-item" href="setup.html">
         <div class="settings-item-icon">
-          <img src="file:///C:/Users/aande/Downloads/icons/Set_Clubs.png" style="width:32px;height:32px;object-fit:contain;display:block;">
+          <img src="icons/Set_Clubs.png" style="width:32px;height:32px;object-fit:contain;display:block;">
         </div>
         <div class="settings-item-body">
           <div class="settings-item-title">Set Up Your Clubs</div>
@@ -406,26 +406,13 @@
         <div class="settings-item-arrow">›</div>
       </a>
       <div class="settings-item">
-        <div class="settings-item-icon">
-          <img src="file:///C:/Users/aande/Downloads/icons/Sound.png" style="width:32px;height:32px;object-fit:contain;display:block;">
-        </div>
+        <div class="settings-item-icon" id="sex-icon" style="font-size:22px;">&#9794;&#65039;</div>
         <div class="settings-item-body">
-          <div class="settings-item-title">Sound Effects</div>
-          <div class="settings-item-desc">Play sounds during rounds</div>
+          <div class="settings-item-title">Sex</div>
+          <div class="settings-item-desc" id="sex-desc">Currently set to Male</div>
         </div>
         <label class="toggle-switch">
-          <input type="checkbox" id="sound-toggle" onchange="toggleSound(this.checked)">
-          <span class="toggle-track"></span>
-        </label>
-      </div>
-      <div class="settings-item">
-        <div class="settings-item-icon" id="theme-icon" style="font-size:22px;">🌙</div>
-        <div class="settings-item-body">
-          <div class="settings-item-title">Light Mode</div>
-          <div class="settings-item-desc" id="theme-desc">Currently using Dark theme</div>
-        </div>
-        <label class="toggle-switch">
-          <input type="checkbox" id="theme-toggle" onchange="toggleThemeSwitch(this.checked)">
+          <input type="checkbox" id="sex-toggle" onchange="toggleSex(this.checked)">
           <span class="toggle-track"></span>
         </label>
       </div>
@@ -439,17 +426,17 @@
     <!-- Nav shell -->
   <div class="nav-shell">
     <div class="nav-row">
-      <a class="nav-item" href="file:///C:/Users/aande/Downloads/find.html"><img src="file:///C:/Users/aande/Downloads/icons/Courses.png" alt="Courses"></a>
-      <a class="nav-item" id="nav-play" href="file:///C:/Users/aande/Downloads/round.html"><img src="file:///C:/Users/aande/Downloads/icons/Play.png" alt="Play"></a>
-      <a class="nav-item" href="file:///C:/Users/aande/Downloads/distance.html"><img src="file:///C:/Users/aande/Downloads/icons/Distance.png" alt="Distance"></a>
-      <a class="nav-item" href="file:///C:/Users/aande/Downloads/suggest.html"><img src="file:///C:/Users/aande/Downloads/icons/Suggest.png" alt="Suggest"></a>
-      <a class="nav-item" href="file:///C:/Users/aande/Downloads/history.html"><img src="file:///C:/Users/aande/Downloads/icons/History.png" alt="History"></a>
+      <a class="nav-item" href="find.html"><img src="icons/Courses.png" alt="Courses"></a>
+      <a class="nav-item" id="nav-play" href="start.html"><img src="icons/Play.png" alt="Play"></a>
+      <a class="nav-item" href="distance.html"><img src="icons/Distance.png" alt="Distance"></a>
+      <a class="nav-item" href="suggest.html"><img src="icons/Suggest.png" alt="Suggest"></a>
+      <a class="nav-item" href="history.html"><img src="icons/History.png" alt="History"></a>
     </div>
   </div>
 
 </div>
 
-<script src="./settings_files/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 const SUPABASE_URL = 'https://ryqehsqqriavmuqfnzpx.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ5cWVoc3Fxcmlhdm11cWZuenB4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM3NTQ4MzcsImV4cCI6MjA5OTMzMDgzN30.Po2m7uhlMTc43Pdg8pohwvDsQ_UDFRS-n9UnTQ44nXA';
@@ -564,28 +551,26 @@ function showToast(msg) {
   setTimeout(() => t.remove(), 2400);
 }
 
-const soundToggle = document.getElementById('sound-toggle');
-soundToggle.checked = localStorage.getItem('golf-sound-enabled') !== 'false';
 loadHandicap(); // default: on
-function toggleSound(enabled) {
-  localStorage.setItem('golf-sound-enabled', enabled ? 'true' : 'false');
-}
 
-// ── Theme toggle ──────────────────────────────────────────────────────────────
-function refreshThemeUI() {
-  const isLight = getTheme() === 'light';
-  const toggle = document.getElementById('theme-toggle');
-  const icon   = document.getElementById('theme-icon');
-  const desc   = document.getElementById('theme-desc');
-  if (toggle) toggle.checked = isLight;
-  if (icon)   icon.innerHTML = isLight ? '&#9728;&#65039;' : '&#127769;';
-  if (desc)   desc.textContent = 'Currently using ' + (isLight ? 'Light' : 'Dark') + ' theme';
+// ── Sex toggle ────────────────────────────────────────────────────────────────
+// UI + local storage only for now — nothing downstream reads this yet
+// (distance suggestions, handicap calcs, etc.) — that wiring is a later task.
+function refreshSexUI() {
+  const stored   = localStorage.getItem('golf-sex') || 'male';
+  const isFemale = stored === 'female';
+  const toggle = document.getElementById('sex-toggle');
+  const icon   = document.getElementById('sex-icon');
+  const desc   = document.getElementById('sex-desc');
+  if (toggle) toggle.checked = isFemale;
+  if (icon)   icon.innerHTML = isFemale ? '&#9792;&#65039;' : '&#9794;&#65039;';
+  if (desc)   desc.textContent = 'Currently set to ' + (isFemale ? 'Female' : 'Male');
 }
-function toggleThemeSwitch(checked) {
-  setTheme(checked ? 'light' : 'dark');
-  refreshThemeUI();
+function toggleSex(checked) {
+  localStorage.setItem('golf-sex', checked ? 'female' : 'male');
+  refreshSexUI();
 }
-refreshThemeUI();
+refreshSexUI();
 
 
 </script>
@@ -630,6 +615,5 @@ function dialogAction(i) { closeDialog(); window._dialogActions?.[i]?.(); }
 function closeDialogOutside(e) { if (e.target===document.getElementById('dialog-overlay')) closeDialog(); }
 function closeDialog() { document.getElementById('dialog-overlay').style.display = 'none'; }
 </script>
-
-
-</body></html>
+</body>
+</html>

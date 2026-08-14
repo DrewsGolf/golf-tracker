@@ -42,6 +42,36 @@
 
   /* Header */
   .header-img-wrap { position: relative; z-index: 10; width: 100%; flex-shrink: 0; }
+
+  /* ── Header icons — bottom left. Unlike other pages, round.html already
+     has the auth badge (top-right) and New Round button (bottom-right)
+     occupying the right side of the header, so these sit on the left. ── */
+  .header-icons {
+    position: absolute;
+    bottom: 5px;
+    left: 14px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    z-index: 60;
+  }
+
+  .header-icons a {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    text-decoration: none;
+  }
+
+  .header-icons img {
+    width: 38px;
+    height: 38px;
+    object-fit: contain;
+    display: block;
+  }
+
+  .header-icons a:active { opacity: 0.7; }
   .header-img { width: 100%; height: auto; display: block; }
   .topbar-action { background: transparent; border: 0.5px solid color-mix(in srgb, var(--gold) 40%, transparent); border-radius: 8px; padding: 6px 12px; color: var(--gold); font-size: 13px; font-weight: 500; cursor: pointer; white-space: nowrap; font-family: inherit; position: absolute; right: 14px; bottom: 10px; }
 
@@ -189,8 +219,8 @@
   .nav-item:active { opacity: 0.7; }
 
   .nav-item img {
-    width: 56px;
-    height: 56px;
+    width: 70px;
+    height: 70px;
     object-fit: contain;
     object-position: bottom;
     display: block;
@@ -206,9 +236,16 @@
 <div class="app">
 <div id="app">
   <div class="header-img-wrap" style="position:relative;">
-    <img class="header-img" src="images/Header.jpg" alt="Shot Tracker">
-    <a href="index.html" style="position:absolute;top:0;left:0;display:flex;align-items:center;justify-content:center;width:44px;height:44px;z-index:60;"><img src="icons/Home.png" alt="Home" style="width:44px;height:44px;object-fit:contain;"></a>
+    <img class="header-img" src="images/header.png" alt="Shot Tracker">
     <div class="header-auth-badge" id="header-badge"><div class="header-auth-dot"></div><span class="header-auth-email" id="header-email"></span></div>
+    <div class="header-icons">
+      <a href="index.html">
+        <img src="icons/Home.png" alt="Home">
+      </a>
+      <a href="login.html">
+        <img src="icons/login.png" alt="Login">
+      </a>
+    </div>
     <button class="topbar-action" onclick="newRound()">New Round</button>
   </div>
   <div class="tab-bar">

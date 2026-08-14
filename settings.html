@@ -242,6 +242,15 @@
   .header-auth-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--success); flex-shrink: 0; }
   .header-auth-email { font-size: 11px; font-weight: 500; color: var(--gold); white-space: nowrap; }
 
+  /* Daylight mode: white badge, black text, per the design brief */
+  [data-theme="light"] .header-auth-badge {
+    background: var(--surface);
+    border: 0.5px solid color-mix(in srgb, var(--gold) 30%, transparent);
+  }
+  [data-theme="light"] .header-auth-email {
+    color: var(--text-primary);
+  }
+
   /* Handicap card */
   .handicap-input { width: 64px; background: color-mix(in srgb, var(--bg) 70%, transparent); border: 0.5px solid color-mix(in srgb, var(--gold) 30%, transparent); border-radius: 8px; padding: 7px 8px; font-size: 18px; font-weight: 300; color: var(--gold); font-family: inherit; text-align: center; -webkit-appearance: none; -moz-appearance: textfield; }
   .handicap-input::-webkit-outer-spin-button, .handicap-input::-webkit-inner-spin-button { -webkit-appearance: none; }

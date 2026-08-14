@@ -2,6 +2,8 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+<script src="theme.js"></script>
+<link rel="stylesheet" href="theme.css">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -9,15 +11,18 @@
 <meta name="theme-color" content="#0D0D0D">
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icon-192.svg">
-<title>Shot Tracker — Nav Mockup</title>
+<title>Shot Tracker</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap');
 
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
 
+  /* ── Page-specific aliases + layout vars. Core theme colors (--bg, --gold,
+     etc.) come from theme.css, loaded in <head>. ── */
   :root {
-    --bg-primary:   #0D0D0D;
-    --gold:         #C8A96A;
+    --bg-primary:      var(--bg);
+  }
+  :root {
     --safe-top:     env(safe-area-inset-top, 0px);
     --safe-bottom:  env(safe-area-inset-bottom, 0px);
   }
@@ -36,63 +41,66 @@
     max-width: 430px;
     margin: 0 auto;
     overflow: hidden;
+    display: flex;
+    flex-direction: column;
   }
 
-  /* ── Full screen hero ───────────────────────────────────────── */
-  .hero {
-    position: absolute;
-    inset: 0;
+  /* ── Top hero image — sits at natural aspect ratio, not full-bleed ── */
+  .top-hero-wrap {
+    position: relative;
     width: 100%;
-    height: 100%;
+    flex-shrink: 0;
   }
 
-  .hero-img {
+  .top-hero-img {
     width: 100%;
-    height: 100%;
-    object-fit: cover;
-    object-position: center 15%;
+    height: auto;
     display: block;
   }
 
-  /* ── Settings button — top left, same size as nav icons ─────── */
+  /* ── Remaining screen area below the hero, plain page background ── */
+  .body-fill {
+    flex: 1;
+    background: var(--bg);
+  }
+
+  /* ── Settings button — top left, overlaid on the hero image ─────── */
   .settings-btn {
     position: absolute;
-    top: calc(var(--safe-top) + 12px);
-    left: 16px;
-    width: 56px;
-    height: 56px;
+    top: 0;
+    left: 0;
+    width: 44px;
+    height: 44px;
     display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    z-index: 50;
+    z-index: 60;
     text-decoration: none;
   }
 
   .settings-btn img {
-    width: 56px;
-    height: 56px;
+    width: 44px;
+    height: 44px;
     object-fit: contain;
     display: block;
   }
 
   .settings-btn:active { opacity: 0.7; }
 
-  /* ── Bottom nav shell — single static row, 5 icons, no drawer ─ */
+  /* ── Bottom nav shell — standard 5-icon nav, same as every other page.
+     Icons stay the normal green-in-light-mode treatment (NOT the white
+     override used on index.html) since there's no grass photo behind the
+     nav here — white icons would be nearly invisible on the plain
+     light background. ── */
   .nav-shell {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    z-index: 100;
+    flex-shrink: 0;
   }
 
   .nav-row {
     display: flex;
-    background: rgba(13,13,13,0.92);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    border-top: 0.5px solid rgba(200,169,106,0.2);
+    background: none;
+    border-top: 0.5px solid color-mix(in srgb, var(--gold) 20%, transparent);
     padding-bottom: calc(var(--safe-bottom) + 6px);
   }
 
@@ -106,12 +114,18 @@
     text-decoration: none;
     background: none;
     border: none;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    transition: opacity 0.15s;
   }
+
+  .nav-item:active { opacity: 0.7; }
 
   .nav-item img {
     width: 56px;
     height: 56px;
     object-fit: contain;
+    object-position: bottom;
     display: block;
   }
 </style>
@@ -119,37 +133,49 @@
 <body>
 <div class="app">
 
-  <!-- Full screen hero image -->
-  <div class="hero">
-    <img class="hero-img" src="images/Background_with_logo_and_tag.png" alt="">
+  <!-- Top hero image — natural aspect ratio, full width -->
+  <div class="top-hero-wrap">
+    <img class="top-hero-img" src="images/Main_header-light.png" alt="Shot Tracker">
+    <a class="settings-btn" href="settings.html">
+      <img src="icons/Settings.png" alt="Settings">
+    </a>
   </div>
 
-  <!-- Settings — top left, same size as nav icons -->
-  <a class="settings-btn" href="settings.html">
-    <img src="Settings_1.png" alt="Settings">
-  </a>
+  <!-- Remaining screen space below the hero -->
+  <div class="body-fill"></div>
 
-  <!-- Nav shell — flat row, 5 icons, no links (mockup only) -->
+  <!-- Nav shell — flat row, 5 icons, linked -->
   <div class="nav-shell">
     <div class="nav-row">
-      <div class="nav-item">
-        <img src="Courses_2_noborder.png" alt="Courses">
-      </div>
-      <div class="nav-item">
-        <img src="Play_2_noborder.png" alt="Play">
-      </div>
-      <div class="nav-item">
-        <img src="Distance_2_noborder.png" alt="Distance">
-      </div>
-      <div class="nav-item">
-        <img src="Suggest_2_noborder.png" alt="Suggest">
-      </div>
-      <div class="nav-item">
-        <img src="History_2_noborder.png" alt="History">
-      </div>
+      <a class="nav-item" href="find.html">
+        <img src="icons/Courses.png" alt="Courses">
+      </a>
+      <a class="nav-item" id="nav-play" href="start.html">
+        <img src="icons/Play.png" alt="Play">
+      </a>
+      <a class="nav-item" href="distance.html">
+        <img src="icons/Distance.png" alt="Distance">
+      </a>
+      <a class="nav-item" href="suggest.html">
+        <img src="icons/Suggest.png" alt="Suggest">
+      </a>
+      <a class="nav-item" href="history.html">
+        <img src="icons/History.png" alt="History">
+      </a>
     </div>
   </div>
 
 </div>
+
+<script>
+// ── Continue round — swap Play to round.html if in progress ──────────────────
+const inProgressScores = JSON.parse(localStorage.getItem('golf-scores-v1') || '{}');
+const inProgressHole   = localStorage.getItem('golf-current-hole');
+if (Object.keys(inProgressScores).length > 0 || (inProgressHole && parseInt(inProgressHole) > 1)) {
+  document.getElementById('nav-play').setAttribute('href', 'round.html');
+}
+
+if ('serviceWorker' in navigator) { navigator.serviceWorker.register('/sw.js').catch(()=>{}); }
+</script>
 </body>
 </html>

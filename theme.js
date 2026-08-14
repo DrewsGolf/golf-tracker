@@ -38,7 +38,9 @@ var ICON_LIGHT_MAP = {
   'icons/Sound.png':       'icons/Sound-light.png',
   'icons/Back.png':        'icons/Back-light.png',
   'images/Background_with_logo_and_tag.jpg': 'images/Background_with_logo_and_tag-light.jpg',
-  'images/Header.jpg':     'images/Header-light.jpg'
+  'images/Header.jpg':     'images/Header-light.jpg',
+  'icons/login.png':       'icons/login-light.png',
+  'images/Main_header.png': 'images/Main_header-light.png'
 };
 
 function applyIconTheme(theme) {

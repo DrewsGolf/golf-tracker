@@ -3,14 +3,6 @@
 <head>
 <meta charset="UTF-8">
 <script src="theme.js"></script>
-<script>
-  // index2.html is specifically the light-mode variant of the home screen —
-  // it should always render light regardless of the app's stored theme
-  // preference. This only affects this page's own rendering; it does NOT
-  // write to localStorage, so navigating elsewhere still respects whatever
-  // theme is actually selected for the rest of the app.
-  document.documentElement.setAttribute('data-theme', 'light');
-</script>
 <link rel="stylesheet" href="theme.css">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -221,13 +213,13 @@
 
   <!-- Top hero image — natural aspect ratio, full width -->
   <div class="top-hero-wrap">
-    <img class="top-hero-img" src="images/Main_header-light.png" alt="Shot Tracker">
+    <img class="top-hero-img" src="images/Main_header.png" alt="Shot Tracker">
     <div class="header-icons">
       <a href="settings.html">
-        <img src="icons/login-light.png" alt="Login">
+        <img src="icons/login.png" alt="Login">
       </a>
       <a href="settings.html">
-        <img src="icons/Settings-light.png" alt="Settings">
+        <img src="icons/Settings.png" alt="Settings">
       </a>
     </div>
   </div>

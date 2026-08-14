@@ -419,6 +419,12 @@ async function loadFromSupabase() {
     saveHistory();
     renderList();
 
+    // Deep link — index2.html's "View all" passes ?open=latest to jump straight
+    // into the most recent round's Scorecard view instead of the plain list.
+    if (new URLSearchParams(window.location.search).get('open') === 'latest' && history.length > 0) {
+      showDetail(0);
+    }
+
     // Auto-heal: any round still sitting local-only (e.g. a previous save that
     // silently failed to reach Supabase) gets pushed up now, in the background.
     if (localOnly.length > 0) {

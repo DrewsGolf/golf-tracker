@@ -29,6 +29,7 @@
      etc.) come from theme.css, loaded in <head>. ── */
   :root {
     --bg-primary:      var(--bg);
+    --border:          color-mix(in srgb, var(--gold) 15%, transparent);
   }
   :root {
     --safe-top:     env(safe-area-inset-top, 0px);
@@ -70,6 +71,66 @@
   .body-fill {
     flex: 1;
     background: var(--bg);
+  }
+
+  /* ── Last Round card — overlaps the bottom edge of the hero image ────── */
+  .last-round-card {
+    position: relative;
+    z-index: 20;
+    margin: -28px 16px 16px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg, 18px);
+    box-shadow: var(--shadow-card, 0 4px 14px rgba(30,25,15,0.08));
+    padding: 16px;
+  }
+
+  .lr-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 14px;
+  }
+
+  .lr-label {
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--gold);
+  }
+
+  .lr-viewall {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-muted);
+    text-decoration: none;
+  }
+
+  .lr-viewall:active { opacity: 0.7; }
+
+  .lr-stats {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 6px;
+  }
+
+  .lr-stat { text-align: center; }
+
+  .lr-stat-value {
+    font-size: 24px;
+    font-weight: 500;
+    color: var(--text-primary);
+    line-height: 1;
+  }
+
+  .lr-stat-label {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-top: 4px;
   }
 
   /* ── Header icons — top right, overlaid on the hero image ────────── */
@@ -159,7 +220,32 @@
   </div>
 
   <!-- Remaining screen space below the hero -->
-  <div class="body-fill"></div>
+  <div class="body-fill">
+    <div class="last-round-card">
+      <div class="lr-header">
+        <span class="lr-label">Last Round</span>
+        <a class="lr-viewall" href="history.html?open=latest">View all &rsaquo;</a>
+      </div>
+      <div class="lr-stats">
+        <div class="lr-stat">
+          <div class="lr-stat-value" id="lr-score">&ndash;</div>
+          <div class="lr-stat-label">Score</div>
+        </div>
+        <div class="lr-stat">
+          <div class="lr-stat-value" id="lr-topar">&ndash;</div>
+          <div class="lr-stat-label">To Par</div>
+        </div>
+        <div class="lr-stat">
+          <div class="lr-stat-value" id="lr-putts">&ndash;</div>
+          <div class="lr-stat-label">Avg Putts</div>
+        </div>
+        <div class="lr-stat">
+          <div class="lr-stat-value" id="lr-points">&ndash;</div>
+          <div class="lr-stat-label">Points</div>
+        </div>
+      </div>
+    </div>
+  </div>
 
   <!-- Nav shell — flat row, 5 icons, linked -->
   <div class="nav-shell">
@@ -184,7 +270,91 @@
 
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
+const SUPABASE_URL = 'https://ryqehsqqriavmuqfnzpx.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ5cWVoc3Fxcmlhdm11cWZuenB4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM3NTQ4MzcsImV4cCI6MjA5OTMzMDgzN30.Po2m7uhlMTc43Pdg8pohwvDsQ_UDFRS-n9UnTQ44nXA';
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+// ── Last Round card ────────────────────────────────────────────────────────
+function renderLastRoundCard(stats) {
+  const scoreEl = document.getElementById('lr-score');
+  const toParEl = document.getElementById('lr-topar');
+  const puttsEl = document.getElementById('lr-putts');
+  const ptsEl   = document.getElementById('lr-points');
+  if (!stats) {
+    scoreEl.textContent = '\u2013'; toParEl.textContent = '\u2013'; puttsEl.textContent = '\u2013'; ptsEl.textContent = '\u2013';
+    return;
+  }
+  scoreEl.textContent = stats.score != null ? stats.score : '\u2013';
+  toParEl.textContent = stats.toPar != null ? (stats.toPar > 0 ? '+'+stats.toPar : stats.toPar === 0 ? 'E' : String(stats.toPar)) : '\u2013';
+  puttsEl.textContent = stats.avgPutts != null ? stats.avgPutts.toFixed(1) : '\u2013';
+  ptsEl.textContent   = stats.points != null ? stats.points : '\u2013';
+}
+
+async function loadLastRoundCard() {
+  try {
+    const { data: { session } } = await sb.auth.getSession();
+    if (!session) { renderLastRoundCard(null); return; }
+    const userId = session.user.id;
+
+    const { data: rounds, error } = await sb.from('rounds')
+      .select('course, total_score, total_par, score_diff, holes_played, handicap_at_time, hole_scores(hole, score, par, putts)')
+      .eq('user_id', userId)
+      .order('date_iso', { ascending: false })
+      .limit(1);
+    if (error || !rounds || rounds.length === 0) { renderLastRoundCard(null); return; }
+
+    const round = rounds[0];
+    const holeScores = round.hole_scores || [];
+
+    // Average putts per hole for this round
+    const puttsArr = holeScores.filter(h => h.putts != null).map(h => h.putts);
+    const avgPutts = puttsArr.length ? puttsArr.reduce((a,v)=>a+v,0)/puttsArr.length : null;
+
+    // Stableford points (net). Handicap strokes are applied evenly across all
+    // holes as a simplification — true per-hole stroke-index isn't reliably
+    // available here without an extra course_holes lookup, and this matches
+    // the app's existing fallback behaviour elsewhere when SI data is missing.
+    let points = null;
+    let hcpIndex = round.handicap_at_time != null ? parseFloat(round.handicap_at_time) : null;
+    if (hcpIndex == null) {
+      const hcpStored = localStorage.getItem('golf-handicap');
+      hcpIndex = hcpStored ? parseFloat(JSON.parse(hcpStored).value) : null;
+    }
+    let slope = 113;
+    if (round.course) {
+      const { data: courseRows } = await sb.from('courses').select('slope').ilike('name', round.course).limit(1);
+      if (courseRows && courseRows.length > 0 && courseRows[0].slope) slope = courseRows[0].slope;
+    }
+    const playingHcp = hcpIndex ? Math.round(hcpIndex * (slope / 113)) : null;
+    const strokesPerHole = playingHcp ? Math.floor(playingHcp / 18) : 0;
+
+    let totalPts = 0, hasPts = false;
+    holeScores.forEach(h => {
+      if (h.score == null || h.par == null) return;
+      const net = h.score - strokesPerHole;
+      const diff = net - h.par;
+      let p;
+      if (diff >= 2) p = 0; else if (diff === 1) p = 1; else if (diff === 0) p = 2; else if (diff === -1) p = 3; else if (diff === -2) p = 4; else p = 5;
+      totalPts += p; hasPts = true;
+    });
+    if (hasPts) points = totalPts;
+
+    renderLastRoundCard({
+      score: round.total_score,
+      toPar: round.score_diff,
+      avgPutts: avgPutts,
+      points: points
+    });
+  } catch(e) {
+    console.error('Last round card load error:', e);
+    renderLastRoundCard(null);
+  }
+}
+
+loadLastRoundCard();
+
 // ── Continue round — swap Play to round.html if in progress ──────────────────
 const inProgressScores = JSON.parse(localStorage.getItem('golf-scores-v1') || '{}');
 const inProgressHole   = localStorage.getItem('golf-current-hole');

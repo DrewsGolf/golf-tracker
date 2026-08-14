@@ -72,29 +72,33 @@
     background: var(--bg);
   }
 
-  /* ── Settings button — top left, overlaid on the hero image ─────── */
-  .settings-btn {
+  /* ── Header icons — top right, overlaid on the hero image ────────── */
+  .header-icons {
     position: absolute;
-    top: 0;
-    left: 0;
-    width: 44px;
-    height: 44px;
+    top: 14px;
+    right: 14px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    z-index: 60;
+  }
+
+  .header-icons a {
     display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    z-index: 60;
     text-decoration: none;
   }
 
-  .settings-btn img {
-    width: 44px;
-    height: 44px;
+  .header-icons img {
+    width: 38px;
+    height: 38px;
     object-fit: contain;
     display: block;
   }
 
-  .settings-btn:active { opacity: 0.7; }
+  .header-icons a:active { opacity: 0.7; }
 
   /* ── Bottom nav shell — standard 5-icon nav, same as every other page.
      Icons stay the normal green-in-light-mode treatment (NOT the white
@@ -144,7 +148,14 @@
   <!-- Top hero image — natural aspect ratio, full width -->
   <div class="top-hero-wrap">
     <img class="top-hero-img" src="images/Main_header-light.png" alt="Shot Tracker">
-    <!-- Settings icon removed for now — put back later -->
+    <div class="header-icons">
+      <a href="settings.html">
+        <img src="icons/login-light.png" alt="Login">
+      </a>
+      <a href="settings.html">
+        <img src="icons/Settings-light.png" alt="Settings">
+      </a>
+    </div>
   </div>
 
   <!-- Remaining screen space below the hero -->

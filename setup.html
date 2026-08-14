@@ -70,6 +70,21 @@
 
   .header-icons a:active { opacity: 0.7; }
 
+  /* Header auth badge */
+  .header-auth-badge { position: absolute; top: 10px; right: 14px; display: none; align-items: center; gap: 6px; background: rgba(13,13,13,0.6); backdrop-filter: blur(6px); border: 0.5px solid color-mix(in srgb, var(--gold) 20%, transparent); border-radius: 20px; padding: 5px 10px 5px 8px; }
+  .header-auth-badge.visible { display: flex; }
+  .header-auth-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--success); flex-shrink: 0; }
+  .header-auth-email { font-size: 11px; font-weight: 500; color: var(--gold); white-space: nowrap; }
+
+  /* Daylight mode: white badge, black text, per the design brief */
+  [data-theme="light"] .header-auth-badge {
+    background: var(--surface);
+    border: 0.5px solid color-mix(in srgb, var(--gold) 30%, transparent);
+  }
+  [data-theme="light"] .header-auth-email {
+    color: var(--text-primary);
+  }
+
   /* ── Counter bar ── */
   .counter-bar { position: absolute; left: 0; right: 0; padding: 0 20px 16px; z-index: 20; }
   .counter-inner { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 12px 16px; display: flex; align-items: center; justify-content: space-between; box-shadow: var(--shadow-soft); }
@@ -139,11 +154,37 @@
 </style>
 </head>
 <body>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+const sb = supabase.createClient('https://ryqehsqqriavmuqfnzpx.supabase.co', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ5cWVoc3Fxcmlhdm11cWZuenB4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM3NTQ4MzcsImV4cCI6MjA5OTMzMDgzN30.Po2m7uhlMTc43Pdg8pohwvDsQ_UDFRS-n9UnTQ44nXA');
+let currentUser = null;
+sb.auth.getSession().then(function({ data }) {
+  if (data.session) {
+    currentUser = data.session.user;
+    // getSession() can resolve before the DOM finishes parsing — defer if so.
+    var showBadge = function() {
+      var badge = document.getElementById('header-badge');
+      var email = document.getElementById('header-email');
+      if (badge) badge.classList.add('visible');
+      if (email) email.textContent = data.session.user.email;
+    };
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', showBadge);
+    } else {
+      showBadge();
+    }
+  }
+});
+</script>
 <div class="app">
 
   <!-- Header -->
   <div class="header-img-wrap">
     <img class="header-img" src="images/header.png" alt="Shot Tracker">
+    <div class="header-auth-badge" id="header-badge">
+      <div class="header-auth-dot"></div>
+      <span class="header-auth-email" id="header-email"></span>
+    </div>
     <div class="header-icons">
       <a href="index.html">
         <img src="icons/Home.png" alt="Home">

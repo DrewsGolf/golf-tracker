@@ -41,7 +41,8 @@ var ICON_LIGHT_MAP = {
   'images/Header.jpg':     'images/Header-light.jpg',
   'icons/login.png':       'icons/login-light.png',
   'images/Main_header.png': 'images/Main_header-light.png',
-  'images/header.png':     'images/header-light.png'
+  'images/header.png':     'images/header-light.png',
+  'icons/menu.png':        'icons/menu-light.png'
 };
 
 function applyIconTheme(theme) {

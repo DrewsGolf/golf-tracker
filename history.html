@@ -1341,7 +1341,22 @@ function renderHistoryScorecard(index) {
   sc += `<div class="scorecard"><table class="scorecard-table">
     <thead><tr><th>Hole</th><th></th><th>Par</th><th>Shots</th><th>+/−</th><th style="color:var(--gold);">Putts</th><th style="color:var(--gold);">Pts</th></tr></thead><tbody>`;
 
+  // Front 9 / Back 9 subtotal rows — accumulated alongside the grand totals
+  // below, using the same "always gross" convention as the grand Total row
+  // (totalStrokes/totalPar/tStr are never net-adjusted, regardless of the
+  // Gross/Net toggle — see the comment above on netDisplay/pts). Keeping the
+  // subtotals on that same convention means Front-9 diff + Back-9 diff always
+  // equals the grand Total's diff exactly.
   let totalPutts=0, totalPts=0, hasPts=false;
+  let frontPar=0, frontShots=0, frontPutts=0, frontPts=0, frontHasPts=false;
+  let backPar=0, backShots=0, backPutts=0, backPts=0, backHasPts=false;
+  const subtotalRow = (label, par, shots, putts, pts) => {
+    const td   = par ? shots - par : null;
+    const tStr = td === null ? '–' : (td === 0 ? 'E' : (td > 0 ? '+'+td : ''+td));
+    const tCls = td === null ? 'diff-even' : td > 0 ? 'diff-over' : td < 0 ? 'diff-under' : 'diff-even';
+    const bg   = 'background:color-mix(in srgb, var(--gold) 4%, transparent);font-weight:600;';
+    return `<tr><td style="${bg}">${label}</td><td style="${bg}"></td><td style="${bg}">${par||'–'}</td><td style="${bg}">${shots||'–'}</td><td class="${tCls}" style="${bg}">${tStr}</td><td style="${bg}color:var(--gold);">${putts||'–'}</td><td style="${bg}color:var(--gold);">${pts??'–'}</td></tr>`;
+  };
   holes.forEach(h => {
     const shots  = sph[h] || 0;
     const par    = round.pars && round.pars[h] ? round.pars[h] : null;
@@ -1357,6 +1372,28 @@ function renderHistoryScorecard(index) {
     const pts    = holePoints(netDisplay, par);
     if (pts !== null) { totalPts += pts; hasPts = true; }
     sc += `<tr><td>${h}</td><td class="score-icon-cell">${icon}</td><td>${par ?? '–'}</td><td>${shots}</td><td class="${dCls}">${dStr}</td><td style="color:var(--gold);">${putts||'–'}</td><td style="color:var(--gold);font-weight:500;">${pts??'–'}</td></tr>`;
+
+    if (h <= 9) {
+      if (par !== null) frontPar += par;
+      frontShots += shots;
+      frontPutts += putts;
+      if (pts !== null) { frontPts += pts; frontHasPts = true; }
+    } else {
+      if (par !== null) backPar += par;
+      backShots += shots;
+      backPutts += putts;
+      if (pts !== null) { backPts += pts; backHasPts = true; }
+    }
+
+    // Front 9 subtotal — only when the round continues past hole 9 (an
+    // exactly-9-hole round has no "back" to distinguish it from, so it just
+    // gets the normal grand Total below, same as before this change).
+    if (h === 9 && holes.some(x => x > 9)) {
+      sc += subtotalRow('Front 9', frontPar, frontShots, frontPutts, frontHasPts ? frontPts : null);
+    }
+    if (h === 18) {
+      sc += subtotalRow('Back 9', backPar, backShots, backPutts, backHasPts ? backPts : null);
+    }
   });
 
   if (totalPar !== null) {

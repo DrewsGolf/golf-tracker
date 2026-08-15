@@ -1056,6 +1056,11 @@ function renderList() {
 // ── Progress Chart ────────────────────────────────────────────────────────────
 function renderChartHTML(rounds) {
   const W = 320, H = 100, PAD = 24;
+  const isNineHoleRound = r => {
+    const sph = getShotsPerHole(r);
+    const playedHoles = Object.keys(sph).filter(h => sph[h] > 0).length;
+    return playedHoles > 0 && playedHoles <= 9;
+  };
   const vals = rounds.map(r => {
     const d = getVsPar(r);
     if (d === null) return 0;
@@ -1065,9 +1070,7 @@ function renderChartHTML(rounds) {
     // full rounds on the same chart. Double it so a 9-hole round lands on
     // the same visual scale as an 18-hole one. Chart display only — doesn't
     // touch the round's actual stored score anywhere else.
-    const sph = getShotsPerHole(r);
-    const playedHoles = Object.keys(sph).filter(h => sph[h] > 0).length;
-    return (playedHoles > 0 && playedHoles <= 9) ? d * 2 : d;
+    return isNineHoleRound(r) ? d * 2 : d;
   });
   const minV = Math.min(...vals, -2);
   const maxV = Math.max(...vals, 2);
@@ -1077,14 +1080,18 @@ function renderChartHTML(rounds) {
   const points = vals.map((v, i) => ({
     x: PAD + i * xStep,
     y: PAD + ((maxV - v) / range) * (H - PAD*2),
-    v
+    v,
+    isNine: isNineHoleRound(rounds[i])
   }));
+
+  // Dot/label color now flags round length rather than over/under par:
+  // blue = 9-hole round, red = 18-hole round.
+  const pointColor = p => p.isNine ? '#2f6fd6' : '#c0392b';
 
   const zeroY = PAD + ((maxV - 0) / range) * (H - PAD*2);
   const path = points.map((p,i) => (i===0?'M':'L') + p.x.toFixed(1) + ' ' + p.y.toFixed(1)).join(' ');
   const dots = points.map(p => {
-    const dc = p.v > 0 ? '#c0392b' : p.v < 0 ? '#1a6b3a' : '#888';
-    return `<circle cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="5" fill="${dc}" stroke="#fff" stroke-width="2"/>`;
+    return `<circle cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="5" fill="${pointColor(p)}" stroke="#fff" stroke-width="2"/>`;
   }).join('');
   // Label the first and last entries, plus the best (lowest) and worst
   // (highest) vs-par entries in between, so a standout round is called out
@@ -1100,13 +1107,17 @@ function renderChartHTML(rounds) {
   [...labelIdx].sort((a,b)=>a-b).forEach(i => {
     const p = points[i];
     const anchor = i === 0 ? 'start' : (i === points.length-1 ? 'end' : 'middle');
-    labels += `<text x="${p.x.toFixed(1)}" y="${(p.y-10).toFixed(1)}" text-anchor="${anchor}" font-size="11" font-weight="700" fill="${p.v > 0 ? '#c0392b' : p.v < 0 ? '#1a6b3a' : '#888'}">${formatVsPar(p.v)}</text>`;
+    labels += `<text x="${p.x.toFixed(1)}" y="${(p.y-10).toFixed(1)}" text-anchor="${anchor}" font-size="11" font-weight="700" fill="${pointColor(p)}">${formatVsPar(p.v)}</text>`;
   });
 
   return `
   <div class="section-label">Progress</div>
   <div class="chart-card">
     <div class="chart-title">Score vs Par over time</div>
+    <div style="display:flex;gap:14px;font-size:10.5px;color:var(--text-muted);margin:-8px 0 10px;">
+      <span><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#c0392b;margin-right:4px;"></span>18 holes</span>
+      <span><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#2f6fd6;margin-right:4px;"></span>9 holes</span>
+    </div>
     <div class="chart-area">
       <svg class="chart" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none">
         <line x1="${PAD}" y1="${zeroY.toFixed(1)}" x2="${W-PAD}" y2="${zeroY.toFixed(1)}" stroke="#2d8a52" stroke-width="1" stroke-dasharray="4,3" opacity="0.5"/>

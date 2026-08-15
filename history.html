@@ -782,8 +782,10 @@ function openEditSheet(index, e) {
   holeNums.forEach(h => {
     const parEl = document.getElementById('par-' + h);
     const shotsEl = document.getElementById('shots-' + h);
+    const puttsEl = document.getElementById('putts-' + h);
     if (parEl && r.pars && r.pars[h]) parEl.value = r.pars[h];
     if (shotsEl && sph[h]) shotsEl.value = sph[h];
+    if (puttsEl && r.holePutts && r.holePutts[h]) puttsEl.value = r.holePutts[h];
   });
   openSheet('add-sheet');
 }
@@ -800,13 +802,20 @@ function setHoles(n) {
 
 function renderHoleRows(n) {
   const container = document.getElementById('hole-rows');
-  let html = '';
+  let html = `
+    <div style="display:flex; gap:8px; align-items:center; padding:0 0 2px;">
+      <div style="flex:1.2;"></div>
+      <div style="flex:1; font-size:11px; font-weight:600; color:var(--text-muted); text-align:center;">Par</div>
+      <div style="flex:1; font-size:11px; font-weight:600; color:var(--text-muted); text-align:center;">Score</div>
+      <div style="flex:1; font-size:11px; font-weight:600; color:var(--text-muted); text-align:center;">Putts</div>
+    </div>`;
   for (let h = 1; h <= n; h++) {
     html += `
     <div style="display:flex; gap:8px; align-items:center;">
       <div style="flex:1.2; font-size:13px; font-weight:700; color:var(--text-secondary); padding-left:4px;">Hole ${h}</div>
       <input class="hole-mini-input" style="flex:1;" type="number" min="1" max="10" placeholder="–" id="par-${h}" inputmode="numeric">
       <input class="hole-mini-input" style="flex:1;" type="number" min="1" max="20" placeholder="–" id="shots-${h}" inputmode="numeric">
+      <input class="hole-mini-input" style="flex:1;" type="number" min="0" max="10" placeholder="–" id="putts-${h}" inputmode="numeric">
     </div>`;
   }
   container.innerHTML = html;
@@ -875,13 +884,16 @@ function saveManualRound() {
 
   const pars = {};
   const shotsPerHole = {};
+  const holePutts = {};
   let hasAnyData = false;
 
   for (let h = 1; h <= addHoleCount; h++) {
     const parVal = parseInt(document.getElementById('par-' + h).value);
     const shotsVal = parseInt(document.getElementById('shots-' + h).value);
+    const puttsVal = parseInt(document.getElementById('putts-' + h).value);
     if (!isNaN(parVal) && parVal > 0) pars[h] = parVal;
     if (!isNaN(shotsVal) && shotsVal > 0) { shotsPerHole[h] = shotsVal; hasAnyData = true; }
+    if (!isNaN(puttsVal) && puttsVal >= 0) holePutts[h] = puttsVal;
   }
 
   if (!hasAnyData) { alert('Please enter at least one hole score.'); return; }
@@ -897,6 +909,7 @@ function saveManualRound() {
     existing.dateISO = dateObj.toISOString();
     existing.pars = pars;
     existing.shotsPerHole = shotsPerHole;
+    existing.holePutts = holePutts;
     existing.holes = Object.keys(shotsPerHole).length;
     existing.shots = Object.values(shotsPerHole).reduce((a,b) => a+b, 0);
     existing.manual = existing.manual !== undefined ? existing.manual : true;
@@ -904,7 +917,7 @@ function saveManualRound() {
     saveHistory();
     // Sync to Supabase regardless of whether this round had previously made it there —
     // editing a local-only round should still try to push it up, not just previously-synced ones.
-    saveRoundToSupabase(existing, pars, shotsPerHole, !!existing.fromSupabase);
+    saveRoundToSupabase(existing, pars, shotsPerHole, holePutts, !!existing.fromSupabase);
   } else {
     const totalScore = Object.values(shotsPerHole).reduce((a,b) => a+b, 0);
     const parVals    = Object.values(pars);
@@ -923,12 +936,13 @@ function saveManualRound() {
       totalDist: 0,
       pars: pars,
       shotsPerHole: shotsPerHole,
+      holePutts: holePutts,
       manual: true,
       handicapAtTime: handicapAtTime
     };
     history.unshift(round);
     saveHistory();
-    saveRoundToSupabase(round, pars, shotsPerHole, false);
+    saveRoundToSupabase(round, pars, shotsPerHole, holePutts, false);
   }
 
   writeCoursePars(course, pars);
@@ -936,7 +950,7 @@ function saveManualRound() {
   renderList();
 }
 
-async function saveRoundToSupabase(round, pars, shotsPerHole, isEdit) {
+async function saveRoundToSupabase(round, pars, shotsPerHole, holePutts, isEdit) {
   if (!currentUser) return;
   try {
     const totalScore = Object.values(shotsPerHole).reduce((a,b) => a+b, 0);
@@ -970,7 +984,7 @@ async function saveRoundToSupabase(round, pars, shotsPerHole, isEdit) {
       hole:     parseInt(h),
       score:    shotsPerHole[h],
       par:      pars[h] || null,
-      putts:    0
+      putts:    (holePutts && holePutts[h]) || 0
     }));
     await sb.from('hole_scores').insert(holeRows);
     round.id           = roundRow.id;

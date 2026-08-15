@@ -574,7 +574,18 @@ function newRound() {
     title: 'Start a New Round?',
     sub: 'You have a round in progress. What would you like to do?',
     buttons: [
-      { label: 'Save this round first', style: 'primary', action: () => { saveRoundToHistory(); resetState(); window.location.href = 'start.html'; }},
+      { label: 'Save this round first', style: 'primary', action: async () => {
+        // saveRoundToHistory() writes hole_scores (including putts) to Supabase
+        // asynchronously — it must be awaited before resetState() wipes holeScores/
+        // holePutts/holePars and before navigating away, or the in-flight save can
+        // either lose data (globals cleared out from under it) or get cancelled
+        // outright by the page unload. This previously fired the save and reset in
+        // the same tick with no await, which was a real bug.
+        showToast('Saving round…');
+        await saveRoundToHistory();
+        resetState();
+        window.location.href = 'start.html';
+      }},
       { label: 'Discard & start fresh',  style: 'danger',   action: () => { resetState(); window.location.href = 'start.html'; }},
       { label: 'Cancel — keep playing',  style: 'secondary', action: () => {} }
     ]

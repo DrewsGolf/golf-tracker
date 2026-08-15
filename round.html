@@ -1021,8 +1021,30 @@ function renderScorecard() {
   const tbody = document.getElementById('scorecard-body');
   let ts=0, tp=0, tputts=0;
   const rows=[];
+  const holeScoreFor = h => holeScores[h] || shots.filter(s=>s.hole===h).length;
+  // Front 9 only gets its own subtotal row once there's a Back 9 score to
+  // distinguish it from — matches history.html's Scorecard tab convention.
+  const hasBack9 = Array.from({length:9},(_,i)=>i+10).some(h => holeScoreFor(h) > 0);
+  let fTs=0, fTp=0, fTputts=0, fTpts=0, fHasPts=false;
+  let bTs=0, bTp=0, bTputts=0, bTpts=0, bHasPts=false;
+  // Solid line above/below the Front 9 / Back 9 / Total rows, matching
+  // history.html's Scorecard tab — inline so it also overrides the last-row
+  // border-bottom:none the base table CSS may set.
+  const subBorder = 'border-top:1px solid var(--gold);border-bottom:1px solid var(--gold);';
+  const subtotalRow = (label, sTp, sTs, sTputts, sPts) => {
+    const d   = sTp ? sTs - sTp : null;
+    const dS  = d===null ? '&#8212;' : (d===0?'E':(d>0?'+'+d:d));
+    const dCol = d===null?'':(d>0?'color:var(--warning)':d<0?'color:var(--gold)':'color:var(--text-muted)');
+    const bg  = 'background:color-mix(in srgb, var(--gold) 4%, transparent);font-weight:600;';
+    return '<tr><td style="'+bg+subBorder+'">'+label+'</td><td style="'+bg+subBorder+'"></td>' +
+      '<td style="'+bg+subBorder+'">'+(sTp||'&#8212;')+'</td>' +
+      '<td style="'+bg+subBorder+'">'+(sTs||'&#8212;')+'</td>' +
+      '<td style="'+bg+subBorder+dCol+'">'+dS+'</td>' +
+      '<td style="'+bg+subBorder+'color:var(--gold);">'+(sTputts||'&#8212;')+'</td>' +
+      '<td style="'+bg+subBorder+'color:var(--gold);">'+(sPts!==null?sPts:'&#8212;')+'</td></tr>';
+  };
   for (let h=1; h<=18; h++) {
-    const score = holeScores[h] || shots.filter(s=>s.hole===h).length;
+    const score = holeScoreFor(h);
     if (score > 0) {
       const par    = holePars[h];
       const putts  = holePutts[h] || 0;
@@ -1035,6 +1057,13 @@ function renderScorecard() {
       const pts    = stablefordPoints(h);
       const ptsStr = pts !== null ? pts : '&#8212;';
       ts += displayScore; if(par) tp += par; tputts += putts;
+      if (h <= 9) {
+        fTs += displayScore; if(par) fTp += par; fTputts += putts;
+        if (pts !== null) { fTpts += pts; fHasPts = true; }
+      } else {
+        bTs += displayScore; if(par) bTp += par; bTputts += putts;
+        if (pts !== null) { bTpts += pts; bHasPts = true; }
+      }
       rows.push('<tr><td>'+h+siDot+'</td>' +
         '<td style="text-align:center;padding:4px 6px;">'+scoreIcon(displayScore,par)+'</td>' +
         '<td><input class="sc-input" type="number" min="3" max="5" inputmode="numeric" value="'+(par||'')+'" placeholder="&#8211;" onchange="scSavePar('+h+',this.value)"></td>' +
@@ -1042,6 +1071,12 @@ function renderScorecard() {
         '<td style="'+diffCol+'">'+ds+'</td>' +
         '<td style="color:var(--gold);">'+(putts||'&#8212;')+'</td>' +
         '<td style="font-weight:500;color:var(--gold);">'+ptsStr+'</td></tr>');
+      if (h === 9 && hasBack9) {
+        rows.push(subtotalRow('Front 9', fTp, fTs, fTputts, fHasPts ? fTpts : null));
+      }
+      if (h === 18) {
+        rows.push(subtotalRow('Back 9', bTp, bTs, bTputts, bHasPts ? bTpts : null));
+      }
     }
   }
   if (!rows.length) {
@@ -1053,7 +1088,7 @@ function renderScorecard() {
   const tdsCol=tdiff===null?'':(tdiff>0?'color:var(--warning)':tdiff<0?'color:var(--gold)':'color:var(--text-muted)');
   const totalPts = Object.keys(holeScores).filter(h=>holeScores[h]>0).reduce((a,h)=>{ const p=stablefordPoints(parseInt(h)); return p!==null?a+p:a; }, 0);
   tbody.innerHTML = rows.join('') +
-    '<tr><td style="padding-left:14px;">Total</td><td></td><td>'+(tp||'&#8212;')+'</td><td>'+ts+'</td><td style="'+tdsCol+'">'+tds+'</td><td style="color:var(--gold);">'+(tputts||'&#8212;')+'</td><td style="font-weight:500;color:var(--gold);">'+(handicapIndex!==null?totalPts:'&#8212;')+'</td></tr>' +
+    '<tr><td style="padding-left:14px;'+subBorder+'">Total</td><td style="'+subBorder+'"></td><td style="'+subBorder+'">'+(tp||'&#8212;')+'</td><td style="'+subBorder+'">'+ts+'</td><td style="'+tdsCol+subBorder+'">'+tds+'</td><td style="color:var(--gold);'+subBorder+'">'+(tputts||'&#8212;')+'</td><td style="font-weight:500;color:var(--gold);'+subBorder+'">'+(handicapIndex!==null?totalPts:'&#8212;')+'</td></tr>' +
     '<tr><td colspan="7" style="padding:10px 14px;"><button class="sc-save-btn" style="width:100%;" onclick="scSaveAll()">Save</button></td></tr>';
   // Score icons above are freshly inserted <img> tags — theme.js's icon-swap only
   // runs at page load and on toggle, so re-sweep now to pick up the current theme.

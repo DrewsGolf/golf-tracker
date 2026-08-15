@@ -614,8 +614,6 @@ function resetState() {
 // ── Load course par & stroke index from Supabase ─────────────────────────────
 async function loadCourseData() {
   if (!currentCourse || !currentCourse.name) return;
-  // Skip if we already have stroke index data loaded
-  if (Object.keys(holeStrokeIndex).length > 0) return;
   try {
     // Find the course in Supabase by name
     const { data: courses } = await sb
@@ -648,7 +646,12 @@ async function loadCourseData() {
     persist();
     renderRound();
     updateDistToGreen();
-    showToast(parsAlreadySet ? 'Stroke index loaded' : 'Course data loaded \u2014 pars pre-filled');
+    // This now runs on every page load (not just the first one in a round) so
+    // Dist to Green always reflects the latest captured location, even one
+    // saved via Suggest Club moments ago. Only toast on the meaningful
+    // first-time case \u2014 pars getting pre-filled \u2014 not on routine refreshes,
+    // or leaving-and-returning to round.html would toast every time.
+    if (!parsAlreadySet) showToast('Course data loaded \u2014 pars pre-filled');
   } catch(e) { console.error('Course data load error:', e); }
 }
 

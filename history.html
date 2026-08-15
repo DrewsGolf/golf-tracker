@@ -1354,7 +1354,7 @@ function renderHistoryScorecard(index) {
     const td   = par ? shots - par : null;
     const tStr = td === null ? '–' : (td === 0 ? 'E' : (td > 0 ? '+'+td : ''+td));
     const tCls = td === null ? 'diff-even' : td > 0 ? 'diff-over' : td < 0 ? 'diff-under' : 'diff-even';
-    const bg   = 'background:color-mix(in srgb, var(--gold) 4%, transparent);font-weight:600;';
+    const bg   = 'background:color-mix(in srgb, var(--gold) 4%, transparent);font-weight:600;border-top:1px solid var(--gold);border-bottom:1px solid var(--gold);';
     return `<tr><td style="${bg}">${label}</td><td style="${bg}"></td><td style="${bg}">${par||'–'}</td><td style="${bg}">${shots||'–'}</td><td class="${tCls}" style="${bg}">${tStr}</td><td style="${bg}color:var(--gold);">${putts||'–'}</td><td style="${bg}color:var(--gold);">${pts??'–'}</td></tr>`;
   };
   holes.forEach(h => {
@@ -1400,7 +1400,11 @@ function renderHistoryScorecard(index) {
     const td   = totalStrokes - totalPar;
     const tStr = td === 0 ? 'E' : (td > 0 ? '+'+td : ''+td);
     const tCls = td > 0 ? 'diff-over' : td < 0 ? 'diff-under' : 'diff-even';
-    sc += `<tr class="total-row"><td>Total</td><td></td><td>${totalPar}</td><td>${totalStrokes}</td><td class="${tCls}">${tStr}</td><td style="color:var(--gold);">${totalPutts||'–'}</td><td style="color:var(--gold);font-weight:500;">${hasPts?totalPts:'–'}</td></tr>`;
+    // Inline border-top/border-bottom here since this row is table's last-child,
+    // where the .scorecard-table CSS rule explicitly zeroes border-bottom —
+    // inline styles win over that rule so the solid line still shows.
+    const tb = 'border-top:1px solid var(--gold);border-bottom:1px solid var(--gold);';
+    sc += `<tr class="total-row"><td style="${tb}">Total</td><td style="${tb}"></td><td style="${tb}">${totalPar}</td><td style="${tb}">${totalStrokes}</td><td class="${tCls}" style="${tb}">${tStr}</td><td style="${tb}color:var(--gold);">${totalPutts||'–'}</td><td style="${tb}color:var(--gold);font-weight:500;">${hasPts?totalPts:'–'}</td></tr>`;
   }
   sc += `</tbody></table></div>`;
   document.getElementById('detail-screen-scorecard').innerHTML = sc;

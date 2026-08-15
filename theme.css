@@ -29,7 +29,11 @@
   --gold:            #C8A96A;
   --highlight:       #D4B36A;
   --warning:         #7B3F3F;
-  --success:         #8F7A2A;
+  --success:         #4C8A5C;  /* was #8F7A2A — an olive/gold tone that read as
+                                   amber, not green, especially on the GPS dot
+                                   and "good fix" indicator. This is a true
+                                   muted green, legible on the dark bg and
+                                   distinct from --gold/--warning. */
   --gold-muted:      #9A7C47;
   --text-muted:      #9A9A9A;
   --on-gold:         #0D0D0D;

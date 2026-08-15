@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <script src="theme.js"></script>
 <link rel="stylesheet" href="theme.css">
+<link rel="stylesheet" href="gps-indicator.css">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -139,23 +140,29 @@
 
   /* Course strip */
 
-  /* Top row: Hole nav | Par */
-  .top-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
+  /* Top row: Hole nav | Par | Dist to Green */
+  .top-row { display: grid; grid-template-columns: 1.7fr 1fr 1.15fr; gap: 8px; margin-bottom: 10px; }
 
-  .hole-nav-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-lg); box-shadow: var(--shadow-soft); display: flex; align-items: center; justify-content: space-between; padding: 14px 10px; }
-  .hole-nav-btn { width: 38px; height: 38px; background: color-mix(in srgb, var(--gold) 12%, transparent); border: 0.5px solid color-mix(in srgb, var(--gold) 25%, transparent); border-radius: 8px; font-size: 18px; color: var(--gold); display: flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0; }
+  .hole-nav-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-lg); box-shadow: var(--shadow-soft); display: flex; align-items: center; justify-content: space-between; padding: 14px 8px; }
+  .hole-nav-btn { width: 34px; height: 34px; background: color-mix(in srgb, var(--gold) 12%, transparent); border: 0.5px solid color-mix(in srgb, var(--gold) 25%, transparent); border-radius: 8px; font-size: 16px; color: var(--gold); display: flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0; }
   .hole-nav-btn:disabled { opacity: 0.3; cursor: default; }
-  .hole-title-text { font-size: 26px; font-weight: 500; color: var(--text-primary); flex: 1; text-align: center; letter-spacing: 0.02em; }
+  .hole-title-text { font-size: 22px; font-weight: 500; color: var(--text-primary); flex: 1; text-align: center; letter-spacing: 0.02em; }
 
-  .par-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-lg); box-shadow: var(--shadow-soft); display: flex; align-items: center; justify-content: center; gap: 10px; padding: 10px 12px; }
+  .par-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-lg); box-shadow: var(--shadow-soft); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; padding: 10px 8px; }
   .par-col { display: flex; flex-direction: column; align-items: center; gap: 2px; }
   .par-label { font-size: 10px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-muted); }
-  .par-input-field { width: 52px; font-size: 38px; font-weight: 400; color: var(--text-primary); background: transparent; border: none; text-align: center; font-family: inherit; -moz-appearance: textfield; line-height: 1; letter-spacing: -0.02em; }
-  .par-input-field::-webkit-outer-spin-button, .par-input-field::-webkit-inner-spin-button { -webkit-appearance: none; }
-  .par-input-field:focus { outline: none; color: var(--gold); }
-  .par-input-field::placeholder { color: rgba(242,242,242,0.25); }
-  .par-save-btn { background: transparent; color: var(--gold); border: 0.5px solid var(--gold); border-radius: 8px; padding: 8px 14px; font-size: 14px; font-weight: 500; cursor: pointer; font-family: inherit; white-space: nowrap; }
-  .par-save-btn:active { opacity: 0.75; }
+  .par-value { font-size: 32px; font-weight: 400; color: var(--text-primary); line-height: 1; letter-spacing: -0.02em; }
+
+  /* Dist to Green — read-only live distance from GPS to the hole's saved green
+     location (captured elsewhere, e.g. Suggest Club). Just the colored dot
+     from the shared gps-indicator component to show fix quality, no status
+     text — this box is read-only, not a capture control. */
+  .dist-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-lg); box-shadow: var(--shadow-soft); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; padding: 10px 6px; }
+  .dist-label-row { display: flex; align-items: center; justify-content: center; gap: 5px; }
+  .dist-label { font-size: 10px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--text-muted); white-space: nowrap; }
+  .dist-value-row { display: flex; align-items: baseline; gap: 2px; }
+  .dist-value { font-size: 32px; font-weight: 400; color: var(--text-primary); line-height: 1; letter-spacing: -0.02em; }
+  .dist-unit { font-size: 13px; font-weight: 500; color: var(--text-muted); }
 
   /* Score card */
   .score-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-lg); box-shadow: var(--shadow-soft); padding: 12px 14px 14px; margin-bottom: 12px; display: flex; flex-direction: column; align-items: center; }
@@ -316,7 +323,7 @@
     <!-- ROUND TAB -->
     <div class="screen active" id="screen-round">
 
-      <!-- Row 1: Hole nav | Par -->
+      <!-- Row 1: Hole nav | Par | Dist to Green -->
       <div class="top-row">
         <div class="hole-nav-card">
           <button class="hole-nav-btn" id="hole-prev" onclick="changeHole(-1)" aria-label="Previous hole">&#8592;</button>
@@ -325,6 +332,16 @@
         </div>
         <div class="par-card" id="par-area">
           <!-- populated by renderParArea() -->
+        </div>
+        <div class="dist-card">
+          <div class="dist-label-row">
+            <span class="dist-label">Dist to Green</span>
+            <span class="gps-indicator searching" id="gps-indicator"></span>
+          </div>
+          <div class="dist-value-row">
+            <span class="dist-value" id="dist-green-value">&#8211;</span>
+            <span class="dist-unit" id="dist-green-unit"></span>
+          </div>
         </div>
       </div>
 
@@ -402,6 +419,7 @@
 <div id="toast"></div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="gps-indicator.js"></script>
 <script>
 // ── Supabase ──────────────────────────────────────────────────────────────────
 const SUPABASE_URL = 'https://ryqehsqqriavmuqfnzpx.supabase.co';
@@ -475,6 +493,11 @@ let holePutts    = JSON.parse(localStorage.getItem('golf-putts-v1')   || '{}');
 // Legacy shot data — kept so Summary tab can show old shot-by-shot rounds
 let shots        = JSON.parse(localStorage.getItem('golf-shots-v3')  || '[]');
 let currentCourse = JSON.parse(localStorage.getItem('golf-current-course') || 'null');
+// Green locations for the current course, keyed by hole — loaded read-only
+// from Supabase in loadCourseData(); not persisted to localStorage since
+// they're course data, not round data (re-fetched fresh each round).
+let holeGreenLat = {};
+let holeGreenLng = {};
 
 // ── Scoring mode & handicap ──────────────────────────────────────────────────
 const scoringMode   = localStorage.getItem('golf-scoring-mode') || 'gross';
@@ -569,6 +592,7 @@ function newRound() {
 
 function resetState() {
   holeScores = {}; holePars = {}; holePutts = {}; holeStrokeIndex = {}; shots = []; currentHole = 1; currentCourse = null;
+  holeGreenLat = {}; holeGreenLng = {};
   localStorage.removeItem('golf-scores-v1');
   localStorage.removeItem('golf-pars-v1');
   localStorage.removeItem('golf-si-v1');
@@ -598,7 +622,7 @@ async function loadCourseData() {
     // Fetch all hole data
     const { data: holes } = await sb
       .from('course_holes')
-      .select('hole, par, stroke_index')
+      .select('hole, par, stroke_index, green_lat, green_lng')
       .eq('course_id', courseId)
       .order('hole');
     if (!holes || holes.length === 0) return;
@@ -607,43 +631,51 @@ async function loadCourseData() {
     holes.forEach(h => {
       if (h.par && !parsAlreadySet) holePars[h.hole] = h.par;
       if (h.stroke_index) holeStrokeIndex[h.hole] = h.stroke_index;
+      if (h.green_lat != null && h.green_lng != null) {
+        holeGreenLat[h.hole] = h.green_lat;
+        holeGreenLng[h.hole] = h.green_lng;
+      }
     });
     persist();
     renderRound();
+    updateDistToGreen();
     showToast(parsAlreadySet ? 'Stroke index loaded' : 'Course data loaded \u2014 pars pre-filled');
   } catch(e) { console.error('Course data load error:', e); }
 }
 
-// ── Par ───────────────────────────────────────────────────────────────────────
+// ── Par (read-only display — pars come from Supabase course data or the
+// Scorecard tab's per-hole editor, not from this box) ───────────────────────────────────────
 function renderParArea() {
   const savedPar = holePars[currentHole];
   document.getElementById('par-area').innerHTML =
     '<div class="par-col">' +
       '<span class="par-label">Par</span>' +
-      '<input class="par-input-field" type="number" id="par-input" min="3" max="5" inputmode="numeric"' +
-        ' value="' + (savedPar || '') + '" placeholder="&#8211;"' +
-        ' onblur="savePar()" onchange="savePar()">' +
-    '</div>' +
-    '<button class="par-save-btn" onclick="savePar()">Save</button>';
+      '<span class="par-value">' + (savedPar || '&#8211;') + '</span>' +
+    '</div>';
 }
 
-function savePar() {
-  const inp = document.getElementById('par-input');
-  if (!inp) return;
-  const v = parseInt(inp.value);
-  if (v !== 3 && v !== 4 && v !== 5) {
-    showDialog({
-      icon: '&#9971;',
-      title: 'Invalid Par',
-      sub: 'Par must be either 3, 4 or 5. Please enter a valid value.',
-      buttons: [{ label: 'Got it', style: 'primary', action: () => {} }]
-    });
+// ── Dist to Green — live GPS distance to this hole's saved green location.
+// Read-only here: green locations are captured on the Suggest Club page.
+function haversine(a, b) {
+  const R = 6371000, f1 = a.latitude*Math.PI/180, f2 = b.latitude*Math.PI/180;
+  const df = (b.latitude-a.latitude)*Math.PI/180;
+  const dl = (b.longitude-a.longitude)*Math.PI/180;
+  const x  = Math.sin(df/2)**2 + Math.cos(f1)*Math.cos(f2)*Math.sin(dl/2)**2;
+  return Math.round(2*R*Math.asin(Math.sqrt(x)));
+}
+
+function updateDistToGreen() {
+  const valueEl = document.getElementById('dist-green-value');
+  const unitEl  = document.getElementById('dist-green-unit');
+  if (!valueEl) return;
+  const glat = holeGreenLat[currentHole], glng = holeGreenLng[currentHole];
+  if (glat == null || glng == null || !currentFix) {
+    valueEl.textContent = '–';
+    unitEl.textContent = '';
     return;
   }
-  holePars[currentHole] = v;
-  persist();
-  updateScoreDisplay();
-  writeCoursePars();
+  valueEl.textContent = haversine(currentFix, { latitude: glat, longitude: glng });
+  unitEl.textContent = 'm';
 }
 
 function writeCoursePars() {
@@ -762,6 +794,7 @@ function renderRound() {
   document.getElementById('hole-prev').disabled = currentHole === 1;
   document.getElementById('hole-next').disabled = currentHole === 18;
   renderParArea();
+  updateDistToGreen();
   updateScoreDisplay();
   updatePuttsDisplay();
 }
@@ -1082,6 +1115,8 @@ function showToast(msg) {
 renderRound();
 updateFinishBtn();
 loadCourseData();
+startGpsWatch(function() { updateDistToGreen(); });
+window.addEventListener('beforeunload', () => { stopGpsWatch(); });
 if('serviceWorker' in navigator){navigator.serviceWorker.register('/sw.js').catch(()=>{});}
 </script>
 

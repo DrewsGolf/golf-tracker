@@ -3,7 +3,7 @@
 // so there's no flash of the wrong theme.
 //
 // Storage: localStorage('golf-theme') = 'dark' | 'light'
-// Default: 'dark' (unset = existing users see no change)
+// Default: 'light' (unset = daylight mode on first open)
 //
 // Usage from any page: setTheme('light') / setTheme('dark')
 
@@ -61,7 +61,7 @@ function applyIconTheme(theme) {
 
 (function() {
   var stored = localStorage.getItem('golf-theme');
-  var theme = (stored === 'light' || stored === 'dark') ? stored : 'dark';
+  var theme = (stored === 'light' || stored === 'dark') ? stored : 'light';
   document.documentElement.setAttribute('data-theme', theme);
   // meta[name=theme-color] may not exist in <head> yet at this point (script
   // runs before it in some pages) — try now, and again once DOM is ready.
@@ -83,5 +83,5 @@ function setTheme(value) {
 }
 
 function getTheme() {
-  return document.documentElement.getAttribute('data-theme') || 'dark';
+  return document.documentElement.getAttribute('data-theme') || 'light';
 }

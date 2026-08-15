@@ -760,6 +760,13 @@ function saveHole() {
   }
   if (currentHole >= 18) { showToast('Last hole saved &#9971;'); updateFinishBtn(); return; }
   currentHole++;
+  // persist() again now that currentHole has moved on — the call above saved
+  // the score with the OLD currentHole still in localStorage ('golf-current-
+  // hole' would stay on the hole just finished, not the one now showing).
+  // That's exactly what caused "leave mid-round on hole 4 (no score entered
+  // yet), come back on hole 3" — navigating away before touching hole 4's
+  // score meant nothing had re-persisted the advanced currentHole since.
+  persist();
   renderRound();
   showToast('Hole saved — Hole ' + currentHole);
 }
@@ -769,6 +776,9 @@ function changeHole(dir) {
   const next = currentHole + dir;
   if (next < 1 || next > 18) return;
   currentHole = next;
+  // Persist immediately so navigating here (even without entering a score)
+  // survives leaving the page (e.g. to distance.html) and coming back.
+  persist();
   renderRound();
   showToast('Hole ' + currentHole);
 }

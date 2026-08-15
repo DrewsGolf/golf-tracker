@@ -1056,7 +1056,19 @@ function renderList() {
 // ── Progress Chart ────────────────────────────────────────────────────────────
 function renderChartHTML(rounds) {
   const W = 320, H = 100, PAD = 24;
-  const vals = rounds.map(r => { const d = getVsPar(r); return d === null ? 0 : d; });
+  const vals = rounds.map(r => {
+    const d = getVsPar(r);
+    if (d === null) return 0;
+    // A 9-hole round only has half as many holes to accumulate over/under
+    // par on, so its vs-par swing is naturally about half an 18-hole
+    // round's — plotted as-is it reads as a misleading dip/spike next to
+    // full rounds on the same chart. Double it so a 9-hole round lands on
+    // the same visual scale as an 18-hole one. Chart display only — doesn't
+    // touch the round's actual stored score anywhere else.
+    const sph = getShotsPerHole(r);
+    const playedHoles = Object.keys(sph).filter(h => sph[h] > 0).length;
+    return (playedHoles > 0 && playedHoles <= 9) ? d * 2 : d;
+  });
   const minV = Math.min(...vals, -2);
   const maxV = Math.max(...vals, 2);
   const range = maxV - minV || 1;
@@ -1074,10 +1086,20 @@ function renderChartHTML(rounds) {
     const dc = p.v > 0 ? '#c0392b' : p.v < 0 ? '#1a6b3a' : '#888';
     return `<circle cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="5" fill="${dc}" stroke="#fff" stroke-width="2"/>`;
   }).join('');
+  // Label the first and last entries, plus the best (lowest) and worst
+  // (highest) vs-par entries in between, so a standout round is called out
+  // even if it's buried in the middle of the timeline.
+  const labelIdx = new Set([0, points.length-1]);
+  if (points.length > 2) {
+    let maxI = 0, minI = 0;
+    points.forEach((p,i) => { if (p.v > points[maxI].v) maxI = i; if (p.v < points[minI].v) minI = i; });
+    labelIdx.add(maxI);
+    labelIdx.add(minI);
+  }
   let labels = '';
-  [0, points.length-1].forEach(i => {
+  [...labelIdx].sort((a,b)=>a-b).forEach(i => {
     const p = points[i];
-    const anchor = i === 0 ? 'start' : 'end';
+    const anchor = i === 0 ? 'start' : (i === points.length-1 ? 'end' : 'middle');
     labels += `<text x="${p.x.toFixed(1)}" y="${(p.y-10).toFixed(1)}" text-anchor="${anchor}" font-size="11" font-weight="700" fill="${p.v > 0 ? '#c0392b' : p.v < 0 ? '#1a6b3a' : '#888'}">${formatVsPar(p.v)}</text>`;
   });
 

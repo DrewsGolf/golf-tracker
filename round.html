@@ -342,6 +342,15 @@
             <span class="dist-value" id="dist-green-value">&#8211;</span>
             <span class="dist-unit" id="dist-green-unit"></span>
           </div>
+          <!-- gps-indicator.js (shared component) updates these three alongside
+               the dot on every position fix, same as every other page that uses
+               it — without them present it errors partway through its update
+               and the dot (and this box's distance) never refreshes. Hidden here
+               since this box is dot-only by design; kept only so the shared
+               script has somewhere to write. -->
+          <span class="gps-status-text" id="gps-status-text" style="display:none;"></span>
+          <div class="gps-accuracy" id="gps-accuracy" style="display:none;"></div>
+          <div class="gps-debug" id="gps-debug" style="display:none;"></div>
         </div>
       </div>
 

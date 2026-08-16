@@ -554,6 +554,11 @@ function proceedToRound() {
   } else {
     localStorage.removeItem('golf-current-course');
   }
+  // golf-round-active: set unconditionally (unlike golf-current-course above,
+  // which is only set when a course was picked). This is the flag the nav
+  // bar's Round icon checks to decide round.html vs start.html, so it needs
+  // to cover course-less rounds too. Cleared in round.html's resetState().
+  localStorage.setItem('golf-round-active', '1');
   localStorage.setItem('golf-holes', selectedHoles);
   localStorage.setItem('golf-scoring-mode', selectedMode);
 
@@ -591,11 +596,35 @@ function showToast(msg) {
   <div class="nav-row">
     <a class="nav-item" href="find.html"><img src="icons/Courses.png" alt="Courses"></a>
     <a class="nav-item" id="nav-play" href="start.html"><img src="icons/Play.png" alt="Play"></a>
-    <a class="nav-item" href="distance.html"><img src="icons/Distance.png" alt="Distance"></a>
-    <a class="nav-item" href="suggest.html"><img src="icons/Suggest.png" alt="Suggest"></a>
+    <a class="nav-item" id="nav-measure" href="round.html#measure"><img src="icons/Distance.png" alt="Distance"></a>
+    <a class="nav-item" id="nav-suggest" href="round.html#suggest"><img src="icons/Suggest.png" alt="Suggest"></a>
     <a class="nav-item" href="history.html"><img src="icons/History.png" alt="History"></a>
   </div>
 </div>
+<script>
+  // ── Shared nav-bar routing (16 Aug 2026) — see find.html for full comment ──
+  (function() {
+    var onRoundPage = /round\.html/i.test(location.pathname);
+    var roundActive = !!localStorage.getItem('golf-round-active');
+
+    var playLink = document.getElementById('nav-play');
+    if (playLink) {
+      playLink.href = roundActive ? 'round.html' : 'start.html';
+      if (onRoundPage && roundActive && typeof showTab === 'function') {
+        playLink.addEventListener('click', function(e) { e.preventDefault(); showTab('round'); });
+      }
+    }
+
+    ['measure', 'suggest'].forEach(function(tab) {
+      var link = document.getElementById('nav-' + tab);
+      if (!link) return;
+      link.href = 'round.html#' + tab;
+      if (onRoundPage && typeof showTab === 'function') {
+        link.addEventListener('click', function(e) { e.preventDefault(); showTab(tab); });
+      }
+    });
+  })();
+</script>
 </div><!-- end .app -->
 
 <script>

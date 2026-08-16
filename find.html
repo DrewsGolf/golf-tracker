@@ -400,11 +400,48 @@ async function doMenuSignOut() {
     <div class="nav-row">
       <a class="nav-item" href="find.html"><img src="icons/Courses.png" alt="Courses"></a>
       <a class="nav-item" id="nav-play" href="start.html"><img src="icons/Play.png" alt="Play"></a>
-      <a class="nav-item" href="distance.html"><img src="icons/Distance.png" alt="Distance"></a>
-      <a class="nav-item" href="suggest.html"><img src="icons/Suggest.png" alt="Suggest"></a>
+      <a class="nav-item" id="nav-measure" href="round.html#measure"><img src="icons/Distance.png" alt="Distance"></a>
+      <a class="nav-item" id="nav-suggest" href="round.html#suggest"><img src="icons/Suggest.png" alt="Suggest"></a>
       <a class="nav-item" href="history.html"><img src="icons/History.png" alt="History"></a>
     </div>
   </div>
+  <script>
+  // ── Shared nav-bar routing (16 Aug 2026) ─────────────────────────────────
+  // Round / Measure / Suggest all live on round.html now (Round tab merge).
+  // Find and History are unchanged. This keeps the other two icons pointed
+  // at the right destination:
+  //   - Round (Play icon): round.html if a round is in progress, else
+  //     start.html to set one up first. "In progress" is tracked by the
+  //     golf-round-active flag — set in start.html's proceedToRound(),
+  //     cleared in round.html's resetState() (the same choke point that
+  //     already clears every other round key on finish/discard/restart).
+  //   - Measure / Suggest: round.html, opening straight to that tab via
+  //     #hash (round.html reads the hash on load and calls showTab()).
+  // When already on round.html, these switch tabs in place instead of
+  // reloading — same-page tab switch is smoother than a reload and avoids
+  // restarting the GPS watch/round UI state (the whole point of the merge).
+  (function() {
+    var onRoundPage = /round\.html/i.test(location.pathname);
+    var roundActive = !!localStorage.getItem('golf-round-active');
+
+    var playLink = document.getElementById('nav-play');
+    if (playLink) {
+      playLink.href = roundActive ? 'round.html' : 'start.html';
+      if (onRoundPage && roundActive && typeof showTab === 'function') {
+        playLink.addEventListener('click', function(e) { e.preventDefault(); showTab('round'); });
+      }
+    }
+
+    ['measure', 'suggest'].forEach(function(tab) {
+      var link = document.getElementById('nav-' + tab);
+      if (!link) return;
+      link.href = 'round.html#' + tab;
+      if (onRoundPage && typeof showTab === 'function') {
+        link.addEventListener('click', function(e) { e.preventDefault(); showTab(tab); });
+      }
+    });
+  })();
+  </script>
 
   <!-- Course Detail View -->
   <div class="course-detail-view" id="course-detail-view">

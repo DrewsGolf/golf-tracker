@@ -580,9 +580,14 @@ let shots        = JSON.parse(localStorage.getItem('golf-shots-v3')  || '[]');
 let currentCourse = JSON.parse(localStorage.getItem('golf-current-course') || 'null');
 // Green locations for the current course, keyed by hole — loaded read-only
 // from Supabase in loadCourseData(); not persisted to localStorage since
-// they're course data, not round data (re-fetched fresh each round).
+// they're course data, not round data (re-fetched fresh each round). Shared
+// by the Round tab's read-only "Dist to Green" box and the Suggest tab's
+// live distance/recommendation and capture flow — single source of truth,
+// so a capture on Suggest updates Round's box immediately and switching
+// holes on Round always shows the right green on Suggest with no extra fetch.
 let holeGreenLat = {};
 let holeGreenLng = {};
+let holeGreenCapturedAt = {};
 
 // ── Scoring mode & handicap ──────────────────────────────────────────────────
 const scoringMode   = localStorage.getItem('golf-scoring-mode') || 'gross';
@@ -674,7 +679,7 @@ function newRound() {
 
 function resetState() {
   holeScores = {}; holePars = {}; holePutts = {}; holeStrokeIndex = {}; shots = []; currentHole = 1; currentCourse = null;
-  holeGreenLat = {}; holeGreenLng = {};
+  holeGreenLat = {}; holeGreenLng = {}; holeGreenCapturedAt = {};
   localStorage.removeItem('golf-scores-v1');
   localStorage.removeItem('golf-pars-v1');
   localStorage.removeItem('golf-si-v1');
@@ -682,15 +687,11 @@ function resetState() {
   localStorage.removeItem('golf-current-hole');
   localStorage.removeItem('golf-shots-v3');
   localStorage.removeItem('golf-current-course');
-  // Added during the Measure/Suggest merge (16 Aug 2026): the Suggest tab's own
-  // green-location cache (currentCourseId/currentGreenLat/currentGreenLng/
-  // greenCapturedAt, declared further down) previously only ever existed for the
-  // lifetime of a single page load of suggest.html — a new round always meant a
-  // fresh page visit, so it self-cleared. Now that Suggest lives on this same
-  // page as Round, currentCourse can change under it (via New Round) without a
-  // reload, so its cache needs clearing here too or it'll keep pointing at the
-  // old course/green until something else happens to re-trigger a fetch.
-  currentCourseId = null; currentGreenLat = null; currentGreenLng = null; greenCapturedAt = null;
+  localStorage.removeItem('golf-round-active'); // nav bar's "Round in progress?" flag — see start.html
+  // Suggest tab's course-id cache (declared further down, used to avoid a
+  // repeat lookup when writing a captured green) needs clearing here too, or
+  // it'll keep pointing at the old course after a New Round changes currentCourse.
+  currentCourseId = null;
 }
 
 // ── Load course par & stroke index from Supabase ─────────────────────────────
@@ -708,10 +709,13 @@ async function loadCourseData() {
     // Store course rating and slope
     currentCourse.courseRating = courses[0].course_rating;
     currentCourse.slope        = courses[0].slope;
+    // Cache the resolved course id so the Suggest tab's capture flow
+    // (resolveCourseId(), further down) doesn't have to re-look it up.
+    currentCourseId = courseId;
     // Fetch all hole data
     const { data: holes } = await sb
       .from('course_holes')
-      .select('hole, par, stroke_index, green_lat, green_lng')
+      .select('hole, par, stroke_index, green_lat, green_lng, green_captured_at')
       .eq('course_id', courseId)
       .order('hole');
     if (!holes || holes.length === 0) return;
@@ -723,6 +727,7 @@ async function loadCourseData() {
       if (h.green_lat != null && h.green_lng != null) {
         holeGreenLat[h.hole] = h.green_lat;
         holeGreenLng[h.hole] = h.green_lng;
+        holeGreenCapturedAt[h.hole] = h.green_captured_at;
       }
     });
     persist();
@@ -875,12 +880,19 @@ function changeHole(dir) {
 }
 
 // ── Render round tab ──────────────────────────────────────────────────────────
+// Also refreshes the Suggest tab's green-status/distance/recommendation display
+// for whatever hole is now current — this is the one place changeHole()/saveHole()/
+// loadCourseData() all funnel through, so it's the natural spot to keep Suggest in
+// sync without needing its own per-hole fetch (holeGreenLat/Lng/CapturedAt above
+// already cover every hole from the single loadCourseData() call at Init).
 function renderRound() {
   document.getElementById('hole-title').textContent = 'Hole ' + currentHole;
   document.getElementById('hole-prev').disabled = currentHole === 1;
   document.getElementById('hole-next').disabled = currentHole === 18;
   renderParArea();
   updateDistToGreen();
+  if (typeof renderGreenStatus === 'function') renderGreenStatus();
+  if (typeof updateSuggestionDisplay === 'function') updateSuggestionDisplay();
   updateScoreDisplay();
   updatePuttsDisplay();
 }
@@ -1196,11 +1208,16 @@ function resetTracker() {
 //     Round tab's currentHole/currentCourse above (same underlying state,
 //     previously kept in sync only by both pages reading the same
 //     localStorage keys on separate page loads — now genuinely shared)
+//   - its own per-hole green-location cache (currentGreenLat/currentGreenLng/
+//     greenCapturedAt) removed in favor of the Round tab's holeGreenLat/
+//     holeGreenLng/holeGreenCapturedAt objects (already loaded for all 18
+//     holes at once) — one shared source of truth instead of two, fixing a
+//     staleness bug where changing holes on Round didn't refresh Suggest's
+//     copy, and a capture made here didn't reach Round's own display until
+//     a full page reload. loadGreenLocation() (the old per-hole fetch) is
+//     gone too — no longer needed, the data's already there.
 // ══════════════════════════════════════════════════════════════════════════
 let currentCourseId = null;
-let currentGreenLat = null;
-let currentGreenLng = null;
-let greenCapturedAt = null;
 
 async function resolveCourseId() {
   if (currentCourseId) return currentCourseId;
@@ -1218,35 +1235,15 @@ async function resolveCourseId() {
   return currentCourseId;
 }
 
-async function loadGreenLocation() {
-  const courseId = await resolveCourseId();
-  if (!courseId) return;
-  try {
-    const { data } = await sb.from('course_holes')
-      .select('green_lat, green_lng, green_captured_at')
-      .eq('course_id', courseId).eq('hole', currentHole).limit(1);
-    if (data && data.length > 0 && data[0].green_lat != null) {
-      currentGreenLat = data[0].green_lat;
-      currentGreenLng = data[0].green_lng;
-      greenCapturedAt = data[0].green_captured_at;
-    } else {
-      currentGreenLat = null;
-      currentGreenLng = null;
-      greenCapturedAt = null;
-    }
-  } catch(e) { console.error('Green location load error:', e); }
-  renderGreenStatus();
-  updateSuggestionDisplay();
-}
-
 function renderGreenStatus() {
   const el = document.getElementById('green-status');
   if (!el) return;
-  el.innerHTML = greenCapturedAt
-    ? 'Last captured <b>' + new Date(greenCapturedAt).toLocaleDateString('en-AU') + '</b>'
+  const capturedAt = holeGreenCapturedAt[currentHole];
+  el.innerHTML = capturedAt
+    ? 'Last captured <b>' + new Date(capturedAt).toLocaleDateString('en-AU') + '</b>'
     : 'Not captured yet for this hole';
   const btn = document.getElementById('btn-capture-green');
-  if (btn) btn.innerHTML = greenCapturedAt ? '&#128205; Update Green Location' : '&#128205; Capture Green Location';
+  if (btn) btn.innerHTML = capturedAt ? '&#128205; Update Green Location' : '&#128205; Capture Green Location';
 }
 
 async function saveGreenLocation() {
@@ -1261,11 +1258,12 @@ async function saveGreenLocation() {
       green_source: 'capture',
       green_captured_at: new Date().toISOString()
     }, { onConflict: 'course_id,hole' });
-    currentGreenLat = currentFix.latitude;
-    currentGreenLng = currentFix.longitude;
-    greenCapturedAt = new Date().toISOString();
+    holeGreenLat[currentHole] = currentFix.latitude;
+    holeGreenLng[currentHole] = currentFix.longitude;
+    holeGreenCapturedAt[currentHole] = new Date().toISOString();
     renderGreenStatus();
     updateSuggestionDisplay();
+    updateDistToGreen(); // keep the Round tab's box in sync with a capture made here
     showToast('Green location saved (±' + Math.round(currentFix.accuracy) + 'm)');
   } catch(e) {
     console.error('Green location save error:', e);
@@ -1276,7 +1274,7 @@ async function saveGreenLocation() {
 function captureGreenLocation() {
   if (!currentFix) { showToast('Waiting for a GPS fix…'); return; }
   const tier = accuracyTier(currentFix.accuracy);
-  const alreadyCaptured = !!greenCapturedAt;
+  const alreadyCaptured = !!holeGreenCapturedAt[currentHole];
   if (tier === 'poor' || tier === 'unknown') {
     showDialog({
       icon: '&#128205;',
@@ -1331,7 +1329,8 @@ function updateSuggestionDisplay() {
   const clubEl = document.getElementById('sugg-club-display');
   if (!distEl || !clubEl) return;
 
-  if (currentGreenLat == null) {
+  const glat = holeGreenLat[currentHole], glng = holeGreenLng[currentHole];
+  if (glat == null || glng == null) {
     distEl.innerHTML = '<span class="sugg-dist-value">&mdash;</span>';
     clubEl.innerHTML = '<div class="sugg-empty">No green location saved for this hole yet. Capture it below to get a live distance.</div>';
     return;
@@ -1342,7 +1341,7 @@ function updateSuggestionDisplay() {
     return;
   }
 
-  const dist = haversine(currentFix, { latitude: currentGreenLat, longitude: currentGreenLng });
+  const dist = haversine(currentFix, { latitude: glat, longitude: glng });
   distEl.innerHTML = '<span class="sugg-dist-value">' + dist + '</span><span class="sugg-dist-unit">m</span>';
 
   const rec = recommendClub(dist);
@@ -1360,12 +1359,10 @@ function updateSuggestionDisplay() {
 // the whole point of the merge: no more re-prompting for GPS as you move
 // between Round / Measure / Suggest.
 // ══════════════════════════════════════════════════════════════════════════
-renderRound();
+renderRound(); // also renders Suggest's green-status/distance/recommendation for the initial hole
 updateFinishBtn();
-loadCourseData();
+loadCourseData(); // loads pars/SI/green locations for all 18 holes, then re-renders via renderRound()
 renderClubGrid();
-renderGreenStatus();
-loadGreenLocation();
 startGpsWatch(function() {
   updateDistToGreen();
   if (currentStage === 'walking' && startPosition) updateWalkingDistance();
@@ -1373,6 +1370,16 @@ startGpsWatch(function() {
 });
 window.addEventListener('beforeunload', () => { stopGpsWatch(); });
 if('serviceWorker' in navigator){navigator.serviceWorker.register('/sw.js').catch(()=>{});}
+
+// Open directly to the requested tab when arriving via the nav bar's Measure/
+// Suggest icons (round.html#measure / round.html#suggest) — e.g. a fresh
+// navigation from find.html or history.html rather than an in-page tab
+// switch (which the shared nav script below handles without a reload).
+// Round has no hash case since it's already the default active tab.
+(function() {
+  var wanted = (location.hash || '').replace('#', '');
+  if (wanted === 'measure' || wanted === 'suggest') showTab(wanted);
+})();
 </script>
 
 <!-- Nav -->
@@ -1380,11 +1387,35 @@ if('serviceWorker' in navigator){navigator.serviceWorker.register('/sw.js').catc
   <div class="nav-row">
     <a class="nav-item" href="find.html"><img src="icons/Courses.png" alt="Courses"></a>
     <a class="nav-item" id="nav-play" href="start.html"><img src="icons/Play.png" alt="Play"></a>
-    <a class="nav-item" href="distance.html"><img src="icons/Distance.png" alt="Distance"></a>
-    <a class="nav-item" href="suggest.html"><img src="icons/Suggest.png" alt="Suggest"></a>
+    <a class="nav-item" id="nav-measure" href="round.html#measure"><img src="icons/Distance.png" alt="Distance"></a>
+    <a class="nav-item" id="nav-suggest" href="round.html#suggest"><img src="icons/Suggest.png" alt="Suggest"></a>
     <a class="nav-item" href="history.html"><img src="icons/History.png" alt="History"></a>
   </div>
 </div>
+<script>
+  // ── Shared nav-bar routing (16 Aug 2026) — see find.html for full comment ──
+  (function() {
+    var onRoundPage = /round\.html/i.test(location.pathname);
+    var roundActive = !!localStorage.getItem('golf-round-active');
+
+    var playLink = document.getElementById('nav-play');
+    if (playLink) {
+      playLink.href = roundActive ? 'round.html' : 'start.html';
+      if (onRoundPage && roundActive && typeof showTab === 'function') {
+        playLink.addEventListener('click', function(e) { e.preventDefault(); showTab('round'); });
+      }
+    }
+
+    ['measure', 'suggest'].forEach(function(tab) {
+      var link = document.getElementById('nav-' + tab);
+      if (!link) return;
+      link.href = 'round.html#' + tab;
+      if (onRoundPage && typeof showTab === 'function') {
+        link.addEventListener('click', function(e) { e.preventDefault(); showTab(tab); });
+      }
+    });
+  })();
+</script>
 
 
 <script>

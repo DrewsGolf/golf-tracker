@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <script src="theme.js"></script>
 <link rel="stylesheet" href="theme.css">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Shot Tracker">
@@ -29,7 +29,19 @@
   }
 
   html, body {
-    height: 100%;
+    height: 100%;   /* fallback for browsers without dvh support */
+    height: 100dvh; /* Paired with viewport-fit=cover above: that meta value tells
+                       Safari the page wants to draw under its own chrome (address
+                       bar/home-indicator area) instead of being auto-constrained to
+                       a "safe" region; 100dvh then tracks Safari's real visible
+                       viewport as that chrome shows/hides, closing the gap between
+                       the nav bar and Safari's UI. (An earlier attempt at 100dvh
+                       alone, without viewport-fit=cover, showed no visible change —
+                       Safari wasn't letting the page use that space either way, so
+                       dvh vs 100% made no practical difference. This time the two
+                       are applied together.) Chrome on iOS didn't show this gap to
+                       begin with, so it isn't expected to look different here.
+                       16 Aug 2026. */
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
     background: var(--bg-primary);
     overflow: hidden;
@@ -57,6 +69,13 @@
        card's intentional overlap under the hero image. */
     width: 100%;
     flex-shrink: 0;
+    padding-top: var(--safe-top); /* Needed once viewport-fit=cover is set (see
+      html,body height rule above) -- without this, the page is allowed to draw
+      under the status bar/notch, and the "SHOT TRACKER" wordmark baked into the
+      top of Main_header.png would slide up underneath it. This keeps the image's
+      current on-screen position unchanged; the notch/status-bar strip above it
+      is filled by .app's background instead. 16 Aug 2026. */
+    background: var(--bg-primary);
   }
 
   .top-hero-img {

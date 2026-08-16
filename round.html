@@ -129,11 +129,6 @@
   .header-menu-item.disabled:active { background: none; }
   .header-img { width: 100%; height: auto; display: block; }
 
-  /* Tab bar */
-  .tab-bar { background: transparent; border-bottom: 0.5px solid color-mix(in srgb, var(--gold) 15%, transparent); padding: 0 16px 12px; display: flex; gap: 6px; flex-shrink: 0; }
-  .tab { flex: 1; padding: 8px; font-size: 13px; font-weight: 500; text-align: center; border-radius: 8px; border: 0.5px solid color-mix(in srgb, var(--gold) 15%, transparent); cursor: pointer; background: color-mix(in srgb, var(--gold) 6%, transparent); color: var(--text-muted); font-family: inherit; }
-  .tab.active { background: var(--btn-primary); color: var(--on-btn-primary); border-color: var(--btn-primary); }
-
   /* Content */
   .content { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; padding: 14px 14px calc(var(--safe-bottom) + 110px); background: var(--bg); position: relative; z-index: 15; }
   .screen { display: none; } .screen.active { display: block; }
@@ -329,11 +324,6 @@
         <a class="header-menu-item" href="login.html" id="header-menu-auth">Sign In</a>
       </div>
     </div>
-  </div>
-  <div class="tab-bar">
-    <button class="tab active" onclick="showTab('round')" id="tab-round">Round</button>
-    <button class="tab" onclick="showTab('measure')" id="tab-measure">Measure</button>
-    <button class="tab" onclick="showTab('suggest')" id="tab-suggest">Suggest</button>
   </div>
   <div class="content">
 
@@ -643,10 +633,15 @@ function persist() {
 }
 
 // ── Tabs — updated for Round / Measure / Suggest (was Round / Summary / Scorecard) ──
+// The on-page tab-bar buttons (id="tab-round" etc.) were removed once the
+// bottom nav icons took over switching between these screens (16 Aug 2026,
+// third pass — nav bar routes Round/Measure/Suggest straight into these same
+// showTab() calls, see the shared nav script below). showTab() itself still
+// works exactly as before for the screens; it just no longer has a matching
+// tab button to toggle .active on.
 function showTab(t) {
   ['round','measure','suggest'].forEach(id => {
     document.getElementById('screen-'+id).classList.toggle('active', id===t);
-    document.getElementById('tab-'+id).classList.toggle('active', id===t);
   });
 }
 

@@ -29,11 +29,7 @@
   }
 
   html, body {
-    height: 100%;   /* fallback for browsers without dvh support */
-    height: 100dvh; /* tracks Safari's actual visible viewport as its address-bar
-                       toolbar shows/hides, instead of the "large viewport" 100%
-                       resolves to — fixes the cream gap between the nav bar and
-                       Safari's own chrome on iOS (16 Aug 2026) */
+    height: 100%;
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
     background: var(--bg-primary);
     overflow: hidden;
@@ -260,6 +256,7 @@
     display: flex;
     background: none;
     border-top: 0.5px solid color-mix(in srgb, var(--gold) 20%, transparent);
+    padding-bottom: calc(var(--safe-bottom) + 6px);
   }
 
   .nav-item {
@@ -268,7 +265,7 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    padding: 4px;
+    padding: 10px 4px 6px;
     text-decoration: none;
     background: none;
     border: none;

@@ -10,6 +10,20 @@
 //
 // Originally built for distance.html; reused on round.html / suggest.html
 // per the GPS hole-capture doc.
+//
+// CHANGED 16 Aug 2026 (Measure/Suggest merge into round.html): updateGpsStatusUI()
+// now updates EVERY matching status block on the page via document.querySelectorAll
+// on the shared classes (.gps-indicator / .gps-status-text / .gps-accuracy /
+// .gps-debug), instead of getElementById on one fixed id. This lets a single page
+// host multiple independent GPS status displays fed by the same shared watch —
+// e.g. round.html's merged Round/Measure/Suggest tabs each keep their own visible
+// GPS block, all reading the same live fix, without id collisions (only one
+// element per page can hold a given id; three tabs each needing "the GPS dot"
+// broke that). Each block still needs the class names above for styling (as
+// before) — ids are now optional/only for readability, no longer required by
+// this script. Backward compatible with every existing single-instance page
+// (distance.html, suggest.html standalone): querySelectorAll on a class that
+// matches exactly one element behaves the same as getElementById did.
 
 let currentFix = null;
 let watchId    = null;
@@ -24,30 +38,29 @@ function accuracyTier(acc) {
 }
 
 function updateGpsStatusUI() {
-  const dot   = document.getElementById('gps-indicator');
-  const text  = document.getElementById('gps-status-text');
-  const acc   = document.getElementById('gps-accuracy');
-  const debug = document.getElementById('gps-debug');
-  if (!dot || !text || !acc || !debug) return; // markup not present on this page
+  const dots   = document.querySelectorAll('.gps-indicator');
+  const texts  = document.querySelectorAll('.gps-status-text');
+  const accs   = document.querySelectorAll('.gps-accuracy');
+  const debugs = document.querySelectorAll('.gps-debug');
+  if (!dots.length && !texts.length && !accs.length && !debugs.length) return; // markup not present on this page
   if (!currentFix) {
-    dot.className = 'gps-indicator searching';
-    text.textContent = 'Acquiring GPS\u2026';
-    acc.textContent = '\u2014';
-    debug.textContent = 'no fix yet';
+    dots.forEach(d => d.className = 'gps-indicator searching');
+    texts.forEach(t => t.textContent = 'Acquiring GPS…');
+    accs.forEach(a => a.textContent = '—');
+    debugs.forEach(d => d.textContent = 'no fix yet');
     return;
   }
   const tier = accuracyTier(currentFix.accuracy);
-  const labels = { good: 'Good fix', fair: 'Fair \u2014 may drift', poor: 'Poor \u2014 move to open sky', unknown: 'Unknown accuracy' };
-  dot.className = 'gps-indicator ' + tier;
-  text.textContent = labels[tier];
-  acc.textContent = '\u00b1' + Math.round(currentFix.accuracy) + 'm';
-  debug.textContent = currentFix.latitude.toFixed(6) + ', ' + currentFix.longitude.toFixed(6);
+  const labels = { good: 'Good fix', fair: 'Fair — may drift', poor: 'Poor — move to open sky', unknown: 'Unknown accuracy' };
+  dots.forEach(d => d.className = 'gps-indicator ' + tier);
+  texts.forEach(t => t.textContent = labels[tier]);
+  accs.forEach(a => a.textContent = '±' + Math.round(currentFix.accuracy) + 'm');
+  debugs.forEach(d => d.textContent = currentFix.latitude.toFixed(6) + ', ' + currentFix.longitude.toFixed(6));
 }
 
 function startGpsWatch(onUpdate) {
   if (!('geolocation' in navigator)) {
-    const text = document.getElementById('gps-status-text');
-    if (text) text.textContent = 'Geolocation not supported';
+    document.querySelectorAll('.gps-status-text').forEach(t => t.textContent = 'Geolocation not supported');
     return null;
   }
   watchId = navigator.geolocation.watchPosition(
@@ -60,8 +73,7 @@ function startGpsWatch(onUpdate) {
       if (typeof onUpdate === 'function') onUpdate(currentFix);
     },
     err => {
-      const text = document.getElementById('gps-status-text');
-      if (text) text.textContent = 'GPS error: ' + err.message;
+      document.querySelectorAll('.gps-status-text').forEach(t => t.textContent = 'GPS error: ' + err.message);
     },
     { enableHighAccuracy: true, maximumAge: 1000, timeout: 15000 }
   );

@@ -186,38 +186,6 @@
   .btn-primary { background: var(--btn-primary); color: var(--on-btn-primary); font-size: 17px; font-weight: 700; }
   .btn-outline { background: transparent; color: var(--gold); border: 0.5px solid var(--gold); }
 
-  /* Summary */
-  .summary-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-lg); box-shadow: var(--shadow-soft); overflow: hidden; margin-bottom: 12px; }
-  .sum-header { background: color-mix(in srgb, var(--gold) 12%, transparent); border-bottom: 0.5px solid color-mix(in srgb, var(--gold) 20%, transparent); padding: 10px 14px; display: flex; align-items: center; justify-content: space-between; }
-  .sum-header-title { font-size: 15px; font-weight: 500; color: var(--gold); }
-  .sum-header-sub { font-size: 13px; color: var(--text-muted); }
-  .sum-row { display: flex; align-items: center; gap: 10px; padding: 10px 14px; border-bottom: 0.5px solid color-mix(in srgb, var(--gold) 8%, transparent); }
-  .sum-row:last-child { border-bottom: none; }
-  .sum-bubble { width: 24px; height: 24px; border-radius: 50%; background: color-mix(in srgb, var(--gold) 12%, transparent); font-size: 11px; font-weight: 700; color: var(--gold); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-  .sum-club { flex: 1; font-size: 14px; font-weight: 500; }
-  .sum-dist { font-size: 14px; color: var(--text-secondary); }
-  .sum-stats { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0; border-top: 0.5px solid color-mix(in srgb, var(--gold) 12%, transparent); }
-  .sum-stat { display: flex; align-items: center; justify-content: center; padding: 10px 6px; border-right: 0.5px solid color-mix(in srgb, var(--gold) 12%, transparent); font-size: 15px; font-weight: 500; color: var(--text-primary); }
-  .sum-stat:last-child { border-right: none; }
-  .sum-footer { display: flex; align-items: center; justify-content: space-between; padding: 10px 14px; background: color-mix(in srgb, var(--gold) 6%, transparent); border-top: 0.5px solid var(--border); }
-  .sum-footer-label { font-size: 13px; font-weight: 600; color: var(--text-secondary); }
-  .sum-footer-val { font-size: 15px; font-weight: 500; color: var(--gold); }
-  .empty-state { text-align: center; padding: 32px 16px; color: var(--text-muted); font-size: 14px; line-height: 1.6; }
-  .empty-icon { font-size: 36px; margin-bottom: 8px; display: block; }
-
-  /* Scorecard */
-  .score-table-wrap { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-lg); box-shadow: var(--shadow-soft); overflow: hidden; margin-bottom: 14px; }
-  .score-table { width: 100%; border-collapse: collapse; font-size: 16px; }
-  .score-table th { background: color-mix(in srgb, var(--gold) 12%, transparent); color: var(--gold); padding: 11px 6px; text-align: center; font-weight: 500; letter-spacing: 0.06em; font-size: 14px; }
-  .score-table th:first-child { text-align: left; padding-left: 14px; }
-  .score-table td { padding: 12px 6px; text-align: center; border-bottom: 0.5px solid var(--border); }
-  .score-table td:first-child { font-weight: 600; text-align: left; padding-left: 14px; }
-  .score-table tr:last-child td { border-bottom: none; font-weight: 600; background: color-mix(in srgb, var(--gold) 6%, transparent); }
-  .sc-input { width: 44px; background: color-mix(in srgb, var(--bg) 70%, transparent); border: 0.5px solid color-mix(in srgb, var(--gold) 30%, transparent); border-radius: 6px; padding: 4px 6px; font-size: 15px; font-weight: 500; color: var(--gold); text-align: center; font-family: inherit; -moz-appearance: textfield; }
-  .sc-input::-webkit-outer-spin-button, .sc-input::-webkit-inner-spin-button { -webkit-appearance: none; }
-  .sc-input:focus { outline: none; border-color: var(--gold); }
-  .sc-save-btn { background: transparent; border: 0.5px solid var(--gold); color: var(--gold); border-radius: 6px; padding: 3px 10px; font-size: 11px; font-weight: 500; cursor: pointer; font-family: inherit; display: flex; align-items: center; justify-content: center; }
-
   /* Dialog */
   .dialog-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 200; display: flex; align-items: flex-end; justify-content: center; animation: fadeIn 0.15s ease; }
   @keyframes fadeIn { from{opacity:0} to{opacity:1} }
@@ -293,6 +261,55 @@
   [data-theme="light"] .header-auth-email {
     color: var(--text-primary);
   }
+
+  /* ══════════════════════════════════════════════════════════════════════
+     Added 16 Aug 2026 — Master Builder consolidation session.
+     Rules below are pulled in unchanged from distance.html's Measure tab
+     and suggest.html's Suggest tab, needed because round.html didn't
+     previously have generic .card/.card-label or these tab-specific styles.
+     ══════════════════════════════════════════════════════════════════════ */
+
+  /* Generic card (from distance.html / suggest.html) — used by the Measure
+     and Suggest tabs' cards, distinct from round.html's own purpose-built
+     card variants (.score-card, .hole-nav-card, etc.) above. */
+  .card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-lg); box-shadow: var(--shadow-soft); padding: 16px 14px; margin-bottom: 12px; }
+  .card-label { font-size: 12px; font-weight: 700; letter-spacing: 0.15em; text-transform: uppercase; color: var(--gold); margin-bottom: 10px; }
+
+  .btn-danger { background: color-mix(in srgb, var(--warning) 30%, transparent); color: var(--text-primary); border: 0.5px solid color-mix(in srgb, var(--warning) 50%, transparent); }
+  .btn:disabled { opacity: 0.35; cursor: default; }
+
+  /* Measure tab — club selector grid */
+  .club-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; }
+  .club-grid-btn { padding: 12px 2px; border-radius: 10px; border: 0.5px solid color-mix(in srgb, var(--gold) 35%, transparent); background: color-mix(in srgb, var(--bg) 70%, transparent); color: var(--text-primary); font-size: 13px; font-weight: 600; text-align: center; cursor: pointer; font-family: inherit; letter-spacing: 0.02em; }
+  .club-grid-btn:active { opacity: 0.75; }
+  .club-grid-btn.selected { background: var(--btn-primary); color: var(--on-btn-primary); border-color: var(--btn-primary); }
+
+  /* Measure tab — live walking distance */
+  .walking-dist-card { text-align: center; padding: 4px 0 16px; }
+  .walking-dist-value { font-size: 46px; font-weight: 300; color: var(--gold); line-height: 1; letter-spacing: -0.03em; }
+  .walking-dist-unit { font-size: 20px; font-weight: 400; color: var(--gold-muted); margin-left: 3px; }
+  .walking-dist-label { font-size: 11px; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-muted); margin-top: 4px; }
+
+  /* Measure tab — result */
+  .result-card { background: color-mix(in srgb, var(--gold) 8%, transparent); border: 0.5px solid color-mix(in srgb, var(--gold) 30%, transparent); border-radius: var(--radius); padding: 18px 14px; margin-bottom: 12px; text-align: center; }
+  .result-dist { font-size: 56px; font-weight: 300; color: var(--gold); line-height: 1; letter-spacing: -0.04em; }
+  .result-unit { font-size: 18px; font-weight: 400; color: var(--gold-muted); margin-left: 4px; }
+  .result-club { font-size: 15px; font-weight: 500; color: var(--text-secondary); margin-top: 6px; }
+
+  .stage-instruction { text-align: center; font-size: 14px; color: var(--text-secondary); font-style: italic; padding: 6px 0 10px; }
+
+  /* Suggest tab — live suggestion display */
+  .sugg-dist-card { text-align: center; padding: 20px 14px; }
+  .sugg-dist-label { font-size: 12px; font-weight: 700; letter-spacing: 0.15em; text-transform: uppercase; color: var(--gold); margin-bottom: 6px; }
+  .sugg-dist-value { font-size: 48px; font-weight: 400; color: var(--gold); letter-spacing: -0.02em; line-height: 1; }
+  .sugg-dist-unit { font-size: 18px; font-weight: 300; color: var(--gold); margin-left: 4px; }
+  .sugg-club-card { text-align: center; padding: 18px 14px; }
+  .sugg-club-label { font-size: 12px; font-weight: 700; letter-spacing: 0.15em; text-transform: uppercase; color: var(--gold); margin-bottom: 8px; }
+  .sugg-club-name { font-size: 28px; font-weight: 600; color: var(--text-primary); }
+  .sugg-club-sub { font-size: 12px; color: var(--text-muted); margin-top: 6px; }
+  .sugg-empty { text-align: center; padding: 20px 16px; color: var(--text-muted); font-size: 13px; line-height: 1.6; }
+  .green-status { text-align: center; font-size: 12px; color: var(--text-muted); margin-top: 4px; }
+  .green-status b { color: var(--gold); font-weight: 500; }
 </style>
 </head>
 <body>
@@ -315,12 +332,12 @@
   </div>
   <div class="tab-bar">
     <button class="tab active" onclick="showTab('round')" id="tab-round">Round</button>
-    <button class="tab" onclick="showTab('summary')" id="tab-summary">Summary</button>
-    <button class="tab" onclick="showTab('scorecard')" id="tab-scorecard">Scorecard</button>
+    <button class="tab" onclick="showTab('measure')" id="tab-measure">Measure</button>
+    <button class="tab" onclick="showTab('suggest')" id="tab-suggest">Suggest</button>
   </div>
   <div class="content">
 
-    <!-- ROUND TAB -->
+    <!-- ═══════════════════════════ ROUND TAB — unchanged from round.html ═══════════════════════════ -->
     <div class="screen active" id="screen-round">
 
       <!-- Row 1: Hole nav | Par | Dist to Green -->
@@ -336,21 +353,19 @@
         <div class="dist-card">
           <div class="dist-label-row">
             <span class="dist-label">Dist to Green</span>
-            <span class="gps-indicator searching" id="gps-indicator"></span>
+            <span class="gps-indicator searching" id="round-gps-indicator"></span>
           </div>
           <div class="dist-value-row">
             <span class="dist-value" id="dist-green-value">&#8211;</span>
             <span class="dist-unit" id="dist-green-unit"></span>
           </div>
-          <!-- gps-indicator.js (shared component) updates these three alongside
-               the dot on every position fix, same as every other page that uses
-               it — without them present it errors partway through its update
-               and the dot (and this box's distance) never refreshes. Hidden here
+          <!-- gps-indicator.js (shared component) updates every element carrying
+               these classes on every position fix — these three are hidden here
                since this box is dot-only by design; kept only so the shared
-               script has somewhere to write. -->
-          <span class="gps-status-text" id="gps-status-text" style="display:none;"></span>
-          <div class="gps-accuracy" id="gps-accuracy" style="display:none;"></div>
-          <div class="gps-debug" id="gps-debug" style="display:none;"></div>
+               script has somewhere to write for this particular block. -->
+          <span class="gps-status-text" id="round-gps-status-text" style="display:none;"></span>
+          <div class="gps-accuracy" id="round-gps-accuracy" style="display:none;"></div>
+          <div class="gps-debug" id="round-gps-debug" style="display:none;"></div>
         </div>
       </div>
 
@@ -390,31 +405,89 @@
 
     </div>
 
-    <!-- SUMMARY TAB -->
-    <div class="screen" id="screen-summary">
-      <div id="summary-content"></div>
-      <button class="btn btn-outline" style="margin-top:4px" onclick="exportCSV()">&#8659; Download CSV</button>
-      <button class="btn btn-outline" onclick="exportEmail()">&#9993; Email round</button>
+    <!-- ═══════════════════════════ MEASURE TAB — pulled from distance.html's Measure tab, unchanged ═══════════════════════════ -->
+    <div class="screen" id="screen-measure">
+
+      <!-- CLUB SELECTOR -->
+      <div class="card">
+        <div class="card-label">Select Club</div>
+        <div class="club-grid" id="club-grid"></div>
+      </div>
+
+      <!-- SHOT TRACKER -->
+      <div class="card" id="tracker-card">
+        <div class="card-label" id="tracker-label">Ready</div>
+
+        <!-- GPS stability indicator -->
+        <div class="gps-status">
+          <div class="gps-status-row">
+            <span class="gps-indicator searching" id="measure-gps-indicator"></span>
+            <span class="gps-status-text" id="measure-gps-status-text">Acquiring GPS&hellip;</span>
+          </div>
+          <div class="gps-accuracy" id="measure-gps-accuracy">—</div>
+          <div class="gps-debug" id="measure-gps-debug">no fix yet</div>
+        </div>
+
+        <!-- Stage: idle -->
+        <div id="stage-idle">
+          <p class="stage-instruction">Select a club, stand at the ball, then tap Start Shot</p>
+          <button class="btn btn-primary" id="btn-start" onclick="startShot()" disabled>&#9679; Start Shot</button>
+        </div>
+
+        <!-- Stage: walking -->
+        <div id="stage-walking" style="display:none">
+          <div class="walking-dist-card">
+            <span class="walking-dist-value" id="walking-dist">0</span><span class="walking-dist-unit">m</span>
+            <div class="walking-dist-label">Distance so far</div>
+          </div>
+          <p class="stage-instruction">Walk to your ball, then tap Save Shot</p>
+          <button class="btn btn-primary" onclick="markLanding()">&#10003; Save Shot</button>
+          <button class="btn btn-danger" onclick="cancelShot()">&#10007; Cancel</button>
+        </div>
+
+        <!-- Stage: result -->
+        <div id="stage-result" style="display:none">
+          <div class="result-card">
+            <span class="result-dist" id="result-dist">—</span><span class="result-unit">m</span>
+            <div class="result-club" id="result-club"></div>
+          </div>
+          <button class="btn btn-primary" onclick="saveShot()">&#10003; Save This Shot</button>
+          <button class="btn btn-outline" onclick="retakeShot()">&#8635; Retake</button>
+        </div>
+      </div>
     </div>
 
-    <!-- SCORECARD TAB -->
-    <div class="screen" id="screen-scorecard">
-      <div style="display:flex;gap:0;background:color-mix(in srgb, var(--bg) 50%, transparent);border-radius:10px;border:0.5px solid color-mix(in srgb, var(--gold) 20%, transparent);overflow:hidden;margin-bottom:10px;">
-        <button id="sc-toggle-gross" onclick="setScorecardView('gross')" style="flex:1;background:var(--btn-primary);color:var(--on-btn-primary);border:none;padding:10px 6px;font-size:14px;font-weight:500;cursor:pointer;font-family:inherit;">Gross</button>
-        <button id="sc-toggle-net"   onclick="setScorecardView('net')"   style="flex:1;background:none;color:var(--text-muted);border:none;padding:10px 6px;font-size:14px;font-weight:500;cursor:pointer;font-family:inherit;">Net</button>
+    <!-- ═══════════════════════════ SUGGEST TAB — pulled from suggest.html's Suggest tab, unchanged ═══════════════════════════ -->
+    <div class="screen" id="screen-suggest">
+      <div class="card sugg-dist-card">
+        <div class="sugg-dist-label">Distance to Green</div>
+        <div id="sugg-dist-display"><span class="sugg-dist-value">&mdash;</span></div>
       </div>
-      <div class="score-table-wrap">
-        <table class="score-table">
-          <thead><tr><th>Hole</th><th></th><th>Par</th><th>Shots</th><th>+/-</th><th>Putts</th><th>Pts</th></tr></thead>
-          <tbody id="scorecard-body"></tbody>
-        </table>
+
+      <div class="card sugg-club-card" id="sugg-club-card">
+        <div class="sugg-club-label">Recommended Club</div>
+        <div id="sugg-club-display"><div class="sugg-empty">Waiting for a green location and GPS fix&hellip;</div></div>
+      </div>
+
+      <div class="card">
+        <div class="card-label">Green Location</div>
+        <div class="gps-status">
+          <div class="gps-status-row">
+            <span class="gps-indicator searching" id="suggest-gps-indicator"></span>
+            <span class="gps-status-text" id="suggest-gps-status-text">Acquiring GPS&hellip;</span>
+          </div>
+          <div class="gps-accuracy" id="suggest-gps-accuracy">—</div>
+          <div class="gps-debug" id="suggest-gps-debug">no fix yet</div>
+        </div>
+        <button class="btn btn-outline" onclick="captureGreenLocation()" id="btn-capture-green">&#128205; Capture Green Location</button>
+        <div class="green-status" id="green-status"></div>
       </div>
     </div>
 
   </div>
 </div>
 
-<!-- Dialog -->
+<!-- Dialog — single shared instance for all three tabs -->
 <div id="dialog-overlay" class="dialog-overlay" style="display:none" onclick="closeDialogOutside(event)">
   <div class="dialog-sheet" onclick="event.stopPropagation()">
     <div class="dialog-handle"></div>
@@ -430,7 +503,7 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="gps-indicator.js"></script>
 <script>
-// ── Supabase ──────────────────────────────────────────────────────────────────
+// ── Supabase — single shared client for all three tabs ──────────────────────────
 const SUPABASE_URL = 'https://ryqehsqqriavmuqfnzpx.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ5cWVoc3Fxcmlhdm11cWZuenB4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM3NTQ4MzcsImV4cCI6MjA5OTMzMDgzN30.Po2m7uhlMTc43Pdg8pohwvDsQ_UDFRS-n9UnTQ44nXA';
 const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
@@ -453,10 +526,11 @@ sb.auth.getSession().then(({ data }) => {
     } else {
       showBadge();
     }
+    loadDistancesFromSupabase();
   }
 });
 
-// -- Header menu dropdown --------------------------------------------------
+// -- Header menu dropdown -- single shared instance for all three tabs --------
 function toggleHeaderMenu() {
   var dropdown = document.getElementById('header-menu-dropdown');
   if (dropdown) dropdown.classList.toggle('open');
@@ -493,13 +567,15 @@ async function doMenuSignOut() {
   window.location.href = 'index.html';
 }
 
-// ── State ─────────────────────────────────────────────────────────────────────
+// ══════════════════════════════════════════════════════════════════════════
+// ROUND TAB — state & functions, unchanged from round.html
+// ══════════════════════════════════════════════════════════════════════════
 let currentHole  = parseInt(localStorage.getItem('golf-current-hole') || '1');
 let holeScores   = JSON.parse(localStorage.getItem('golf-scores-v1') || '{}');
 let holePars        = JSON.parse(localStorage.getItem('golf-pars-v1')   || '{}');
 let holeStrokeIndex = JSON.parse(localStorage.getItem('golf-si-v1')    || '{}');
 let holePutts    = JSON.parse(localStorage.getItem('golf-putts-v1')   || '{}');
-// Legacy shot data — kept so Summary tab can show old shot-by-shot rounds
+// Legacy shot data — kept so Summary tab (if it returns later) can show old shot-by-shot rounds
 let shots        = JSON.parse(localStorage.getItem('golf-shots-v3')  || '[]');
 let currentCourse = JSON.parse(localStorage.getItem('golf-current-course') || 'null');
 // Green locations for the current course, keyed by hole — loaded read-only
@@ -512,7 +588,6 @@ let holeGreenLng = {};
 const scoringMode   = localStorage.getItem('golf-scoring-mode') || 'gross';
 const hcpStored     = localStorage.getItem('golf-handicap');
 const handicapIndex = hcpStored ? parseFloat(JSON.parse(hcpStored).value) : null;
-let   scorecardView = localStorage.getItem('golf-scorecard-view') || 'gross';
 
 function calcPlayingHandicap() {
   if (handicapIndex === null || isNaN(handicapIndex)) return null;
@@ -562,14 +637,12 @@ function persist() {
   localStorage.setItem('golf-current-hole', currentHole);
 }
 
-// ── Tabs ──────────────────────────────────────────────────────────────────────
+// ── Tabs — updated for Round / Measure / Suggest (was Round / Summary / Scorecard) ──
 function showTab(t) {
-  ['round','summary','scorecard'].forEach(id => {
+  ['round','measure','suggest'].forEach(id => {
     document.getElementById('screen-'+id).classList.toggle('active', id===t);
     document.getElementById('tab-'+id).classList.toggle('active', id===t);
   });
-  if (t==='summary') renderSummary();
-  if (t==='scorecard') { renderScorecard(); setScorecardView(scorecardView); }
 }
 
 // ── New round ─────────────────────────────────────────────────────────────────
@@ -609,6 +682,15 @@ function resetState() {
   localStorage.removeItem('golf-current-hole');
   localStorage.removeItem('golf-shots-v3');
   localStorage.removeItem('golf-current-course');
+  // Added during the Measure/Suggest merge (16 Aug 2026): the Suggest tab's own
+  // green-location cache (currentCourseId/currentGreenLat/currentGreenLng/
+  // greenCapturedAt, declared further down) previously only ever existed for the
+  // lifetime of a single page load of suggest.html — a new round always meant a
+  // fresh page visit, so it self-cleared. Now that Suggest lives on this same
+  // page as Round, currentCourse can change under it (via New Round) without a
+  // reload, so its cache needs clearing here too or it'll keep pointing at the
+  // old course/green until something else happens to re-trigger a fetch.
+  currentCourseId = null; currentGreenLat = null; currentGreenLng = null; greenCapturedAt = null;
 }
 
 // ── Load course par & stroke index from Supabase ─────────────────────────────
@@ -649,9 +731,9 @@ async function loadCourseData() {
     // This now runs on every page load (not just the first one in a round) so
     // Dist to Green always reflects the latest captured location, even one
     // saved via Suggest Club moments ago. Only toast on the meaningful
-    // first-time case \u2014 pars getting pre-filled \u2014 not on routine refreshes,
+    // first-time case — pars getting pre-filled — not on routine refreshes,
     // or leaving-and-returning to round.html would toast every time.
-    if (!parsAlreadySet) showToast('Course data loaded \u2014 pars pre-filled');
+    if (!parsAlreadySet) showToast('Course data loaded — pars pre-filled');
   } catch(e) { console.error('Course data load error:', e); }
 }
 
@@ -666,8 +748,8 @@ function renderParArea() {
     '</div>';
 }
 
-// ── Dist to Green — live GPS distance to this hole's saved green location.
-// Read-only here: green locations are captured on the Suggest Club page.
+// ── Shared haversine — single copy, used by Round (Dist to Green), Measure
+// (walking distance), and Suggest (distance to green + green capture) ──────────
 function haversine(a, b) {
   const R = 6371000, f1 = a.latitude*Math.PI/180, f2 = b.latitude*Math.PI/180;
   const df = (b.latitude-a.latitude)*Math.PI/180;
@@ -676,6 +758,8 @@ function haversine(a, b) {
   return Math.round(2*R*Math.asin(Math.sqrt(x)));
 }
 
+// ── Dist to Green — live GPS distance to this hole's saved green location.
+// Read-only here: green locations are captured on the Suggest tab.
 function updateDistToGreen() {
   const valueEl = document.getElementById('dist-green-value');
   const unitEl  = document.getElementById('dist-green-unit');
@@ -688,16 +772,6 @@ function updateDistToGreen() {
   }
   valueEl.textContent = haversine(currentFix, { latitude: glat, longitude: glng });
   unitEl.textContent = 'm';
-}
-
-function writeCoursePars() {
-  if (!currentCourse || !currentCourse.name) return;
-  try {
-    const store = JSON.parse(localStorage.getItem('golf-course-pars') || '{}');
-    if (!store[currentCourse.name]) store[currentCourse.name] = {};
-    store[currentCourse.name][currentHole] = holePars[currentHole];
-    localStorage.setItem('golf-course-pars', JSON.stringify(store));
-  } catch(e) {}
 }
 
 // ── Score entry ───────────────────────────────────────────────────────────────
@@ -833,7 +907,7 @@ function finishRound() {
 }
 
 async function doFinishRound() {
-  showToast('Saving round\u2026');
+  showToast('Saving round…');
   await saveRoundToHistory();
   resetState();
   showToast('Round saved!');
@@ -905,237 +979,7 @@ async function saveRoundToHistory() {
   }
 }
 
-// ── Summary ───────────────────────────────────────────────────────────────────
-function renderSummary() {
-  const el = document.getElementById('summary-content');
-  const scoredHoles = Object.keys(holeScores).map(Number).filter(h => holeScores[h] > 0).sort((a,b)=>a-b);
-
-  if (!scoredHoles.length) {
-    el.innerHTML = '<div class="empty-state"><span class="empty-icon">&#128202;</span>No scores logged yet.</div>';
-    return;
-  }
-
-  function calcBlock(holes) {
-    const played    = holes.filter(h => holeScores[h] > 0);
-    if (!played.length) return null;
-    const shots     = played.reduce((a,h) => a + holeScores[h], 0);
-    const parHoles  = played.filter(h => holePars[h]);
-    const totalPar  = parHoles.reduce((a,h) => a + holePars[h], 0);
-    const overPar   = parHoles.length ? shots - totalPar : null;
-    const avgOverPar = parHoles.length ? (overPar / parHoles.length).toFixed(2) : null;
-    const puttHoles  = played.filter(h => holePutts[h] > 0);
-    const totalPutts = played.reduce((a,h) => a + (holePutts[h]||0), 0);
-    const avgPutts   = puttHoles.length ? (totalPutts / puttHoles.length).toFixed(1) : null;
-    const stablefordPts = handicapIndex !== null
-      ? played.reduce((a,h) => { const p = stablefordPoints(h); return p !== null ? a + p : a; }, 0)
-      : null;
-    return { played: played.length, shots, totalPar: parHoles.length ? totalPar : null, overPar, avgOverPar, totalPutts, avgPutts, stablefordPts };
-  }
-
-  function overParStr(v) {
-    if (v === null) return '&#8212;';
-    if (v === 0)    return 'E';
-    return (v > 0 ? '+' : '') + v;
-  }
-  function overParCol(v) {
-    if (v === null || v === 0) return 'color:var(--text-muted)';
-    return v > 0 ? 'color:var(--warning)' : 'color:var(--gold)';
-  }
-  function avgOverStr(v) {
-    if (v === null) return '&#8212;';
-    const n = parseFloat(v);
-    if (n === 0) return 'E';
-    return (n > 0 ? '+' : '') + v;
-  }
-
-  function blockHTML(label, holes) {
-    const d = calcBlock(holes);
-    if (!d) return '<div class="summary-card"><div class="sum-header"><span class="sum-header-title">' + label + '</span><span class="sum-header-sub">No scores</span></div></div>';
-    const parStr   = d.totalPar !== null ? 'Par ' + d.totalPar : '';
-    const holesStr = d.played + ' hole' + (d.played===1?'':'s') + ' played';
-    return '<div class="summary-card">' +
-      '<div class="sum-header" style="display:grid;grid-template-columns:1fr auto 1fr;align-items:center;">' +
-        '<span class="sum-header-title">' + label + '</span>' +
-        '<span style="font-size:13px;font-weight:400;color:var(--text-muted);text-align:center;">' + parStr + '</span>' +
-        '<span class="sum-header-sub" style="text-align:right;">' + holesStr + '</span>' +
-      '</div>' +
-      '<div class="sum-stats">' +
-        '<div class="sum-stat" style="flex-direction:column;gap:2px;">' +
-          '<span style="font-size:9px;letter-spacing:0.1em;text-transform:uppercase;color:var(--text-muted);">Shots</span>' +
-          '<span>' + d.shots + '</span>' +
-        '</div>' +
-        '<div class="sum-stat" style="flex-direction:column;gap:2px;">' +
-          '<span style="font-size:9px;letter-spacing:0.1em;text-transform:uppercase;color:var(--text-muted);">Over/Under</span>' +
-          '<span style="' + overParCol(d.overPar) + '">' + overParStr(d.overPar) + '</span>' +
-        '</div>' +
-        '<div class="sum-stat" style="flex-direction:column;gap:2px;">' +
-          '<span style="font-size:9px;letter-spacing:0.1em;text-transform:uppercase;color:var(--text-muted);">Putts</span>' +
-          '<span>' + (d.totalPutts || '&#8212;') + '</span>' +
-        '</div>' +
-      '</div>' +
-      '<div class="sum-footer"><span class="sum-footer-label">Avg shots over par / hole</span><span class="sum-footer-val" style="' + overParCol(d.overPar) + '">' + avgOverStr(d.avgOverPar) + '</span></div>' +
-      (d.avgPutts ? '<div class="sum-footer" style="border-top:0.5px solid color-mix(in srgb, var(--gold) 8%, transparent);"><span class="sum-footer-label">Avg putts per hole</span><span class="sum-footer-val">' + d.avgPutts + '</span></div>' : '') +
-      (d.stablefordPts !== null ? '<div class="sum-footer" style="border-top:0.5px solid color-mix(in srgb, var(--gold) 8%, transparent);"><span class="sum-footer-label">Stableford points</span><span class="sum-footer-val" style="color:var(--gold);">' + d.stablefordPts + '</span></div>' : '') +
-      '</div>';
-  }
-
-  const front9 = Array.from({length:9}, (_,i) => i+1);
-  const back9  = Array.from({length:9}, (_,i) => i+10);
-  const all18  = Array.from({length:18},(_,i) => i+1);
-
-  el.innerHTML = blockHTML('Front 9', front9) +
-                 blockHTML('Back 9',  back9) +
-                 blockHTML('Overall', all18);
-}
-
-// ── Scorecard ─────────────────────────────────────────────────────────────────
-function scoreIcon(score, par) {
-  if (!par || !score) return '';
-  const diff = score - par;
-  let src = '';
-  if (score === 1)       src = 'icons/hole_in_one.png';
-  else if (diff <= -2)   src = 'icons/egale.png';
-  else if (diff === -1)  src = 'icons/Birdie.png';
-  else if (diff === 0)   src = 'icons/par.png';
-  else if (diff === 1)   src = 'icons/1over.png';
-  else if (diff === 2)   src = 'icons/2over.png';
-  else if (diff === 3)   src = 'icons/3over.png';
-  return src ? '<img src="' + src + '" style="width:31px;height:31px;object-fit:contain;display:block;margin:0 auto;" alt="">' : '';
-}
-
-function setScorecardView(view) {
-  scorecardView = view;
-  localStorage.setItem('golf-scorecard-view', view);
-  const gBtn = document.getElementById('sc-toggle-gross');
-  const nBtn = document.getElementById('sc-toggle-net');
-  if (gBtn && nBtn) {
-    gBtn.style.background = view === 'gross' ? 'var(--btn-primary)' : 'none';
-    gBtn.style.color      = view === 'gross' ? 'var(--on-btn-primary)' : 'var(--text-muted)';
-    nBtn.style.background = view === 'net'   ? 'var(--btn-primary)' : 'none';
-    nBtn.style.color      = view === 'net'   ? 'var(--on-btn-primary)' : 'var(--text-muted)';
-  }
-  renderScorecard();
-}
-
-function renderScorecard() {
-  const tbody = document.getElementById('scorecard-body');
-  let ts=0, tp=0, tputts=0;
-  const rows=[];
-  const holeScoreFor = h => holeScores[h] || shots.filter(s=>s.hole===h).length;
-  // Front 9 only gets its own subtotal row once there's a Back 9 score to
-  // distinguish it from — matches history.html's Scorecard tab convention.
-  const hasBack9 = Array.from({length:9},(_,i)=>i+10).some(h => holeScoreFor(h) > 0);
-  let fTs=0, fTp=0, fTputts=0, fTpts=0, fHasPts=false;
-  let bTs=0, bTp=0, bTputts=0, bTpts=0, bHasPts=false;
-  // Solid line above/below the Front 9 / Back 9 / Total rows, matching
-  // history.html's Scorecard tab — inline so it also overrides the last-row
-  // border-bottom:none the base table CSS may set.
-  const subBorder = 'border-top:1px solid var(--gold);border-bottom:1px solid var(--gold);';
-  const subtotalRow = (label, sTp, sTs, sTputts, sPts) => {
-    const d   = sTp ? sTs - sTp : null;
-    const dS  = d===null ? '&#8212;' : (d===0?'E':(d>0?'+'+d:d));
-    const dCol = d===null?'':(d>0?'color:var(--warning)':d<0?'color:var(--gold)':'color:var(--text-muted)');
-    const bg  = 'background:color-mix(in srgb, var(--gold) 4%, transparent);font-weight:600;';
-    return '<tr><td style="'+bg+subBorder+'">'+label+'</td><td style="'+bg+subBorder+'"></td>' +
-      '<td style="'+bg+subBorder+'">'+(sTp||'&#8212;')+'</td>' +
-      '<td style="'+bg+subBorder+'">'+(sTs||'&#8212;')+'</td>' +
-      '<td style="'+bg+subBorder+dCol+'">'+dS+'</td>' +
-      '<td style="'+bg+subBorder+'color:var(--gold);">'+(sTputts||'&#8212;')+'</td>' +
-      '<td style="'+bg+subBorder+'color:var(--gold);">'+(sPts!==null?sPts:'&#8212;')+'</td></tr>';
-  };
-  for (let h=1; h<=18; h++) {
-    const score = holeScoreFor(h);
-    if (score > 0) {
-      const par    = holePars[h];
-      const putts  = holePutts[h] || 0;
-      const extras = strokesOnHole(h);
-      const displayScore = scorecardView === 'net' ? (score - extras) : score;
-      const diff   = par ? displayScore - par : null;
-      const ds     = diff===null ? '&#8212;' : (diff===0?'E':(diff>0?'+'+diff:diff));
-      const diffCol = diff===null?'':(diff>0?'color:var(--warning)':diff<0?'color:var(--gold)':'color:var(--text-muted)');
-      const siDot  = extras > 0 ? '<span style="color:var(--gold);font-size:10px;"> +'+extras+'</span>' : '';
-      const pts    = stablefordPoints(h);
-      const ptsStr = pts !== null ? pts : '&#8212;';
-      ts += displayScore; if(par) tp += par; tputts += putts;
-      if (h <= 9) {
-        fTs += displayScore; if(par) fTp += par; fTputts += putts;
-        if (pts !== null) { fTpts += pts; fHasPts = true; }
-      } else {
-        bTs += displayScore; if(par) bTp += par; bTputts += putts;
-        if (pts !== null) { bTpts += pts; bHasPts = true; }
-      }
-      rows.push('<tr><td>'+h+siDot+'</td>' +
-        '<td style="text-align:center;padding:4px 6px;">'+scoreIcon(displayScore,par)+'</td>' +
-        '<td><input class="sc-input" type="number" min="3" max="5" inputmode="numeric" value="'+(par||'')+'" placeholder="&#8211;" onchange="scSavePar('+h+',this.value)"></td>' +
-        '<td><input class="sc-input" type="number" min="1" max="30" inputmode="numeric" value="'+score+'" onchange="scSaveScore('+h+',this.value)"></td>' +
-        '<td style="'+diffCol+'">'+ds+'</td>' +
-        '<td style="color:var(--gold);">'+(putts||'&#8212;')+'</td>' +
-        '<td style="font-weight:500;color:var(--gold);">'+ptsStr+'</td></tr>');
-      if (h === 9 && hasBack9) {
-        rows.push(subtotalRow('Front 9', fTp, fTs, fTputts, fHasPts ? fTpts : null));
-      }
-      if (h === 18) {
-        rows.push(subtotalRow('Back 9', bTp, bTs, bTputts, bHasPts ? bTpts : null));
-      }
-    }
-  }
-  if (!rows.length) {
-    tbody.innerHTML='<tr><td colspan="7" style="text-align:center;color:var(--text-muted);padding:24px">No scores yet</td></tr>';
-    return;
-  }
-  const tdiff=tp?ts-tp:null;
-  const tds=tdiff===null?'&#8212;':(tdiff===0?'E':(tdiff>0?'+'+tdiff:tdiff));
-  const tdsCol=tdiff===null?'':(tdiff>0?'color:var(--warning)':tdiff<0?'color:var(--gold)':'color:var(--text-muted)');
-  const totalPts = Object.keys(holeScores).filter(h=>holeScores[h]>0).reduce((a,h)=>{ const p=stablefordPoints(parseInt(h)); return p!==null?a+p:a; }, 0);
-  tbody.innerHTML = rows.join('') +
-    '<tr><td style="padding-left:14px;'+subBorder+'">Total</td><td style="'+subBorder+'"></td><td style="'+subBorder+'">'+(tp||'&#8212;')+'</td><td style="'+subBorder+'">'+ts+'</td><td style="'+tdsCol+subBorder+'">'+tds+'</td><td style="color:var(--gold);'+subBorder+'">'+(tputts||'&#8212;')+'</td><td style="font-weight:500;color:var(--gold);'+subBorder+'">'+(handicapIndex!==null?totalPts:'&#8212;')+'</td></tr>' +
-    '<tr><td colspan="7" style="padding:10px 14px;"><button class="sc-save-btn" style="width:100%;" onclick="scSaveAll()">Save</button></td></tr>';
-  // Score icons above are freshly inserted <img> tags — theme.js's icon-swap only
-  // runs at page load and on toggle, so re-sweep now to pick up the current theme.
-  if (typeof applyIconTheme === 'function' && typeof getTheme === 'function') {
-    applyIconTheme(getTheme());
-  }
-}
-
-function scSavePar(hole,val) {
-  const v=parseInt(val); if(v===3||v===4||v===5){holePars[hole]=v;persist();writeCoursePars();}
-}
-function scSaveScore(hole,val) {
-  const v=parseInt(val); if(!isNaN(v)&&v>=0){holeScores[hole]=v;persist();}
-}
-function scSaveAll() { persist(); renderScorecard(); showToast('Scorecard saved'); }
-
-// ── Export ────────────────────────────────────────────────────────────────────
-function exportCSV() {
-  const scoredHoles=Object.keys(holeScores).map(Number).filter(h=>holeScores[h]>0).sort((a,b)=>a-b);
-  if (!scoredHoles.length && !shots.length) { showToast('No data to export'); return; }
-  const date=new Date().toLocaleDateString('en-AU').replace(/\//g,'-');
-  const rows=['Date,Hole,Par,Score,+/-'];
-  scoredHoles.forEach(h=>{
-    const par=holePars[h]||''; const diff=par?holeScores[h]-par:'';
-    rows.push(date+','+h+','+par+','+holeScores[h]+','+(diff!==''?(diff>0?'+'+diff:diff):''));
-  });
-  const blob=new Blob([rows.join('\r\n')],{type:'text/csv'});
-  const url=URL.createObjectURL(blob);
-  const a=document.createElement('a');a.href=url;a.download='golf-round-'+date+'.csv';a.click();
-  URL.revokeObjectURL(url); showToast('CSV downloaded');
-}
-function exportEmail() {
-  const scoredHoles=Object.keys(holeScores).map(Number).filter(h=>holeScores[h]>0).sort((a,b)=>a-b);
-  if (!scoredHoles.length){showToast('No scores to email');return;}
-  const date=new Date().toLocaleDateString('en-AU');
-  const lines=['Golf Round - '+date,''];
-  let total=0;
-  scoredHoles.forEach(h=>{
-    const par=holePars[h];const sc=holeScores[h];total+=sc;
-    const diff=par?(sc-par===0?'E':(sc-par>0?'+'+(sc-par):(sc-par))):'';
-    lines.push('Hole '+h+(par?' (Par '+par+')':'')+': '+sc+' shots'+(diff?' ('+diff+')':''));
-  });
-  lines.push('');lines.push('Total: '+total+' shots');
-  window.location.href='mailto:?subject='+encodeURIComponent('Golf Round - '+date)+'&body='+lines.join('%0D%0A');
-}
-
-// ── Dialog ────────────────────────────────────────────────────────────────────
+// ── Dialog — single shared instance for all three tabs ──────────────────────────
 function showDialog(opts) {
   document.getElementById('dialog-icon').innerHTML    = opts.icon  || '';
   document.getElementById('dialog-title').textContent = opts.title || '';
@@ -1150,19 +994,383 @@ function dialogAction(i) { closeDialog(); window._dialogActions?.[i]?.(); }
 function closeDialogOutside(e) { if(e.target===document.getElementById('dialog-overlay')) closeDialog(); }
 function closeDialog() { document.getElementById('dialog-overlay').style.display='none'; }
 
-// ── Toast ─────────────────────────────────────────────────────────────────────
+// ── Toast — single shared instance for all three tabs ────────────────────────────
 function showToast(msg) {
   const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show');
   setTimeout(()=>t.classList.remove('show'),2200);
 }
 
-// ── Nav drawer ────────────────────────────────────────────────────────────────
+// ══════════════════════════════════════════════════════════════════════════
+// MEASURE TAB — pulled from distance.html's Measure tab, unchanged except:
+//   - persist() renamed to persistClubDistances() (round tab already has its
+//     own persist(), for round data — different thing, same original name)
+//   - startWatch() removed; the single shared GPS watch is started once in
+//     Init below, with a combined callback covering all three tabs
+//   - the trailing renderHistory() call in loadDistancesFromSupabase() /
+//     saveShot() is dropped, since the Data tab (with the shot history list)
+//     wasn't part of this pull — Measure only
+// ══════════════════════════════════════════════════════════════════════════
+const ALL_CLUBS_FULL = {
+  'driver':'Driver','3wood':'3-Wood','4wood':'4-Wood','5wood':'5-Wood','7wood':'7-Wood','9wood':'9-Wood',
+  '2hybrid':'2-Hybrid','3hybrid':'3-Hybrid','4hybrid':'4-Hybrid','5hybrid':'5-Hybrid','6hybrid':'6-Hybrid',
+  '2iron':'2-Iron','3iron':'3-Iron','4iron':'4-Iron','5iron':'5-Iron','6iron':'6-Iron',
+  '7iron':'7-Iron','8iron':'8-Iron','9iron':'9-Iron',
+  'pw':'Pitching Wedge','gw':'Gap Wedge','sw':'Sand Wedge','lw':'Lob Wedge','putter':'Putter'
+};
+// Short labels for the compact grid buttons (full names shown elsewhere)
+const ALL_CLUBS_SHORT = {
+  'driver':'DR','3wood':'3W','4wood':'4W','5wood':'5W','7wood':'7W','9wood':'9W',
+  '2hybrid':'2H','3hybrid':'3H','4hybrid':'4H','5hybrid':'5H','6hybrid':'6H',
+  '2iron':'2i','3iron':'3i','4iron':'4i','5iron':'5i','6iron':'6i',
+  '7iron':'7i','8iron':'8i','9iron':'9i',
+  'pw':'PW','gw':'GW','sw':'SW','lw':'LW','putter':'PT'
+};
+const savedBag = JSON.parse(localStorage.getItem('golf-bag-v1') || 'null');
+const BAG = savedBag || ['driver','3wood','5wood','4hybrid','5iron','6iron','7iron','8iron','9iron','pw','gw','sw','lw','putter'];
 
-// ── Init ──────────────────────────────────────────────────────────────────────
+// ── State ─────────────────────────────────────────────────────────────────────
+let selectedClub  = null;
+let startPosition = null;
+let pendingDist   = null;
+let pendingClub   = null;
+// Shared between Measure (writes new shots) and Suggest (reads for recommendClub)
+let clubDistances = JSON.parse(localStorage.getItem('golf-club-distances') || '{}');
+
+function persistClubDistances() {
+  localStorage.setItem('golf-club-distances', JSON.stringify(clubDistances));
+}
+
+// ── Supabase save/load ────────────────────────────────────────────────────────
+async function saveDistanceToSupabase(club, dist, source) {
+  if (!currentUser) return null;
+  try {
+    const { data, error } = await sb.from('club_distances').insert({
+      user_id: currentUser.id, club: club, distance: dist,
+      date: new Date().toISOString().split('T')[0],
+      source: source || 'course'
+    }).select('id').single();
+    if (error) throw error;
+    return data ? data.id : null;
+  } catch(e) { console.error('Supabase club save error:', e); return null; }
+}
+
+async function loadDistancesFromSupabase() {
+  if (!currentUser) return;
+  try {
+    const { data } = await sb.from('club_distances')
+      .select('id, club, distance, date, source').eq('user_id', currentUser.id)
+      .order('created_at', { ascending: true });
+    if (!data || data.length === 0) return;
+    data.forEach(row => {
+      if (!clubDistances[row.club]) clubDistances[row.club] = [];
+      const rowDate = new Date(row.date).toLocaleDateString('en-AU');
+      const match = clubDistances[row.club].find(s => s.dist === row.distance && s.date === rowDate);
+      if (!match) {
+        clubDistances[row.club].push({ dist: row.distance, date: rowDate, source: row.source || 'course', id: row.id });
+      } else if (!match.id) {
+        // Backfill: shots saved before this fix existed have no id locally — attach it now
+        match.id = row.id;
+      }
+    });
+    persistClubDistances();
+    if (typeof updateSuggestionDisplay === 'function') updateSuggestionDisplay();
+  } catch(e) { console.error('Supabase club load error:', e); }
+}
+
+// ── Club selector grid ─────────────────────────────────────────────────────
+function renderClubGridInto(gridId, selected, onSelectFn) {
+  const grid = document.getElementById(gridId);
+  if (!grid) return;
+  grid.innerHTML = BAG.map(id =>
+    '<button class="club-grid-btn' + (selected===id?' selected':'') + '" onclick="'+onSelectFn+'(\''+id+'\')" title="' + (ALL_CLUBS_FULL[id]||id) + '">' +
+    (ALL_CLUBS_SHORT[id] || (ALL_CLUBS_FULL[id]||id)) +
+    '</button>'
+  ).join('');
+}
+
+function renderClubGrid() {
+  renderClubGridInto('club-grid', selectedClub, 'selectClub');
+}
+
+function selectClub(id) {
+  selectedClub = id;
+  renderClubGrid();
+  document.getElementById('btn-start').disabled = false;
+}
+
+function updateWalkingDistance() {
+  if (!currentFix || !startPosition) return;
+  document.getElementById('walking-dist').textContent = haversine(startPosition, currentFix);
+}
+
+// ── Shot flow ─────────────────────────────────────────────────────────────────
+let currentStage = 'idle';
+
+function setStage(name) {
+  currentStage = name;
+  ['idle','walking','result'].forEach(s => {
+    document.getElementById('stage-'+s).style.display = s===name ? 'block' : 'none';
+  });
+}
+
+function startShot() {
+  if (!selectedClub) { showToast('Select a club first'); return; }
+  if (!currentFix) { showToast('Waiting for a GPS fix…'); return; }
+  const tier = accuracyTier(currentFix.accuracy);
+  if (tier === 'poor') {
+    showDialog({
+      icon: '&#9888;',
+      title: 'Poor GPS Accuracy',
+      sub: 'Current accuracy is ±' + Math.round(currentFix.accuracy) + 'm. Starting now may give an inaccurate distance. Record the start position anyway?',
+      buttons: [
+        { label: 'Record anyway', style: 'primary', action: lockStart },
+        { label: 'Wait for better signal', style: 'secondary', action: () => {} }
+      ]
+    });
+  } else { lockStart(); }
+}
+
+function lockStart() {
+  startPosition = { latitude: currentFix.latitude, longitude: currentFix.longitude };
+  document.getElementById('walking-dist').textContent = '0';
+  document.getElementById('tracker-label').textContent = 'Walk to your ball';
+  setStage('walking');
+  showToast('Start marked (±' + Math.round(currentFix.accuracy) + 'm) — walk to your ball');
+}
+
+function markLanding() {
+  if (!currentFix) { showToast('Waiting for a GPS fix…'); return; }
+  const tier = accuracyTier(currentFix.accuracy);
+  if (tier === 'poor') {
+    showDialog({
+      icon: '&#9888;',
+      title: 'Poor GPS Accuracy',
+      sub: 'Current accuracy is ±' + Math.round(currentFix.accuracy) + 'm. Recording now may give an inaccurate distance. Record the finish position anyway?',
+      buttons: [
+        { label: 'Record anyway', style: 'primary', action: lockFinish },
+        { label: 'Wait for better signal', style: 'secondary', action: () => {} }
+      ]
+    });
+  } else { lockFinish(); }
+}
+
+function lockFinish() {
+  const dist = haversine(startPosition, currentFix);
+  pendingDist = dist;
+  pendingClub = selectedClub;
+  // Save immediately — no result stage
+  saveShot();
+}
+
+function saveShot() {
+  if (!pendingClub || pendingDist === null) return;
+  if (!clubDistances[pendingClub]) clubDistances[pendingClub] = [];
+  const shotEntry = { dist: pendingDist, date: new Date().toLocaleDateString('en-AU'), source: 'course' };
+  clubDistances[pendingClub].push(shotEntry);
+  persistClubDistances();
+  saveDistanceToSupabase(pendingClub, pendingDist, 'course').then(id => {
+    if (id) { shotEntry.id = id; persistClubDistances(); }
+  });
+  showToast((ALL_CLUBS_FULL[pendingClub]||pendingClub) + ' — ' + pendingDist + 'm saved');
+  resetTracker();
+}
+
+function retakeShot() {
+  document.getElementById('tracker-label').textContent = 'Walk to your ball';
+  setStage('walking');
+}
+
+function cancelShot() { resetTracker(); }
+
+function resetTracker() {
+  startPosition = null; pendingDist = null; pendingClub = null;
+  document.getElementById('tracker-label').textContent = 'Ready';
+  document.getElementById('stage-idle').querySelector('p').textContent = 'Select a club, stand at the ball, then tap Start Shot';
+  document.getElementById('btn-start').disabled = !selectedClub;
+  setStage('idle');
+}
+
+// ══════════════════════════════════════════════════════════════════════════
+// SUGGEST TAB — pulled from suggest.html's Suggest tab, unchanged except:
+//   - its own currentHole/currentCourse declarations dropped; reuses the
+//     Round tab's currentHole/currentCourse above (same underlying state,
+//     previously kept in sync only by both pages reading the same
+//     localStorage keys on separate page loads — now genuinely shared)
+// ══════════════════════════════════════════════════════════════════════════
+let currentCourseId = null;
+let currentGreenLat = null;
+let currentGreenLng = null;
+let greenCapturedAt = null;
+
+async function resolveCourseId() {
+  if (currentCourseId) return currentCourseId;
+  if (!currentCourse || !currentCourse.name) return null;
+  const { data: found } = await sb.from('courses').select('id').ilike('name', currentCourse.name).limit(1);
+  if (found && found.length > 0) {
+    currentCourseId = found[0].id;
+    return currentCourseId;
+  }
+  const { data: created, error } = await sb.from('courses')
+    .insert({ name: currentCourse.name, suburb: currentCourse.suburb || null })
+    .select('id').single();
+  if (error || !created) { console.error('Course create error:', error); return null; }
+  currentCourseId = created.id;
+  return currentCourseId;
+}
+
+async function loadGreenLocation() {
+  const courseId = await resolveCourseId();
+  if (!courseId) return;
+  try {
+    const { data } = await sb.from('course_holes')
+      .select('green_lat, green_lng, green_captured_at')
+      .eq('course_id', courseId).eq('hole', currentHole).limit(1);
+    if (data && data.length > 0 && data[0].green_lat != null) {
+      currentGreenLat = data[0].green_lat;
+      currentGreenLng = data[0].green_lng;
+      greenCapturedAt = data[0].green_captured_at;
+    } else {
+      currentGreenLat = null;
+      currentGreenLng = null;
+      greenCapturedAt = null;
+    }
+  } catch(e) { console.error('Green location load error:', e); }
+  renderGreenStatus();
+  updateSuggestionDisplay();
+}
+
+function renderGreenStatus() {
+  const el = document.getElementById('green-status');
+  if (!el) return;
+  el.innerHTML = greenCapturedAt
+    ? 'Last captured <b>' + new Date(greenCapturedAt).toLocaleDateString('en-AU') + '</b>'
+    : 'Not captured yet for this hole';
+  const btn = document.getElementById('btn-capture-green');
+  if (btn) btn.innerHTML = greenCapturedAt ? '&#128205; Update Green Location' : '&#128205; Capture Green Location';
+}
+
+async function saveGreenLocation() {
+  const courseId = await resolveCourseId();
+  if (!courseId) { showToast('Could not resolve course — try again'); return; }
+  try {
+    await sb.from('course_holes').upsert({
+      course_id: courseId,
+      hole: currentHole,
+      green_lat: currentFix.latitude,
+      green_lng: currentFix.longitude,
+      green_source: 'capture',
+      green_captured_at: new Date().toISOString()
+    }, { onConflict: 'course_id,hole' });
+    currentGreenLat = currentFix.latitude;
+    currentGreenLng = currentFix.longitude;
+    greenCapturedAt = new Date().toISOString();
+    renderGreenStatus();
+    updateSuggestionDisplay();
+    showToast('Green location saved (±' + Math.round(currentFix.accuracy) + 'm)');
+  } catch(e) {
+    console.error('Green location save error:', e);
+    showToast('Save failed — check connection');
+  }
+}
+
+function captureGreenLocation() {
+  if (!currentFix) { showToast('Waiting for a GPS fix…'); return; }
+  const tier = accuracyTier(currentFix.accuracy);
+  const alreadyCaptured = !!greenCapturedAt;
+  if (tier === 'poor' || tier === 'unknown') {
+    showDialog({
+      icon: '&#128205;',
+      title: 'Low GPS Accuracy',
+      sub: 'Current accuracy is ±' + Math.round(currentFix.accuracy) + 'm.' +
+        (alreadyCaptured ? ' This will overwrite the existing saved location.' : '') +
+        ' Save anyway?',
+      buttons: [
+        { label: 'Save Anyway', style: 'danger', action: () => saveGreenLocation() },
+        { label: 'Cancel', style: 'secondary', action: () => {} }
+      ]
+    });
+    return;
+  }
+  if (alreadyCaptured) {
+    showDialog({
+      icon: '&#128205;',
+      title: 'Overwrite Green Location?',
+      sub: 'This hole already has a saved location. Replace it with your current position (±' + Math.round(currentFix.accuracy) + 'm)?',
+      buttons: [
+        { label: 'Overwrite', style: 'primary', action: () => saveGreenLocation() },
+        { label: 'Cancel', style: 'secondary', action: () => {} }
+      ]
+    });
+    return;
+  }
+  saveGreenLocation();
+}
+
+// ── Live distance + club recommendation ─────────────────────────────────────
+// Recommendation strategy: prefer the club whose personal average distance
+// gets closest to the target WITHOUT going over (avoids flying the green);
+// if every club's average falls short, fall back to the longest club.
+function recommendClub(targetDist) {
+  const candidates = BAG
+    .filter(id => clubDistances[id] && clubDistances[id].length > 0)
+    .map(id => {
+      const dists = clubDistances[id].map(s => s.dist);
+      const avg = Math.round(dists.reduce((a,v)=>a+v,0)/dists.length);
+      return { id, avg };
+    });
+  if (!candidates.length) return null;
+  const underOrEqual = candidates.filter(c => c.avg <= targetDist);
+  if (underOrEqual.length) {
+    return underOrEqual.reduce((best, c) => c.avg > best.avg ? c : best);
+  }
+  return candidates.reduce((best, c) => c.avg < best.avg ? c : best);
+}
+
+function updateSuggestionDisplay() {
+  const distEl = document.getElementById('sugg-dist-display');
+  const clubEl = document.getElementById('sugg-club-display');
+  if (!distEl || !clubEl) return;
+
+  if (currentGreenLat == null) {
+    distEl.innerHTML = '<span class="sugg-dist-value">&mdash;</span>';
+    clubEl.innerHTML = '<div class="sugg-empty">No green location saved for this hole yet. Capture it below to get a live distance.</div>';
+    return;
+  }
+  if (!currentFix) {
+    distEl.innerHTML = '<span class="sugg-dist-value">&mdash;</span>';
+    clubEl.innerHTML = '<div class="sugg-empty">Waiting for a GPS fix…</div>';
+    return;
+  }
+
+  const dist = haversine(currentFix, { latitude: currentGreenLat, longitude: currentGreenLng });
+  distEl.innerHTML = '<span class="sugg-dist-value">' + dist + '</span><span class="sugg-dist-unit">m</span>';
+
+  const rec = recommendClub(dist);
+  if (!rec) {
+    clubEl.innerHTML = '<div class="sugg-empty">No shot data yet — log some shots on the Measure tab to get a recommendation.</div>';
+    return;
+  }
+  clubEl.innerHTML = '<div class="sugg-club-name">' + (ALL_CLUBS_FULL[rec.id]||rec.id) + '</div>' +
+    '<div class="sugg-club-sub">Your average: ' + rec.avg + 'm</div>';
+}
+
+// ══════════════════════════════════════════════════════════════════════════
+// INIT — one shared GPS watch feeds all three tabs, so it only has to be
+// granted once per page load instead of once per page navigation. This is
+// the whole point of the merge: no more re-prompting for GPS as you move
+// between Round / Measure / Suggest.
+// ══════════════════════════════════════════════════════════════════════════
 renderRound();
 updateFinishBtn();
 loadCourseData();
-startGpsWatch(function() { updateDistToGreen(); });
+renderClubGrid();
+renderGreenStatus();
+loadGreenLocation();
+startGpsWatch(function() {
+  updateDistToGreen();
+  if (currentStage === 'walking' && startPosition) updateWalkingDistance();
+  updateSuggestionDisplay();
+});
 window.addEventListener('beforeunload', () => { stopGpsWatch(); });
 if('serviceWorker' in navigator){navigator.serviceWorker.register('/sw.js').catch(()=>{});}
 </script>

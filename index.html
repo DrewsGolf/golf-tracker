@@ -29,7 +29,11 @@
   }
 
   html, body {
-    height: 100%;
+    height: 100%;   /* fallback for browsers without dvh support */
+    height: 100dvh; /* tracks Safari's actual visible viewport as its address-bar
+                       toolbar shows/hides, instead of the "large viewport" 100%
+                       resolves to — fixes the cream gap between the nav bar and
+                       Safari's own chrome on iOS (16 Aug 2026) */
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
     background: var(--bg-primary);
     overflow: hidden;

@@ -215,6 +215,7 @@
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
     border-top: 0.5px solid color-mix(in srgb, var(--gold) 20%, transparent);
+    padding-bottom: calc(var(--safe-bottom) + 6px);
   }
 
   .nav-item {
@@ -223,7 +224,7 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    padding: 4px;
+    padding: 10px 4px 6px;
     text-decoration: none;
     background: none;
     border: none;
@@ -302,6 +303,18 @@
   .sugg-club-name { font-size: 28px; font-weight: 600; color: var(--text-primary); }
   .sugg-club-sub { font-size: 12px; color: var(--text-muted); margin-top: 6px; }
   .sugg-empty { text-align: center; padding: 20px 16px; color: var(--text-muted); font-size: 13px; line-height: 1.6; }
+
+  /* Short/Long — two cards side by side between Recommended Club and Green
+     Location, showing the neighboring clubs (by personal average distance,
+     not target-distance fit) one step below/above the recommended club.
+     17 Aug 2026. */
+  .sugg-shortlong-row { display: flex; gap: 10px; }
+  .sugg-sl-card { flex: 1; text-align: center; padding: 14px 10px; min-width: 0; }
+  .sugg-sl-label { font-size: 11px; font-weight: 700; letter-spacing: 0.15em; text-transform: uppercase; color: var(--gold); margin-bottom: 6px; }
+  .sugg-sl-club { font-size: 18px; font-weight: 600; color: var(--text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .sugg-sl-avg { font-size: 12px; color: var(--text-muted); margin-top: 4px; }
+  .sugg-shortlong-row .sugg-empty { padding: 8px 4px; font-size: 12px; }
+
   .green-status { text-align: center; font-size: 12px; color: var(--text-muted); margin-top: 4px; }
   .green-status b { color: var(--gold); font-weight: 500; }
 </style>
@@ -456,6 +469,17 @@
       <div class="card sugg-club-card" id="sugg-club-card">
         <div class="sugg-club-label">Recommended Club</div>
         <div id="sugg-club-display"><div class="sugg-empty">Waiting for a green location and GPS fix&hellip;</div></div>
+      </div>
+
+      <div class="sugg-shortlong-row">
+        <div class="card sugg-sl-card">
+          <div class="sugg-sl-label">Short</div>
+          <div id="sugg-short-display"><div class="sugg-empty">&mdash;</div></div>
+        </div>
+        <div class="card sugg-sl-card">
+          <div class="sugg-sl-label">Long</div>
+          <div id="sugg-long-display"><div class="sugg-empty">&mdash;</div></div>
+        </div>
       </div>
 
       <div class="card">
@@ -1302,14 +1326,22 @@ function captureGreenLocation() {
 // Recommendation strategy: prefer the club whose personal average distance
 // gets closest to the target WITHOUT going over (avoids flying the green);
 // if every club's average falls short, fall back to the longest club.
-function recommendClub(targetDist) {
-  const candidates = BAG
+// getClubAveragesSorted: every bag club with logged shots, as {id, avg},
+// sorted ascending by average distance. Shared by recommendClub (best-fit
+// under target) and shortLongNeighbors (next club down/up by average). 17 Aug 2026.
+function getClubAveragesSorted() {
+  return BAG
     .filter(id => clubDistances[id] && clubDistances[id].length > 0)
     .map(id => {
       const dists = clubDistances[id].map(s => s.dist);
       const avg = Math.round(dists.reduce((a,v)=>a+v,0)/dists.length);
       return { id, avg };
-    });
+    })
+    .sort((a, b) => a.avg - b.avg);
+}
+
+function recommendClub(targetDist) {
+  const candidates = getClubAveragesSorted();
   if (!candidates.length) return null;
   const underOrEqual = candidates.filter(c => c.avg <= targetDist);
   if (underOrEqual.length) {
@@ -1318,20 +1350,48 @@ function recommendClub(targetDist) {
   return candidates.reduce((best, c) => c.avg < best.avg ? c : best);
 }
 
+// shortLongNeighbors: given the recommended club, find its neighbors in the
+// personal-average-distance ordering — one club shorter (Short) and one club
+// longer (Long). Either can be null if there's no such neighbor logged. 17 Aug 2026.
+function shortLongNeighbors(rec) {
+  const sorted = getClubAveragesSorted();
+  const idx = sorted.findIndex(c => c.id === rec.id);
+  if (idx === -1) return { shortClub: null, longClub: null };
+  return {
+    shortClub: idx > 0 ? sorted[idx - 1] : null,
+    longClub: idx < sorted.length - 1 ? sorted[idx + 1] : null
+  };
+}
+
+function renderShortLongCard(el, entry, emptyMsg) {
+  if (!entry) {
+    el.innerHTML = '<div class="sugg-empty">' + emptyMsg + '</div>';
+    return;
+  }
+  el.innerHTML = '<div class="sugg-sl-club">' + (ALL_CLUBS_SHORT[entry.id]||entry.id) + '</div>' +
+    '<div class="sugg-sl-avg">' + entry.avg + 'm avg</div>';
+}
+
 function updateSuggestionDisplay() {
   const distEl = document.getElementById('sugg-dist-display');
   const clubEl = document.getElementById('sugg-club-display');
-  if (!distEl || !clubEl) return;
+  const shortEl = document.getElementById('sugg-short-display');
+  const longEl = document.getElementById('sugg-long-display');
+  if (!distEl || !clubEl || !shortEl || !longEl) return;
 
   const glat = holeGreenLat[currentHole], glng = holeGreenLng[currentHole];
   if (glat == null || glng == null) {
     distEl.innerHTML = '<span class="sugg-dist-value">&mdash;</span>';
     clubEl.innerHTML = '<div class="sugg-empty">No green location saved for this hole yet. Capture it below to get a live distance.</div>';
+    shortEl.innerHTML = '<div class="sugg-empty">&mdash;</div>';
+    longEl.innerHTML = '<div class="sugg-empty">&mdash;</div>';
     return;
   }
   if (!currentFix) {
     distEl.innerHTML = '<span class="sugg-dist-value">&mdash;</span>';
     clubEl.innerHTML = '<div class="sugg-empty">Waiting for a GPS fix…</div>';
+    shortEl.innerHTML = '<div class="sugg-empty">&mdash;</div>';
+    longEl.innerHTML = '<div class="sugg-empty">&mdash;</div>';
     return;
   }
 
@@ -1341,10 +1401,16 @@ function updateSuggestionDisplay() {
   const rec = recommendClub(dist);
   if (!rec) {
     clubEl.innerHTML = '<div class="sugg-empty">No shot data yet — log some shots on the Measure tab to get a recommendation.</div>';
+    shortEl.innerHTML = '<div class="sugg-empty">&mdash;</div>';
+    longEl.innerHTML = '<div class="sugg-empty">&mdash;</div>';
     return;
   }
   clubEl.innerHTML = '<div class="sugg-club-name">' + (ALL_CLUBS_FULL[rec.id]||rec.id) + '</div>' +
     '<div class="sugg-club-sub">Your average: ' + rec.avg + 'm</div>';
+
+  const { shortClub, longClub } = shortLongNeighbors(rec);
+  renderShortLongCard(shortEl, shortClub, 'No shorter club logged');
+  renderShortLongCard(longEl, longClub, 'No longer club logged');
 }
 
 // ══════════════════════════════════════════════════════════════════════════

@@ -296,6 +296,9 @@
   /* Suggest tab — live suggestion display */
   .sugg-dist-card { text-align: center; padding: 20px 14px; }
   .sugg-dist-label { font-size: 12px; font-weight: 700; letter-spacing: 0.15em; text-transform: uppercase; color: var(--gold); margin-bottom: 6px; }
+  /* Row wrapping the label above + the GPS signal-strength dot beside it. 17 Aug 2026. */
+  .sugg-dist-label-row { display: flex; align-items: center; justify-content: center; gap: 6px; margin-bottom: 6px; }
+  .sugg-dist-label-row .sugg-dist-label { margin-bottom: 0; }
   .sugg-dist-value { font-size: 48px; font-weight: 400; color: var(--gold); letter-spacing: -0.02em; line-height: 1; }
   .sugg-dist-unit { font-size: 18px; font-weight: 300; color: var(--gold); margin-left: 4px; }
   .sugg-club-card { text-align: center; padding: 18px 14px; }
@@ -462,8 +465,18 @@
     <!-- ═══════════════════════════ SUGGEST TAB — pulled from suggest.html's Suggest tab, unchanged ═══════════════════════════ -->
     <div class="screen" id="screen-suggest">
       <div class="card sugg-dist-card">
-        <div class="sugg-dist-label">Distance to Green</div>
+        <div class="sugg-dist-label-row">
+          <span class="sugg-dist-label">Distance to Green</span>
+          <span class="gps-indicator searching" id="sugg-topdist-gps-indicator"></span>
+        </div>
         <div id="sugg-dist-display"><span class="sugg-dist-value">&mdash;</span></div>
+        <!-- gps-indicator.js updates every element carrying these classes on every
+             fix — these three are hidden here since this box is dot-only by design
+             (matches the Round tab's Dist-to-Green box pattern), kept only so the
+             shared script has somewhere to write for this particular block. 17 Aug 2026. -->
+        <span class="gps-status-text" id="sugg-topdist-gps-status-text" style="display:none;"></span>
+        <div class="gps-accuracy" id="sugg-topdist-gps-accuracy" style="display:none;"></div>
+        <div class="gps-debug" id="sugg-topdist-gps-debug" style="display:none;"></div>
       </div>
 
       <div class="card sugg-club-card" id="sugg-club-card">

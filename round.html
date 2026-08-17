@@ -316,7 +316,10 @@
   /* Match Recommended Club's text sizing (.sugg-club-label/.sugg-club-name/.sugg-club-sub
      above) — was smaller before, too hard to read at a glance while playing. 17 Aug 2026. */
   .sugg-sl-label { font-size: 12px; font-weight: 700; letter-spacing: 0.15em; text-transform: uppercase; color: var(--gold); margin-bottom: 8px; }
-  .sugg-sl-club { font-size: 28px; font-weight: 600; color: var(--text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  /* Full club names (e.g. "Pitching Wedge") can be longer than these half-width
+     cards — wrap instead of truncating with an ellipsis so the name stays
+     fully readable, matching Recommended Club's own full-name display. 17 Aug 2026. */
+  .sugg-sl-club { font-size: 28px; font-weight: 600; color: var(--text-primary); line-height: 1.15; word-break: break-word; }
   .sugg-sl-avg { font-size: 12px; color: var(--text-muted); margin-top: 6px; }
   .sugg-shortlong-row .sugg-empty { padding: 8px 4px; font-size: 12px; }
 
@@ -1383,7 +1386,7 @@ function renderShortLongCard(el, entry, emptyMsg) {
     el.innerHTML = '<div class="sugg-empty">' + emptyMsg + '</div>';
     return;
   }
-  el.innerHTML = '<div class="sugg-sl-club">' + (ALL_CLUBS_SHORT[entry.id]||entry.id) + '</div>' +
+  el.innerHTML = '<div class="sugg-sl-club">' + (ALL_CLUBS_FULL[entry.id]||entry.id) + '</div>' +
     '<div class="sugg-sl-avg">' + entry.avg + 'm avg</div>';
 }
 

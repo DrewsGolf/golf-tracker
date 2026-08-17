@@ -2674,5 +2674,17 @@ const COURSES = [
     "notes": "Small Wimmera town 9-hole",
     "lat": -36.3333,
     "lng": 141.65
+  },
+  {
+    "name": "Drew's Pitch-N-Put",
+    "suburb": "Rosanna",
+    "holes": 9,
+    "par": "36",
+    "fee9": "N/A",
+    "fee18": "N/A",
+    "access": "Private",
+    "notes": "Test course for trying out app features \u2014 not a real golf course",
+    "lat": -37.74486570648741,
+    "lng": 145.0616501558514
   }
 ];

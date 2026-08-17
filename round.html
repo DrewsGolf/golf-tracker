@@ -313,9 +313,11 @@
      17 Aug 2026. */
   .sugg-shortlong-row { display: flex; gap: 10px; }
   .sugg-sl-card { flex: 1; text-align: center; padding: 14px 10px; min-width: 0; }
-  .sugg-sl-label { font-size: 11px; font-weight: 700; letter-spacing: 0.15em; text-transform: uppercase; color: var(--gold); margin-bottom: 6px; }
-  .sugg-sl-club { font-size: 18px; font-weight: 600; color: var(--text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .sugg-sl-avg { font-size: 12px; color: var(--text-muted); margin-top: 4px; }
+  /* Match Recommended Club's text sizing (.sugg-club-label/.sugg-club-name/.sugg-club-sub
+     above) — was smaller before, too hard to read at a glance while playing. 17 Aug 2026. */
+  .sugg-sl-label { font-size: 12px; font-weight: 700; letter-spacing: 0.15em; text-transform: uppercase; color: var(--gold); margin-bottom: 8px; }
+  .sugg-sl-club { font-size: 28px; font-weight: 600; color: var(--text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .sugg-sl-avg { font-size: 12px; color: var(--text-muted); margin-top: 6px; }
   .sugg-shortlong-row .sugg-empty { padding: 8px 4px; font-size: 12px; }
 
   .green-status { text-align: center; font-size: 12px; color: var(--text-muted); margin-top: 4px; }

@@ -435,7 +435,9 @@
             <span class="gps-status-text" id="measure-gps-status-text">Acquiring GPS&hellip;</span>
           </div>
           <div class="gps-accuracy" id="measure-gps-accuracy">—</div>
-          <div class="gps-debug" id="measure-gps-debug">no fix yet</div>
+          <!-- Lat/long debug readout removed per Drew's request, 17 Aug 2026 —
+               fix quality dot + accuracy in meters is all that's shown here now. -->
+          <div class="gps-debug" id="measure-gps-debug" style="display:none;"></div>
         </div>
 
         <!-- Stage: idle -->
@@ -508,7 +510,9 @@
             <span class="gps-status-text" id="suggest-gps-status-text">Acquiring GPS&hellip;</span>
           </div>
           <div class="gps-accuracy" id="suggest-gps-accuracy">—</div>
-          <div class="gps-debug" id="suggest-gps-debug">no fix yet</div>
+          <!-- Lat/long debug readout removed per Drew's request, 17 Aug 2026 —
+               fix quality dot + accuracy in meters is all that's shown here now. -->
+          <div class="gps-debug" id="suggest-gps-debug" style="display:none;"></div>
         </div>
         <button class="btn btn-outline" onclick="captureGreenLocation()" id="btn-capture-green">&#128205; Capture Green Location</button>
         <div class="green-status" id="green-status"></div>

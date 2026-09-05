@@ -42,15 +42,17 @@
     max-width: 430px;
     margin: 0 auto;
     overflow: hidden;
-    display: flex;
-    flex-direction: column;
   }
 
-  /* ── Top hero image — sits at natural aspect ratio, not full-bleed ── */
+  /* ── Hero image — pinned in place as a background layer. Does not scroll;
+     the scroll-layer (cards) scrolls on top of it instead. ── */
   .top-hero-wrap {
-    position: relative;
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
     width: 100%;
-    flex-shrink: 0;
+    z-index: 1;
   }
 
   .top-hero-img {
@@ -59,14 +61,27 @@
     display: block;
   }
 
-  /* ── Remaining screen area below the hero, plain page background ── */
+  /* ── Scroll layer — sits above the fixed hero image and scrolls independently.
+     Its content starts with an invisible spacer matching the hero's height, so
+     initially the cards sit right where they visually appear now; as the user
+     scrolls, the cards (solid backgrounds) slide up and cover the image
+     underneath, since the image itself never moves. ── */
   .body-fill {
-    flex: 1;
-    min-height: 0;
+    position: absolute;
+    inset: 0;
+    z-index: 5;
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
-    background: var(--bg);
-    padding-bottom: 16px;
+    background: transparent;
+    padding-bottom: 110px;
+  }
+
+  .hero-spacer {
+    width: 100%;
+    height: auto;
+    display: block;
+    visibility: hidden;
+    pointer-events: none;
   }
 
   /* ── Last Round card — overlaps the bottom edge of the hero image ────── */
@@ -204,7 +219,12 @@
      nav here — white icons would be nearly invisible on the plain
      light background. ── */
   .nav-shell {
-    flex-shrink: 0;
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 10;
+    background: var(--bg);
   }
 
   .nav-row {
@@ -262,6 +282,7 @@
 
   <!-- Remaining screen space below the hero -->
   <div class="body-fill">
+    <img class="hero-spacer" src="images/Main_header.png" alt="" aria-hidden="true">
     <div class="last-round-card">
       <div class="lr-header">
         <span class="lr-label">Last Round</span>

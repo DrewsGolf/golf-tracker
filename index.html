@@ -62,7 +62,11 @@
   /* ── Remaining screen area below the hero, plain page background ── */
   .body-fill {
     flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
     background: var(--bg);
+    padding-bottom: 16px;
   }
 
   /* ── Last Round card — overlaps the bottom edge of the hero image ────── */

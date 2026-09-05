@@ -1037,9 +1037,12 @@ function renderChartHTML(rounds, metric) {
     return `<circle cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="5" fill="${dc}" stroke="#fff" stroke-width="2"/>`;
   }).join('');
   let labels = '';
-  [0, points.length-1].forEach(i => {
+  const labelIndices = [];
+  for (let i = 0; i < points.length; i += 3) labelIndices.push(i);
+  if (labelIndices[labelIndices.length - 1] !== points.length - 1) labelIndices.push(points.length - 1);
+  labelIndices.forEach(i => {
     const p = points[i];
-    const anchor = i === 0 ? 'start' : 'end';
+    const anchor = i === 0 ? 'start' : i === points.length - 1 ? 'end' : 'middle';
     labels += `<text x="${p.x.toFixed(1)}" y="${(p.y-10).toFixed(1)}" text-anchor="${anchor}" font-size="11" font-weight="700" fill="${cfg.colorFor(p.v)}">${cfg.format(p.v)}</text>`;
   });
 

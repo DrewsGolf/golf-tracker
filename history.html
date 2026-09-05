@@ -1025,6 +1025,17 @@ function renderChartHTML(rounds, metric) {
   const range = maxV - minV || 1;
   const xStep = (W - PAD*2) / Math.max(rounds.length - 1, 1);
 
+  // 9-hole rounds get a distinct blue dot on the Score/Points views, since a
+  // half-round's value isn't directly comparable to a full 18-hole round.
+  const holeCounts = rounds.map(r => {
+    const sph = getShotsPerHole(r);
+    return Object.keys(sph).filter(h => sph[h] > 0).length;
+  });
+  const dotColor = (v, i) => {
+    if (metric !== 'putts' && holeCounts[i] > 0 && holeCounts[i] <= 9) return '#2563eb';
+    return cfg.colorFor(v);
+  };
+
   const points = vals.map((v, i) => ({
     x: PAD + i * xStep,
     y: PAD + ((maxV - v) / range) * (H - PAD*2),
@@ -1032,8 +1043,8 @@ function renderChartHTML(rounds, metric) {
   }));
 
   const path = points.map((p,i) => (i===0?'M':'L') + p.x.toFixed(1) + ' ' + p.y.toFixed(1)).join(' ');
-  const dots = points.map(p => {
-    const dc = cfg.colorFor(p.v);
+  const dots = points.map((p,i) => {
+    const dc = dotColor(p.v, i);
     return `<circle cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="5" fill="${dc}" stroke="#fff" stroke-width="2"/>`;
   }).join('');
   let labels = '';
@@ -1043,7 +1054,7 @@ function renderChartHTML(rounds, metric) {
   labelIndices.forEach(i => {
     const p = points[i];
     const anchor = i === 0 ? 'start' : i === points.length - 1 ? 'end' : 'middle';
-    labels += `<text x="${p.x.toFixed(1)}" y="${(p.y-10).toFixed(1)}" text-anchor="${anchor}" font-size="11" font-weight="700" fill="${cfg.colorFor(p.v)}">${cfg.format(p.v)}</text>`;
+    labels += `<text x="${p.x.toFixed(1)}" y="${(p.y-10).toFixed(1)}" text-anchor="${anchor}" font-size="11" font-weight="700" fill="${dotColor(p.v, i)}">${cfg.format(p.v)}</text>`;
   });
 
   let refLine = '';

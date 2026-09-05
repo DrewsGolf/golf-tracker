@@ -335,6 +335,30 @@
         </div>
       </div>
     </div>
+
+    <div class="best-round-card">
+      <div class="lr-header">
+        <span class="lr-label">Lifetime Scoring</span>
+      </div>
+      <div class="lr-stats">
+        <div class="lr-stat">
+          <div class="lr-stat-value" id="ls-eagles">&ndash;</div>
+          <div class="lr-stat-label">Eagles</div>
+        </div>
+        <div class="lr-stat">
+          <div class="lr-stat-value" id="ls-birdies">&ndash;</div>
+          <div class="lr-stat-label">Birdies</div>
+        </div>
+        <div class="lr-stat">
+          <div class="lr-stat-value" id="ls-pars">&ndash;</div>
+          <div class="lr-stat-label">Pars</div>
+        </div>
+        <div class="lr-stat">
+          <div class="lr-stat-value" id="ls-bogeys">&ndash;</div>
+          <div class="lr-stat-label">Bogeys</div>
+        </div>
+      </div>
+    </div>
   </div>
 
   <!-- Nav shell — flat row, 5 icons, linked -->
@@ -509,8 +533,56 @@ async function loadBestRoundCard() {
   }
 }
 
+function renderLifetimeStatsCard(stats) {
+  const eaglesEl  = document.getElementById('ls-eagles');
+  const birdiesEl = document.getElementById('ls-birdies');
+  const parsEl    = document.getElementById('ls-pars');
+  const bogeysEl  = document.getElementById('ls-bogeys');
+  if (!stats) {
+    eaglesEl.textContent = '\u2013'; birdiesEl.textContent = '\u2013'; parsEl.textContent = '\u2013'; bogeysEl.textContent = '\u2013';
+    return;
+  }
+  eaglesEl.textContent  = stats.eagles;
+  birdiesEl.textContent = stats.birdies;
+  parsEl.textContent    = stats.pars;
+  bogeysEl.textContent  = stats.bogeys;
+}
+
+async function loadLifetimeStatsCard() {
+  try {
+    const { data: { session } } = await sb.auth.getSession();
+    if (!session) { renderLifetimeStatsCard(null); return; }
+    const userId = session.user.id;
+
+    // Pull just score+par for every hole ever played — counting happens
+    // client-side. Fine at personal-app scale; would move to a database
+    // aggregate (a Postgres function called via sb.rpc) if this ever needed
+    // to handle many users' full histories at once.
+    const { data: holes, error } = await sb.from('hole_scores')
+      .select('score, par')
+      .eq('user_id', userId);
+    if (error || !holes) { renderLifetimeStatsCard(null); return; }
+
+    let eagles = 0, birdies = 0, pars = 0, bogeys = 0;
+    holes.forEach(h => {
+      if (h.score == null || h.par == null) return;
+      const diff = h.score - h.par;
+      if (diff <= -2) eagles++;
+      else if (diff === -1) birdies++;
+      else if (diff === 0) pars++;
+      else if (diff === 1) bogeys++;
+    });
+
+    renderLifetimeStatsCard({ eagles, birdies, pars, bogeys });
+  } catch(e) {
+    console.error('Lifetime stats card load error:', e);
+    renderLifetimeStatsCard(null);
+  }
+}
+
 loadLastRoundCard();
 loadBestRoundCard();
+loadLifetimeStatsCard();
 
 // ── Continue round — swap Play to round.html if in progress ──────────────────
 const inProgressScores = JSON.parse(localStorage.getItem('golf-scores-v1') || '{}');

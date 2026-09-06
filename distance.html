@@ -513,10 +513,20 @@ async function saveDistanceToSupabase(club, dist, source) {
 async function loadDistancesFromSupabase() {
   if (!currentUser) return;
   try {
-    const { data } = await sb.from('club_distances')
+    const { data, error } = await sb.from('club_distances')
       .select('id, club, distance, date, source').eq('user_id', currentUser.id)
       .order('created_at', { ascending: true });
-    if (!data || data.length === 0) return;
+    if (error || !data) return; // fetch failed — leave local data untouched rather than risk wiping it
+
+    // Reconcile: drop any locally-cached shot that has an id but no longer
+    // exists remotely — it was deleted from another device. Shots with no
+    // id yet (saved locally, not synced) are left alone regardless.
+    const remoteIds = new Set(data.map(row => row.id));
+    Object.keys(clubDistances).forEach(club => {
+      clubDistances[club] = clubDistances[club].filter(s => !s.id || remoteIds.has(s.id));
+      if (clubDistances[club].length === 0) delete clubDistances[club];
+    });
+
     data.forEach(row => {
       if (!clubDistances[row.club]) clubDistances[row.club] = [];
       const rowDate = new Date(row.date).toLocaleDateString('en-AU');

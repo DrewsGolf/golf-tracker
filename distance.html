@@ -99,7 +99,7 @@
   .shot-item:active { background: color-mix(in srgb, var(--gold) 8%, transparent); }
   .shot-item.expanded { border-color: color-mix(in srgb, var(--gold) 40%, transparent); border-radius: var(--radius-sm) var(--radius-sm) 0 0; }
   .shot-club { font-size: 16px; font-weight: 700; flex: 1; color: var(--text-primary); }
-  .shot-stats-inline { display: flex; gap: 12px; font-size: 12px; color: var(--text-muted); }
+  .shot-stats-inline { display: flex; gap: 8px; font-size: 12px; color: var(--text-muted); }
   .shot-stats-inline b { color: var(--gold); font-weight: 600; }
   .shot-expand-arrow { font-size: 11px; color: var(--text-muted); flex-shrink: 0; }
   .shot-dist { font-size: 15px; font-weight: 500; color: var(--gold); }
@@ -185,86 +185,32 @@
 
   /* Home button — bottom-left of header, under logo */
   /* ── Header icons — top right, overlaid on the header image ────────── */
-  /* -- Header menu -- single hamburger button, overlaid on the header image,
-     in the slot the Login icon used to occupy. Opens a dropdown (Home / My
-     Profile / Settings / Sign In-Out) instead of the old icon pair. -- */
-  .header-menu {
+  .header-icons {
     position: absolute;
     bottom: 5px;
     right: 14px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
     z-index: 60;
   }
 
-  .header-menu-btn {
+  .header-icons a {
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 30px;
-    height: 30px;
-    background: none;
-    border: none;
-    padding: 0;
     cursor: pointer;
-    -webkit-tap-highlight-color: transparent;
+    text-decoration: none;
   }
 
-  .header-menu-btn img {
-    width: 30px;
-    height: 30px;
+  .header-icons img {
+    width: 38px;
+    height: 38px;
     object-fit: contain;
     display: block;
   }
 
-  .header-menu-btn:active { opacity: 0.7; }
-
-  .header-menu-dropdown {
-    position: absolute;
-    top: calc(100% + 8px);
-    right: 0;
-    min-width: 180px;
-    background: var(--surface);
-    border: 1px solid color-mix(in srgb, var(--gold) 20%, transparent);
-    border-radius: var(--radius-lg, 14px);
-    box-shadow: var(--shadow-soft);
-    overflow: hidden;
-    opacity: 0;
-    transform: translateY(-6px);
-    pointer-events: none;
-    transition: opacity 0.15s, transform 0.15s;
-  }
-
-  .header-menu-dropdown.open {
-    opacity: 1;
-    transform: translateY(0);
-    pointer-events: auto;
-  }
-
-  .header-menu-item {
-    display: block;
-    width: 100%;
-    padding: 14px 16px;
-    font-size: 15px;
-    font-weight: 600;
-    color: var(--gold);
-    text-decoration: none;
-    text-align: left;
-    background: none;
-    border: none;
-    border-bottom: 0.5px solid color-mix(in srgb, var(--gold) 10%, transparent);
-    cursor: pointer;
-    font-family: inherit;
-    -webkit-tap-highlight-color: transparent;
-  }
-
-  .header-menu-item:last-child { border-bottom: none; }
-  .header-menu-item:active { background: color-mix(in srgb, var(--gold) 8%, transparent); }
-
-  .header-menu-item.disabled {
-    color: var(--text-muted);
-    cursor: default;
-    opacity: 0.55;
-  }
-  .header-menu-item.disabled:active { background: none; }
+  .header-icons a:active { opacity: 0.7; }
 </style>
 </head>
 <body>
@@ -276,16 +222,13 @@
       <div class="header-auth-dot"></div>
       <span class="header-auth-email" id="header-email"></span>
     </div>
-    <div class="header-menu" id="header-menu">
-      <button class="header-menu-btn" onclick="toggleHeaderMenu()" aria-label="Menu">
-        <img src="icons/menu.png" alt="Menu">
-      </button>
-      <div class="header-menu-dropdown" id="header-menu-dropdown">
-        <a class="header-menu-item" href="index.html">Home</a>
-        <a class="header-menu-item" href="profile.html">My Profile</a>
-        <a class="header-menu-item" href="settings.html">Settings</a>
-        <a class="header-menu-item" href="login.html" id="header-menu-auth">Sign In</a>
-      </div>
+    <div class="header-icons">
+      <a href="index.html">
+        <img src="icons/Home.png" alt="Home">
+      </a>
+      <a href="login.html">
+        <img src="icons/login.png" alt="Login">
+      </a>
     </div>
   </div>
   <div class="content">
@@ -414,7 +357,6 @@ sb.auth.getSession().then(({ data }) => {
       var email = document.getElementById('header-email');
       if (badge) badge.classList.add('visible');
       if (email) email.textContent = data.session.user.email;
-      setHeaderMenuAuth(data.session);
     }
     if (document.readyState === 'loading') {
       document.addEventListener('DOMContentLoaded', showBadge);
@@ -424,43 +366,6 @@ sb.auth.getSession().then(({ data }) => {
     loadDistancesFromSupabase();
   }
 });
-
-// -- Header menu dropdown --------------------------------------------------
-function toggleHeaderMenu() {
-  var dropdown = document.getElementById('header-menu-dropdown');
-  if (dropdown) dropdown.classList.toggle('open');
-}
-function closeHeaderMenu() {
-  var dropdown = document.getElementById('header-menu-dropdown');
-  if (dropdown) dropdown.classList.remove('open');
-}
-document.addEventListener('click', function(e) {
-  var menu = document.getElementById('header-menu');
-  var dropdown = document.getElementById('header-menu-dropdown');
-  if (menu && dropdown && dropdown.classList.contains('open') && !menu.contains(e.target)) {
-    dropdown.classList.remove('open');
-  }
-});
-function setHeaderMenuAuth(session) {
-  var authItem = document.getElementById('header-menu-auth');
-  if (!authItem) return;
-  if (session) {
-    authItem.textContent = 'Sign Out';
-    authItem.removeAttribute('href');
-    authItem.onclick = function(e) { e.preventDefault(); doMenuSignOut(); };
-  } else {
-    authItem.textContent = 'Sign In';
-    authItem.setAttribute('href', 'login.html');
-    authItem.onclick = null;
-  }
-}
-async function doMenuSignOut() {
-  closeHeaderMenu();
-  await sb.auth.signOut();
-  setHeaderMenuAuth(null);
-  if (typeof showToast === 'function') showToast('Signed out');
-  window.location.href = 'index.html';
-}
 
 // ── Club definitions ──────────────────────────────────────────────────────────
 const ALL_CLUBS_FULL = {
@@ -487,6 +392,30 @@ let startPosition = null;
 let pendingDist   = null;
 let pendingClub   = null;
 let clubDistances = JSON.parse(localStorage.getItem('golf-club-distances') || '{}');
+
+// ── Target distances — benchmark comparison based on the user's profile ──────
+// Reads Sex/Age Group/Skill Level from profile.html's localStorage settings,
+// looks up matching rows in the club_distance_benchmarks reference table.
+// Table currently only has data for some gender/age/skill combinations — if
+// nothing matches, targets simply won't show for that club (handled as '–').
+let targetDistances = {};
+
+async function loadTargetDistances() {
+  const sex        = localStorage.getItem('golf-sex') || 'male';
+  const ageGroup   = localStorage.getItem('golf-age-group') || 'under40';
+  const skillLevel = localStorage.getItem('golf-skill-level') || 'beginner';
+  try {
+    const { data, error } = await sb.from('club_distance_benchmarks')
+      .select('club, distance_m')
+      .eq('gender', sex)
+      .eq('age_group', ageGroup)
+      .eq('skill_level', skillLevel);
+    if (error || !data) return;
+    targetDistances = {};
+    data.forEach(row => { targetDistances[row.club] = row.distance_m; });
+    renderHistory();
+  } catch(e) { console.error('Target distances load error:', e); }
+}
 
 function persist() {
   localStorage.setItem('golf-club-distances', JSON.stringify(clubDistances));
@@ -874,7 +803,7 @@ function renderHistory() {
     return '<div class="shot-item-wrap">' +
       '<div class="shot-item' + (isOpen?' expanded':'') + '" onclick="toggleClubExpand(\'' + id + '\')">' +
         '<div class="shot-club">' + (ALL_CLUBS_FULL[id]||id) + '</div>' +
-        '<div class="shot-stats-inline"><span>Best <b>' + overall.best + 'm</b></span><span>Avg <b>' + overall.avg + 'm</b></span></div>' +
+        '<div class="shot-stats-inline"><span>Target <b>' + (targetDistances[ALL_CLUBS_FULL[id]] != null ? targetDistances[ALL_CLUBS_FULL[id]] + 'm' : '\u2013') + '</b></span><span>Best <b>' + overall.best + 'm</b></span><span>Avg <b>' + overall.avg + 'm</b></span></div>' +
         '<span class="shot-expand-arrow">' + (isOpen?'&#9652;':'&#9662;') + '</span>' +
       '</div>' +
       expandedHtml +
@@ -929,6 +858,7 @@ function showToast(msg) {
 renderClubGrid();
 renderHistory();
 startWatch();
+loadTargetDistances();
 if ('serviceWorker' in navigator) { navigator.serviceWorker.register('/sw.js').catch(() => {}); }
 window.addEventListener('beforeunload', () => {
   stopGpsWatch();

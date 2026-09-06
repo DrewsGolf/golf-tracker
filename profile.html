@@ -147,6 +147,11 @@
   /* Skill level selector — 4-way segmented control, sits under Handicap */
   .skill-level-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; padding: 0 20px 16px; }
   .skill-level-btn { padding: 8px 4px; font-size: 12px; font-weight: 600; text-align: center; border-radius: 8px; border: 0.5px solid color-mix(in srgb, var(--gold) 25%, transparent); cursor: pointer; background: color-mix(in srgb, var(--gold) 6%, transparent); color: var(--text-muted); font-family: inherit; -webkit-tap-highlight-color: transparent; }
+
+  /* Age group selector — 5-way segmented control, sits under Skill Level */
+  .age-group-row { display: grid; grid-template-columns: repeat(5, 1fr); gap: 5px; padding: 0 20px 16px; }
+  .age-group-btn { padding: 8px 2px; font-size: 11px; font-weight: 600; text-align: center; border-radius: 8px; border: 0.5px solid color-mix(in srgb, var(--gold) 25%, transparent); cursor: pointer; background: color-mix(in srgb, var(--gold) 6%, transparent); color: var(--text-muted); font-family: inherit; -webkit-tap-highlight-color: transparent; }
+  .age-group-btn.active { background: var(--btn-primary); color: var(--on-btn-primary); border-color: var(--btn-primary); }
   .skill-level-btn.active { background: var(--btn-primary); color: var(--on-btn-primary); border-color: var(--btn-primary); }
 
   /* ── Toggle switch ── */
@@ -416,6 +421,24 @@
         </div>
       </div>
 
+      <!-- Age Group -->
+      <div class="settings-item" style="flex-direction:column;align-items:stretch;">
+        <div style="display:flex;align-items:center;gap:16px;padding-bottom:14px;">
+          <div class="settings-item-icon" style="font-size:22px;">&#127874;</div>
+          <div class="settings-item-body">
+            <div class="settings-item-title">Age Group</div>
+            <div class="settings-item-desc" id="age-group-desc">Currently set to Under 40</div>
+          </div>
+        </div>
+        <div class="age-group-row">
+          <button class="age-group-btn" data-age="under40" onclick="setAgeGroup('under40')">&lt;40</button>
+          <button class="age-group-btn" data-age="40s" onclick="setAgeGroup('40s')">40's</button>
+          <button class="age-group-btn" data-age="50s" onclick="setAgeGroup('50s')">50's</button>
+          <button class="age-group-btn" data-age="60s" onclick="setAgeGroup('60s')">60's</button>
+          <button class="age-group-btn" data-age="70s" onclick="setAgeGroup('70s')">70's</button>
+        </div>
+      </div>
+
       <a class="settings-item" href="setup.html">
         <div class="settings-item-icon">
           <img src="icons/Set_Clubs.png" style="width:32px;height:32px;object-fit:contain;display:block;">
@@ -610,6 +633,25 @@ function setSkillLevel(level) {
   refreshSkillLevelUI();
 }
 refreshSkillLevelUI();
+
+// ── Age group ─────────────────────────────────────────────────────────────────
+// UI + local storage only for now — nothing downstream reads this yet.
+// Same intent as skill level: eventually feeds comparisons against the
+// club_distance_benchmarks reference table in Supabase (age_group column).
+const AGE_GROUP_LABELS = { under40: 'Under 40', '40s': "40's", '50s': "50's", '60s': "60's", '70s': "70's" };
+function refreshAgeGroupUI() {
+  const stored = localStorage.getItem('golf-age-group') || 'under40';
+  document.querySelectorAll('.age-group-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.age === stored);
+  });
+  const desc = document.getElementById('age-group-desc');
+  if (desc) desc.textContent = 'Currently set to ' + (AGE_GROUP_LABELS[stored] || stored);
+}
+function setAgeGroup(age) {
+  localStorage.setItem('golf-age-group', age);
+  refreshAgeGroupUI();
+}
+refreshAgeGroupUI();
 
 
 </script>

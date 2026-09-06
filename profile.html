@@ -144,6 +144,11 @@
   .settings-item-desc { font-size: 12px; color: var(--text-muted); letter-spacing: 0.01em; }
   .settings-item-arrow { font-size: 18px; color: var(--gold-muted); }
 
+  /* Skill level selector — 4-way segmented control, sits under Handicap */
+  .skill-level-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; padding: 0 20px 16px; }
+  .skill-level-btn { padding: 8px 4px; font-size: 12px; font-weight: 600; text-align: center; border-radius: 8px; border: 0.5px solid color-mix(in srgb, var(--gold) 25%, transparent); cursor: pointer; background: color-mix(in srgb, var(--gold) 6%, transparent); color: var(--text-muted); font-family: inherit; -webkit-tap-highlight-color: transparent; }
+  .skill-level-btn.active { background: var(--btn-primary); color: var(--on-btn-primary); border-color: var(--btn-primary); }
+
   /* ── Toggle switch ── */
   .toggle-switch { position: relative; width: 48px; height: 28px; flex-shrink: 0; }
   .toggle-switch input { opacity: 0; width: 0; height: 0; position: absolute; }
@@ -393,6 +398,24 @@
           <button class="handicap-save-btn" onclick="saveHandicap()">Save</button>
         </div>
       </div>
+
+      <!-- Skill Level -->
+      <div class="settings-item" style="flex-direction:column;align-items:stretch;">
+        <div style="display:flex;align-items:center;gap:16px;padding-bottom:14px;">
+          <div class="settings-item-icon" style="font-size:22px;">&#9971;</div>
+          <div class="settings-item-body">
+            <div class="settings-item-title">Skill Level</div>
+            <div class="settings-item-desc" id="skill-desc">Currently set to Beginner</div>
+          </div>
+        </div>
+        <div class="skill-level-row">
+          <button class="skill-level-btn" data-level="beginner" onclick="setSkillLevel('beginner')">Beginner</button>
+          <button class="skill-level-btn" data-level="intermediate" onclick="setSkillLevel('intermediate')">Intermediate</button>
+          <button class="skill-level-btn" data-level="advanced" onclick="setSkillLevel('advanced')">Advanced</button>
+          <button class="skill-level-btn" data-level="pro" onclick="setSkillLevel('pro')">Pro</button>
+        </div>
+      </div>
+
       <a class="settings-item" href="setup.html">
         <div class="settings-item-icon">
           <img src="icons/Set_Clubs.png" style="width:32px;height:32px;object-fit:contain;display:block;">
@@ -569,6 +592,24 @@ function toggleSex(checked) {
   refreshSexUI();
 }
 refreshSexUI();
+
+// ── Skill level ───────────────────────────────────────────────────────────────
+// UI + local storage only for now — nothing downstream reads this yet.
+// Intended to eventually feed suggestions/comparisons against the
+// club_distance_benchmarks reference table in Supabase.
+function refreshSkillLevelUI() {
+  const stored = localStorage.getItem('golf-skill-level') || 'beginner';
+  document.querySelectorAll('.skill-level-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.level === stored);
+  });
+  const desc = document.getElementById('skill-desc');
+  if (desc) desc.textContent = 'Currently set to ' + stored.charAt(0).toUpperCase() + stored.slice(1);
+}
+function setSkillLevel(level) {
+  localStorage.setItem('golf-skill-level', level);
+  refreshSkillLevelUI();
+}
+refreshSkillLevelUI();
 
 
 </script>

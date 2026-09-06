@@ -99,7 +99,7 @@
   .shot-item:active { background: color-mix(in srgb, var(--gold) 8%, transparent); }
   .shot-item.expanded { border-color: color-mix(in srgb, var(--gold) 40%, transparent); border-radius: var(--radius-sm) var(--radius-sm) 0 0; }
   .shot-club { font-size: 16px; font-weight: 700; flex: 1; color: var(--text-primary); }
-  .shot-stats-inline { display: flex; gap: 8px; font-size: 12px; color: var(--text-muted); }
+  .shot-stats-inline { display: grid; grid-template-columns: 72px 60px 56px; font-size: 12px; color: var(--text-muted); }
   .shot-stats-inline b { color: var(--gold); font-weight: 600; }
   .shot-expand-arrow { font-size: 11px; color: var(--text-muted); flex-shrink: 0; }
   .shot-dist { font-size: 15px; font-weight: 500; color: var(--gold); }

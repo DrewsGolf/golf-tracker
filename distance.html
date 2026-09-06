@@ -741,8 +741,9 @@ function statsFor(shots) {
 }
 
 function toggleClubExpand(id) {
-  expandedClubId = (expandedClubId === id) ? null : id;
-  last5RoundsOpen = false;
+  const nowOpen = expandedClubId !== id;
+  expandedClubId = nowOpen ? id : null;
+  last5RoundsOpen = nowOpen; // show Last 5 Rounds immediately, no second click needed
   expandedRoundDate = null;
   renderHistory();
 }

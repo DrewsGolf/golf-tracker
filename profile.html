@@ -496,6 +496,7 @@ function setAuthUI(session) {
     badge.classList.add('visible');
     hEmail.textContent = session.user.email;
     loadHandicap();
+    loadGolferProfile();
     if (authItem) {
       authItem.textContent = 'Sign Out';
       authItem.removeAttribute('href');
@@ -597,9 +598,30 @@ function showToast(msg) {
 
 loadHandicap(); // default: on
 
+// ── Golfer profile (Sex, Skill Level, Age Group) ────────────────────────────────
+// Same pattern as Handicap: localStorage for instant/offline UI + fallback,
+// synced to the golfer_profile table in Supabase when signed in. One row per
+// user — each field upserts independently so setting one never clobbers the
+// others (Postgres upsert only touches the columns actually provided).
+async function loadGolferProfile() {
+  if (!currentUser) return;
+  try {
+    const { data } = await sb.from('golfer_profile')
+      .select('sex, age_group, skill_level')
+      .eq('user_id', currentUser.id)
+      .single();
+    if (data) {
+      if (data.sex)         localStorage.setItem('golf-sex', data.sex);
+      if (data.age_group)   localStorage.setItem('golf-age-group', data.age_group);
+      if (data.skill_level) localStorage.setItem('golf-skill-level', data.skill_level);
+      refreshSexUI();
+      refreshSkillLevelUI();
+      refreshAgeGroupUI();
+    }
+  } catch(e) { /* no row yet for this user — defaults stand */ }
+}
+
 // ── Sex toggle ────────────────────────────────────────────────────────────────
-// UI + local storage only for now — nothing downstream reads this yet
-// (distance suggestions, handicap calcs, etc.) — that wiring is a later task.
 function refreshSexUI() {
   const stored   = localStorage.getItem('golf-sex') || 'male';
   const isFemale = stored === 'female';
@@ -610,16 +632,21 @@ function refreshSexUI() {
   if (icon)   icon.innerHTML = isFemale ? '&#9792;&#65039;' : '&#9794;&#65039;';
   if (desc)   desc.textContent = 'Currently set to ' + (isFemale ? 'Female' : 'Male');
 }
-function toggleSex(checked) {
-  localStorage.setItem('golf-sex', checked ? 'female' : 'male');
+async function toggleSex(checked) {
+  const value = checked ? 'female' : 'male';
+  localStorage.setItem('golf-sex', value);
   refreshSexUI();
+  if (!currentUser) return;
+  try {
+    await sb.from('golfer_profile').upsert(
+      { user_id: currentUser.id, sex: value, updated_at: new Date().toISOString() },
+      { onConflict: 'user_id' }
+    );
+  } catch(e) { console.error('Sex save error:', e); }
 }
 refreshSexUI();
 
 // ── Skill level ───────────────────────────────────────────────────────────────
-// UI + local storage only for now — nothing downstream reads this yet.
-// Intended to eventually feed suggestions/comparisons against the
-// club_distance_benchmarks reference table in Supabase.
 function refreshSkillLevelUI() {
   const stored = localStorage.getItem('golf-skill-level') || 'beginner';
   document.querySelectorAll('.skill-level-btn').forEach(btn => {
@@ -628,16 +655,20 @@ function refreshSkillLevelUI() {
   const desc = document.getElementById('skill-desc');
   if (desc) desc.textContent = 'Currently set to ' + stored.charAt(0).toUpperCase() + stored.slice(1);
 }
-function setSkillLevel(level) {
+async function setSkillLevel(level) {
   localStorage.setItem('golf-skill-level', level);
   refreshSkillLevelUI();
+  if (!currentUser) return;
+  try {
+    await sb.from('golfer_profile').upsert(
+      { user_id: currentUser.id, skill_level: level, updated_at: new Date().toISOString() },
+      { onConflict: 'user_id' }
+    );
+  } catch(e) { console.error('Skill level save error:', e); }
 }
 refreshSkillLevelUI();
 
 // ── Age group ─────────────────────────────────────────────────────────────────
-// UI + local storage only for now — nothing downstream reads this yet.
-// Same intent as skill level: eventually feeds comparisons against the
-// club_distance_benchmarks reference table in Supabase (age_group column).
 const AGE_GROUP_LABELS = { under40: 'Under 40', '40s': "40's", '50s': "50's", '60s': "60's", '70s': "70's" };
 function refreshAgeGroupUI() {
   const stored = localStorage.getItem('golf-age-group') || 'under40';
@@ -647,9 +678,16 @@ function refreshAgeGroupUI() {
   const desc = document.getElementById('age-group-desc');
   if (desc) desc.textContent = 'Currently set to ' + (AGE_GROUP_LABELS[stored] || stored);
 }
-function setAgeGroup(age) {
+async function setAgeGroup(age) {
   localStorage.setItem('golf-age-group', age);
   refreshAgeGroupUI();
+  if (!currentUser) return;
+  try {
+    await sb.from('golfer_profile').upsert(
+      { user_id: currentUser.id, age_group: age, updated_at: new Date().toISOString() },
+      { onConflict: 'user_id' }
+    );
+  } catch(e) { console.error('Age group save error:', e); }
 }
 refreshAgeGroupUI();
 

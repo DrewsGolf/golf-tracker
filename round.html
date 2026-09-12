@@ -158,13 +158,20 @@
 
   /* Score card */
   .score-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-lg); box-shadow: var(--shadow-soft); padding: 12px 14px 14px; margin-bottom: 12px; display: flex; flex-direction: column; align-items: center; }
-  .score-card-label { font-size: 12px; font-weight: 700; letter-spacing: 0.15em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 6px; }
+  .score-card-label { font-size: 12px; font-weight: 700; letter-spacing: 0.15em; text-transform: uppercase; color: var(--text-muted); }
   .score-row { display: flex; align-items: center; width: 100%; }
   .score-btn { width: 50px; height: 50px; border-radius: 16px; background: color-mix(in srgb, var(--gold) 10%, transparent); border: 0.5px solid color-mix(in srgb, var(--gold) 25%, transparent); color: var(--gold); font-size: 26px; font-weight: 300; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-family: inherit; line-height: 1; }
   .score-btn:active { background: color-mix(in srgb, var(--gold) 22%, transparent); transform: scale(0.94); }
-  .score-display { display: flex; align-items: center; justify-content: center; }
+  .score-display { display: flex; align-items: baseline; justify-content: center; gap: 8px; }
   .score-number { font-size: 60px; font-weight: 400; color: var(--text-primary); line-height: 1; letter-spacing: -0.03em; }
   .score-spacer { flex: 1; }
+
+  /* Running totals — updates as the round progresses */
+  .running-card { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 10px 8px; }
+  .running-label { font-size: 10px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 4px; }
+  .running-value { font-size: 26px; font-weight: 500; color: var(--text-primary); line-height: 1; }
+  .running-value.warn { color: var(--warning); }
+  .running-value.good { color: var(--gold); }
   .score-diff-zone { flex: 1; display: flex; align-items: center; justify-content: flex-start; padding-left: 8px; }
   .score-diff { font-size: 18px; font-weight: 500; }
   .score-diff.over  { color: var(--warning); }
@@ -328,13 +335,25 @@
         </div>
       </div>
 
+      <!-- Running totals — updates as the round progresses -->
+      <div class="top-row" style="margin-bottom:10px;">
+        <div class="hole-nav-card running-card">
+          <span class="running-label">Total Strokes</span>
+          <span class="running-value" id="running-strokes">0</span>
+        </div>
+        <div class="hole-nav-card running-card">
+          <span class="running-label">Over Par</span>
+          <span class="running-value" id="running-vspar">&ndash;</span>
+        </div>
+      </div>
+
       <!-- Row 2: Score entry -->
       <div class="score-card">
-        <span class="score-card-label">This Hole</span>
         <div class="score-row">
           <button class="score-btn" onclick="adjustScore(-1)" aria-label="Decrease">&#8722;</button>
           <div class="score-spacer"></div>
           <div class="score-display">
+            <span class="score-card-label">This Hole</span>
             <span class="score-number" id="score-number">0</span>
           </div>
           <div class="score-diff-zone">
@@ -346,11 +365,11 @@
 
       <!-- Putts entry -->
       <div class="score-card" style="margin-bottom:12px;">
-        <span class="score-card-label">Putts</span>
         <div class="score-row">
           <button class="score-btn" onclick="adjustPutts(-1)" aria-label="Decrease putts">&#8722;</button>
           <div class="score-spacer"></div>
           <div class="score-display">
+            <span class="score-card-label">Putts</span>
             <span class="score-number" id="putts-number">0</span>
           </div>
           <div class="score-diff-zone"></div>
@@ -673,6 +692,7 @@ function updateScoreDisplay() {
   document.getElementById('score-number').textContent = displayed;
   updateScoreDiff();
   updateFinishBtn();
+  updateRunningTotals();
 }
 
 function updateScoreDiff() {
@@ -684,6 +704,30 @@ function updateScoreDiff() {
   if (diff === 0) { el.textContent = 'E';         el.className = 'score-diff even'; }
   else if (diff > 0) { el.textContent = '+'+diff; el.className = 'score-diff over'; }
   else             { el.textContent = diff;        el.className = 'score-diff under'; }
+}
+
+// ── Running totals — strokes and vs-par summed across every hole scored so
+// far this round, live-updating as scores are entered. ────────────────────────
+function updateRunningTotals() {
+  const strokesEl = document.getElementById('running-strokes');
+  const vsParEl   = document.getElementById('running-vspar');
+  if (!strokesEl || !vsParEl) return;
+
+  const playedHoles = Object.keys(holeScores).map(Number).filter(h => holeScores[h] > 0);
+  const totalStrokes = playedHoles.reduce((a,h) => a + holeScores[h], 0);
+  strokesEl.textContent = totalStrokes;
+
+  const parHoles = playedHoles.filter(h => holePars[h]);
+  if (!parHoles.length) {
+    vsParEl.textContent = '\u2013';
+    vsParEl.className = 'running-value';
+    return;
+  }
+  const strokesOnParHoles = parHoles.reduce((a,h) => a + holeScores[h], 0);
+  const parSum = parHoles.reduce((a,h) => a + holePars[h], 0);
+  const diff = strokesOnParHoles - parSum;
+  vsParEl.textContent = diff === 0 ? 'E' : (diff > 0 ? '+'+diff : String(diff));
+  vsParEl.className = 'running-value' + (diff > 0 ? ' warn' : diff < 0 ? ' good' : '');
 }
 
 // ── Putts ───────────────────────────────────────────────────────────────────

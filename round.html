@@ -162,7 +162,7 @@
   .score-row { display: flex; align-items: center; width: 100%; }
   .score-btn { width: 50px; height: 50px; border-radius: 16px; background: color-mix(in srgb, var(--gold) 10%, transparent); border: 0.5px solid color-mix(in srgb, var(--gold) 25%, transparent); color: var(--gold); font-size: 26px; font-weight: 300; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-family: inherit; line-height: 1; }
   .score-btn:active { background: color-mix(in srgb, var(--gold) 22%, transparent); transform: scale(0.94); }
-  .score-display { display: flex; align-items: baseline; justify-content: center; gap: 8px; }
+  .score-display { display: flex; align-items: center; justify-content: center; gap: 8px; }
   .score-number { font-size: 60px; font-weight: 400; color: var(--text-primary); line-height: 1; letter-spacing: -0.03em; }
   .score-spacer { flex: 1; }
 
@@ -335,18 +335,6 @@
         </div>
       </div>
 
-      <!-- Running totals — updates as the round progresses -->
-      <div class="top-row" style="margin-bottom:10px;">
-        <div class="hole-nav-card running-card">
-          <span class="running-label">Total Strokes</span>
-          <span class="running-value" id="running-strokes">0</span>
-        </div>
-        <div class="hole-nav-card running-card">
-          <span class="running-label">Over Par</span>
-          <span class="running-value" id="running-vspar">&ndash;</span>
-        </div>
-      </div>
-
       <!-- Row 2: Score entry -->
       <div class="score-card">
         <div class="score-row">
@@ -374,6 +362,18 @@
           </div>
           <div class="score-diff-zone"></div>
           <button class="score-btn" onclick="adjustPutts(1)" aria-label="Increase putts">+</button>
+        </div>
+      </div>
+
+      <!-- Running totals — updates as the round progresses -->
+      <div class="top-row" style="margin-bottom:10px;">
+        <div class="hole-nav-card running-card">
+          <span class="running-label">Total Strokes</span>
+          <span class="running-value" id="running-strokes">0</span>
+        </div>
+        <div class="hole-nav-card running-card">
+          <span class="running-label">Over Par</span>
+          <span class="running-value" id="running-vspar">&ndash;</span>
         </div>
       </div>
 

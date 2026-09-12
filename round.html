@@ -397,6 +397,7 @@
           <tbody id="scorecard-body"></tbody>
         </table>
       </div>
+      <button class="btn btn-primary" id="btn-save-round-sc" onclick="doFinishRound()" style="margin-top:4px;">Save Round</button>
     </div>
 
   </div>
@@ -851,21 +852,13 @@ function finishRound() {
   if (isSavingRound) return; // a save is already in progress — ignore the tap
   const count = Object.keys(holeScores).filter(h => holeScores[h] > 0).length;
   if (!count) { showDialog({ icon: '&#9971;', title: 'No Scores Yet', sub: 'Play at least one hole before finishing the round.', buttons: [{ label: 'OK', style: 'primary', action: () => {} }] }); return; }
-  showDialog({
-    icon: '&#127942;',
-    title: 'Finish & Save Round?',
-    sub: 'Save ' + count + ' hole' + (count===1?'':'s') + ' to your round history?',
-    buttons: [
-      { label: 'Save round',            style: 'primary',   action: doFinishRound },
-      { label: 'Cancel — keep playing', style: 'secondary', action: () => {} }
-    ]
-  });
+  showTab('scorecard');
 }
 
 async function doFinishRound() {
   if (isSavingRound) return; // belt-and-braces — should already be unreachable, but never save twice
   isSavingRound = true;
-  const btn = document.getElementById('btn-finish-round');
+  const btn = document.getElementById('btn-save-round-sc');
   if (btn) { btn.disabled = true; btn.style.opacity = '0.6'; }
   try {
     showToast('Saving round\u2026');

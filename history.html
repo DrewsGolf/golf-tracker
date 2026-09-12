@@ -514,7 +514,7 @@ async function loadFromSupabase() {
     const sbRounds = (rounds || []).map(r => ({
       id:         r.id,
       date:       new Date(r.date_iso).toLocaleDateString('en-AU'),
-      dateISO:    r.date_iso,
+      dateISO:    new Date(r.date_iso).toISOString(),
       course:     r.course,
       suburb:     r.suburb || '',
       holes:      r.holes_played,
@@ -530,8 +530,13 @@ async function loadFromSupabase() {
       shotsPerHole: Object.fromEntries((r.hole_scores||[]).filter(h=>h.score != null).map(h=>[h.hole, h.score])),
       fromSupabase: true
     }));
-    // Merge: Supabase is source of truth, keep any local-only rounds
-    const localOnly = history.filter(r => !r.fromSupabase && !sbRounds.find(s => s.dateISO === r.dateISO));
+    // Merge: Supabase is source of truth, keep any local-only rounds.
+    // Compare by parsed timestamp, not raw string — Postgres and
+    // JavaScript's toISOString() format the same instant differently
+    // (e.g. "2026-09-12 11:13:15.1+00" vs "2026-09-12T11:13:15.100Z"),
+    // so a strict string match would wrongly treat an already-synced
+    // round as local-only and show it twice.
+    const localOnly = history.filter(r => !r.fromSupabase && !sbRounds.find(s => new Date(s.dateISO).getTime() === new Date(r.dateISO).getTime()));
     history = [...sbRounds, ...localOnly].sort((a,b) => new Date(b.dateISO) - new Date(a.dateISO));
     saveHistory();
     renderList();

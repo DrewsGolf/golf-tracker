@@ -1,4 +1,4 @@
-const CACHE = 'golf-tracker-v18';
+const CACHE = 'golf-tracker-v19';
 const STATIC = [
   '/courses.js',
   '/manifest.json',

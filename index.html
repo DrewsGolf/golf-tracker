@@ -402,20 +402,20 @@
       </div>
       <div class="lr-stats">
         <div class="lr-stat">
-          <div class="lr-stat-value" id="ls-eagles">&ndash;</div>
-          <div class="lr-stat-label">Eagles</div>
+          <div class="lr-stat-value" id="ls-value-0">&ndash;</div>
+          <div class="lr-stat-label" id="ls-label-0">Eagles</div>
         </div>
         <div class="lr-stat">
-          <div class="lr-stat-value" id="ls-birdies">&ndash;</div>
-          <div class="lr-stat-label">Birdies</div>
+          <div class="lr-stat-value" id="ls-value-1">&ndash;</div>
+          <div class="lr-stat-label" id="ls-label-1">Birdies</div>
         </div>
         <div class="lr-stat">
-          <div class="lr-stat-value" id="ls-pars">&ndash;</div>
-          <div class="lr-stat-label">Pars</div>
+          <div class="lr-stat-value" id="ls-value-2">&ndash;</div>
+          <div class="lr-stat-label" id="ls-label-2">Pars</div>
         </div>
         <div class="lr-stat">
-          <div class="lr-stat-value" id="ls-bogeys">&ndash;</div>
-          <div class="lr-stat-label">Bogeys</div>
+          <div class="lr-stat-value" id="ls-value-3">&ndash;</div>
+          <div class="lr-stat-label" id="ls-label-3">Bogeys</div>
         </div>
       </div>
     </div>
@@ -599,26 +599,46 @@ async function loadBestRoundCard() {
   }
 }
 
-function renderLifetimeStatsCard(stats) {
-  const eaglesEl  = document.getElementById('ls-eagles');
-  const birdiesEl = document.getElementById('ls-birdies');
-  const parsEl    = document.getElementById('ls-pars');
-  const bogeysEl  = document.getElementById('ls-bogeys');
-  if (!stats) {
-    eaglesEl.textContent = '\u2013'; birdiesEl.textContent = '\u2013'; parsEl.textContent = '\u2013'; bogeysEl.textContent = '\u2013';
-    return;
+// Full spectrum of score-vs-par categories, in order. The user's
+// "Lifetime Scoring Starts At" preference (profile.html) picks a 4-wide
+// window starting at one of the first four entries — e.g. 'par' shows
+// Par/Bogey/Double Bogey/Triple Bogey. Exact-match counting only, per
+// Drew's explicit choice — a score doesn't get folded into a neighboring
+// bucket just because it's the best/worst one shown.
+const SCORE_CATEGORIES = [
+  { key: 'albatross',    diff: -3, label: 'Albatrosses' },
+  { key: 'eagle',        diff: -2, label: 'Eagles' },
+  { key: 'birdie',       diff: -1, label: 'Birdies' },
+  { key: 'par',          diff: 0,  label: 'Pars' },
+  { key: 'bogey',        diff: 1,  label: 'Bogeys' },
+  { key: 'doubleBogey',  diff: 2,  label: 'Double Bogeys' },
+  { key: 'tripleBogey',  diff: 3,  label: 'Triple Bogeys' }
+];
+const SCORING_START_INDEX = { albatross: 0, eagle: 1, birdie: 2, par: 3 };
+
+function renderLifetimeStatsCard(stats, window) {
+  for (let i = 0; i < 4; i++) {
+    const valueEl = document.getElementById('ls-value-' + i);
+    const labelEl = document.getElementById('ls-label-' + i);
+    if (!valueEl || !labelEl) continue;
+    if (!stats || !window) {
+      valueEl.textContent = '\u2013';
+      continue;
+    }
+    labelEl.textContent = window[i].label;
+    valueEl.textContent = stats[window[i].key];
   }
-  eaglesEl.textContent  = stats.eagles;
-  birdiesEl.textContent = stats.birdies;
-  parsEl.textContent    = stats.pars;
-  bogeysEl.textContent  = stats.bogeys;
 }
 
 async function loadLifetimeStatsCard() {
   try {
     const { data: { session } } = await sb.auth.getSession();
-    if (!session) { renderLifetimeStatsCard(null); return; }
+    if (!session) { renderLifetimeStatsCard(null, null); return; }
     const userId = session.user.id;
+
+    const startPref = localStorage.getItem('golf-scoring-start') || 'eagle';
+    const startIndex = SCORING_START_INDEX[startPref] != null ? SCORING_START_INDEX[startPref] : 1;
+    const window = SCORE_CATEGORIES.slice(startIndex, startIndex + 4);
 
     // Pull just score+par for every hole ever played — counting happens
     // client-side. Fine at personal-app scale; would move to a database
@@ -627,22 +647,21 @@ async function loadLifetimeStatsCard() {
     const { data: holes, error } = await sb.from('hole_scores')
       .select('score, par')
       .eq('user_id', userId);
-    if (error || !holes) { renderLifetimeStatsCard(null); return; }
+    if (error || !holes) { renderLifetimeStatsCard(null, null); return; }
 
-    let eagles = 0, birdies = 0, pars = 0, bogeys = 0;
+    const stats = {};
+    SCORE_CATEGORIES.forEach(c => { stats[c.key] = 0; });
     holes.forEach(h => {
       if (h.score == null || h.par == null) return;
       const diff = h.score - h.par;
-      if (diff <= -2) eagles++;
-      else if (diff === -1) birdies++;
-      else if (diff === 0) pars++;
-      else if (diff === 1) bogeys++;
+      const cat = SCORE_CATEGORIES.find(c => c.diff === diff);
+      if (cat) stats[cat.key]++;
     });
 
-    renderLifetimeStatsCard({ eagles, birdies, pars, bogeys });
+    renderLifetimeStatsCard(stats, window);
   } catch(e) {
     console.error('Lifetime stats card load error:', e);
-    renderLifetimeStatsCard(null);
+    renderLifetimeStatsCard(null, null);
   }
 }
 

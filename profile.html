@@ -148,6 +148,11 @@
   .skill-level-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; padding: 0 20px 16px; }
   .skill-level-btn { padding: 8px 4px; font-size: 12px; font-weight: 600; text-align: center; border-radius: 8px; border: 0.5px solid color-mix(in srgb, var(--gold) 25%, transparent); cursor: pointer; background: color-mix(in srgb, var(--gold) 6%, transparent); color: var(--text-muted); font-family: inherit; -webkit-tap-highlight-color: transparent; }
 
+  /* Lifetime Scoring start selector — 4-way segmented control */
+  .scoring-start-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; padding: 0 20px 16px; }
+  .scoring-start-btn { padding: 8px 3px; font-size: 11px; font-weight: 600; text-align: center; border-radius: 8px; border: 0.5px solid color-mix(in srgb, var(--gold) 25%, transparent); cursor: pointer; background: color-mix(in srgb, var(--gold) 6%, transparent); color: var(--text-muted); font-family: inherit; -webkit-tap-highlight-color: transparent; }
+  .scoring-start-btn.active { background: var(--btn-primary); color: var(--on-btn-primary); border-color: var(--btn-primary); }
+
   /* Age group selector — 5-way segmented control, sits under Skill Level */
   .age-group-row { display: grid; grid-template-columns: repeat(5, 1fr); gap: 5px; padding: 0 20px 16px; }
   .age-group-btn { padding: 8px 2px; font-size: 11px; font-weight: 600; text-align: center; border-radius: 8px; border: 0.5px solid color-mix(in srgb, var(--gold) 25%, transparent); cursor: pointer; background: color-mix(in srgb, var(--gold) 6%, transparent); color: var(--text-muted); font-family: inherit; -webkit-tap-highlight-color: transparent; }
@@ -439,6 +444,23 @@
         </div>
       </div>
 
+      <!-- Lifetime Scoring start -->
+      <div class="settings-item" style="flex-direction:column;align-items:stretch;">
+        <div style="display:flex;align-items:center;gap:16px;padding-bottom:14px;">
+          <div class="settings-item-icon" style="font-size:22px;">&#128202;</div>
+          <div class="settings-item-body">
+            <div class="settings-item-title">Lifetime Scoring Starts At</div>
+            <div class="settings-item-desc" id="scoring-start-desc">Currently set to Eagle</div>
+          </div>
+        </div>
+        <div class="scoring-start-row">
+          <button class="scoring-start-btn" data-start="albatross" onclick="setScoringStart('albatross')">Albatross</button>
+          <button class="scoring-start-btn" data-start="eagle" onclick="setScoringStart('eagle')">Eagle</button>
+          <button class="scoring-start-btn" data-start="birdie" onclick="setScoringStart('birdie')">Birdie</button>
+          <button class="scoring-start-btn" data-start="par" onclick="setScoringStart('par')">Par</button>
+        </div>
+      </div>
+
       <a class="settings-item" href="setup.html">
         <div class="settings-item-icon">
           <img src="icons/Set_Clubs.png" style="width:32px;height:32px;object-fit:contain;display:block;">
@@ -607,16 +629,18 @@ async function loadGolferProfile() {
   if (!currentUser) return;
   try {
     const { data } = await sb.from('golfer_profile')
-      .select('sex, age_group, skill_level')
+      .select('sex, age_group, skill_level, scoring_start')
       .eq('user_id', currentUser.id)
       .single();
     if (data) {
-      if (data.sex)         localStorage.setItem('golf-sex', data.sex);
-      if (data.age_group)   localStorage.setItem('golf-age-group', data.age_group);
-      if (data.skill_level) localStorage.setItem('golf-skill-level', data.skill_level);
+      if (data.sex)           localStorage.setItem('golf-sex', data.sex);
+      if (data.age_group)     localStorage.setItem('golf-age-group', data.age_group);
+      if (data.skill_level)   localStorage.setItem('golf-skill-level', data.skill_level);
+      if (data.scoring_start) localStorage.setItem('golf-scoring-start', data.scoring_start);
       refreshSexUI();
       refreshSkillLevelUI();
       refreshAgeGroupUI();
+      refreshScoringStartUI();
     }
   } catch(e) { /* no row yet for this user — defaults stand */ }
 }
@@ -690,6 +714,29 @@ async function setAgeGroup(age) {
   } catch(e) { console.error('Age group save error:', e); }
 }
 refreshAgeGroupUI();
+
+// ── Lifetime Scoring start ────────────────────────────────────────────────────
+const SCORING_START_LABELS = { albatross: 'Albatross', eagle: 'Eagle', birdie: 'Birdie', par: 'Par' };
+function refreshScoringStartUI() {
+  const stored = localStorage.getItem('golf-scoring-start') || 'eagle';
+  document.querySelectorAll('.scoring-start-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.start === stored);
+  });
+  const desc = document.getElementById('scoring-start-desc');
+  if (desc) desc.textContent = 'Currently set to ' + (SCORING_START_LABELS[stored] || stored);
+}
+async function setScoringStart(start) {
+  localStorage.setItem('golf-scoring-start', start);
+  refreshScoringStartUI();
+  if (!currentUser) return;
+  try {
+    await sb.from('golfer_profile').upsert(
+      { user_id: currentUser.id, scoring_start: start, updated_at: new Date().toISOString() },
+      { onConflict: 'user_id' }
+    );
+  } catch(e) { console.error('Scoring start save error:', e); }
+}
+refreshScoringStartUI();
 
 
 </script>

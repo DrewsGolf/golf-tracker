@@ -1084,8 +1084,7 @@ function renderScorecard() {
   const tdsCol=tdiff===null?'':(tdiff>0?'color:var(--warning)':tdiff<0?'color:var(--gold)':'color:var(--text-muted)');
   const totalPts = Object.keys(holeScores).filter(h=>holeScores[h]>0).reduce((a,h)=>{ const p=stablefordPoints(parseInt(h)); return p!==null?a+p:a; }, 0);
   tbody.innerHTML = rows.join('') +
-    '<tr><td style="padding-left:14px;">Total</td><td></td><td>'+(tp||'&#8212;')+'</td><td>'+ts+'</td><td style="'+tdsCol+'">'+tds+'</td><td style="color:var(--gold);">'+(tputts||'&#8212;')+'</td><td style="font-weight:500;color:var(--gold);">'+(handicapIndex!==null?totalPts:'&#8212;')+'</td></tr>' +
-    '<tr><td colspan="7" style="padding:10px 14px;"><button class="sc-save-btn" style="width:100%;" onclick="scSaveAll()">Save</button></td></tr>';
+    '<tr><td style="padding-left:14px;">Total</td><td></td><td>'+(tp||'&#8212;')+'</td><td>'+ts+'</td><td style="'+tdsCol+'">'+tds+'</td><td style="color:var(--gold);">'+(tputts||'&#8212;')+'</td><td style="font-weight:500;color:var(--gold);">'+(handicapIndex!==null?totalPts:'&#8212;')+'</td></tr>';
   // Score icons above are freshly inserted <img> tags — theme.js's icon-swap only
   // runs at page load and on toggle, so re-sweep now to pick up the current theme.
   if (typeof applyIconTheme === 'function' && typeof getTheme === 'function') {

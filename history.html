@@ -1403,7 +1403,19 @@ function renderHistoryScorecard(index) {
   sc += `<div class="scorecard"><table class="scorecard-table">
     <thead><tr><th>Hole</th><th></th><th>Par</th><th>Shots</th><th>+/−</th><th style="color:var(--gold);">Putts</th><th style="color:var(--gold);">Pts</th></tr></thead><tbody>`;
 
+  // Subtotal-row helper — same column layout as a normal hole row, styled
+  // like the existing Total row (bold, tinted background) but lighter.
+  function subtotalRow(label, s) {
+    const tPar   = s.parCount ? s.par : null;
+    const td     = tPar !== null ? s.shots - tPar : null;
+    const tStr   = td === null ? '–' : (td === 0 ? 'E' : (td > 0 ? '+'+td : ''+td));
+    const tCls   = td === null ? 'diff-even' : td > 0 ? 'diff-over' : td < 0 ? 'diff-under' : 'diff-even';
+    return `<tr style="font-weight:600;background:color-mix(in srgb, var(--gold) 3%, transparent);"><td>${label}</td><td></td><td>${tPar ?? '–'}</td><td>${s.shots}</td><td class="${tCls}">${tStr}</td><td style="color:var(--gold);">${s.putts||'–'}</td><td style="color:var(--gold);font-weight:500;">${s.hasPts?s.pts:'–'}</td></tr>`;
+  }
+
   let totalPutts=0, totalPts=0, hasPts=false;
+  let out = { shots:0, par:0, parCount:0, putts:0, pts:0, hasPts:false };
+  let inn = { shots:0, par:0, parCount:0, putts:0, pts:0, hasPts:false };
   holes.forEach(h => {
     const shots  = sph[h] || 0;
     const par    = round.pars && round.pars[h] ? round.pars[h] : null;
@@ -1419,6 +1431,20 @@ function renderHistoryScorecard(index) {
     const pts    = holePoints(netDisplay, par);
     if (pts !== null) { totalPts += pts; hasPts = true; }
     sc += `<tr><td>${h}</td><td class="score-icon-cell">${icon}</td><td>${par ?? '–'}</td><td>${shots}</td><td class="${dCls}">${dStr}</td><td style="color:var(--gold);">${putts||'–'}</td><td style="color:var(--gold);font-weight:500;">${pts??'–'}</td></tr>`;
+
+    // Sums raw (gross) shots, matching the existing Total row below (which
+    // also sums gross strokes regardless of the Gross/Net toggle) so OUT + IN
+    // always adds up to Total.
+    const bucket = h <= 9 ? out : inn;
+    bucket.shots += shots;
+    bucket.putts += putts;
+    if (par !== null) { bucket.par += par; bucket.parCount++; }
+    if (pts !== null) { bucket.pts += pts; bucket.hasPts = true; }
+
+    // Only show a Front 9 (OUT) subtotal when the round runs past hole 9 —
+    // an all-9 round's subtotal would just duplicate the Total row below.
+    if (h === 9 && holes.some(x => x > 9)) sc += subtotalRow('OUT', out);
+    if (h === 18) sc += subtotalRow('IN', inn);
   });
 
   if (totalPar !== null) {

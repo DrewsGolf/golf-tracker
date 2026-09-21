@@ -525,6 +525,7 @@ async function loadFromSupabase() {
       pars:       Object.fromEntries((r.hole_scores||[]).filter(h=>h.par != null).map(h=>[h.hole, h.par])),
       holeScores: Object.fromEntries((r.hole_scores||[]).filter(h=>h.score != null).map(h=>[h.hole, h.score])),
       holePutts:  Object.fromEntries((r.hole_scores||[]).filter(h=>h.putts != null).map(h=>[h.hole, h.putts])),
+      holePickedUp: Object.fromEntries((r.hole_scores||[]).filter(h=>h.picked_up).map(h=>[h.hole, true])),
       shots:      r.total_score,
       shotData:   (r.hole_scores||[]).map(h=>({ hole: h.hole, score: h.score, par: h.par })),
       shotsPerHole: Object.fromEntries((r.hole_scores||[]).filter(h=>h.score != null).map(h=>[h.hole, h.score])),
@@ -1158,6 +1159,19 @@ function renderChartHTML(rounds, metric) {
   </div>`;
 }
 
+// ── Gross / Net / Max Score toggle bar — shared markup for the Scorecard and
+// Summary tabs. "Max" applies the pick-up rule (net double bogey cap) as a
+// display lens on top of whatever true scores were recorded; it never
+// changes the stored data. ──────────────────────────────────────────────────
+function scViewToggleHTML(prefix) {
+  const views = [['gross','Gross'], ['net','Net'], ['max','Max']];
+  const btns = views.map(([v,label]) => {
+    const active = historyScView === v;
+    return `<button id="${prefix}-toggle-${v}" onclick="setHistoryScView('${v}')" style="flex:1;background:${active?'var(--btn-primary)':'none'};color:${active?'var(--on-btn-primary)':'var(--text-muted)'};border:none;padding:10px 6px;font-size:14px;font-weight:500;cursor:pointer;font-family:inherit;">${label}</button>`;
+  }).join('');
+  return `<div style="display:flex;gap:0;background:color-mix(in srgb, var(--bg) 50%, transparent);border-radius:10px;border:0.5px solid color-mix(in srgb, var(--gold) 20%, transparent);overflow:hidden;margin-bottom:10px;">${btns}</div>`;
+}
+
 // ── Stableford points helper ──────────────────────────────────────────────────
 function holePoints(shots, par) {
   if (!shots || !par) return null;
@@ -1259,8 +1273,12 @@ function renderHistorySummary(index) {
   if (!round) return;
   const sph = getShotsPerHole(round);
   const { extras: getExtras } = getHandicapContext(round);
-  const netActive = historyScView === 'net';
-  const shotsFor = h => netActive ? (sph[h] - getExtras(h)) : sph[h];
+  const capFor = h => { const par = round.pars && round.pars[h]; return par ? par + 2 + getExtras(h) : null; };
+  const shotsFor = h => {
+    if (historyScView === 'net') return sph[h] - getExtras(h);
+    if (historyScView === 'max') { const cap = capFor(h); return cap !== null ? Math.min(sph[h], cap) : sph[h]; }
+    return sph[h];
+  };
   const netShotsFor = h => sph[h] - getExtras(h); // Stableford points are always net-based, regardless of the toggle
 
   function calcBlock(holeList) {
@@ -1325,11 +1343,7 @@ function renderHistorySummary(index) {
   const back9  = Array.from({length:9}, (_,i) => i+10);
   const all18  = Array.from({length:18},(_,i) => i+1);
 
-  const gActive = historyScView === 'gross';
-  let summaryContent = `<div style="display:flex;gap:0;background:color-mix(in srgb, var(--bg) 50%, transparent);border-radius:10px;border:0.5px solid color-mix(in srgb, var(--gold) 20%, transparent);overflow:hidden;">
-    <button id="hsum-toggle-gross" onclick="setHistoryScView('gross')" style="flex:1;background:${gActive?'var(--btn-primary)':'none'};color:${gActive?'var(--on-btn-primary)':'var(--text-muted)'};border:none;padding:10px 6px;font-size:14px;font-weight:500;cursor:pointer;font-family:inherit;">Gross</button>
-    <button id="hsum-toggle-net"   onclick="setHistoryScView('net')"   style="flex:1;background:${!gActive?'var(--btn-primary)':'none'};color:${!gActive?'var(--on-btn-primary)':'var(--text-muted)'};border:none;padding:10px 6px;font-size:14px;font-weight:500;cursor:pointer;font-family:inherit;">Net</button>
-  </div>`;
+  let summaryContent = scViewToggleHTML('hsum');
 
   summaryContent += summaryBlock('Front 9', front9);
   summaryContent += summaryBlock('Back 9',  back9);
@@ -1358,14 +1372,13 @@ function setHistoryScView(view) {
   }
   // Update toggle buttons on both tabs
   ['hsc', 'hsum'].forEach(prefix => {
-    const gBtn = document.getElementById(prefix + '-toggle-gross');
-    const nBtn = document.getElementById(prefix + '-toggle-net');
-    if (gBtn && nBtn) {
-      gBtn.style.background = view === 'gross' ? 'var(--btn-primary)' : 'none';
-      gBtn.style.color      = view === 'gross' ? 'var(--on-btn-primary)' : 'var(--text-muted)';
-      nBtn.style.background = view === 'net'   ? 'var(--btn-primary)' : 'none';
-      nBtn.style.color      = view === 'net'   ? 'var(--on-btn-primary)' : 'var(--text-muted)';
-    }
+    ['gross','net','max'].forEach(v => {
+      const btn = document.getElementById(prefix + '-toggle-' + v);
+      if (!btn) return;
+      const active = view === v;
+      btn.style.background = active ? 'var(--btn-primary)' : 'none';
+      btn.style.color      = active ? 'var(--on-btn-primary)' : 'var(--text-muted)';
+    });
   });
 }
 
@@ -1394,11 +1407,7 @@ function renderHistoryScorecard(index) {
 
   const { extras: historyExtras } = getHandicapContext(round);
 
-  const gActive = historyScView === 'gross';
-  let sc = `<div style="display:flex;gap:0;background:color-mix(in srgb, var(--bg) 50%, transparent);border-radius:10px;border:0.5px solid color-mix(in srgb, var(--gold) 20%, transparent);overflow:hidden;margin-bottom:10px;">
-    <button id="hsc-toggle-gross" onclick="setHistoryScView('gross')" style="flex:1;background:${gActive?'var(--btn-primary)':'none'};color:${gActive?'var(--on-btn-primary)':'var(--text-muted)'};border:none;padding:10px 6px;font-size:14px;font-weight:500;cursor:pointer;font-family:inherit;">Gross</button>
-    <button id="hsc-toggle-net"   onclick="setHistoryScView('net')"   style="flex:1;background:${!gActive?'var(--btn-primary)':'none'};color:${!gActive?'var(--on-btn-primary)':'var(--text-muted)'};border:none;padding:10px 6px;font-size:14px;font-weight:500;cursor:pointer;font-family:inherit;">Net</button>
-  </div>`;
+  let sc = scViewToggleHTML('hsc');
 
   sc += `<div class="scorecard"><table class="scorecard-table">
     <thead><tr><th>Hole</th><th></th><th>Par</th><th>Shots</th><th>+/−</th><th style="color:var(--gold);">Putts</th><th style="color:var(--gold);">Pts</th></tr></thead><tbody>`;
@@ -1413,7 +1422,7 @@ function renderHistoryScorecard(index) {
     return `<tr style="font-weight:600;background:color-mix(in srgb, var(--gold) 3%, transparent);"><td>${label}</td><td></td><td>${tPar ?? '–'}</td><td>${s.shots}</td><td class="${tCls}">${tStr}</td><td style="color:var(--gold);">${s.putts||'–'}</td><td style="color:var(--gold);font-weight:500;">${s.hasPts?s.pts:'–'}</td></tr>`;
   }
 
-  let totalPutts=0, totalPts=0, hasPts=false;
+  let totalPutts=0, totalPts=0, hasPts=false, anyCapped=false;
   let out = { shots:0, par:0, parCount:0, putts:0, pts:0, hasPts:false };
   let inn = { shots:0, par:0, parCount:0, putts:0, pts:0, hasPts:false };
   holes.forEach(h => {
@@ -1422,15 +1431,23 @@ function renderHistoryScorecard(index) {
     const putts  = round.holePutts && round.holePutts[h] ? round.holePutts[h] : 0;
     totalPutts  += putts;
     const extras = historyExtras(h);
-    const display = historyScView === 'net' ? (shots - extras) : shots;
-    const netDisplay = shots - extras; // Stableford points are always net-based, regardless of the Gross/Net toggle
+    const cap = par !== null ? par + 2 + extras : null; // net double bogey — the pick-up rule cap
+    const display = historyScView === 'net' ? (shots - extras)
+                   : historyScView === 'max' ? (cap !== null ? Math.min(shots, cap) : shots)
+                   : shots;
+    const netDisplay = shots - extras; // Stableford points are always net-based, regardless of the toggle
+    const wasCapped = historyScView === 'max' && cap !== null && shots > cap;
     const d      = par !== null ? display - par : null;
     const dStr   = d === null ? '–' : (d === 0 ? 'E' : (d > 0 ? '+'+d : ''+d));
     const dCls   = d === null ? 'diff-even' : d > 0 ? 'diff-over' : d < 0 ? 'diff-under' : 'diff-even';
     const icon   = scoreIconImg(display, par);
     const pts    = holePoints(netDisplay, par);
     if (pts !== null) { totalPts += pts; hasPts = true; }
-    sc += `<tr><td>${h}</td><td class="score-icon-cell">${icon}</td><td>${par ?? '–'}</td><td>${shots}</td><td class="${dCls}">${dStr}</td><td style="color:var(--gold);">${putts||'–'}</td><td style="color:var(--gold);font-weight:500;">${pts??'–'}</td></tr>`;
+    if (wasCapped) anyCapped = true;
+    const truePickedUp = !!(round.holePickedUp && round.holePickedUp[h]);
+    const shotsCell = (wasCapped ? shots + '<span style="color:var(--warning);font-size:10px;" title="Capped at '+cap+' for Max Score">*</span>' : shots)
+      + (truePickedUp ? ' <span style="color:var(--warning);font-size:9px;font-weight:600;" title="Logged via the pick-up rule while playing">PU</span>' : '');
+    sc += `<tr><td>${h}</td><td class="score-icon-cell">${icon}</td><td>${par ?? '–'}</td><td>${shotsCell}</td><td class="${dCls}">${dStr}</td><td style="color:var(--gold);">${putts||'–'}</td><td style="color:var(--gold);font-weight:500;">${pts??'–'}</td></tr>`;
 
     // Sums raw (gross) shots, matching the existing Total row below (which
     // also sums gross strokes regardless of the Gross/Net toggle) so OUT + IN
@@ -1454,6 +1471,9 @@ function renderHistoryScorecard(index) {
     sc += `<tr class="total-row"><td>Total</td><td></td><td>${totalPar}</td><td>${totalStrokes}</td><td class="${tCls}">${tStr}</td><td style="color:var(--gold);">${totalPutts||'–'}</td><td style="color:var(--gold);font-weight:500;">${hasPts?totalPts:'–'}</td></tr>`;
   }
   sc += `</tbody></table></div>`;
+  if (anyCapped) {
+    sc += `<div style="font-size:11px;color:var(--text-muted);padding:8px 4px 0;">* Your true score on this hole was higher — the +/&minus; and points shown here are capped at net double bogey (the pick-up rule) for Max Score comparison. Your recorded score is unchanged.</div>`;
+  }
   document.getElementById('detail-screen-scorecard').innerHTML = sc;
   // Score icons above are freshly inserted <img> tags — theme.js's icon-swap only
   // runs at page load and on toggle, so re-sweep now to pick up the current theme.

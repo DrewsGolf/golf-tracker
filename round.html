@@ -210,6 +210,13 @@
   .score-diff.under { color: var(--gold); }
   .score-diff.even  { color: var(--text-muted); }
 
+  /* Pick-up (net double bogey rule) button — only shown once it's relevant,
+     see #pickup-row in the markup. */
+  .pickup-row { margin-bottom: 12px; }
+  .btn-pickup { display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; padding: 13px; border-radius: var(--radius); cursor: pointer; transition: opacity 0.15s, transform 0.1s; font-family: inherit; font-size: 14px; font-weight: 700; letter-spacing: 0.05em; background: color-mix(in srgb, var(--warning) 14%, transparent); color: var(--warning); border: 0.5px solid color-mix(in srgb, var(--warning) 45%, transparent); }
+  .btn-pickup:active { opacity: 0.82; transform: scale(0.985); }
+  .btn-pickup.picked { background: var(--warning); color: #fff; border-color: var(--warning); }
+
   /* Buttons */
   .btn { display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; padding: 16px; border-radius: var(--radius); border: none; font-size: 16px; font-weight: 500; cursor: pointer; transition: opacity 0.15s, transform 0.1s; margin-bottom: 10px; font-family: inherit; letter-spacing: 0.03em; }
   .btn:last-child { margin-bottom: 0; }
@@ -386,6 +393,13 @@
           </div>
           <button class="score-btn" onclick="adjustScore(1)" aria-label="Increase">+</button>
         </div>
+      </div>
+
+      <!-- Pick-up (net double bogey rule) — hidden until this hole's score
+           reaches the picked-up cap (par + 2 + handicap strokes received on
+           this hole), so it only shows once it's actually relevant. -->
+      <div class="pickup-row" id="pickup-row" style="display:none;">
+        <button class="btn-pickup" id="btn-pickup" onclick="togglePickedUp()">Pick Up (PU)</button>
       </div>
 
       <!-- Putts entry -->
@@ -602,6 +616,7 @@ let holeScores   = JSON.parse(localStorage.getItem('golf-scores-v1') || '{}');
 let holePars        = JSON.parse(localStorage.getItem('golf-pars-v1')   || '{}');
 let holeStrokeIndex = JSON.parse(localStorage.getItem('golf-si-v1')    || '{}');
 let holePutts    = JSON.parse(localStorage.getItem('golf-putts-v1')   || '{}');
+let holePickedUp = JSON.parse(localStorage.getItem('golf-pickedup-v1') || '{}');
 // Legacy shot data — kept so Summary tab can show old shot-by-shot rounds
 let shots        = JSON.parse(localStorage.getItem('golf-shots-v3')  || '[]');
 let currentCourse = JSON.parse(localStorage.getItem('golf-current-course') || 'null');
@@ -649,6 +664,16 @@ function strokesOnHole(hole) {
   return base + (si <= extra ? 1 : 0);
 }
 
+// Net double bogey — the max score a hole counts for handicap purposes, and
+// the point at which picking up becomes appropriate. Mirrors history.html's
+// historyExtras/cap calculation so the "PU" badge and the pick-up button
+// agree on the same rule.
+function holeCap(hole) {
+  const par = holePars[hole];
+  if (!par) return null;
+  return par + 2 + strokesOnHole(hole);
+}
+
 function netScore(hole) {
   const gross = holeScores[hole];
   if (!gross) return null;
@@ -677,6 +702,7 @@ function persist() {
   localStorage.setItem('golf-pars-v1',   JSON.stringify(holePars));
   localStorage.setItem('golf-si-v1',    JSON.stringify(holeStrokeIndex));
   localStorage.setItem('golf-putts-v1',  JSON.stringify(holePutts));
+  localStorage.setItem('golf-pickedup-v1', JSON.stringify(holePickedUp));
   localStorage.setItem('golf-current-hole', currentHole);
 }
 
@@ -713,11 +739,12 @@ function newRound() {
 }
 
 function resetState() {
-  holeScores = {}; holePars = {}; holePutts = {}; holeStrokeIndex = {}; shots = []; currentHole = 1; currentCourse = null;
+  holeScores = {}; holePars = {}; holePutts = {}; holePickedUp = {}; holeStrokeIndex = {}; shots = []; currentHole = 1; currentCourse = null;
   localStorage.removeItem('golf-scores-v1');
   localStorage.removeItem('golf-pars-v1');
   localStorage.removeItem('golf-si-v1');
   localStorage.removeItem('golf-putts-v1');
+  localStorage.removeItem('golf-pickedup-v1');
   localStorage.removeItem('golf-current-hole');
   localStorage.removeItem('golf-shots-v3');
   localStorage.removeItem('golf-current-course');
@@ -817,6 +844,11 @@ function adjustScore(delta) {
   const base = holeScores[currentHole] !== undefined ? holeScores[currentHole] : currentDefault();
   const next = Math.max(0, base + delta);
   holeScores[currentHole] = next;
+  // Manually changing the score after picking up means the player is back
+  // to entering a real score for this hole — clear the pick-up flag rather
+  // than leaving a stale "picked up" marker attached to a score they're now
+  // editing by hand.
+  if (holePickedUp[currentHole]) delete holePickedUp[currentHole];
   persist();
   updateScoreDisplay();
 }
@@ -827,6 +859,51 @@ function updateScoreDisplay() {
   updateScoreDiff();
   updateFinishBtn();
   updateRunningTotals();
+  updatePickupUI();
+}
+
+// ── Pick-up (net double bogey rule) ─────────────────────────────────────────
+// The button only appears once this hole's score has reached the cap — the
+// max score that counts for handicap purposes — so it's never offered before
+// it's actually appropriate to pick up.
+function updatePickupUI() {
+  const row = document.getElementById('pickup-row');
+  const btn = document.getElementById('btn-pickup');
+  if (!row || !btn) return;
+  const cap     = holeCap(currentHole);
+  const score   = holeScores[currentHole] !== undefined ? holeScores[currentHole] : currentDefault();
+  const already = !!holePickedUp[currentHole];
+  const eligible = cap !== null && (already || score >= cap);
+  row.style.display = eligible ? '' : 'none';
+  if (!eligible) return;
+  btn.classList.toggle('picked', already);
+  btn.textContent = already ? 'Picked Up ✓ (tap to undo)' : 'Pick Up (PU)';
+}
+
+function togglePickedUp() {
+  if (holePickedUp[currentHole]) {
+    delete holePickedUp[currentHole];
+    persist();
+    updatePickupUI();
+    return;
+  }
+  const cap = holeCap(currentHole);
+  if (cap === null) return; // shouldn't happen — button is hidden without a par
+  showDialog({
+    icon: '&#9971;',
+    title: 'Mark Hole as Picked Up?',
+    sub: 'Your score for this hole will be recorded as ' + cap + ' (net double bogey max) for handicap purposes.',
+    buttons: [
+      { label: 'Cancel', style: 'secondary', action: () => {} },
+      { label: 'Pick Up', style: 'primary', action: () => {
+        holeScores[currentHole] = cap;
+        holePickedUp[currentHole] = true;
+        persist();
+        updateScoreDisplay();
+        showToast('Hole ' + currentHole + ' marked picked up');
+      }}
+    ]
+  });
 }
 
 function updateScoreDiff() {
@@ -1335,6 +1412,7 @@ async function saveRoundToHistory() {
       pars:       { ...holePars },
       holeScores: { ...holeScores },
       holePutts:  { ...holePutts },
+      holePickedUp: { ...holePickedUp },
       shots:      totalScore,
       totalDist:  0,
       shotData:   scoredHoles.sort((a,b)=>a-b).map(h => ({ hole: h, score: holeScores[h], par: holePars[h]||null }))
@@ -1380,7 +1458,8 @@ async function saveRoundToHistory() {
       hole:     h,
       score:    holeScores[h],
       par:      holePars[h]  || null,
-      putts:    holePutts[h] || 0
+      putts:    holePutts[h] || 0,
+      picked_up: !!holePickedUp[h]
     }));
     const { error: holesErr } = await sb.from('hole_scores').insert(holeRows);
     if (holesErr) console.error('Hole scores save error:', holesErr);

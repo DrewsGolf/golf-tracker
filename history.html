@@ -1445,7 +1445,7 @@ function renderHistoryScorecard(index) {
     if (pts !== null) { totalPts += pts; hasPts = true; }
     if (wasCapped) anyCapped = true;
     const truePickedUp = !!(round.holePickedUp && round.holePickedUp[h]);
-    const shotsCell = (wasCapped ? shots + '<span style="color:var(--warning);font-size:26px;font-weight:600;margin-left:2px;line-height:1;" title="Capped at '+cap+' for Max Score">*</span>' : shots)
+    const shotsCell = (wasCapped ? '<span style="position:relative;display:inline-block;">'+shots+'<span style="position:absolute;top:-2px;right:-13px;color:var(--warning);font-size:20px;font-weight:700;line-height:1;" title="Capped at '+cap+' for Max Score">*</span></span>' : shots)
       + (truePickedUp ? ' <span style="color:var(--warning);font-size:56px;font-weight:600;margin-left:4px;white-space:nowrap;line-height:1;" title="Logged via the pick-up rule while playing">PU</span>' : '');
     sc += `<tr><td>${h}</td><td class="score-icon-cell">${icon}</td><td>${par ?? '–'}</td><td>${shotsCell}</td><td class="${dCls}">${dStr}</td><td style="color:var(--gold);">${putts||'–'}</td><td style="color:var(--gold);font-weight:500;">${pts??'–'}</td></tr>`;
 

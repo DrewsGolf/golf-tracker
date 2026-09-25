@@ -198,7 +198,7 @@
   .score-spacer { flex: 1; }
 
   /* Running totals — updates as the round progresses */
-  .running-row-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 10px; }
+  .running-row-3 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 10px; }
   .running-card { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 10px 8px; }
   .running-label { font-size: 10px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 4px; }
   .running-value { font-size: 26px; font-weight: 500; color: var(--text-primary); line-height: 1; }
@@ -399,8 +399,7 @@
         </div>
       </div>
 
-      <!-- Running totals — updates as the round progresses. Third card (Total
-           Putts) added 25 Sep 2026 per Drew's request. -->
+      <!-- Running totals — updates as the round progresses. -->
       <div class="running-row-3">
         <div class="hole-nav-card running-card">
           <span class="running-label">Total Strokes</span>
@@ -409,10 +408,6 @@
         <div class="hole-nav-card running-card">
           <span class="running-label">Over Par</span>
           <span class="running-value" id="running-vspar">&ndash;</span>
-        </div>
-        <div class="hole-nav-card running-card">
-          <span class="running-label">Total Putts</span>
-          <span class="running-value" id="running-putts">0</span>
         </div>
       </div>
 
@@ -842,19 +837,11 @@ function updateScoreDiff() {
 function updateRunningTotals() {
   const strokesEl = document.getElementById('running-strokes');
   const vsParEl   = document.getElementById('running-vspar');
-  const puttsEl   = document.getElementById('running-putts');
   if (!strokesEl || !vsParEl) return;
 
   const playedHoles = Object.keys(holeScores).map(Number).filter(h => holeScores[h] > 0);
   const totalStrokes = playedHoles.reduce((a,h) => a + holeScores[h], 0);
   strokesEl.textContent = totalStrokes;
-
-  // Total Putts \u2014 sum of putts logged on every hole scored so far. Added
-  // 25 Sep 2026 per Drew's request, same live-update pattern as Total Strokes.
-  if (puttsEl) {
-    const totalPutts = playedHoles.reduce((a,h) => a + (holePutts[h] || 0), 0);
-    puttsEl.textContent = totalPutts;
-  }
 
   const parHoles = playedHoles.filter(h => holePars[h]);
   if (!parHoles.length) {

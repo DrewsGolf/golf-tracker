@@ -1236,6 +1236,18 @@ const COURSES = [
     "lng": 145.2
   },
   {
+    "name": "Mount Martha Public Golf Course",
+    "suburb": "Mount Martha",
+    "holes": 18,
+    "par": "70",
+    "fee9": "N/A",
+    "fee18": "N/A",
+    "access": "Public",
+    "notes": "Mornington Peninsula Shire public course",
+    "lat": -38.2667,
+    "lng": 145.0
+  },
+  {
     "name": "Mornington Golf Club",
     "suburb": "Mornington",
     "holes": 18,

@@ -345,10 +345,13 @@
     </div>
     <button class="topbar-action" onclick="newRound()">New Round</button>
   </div>
+  <!-- Measure and Suggest are reached via the bottom nav (round.html#measure /
+       #suggest), not this top toggle — Drew asked to trim the toggle down to
+       just Round/Summary/Scorecard (25 Sep 2026). showTab() still knows how
+       to activate the measure/suggest screens; it just guards for the
+       missing tab-measure/tab-suggest buttons below. -->
   <div class="tab-bar">
     <button class="tab active" onclick="showTab('round')" id="tab-round">Round</button>
-    <button class="tab" onclick="showTab('measure')" id="tab-measure">Measure</button>
-    <button class="tab" onclick="showTab('suggest')" id="tab-suggest">Suggest</button>
     <button class="tab" onclick="showTab('summary')" id="tab-summary">Summary</button>
     <button class="tab" onclick="showTab('scorecard')" id="tab-scorecard">Scorecard</button>
   </div>
@@ -679,9 +682,14 @@ function persist() {
 
 // ── Tabs ──────────────────────────────────────────────────────────────────────
 function showTab(t) {
+  // Measure/Suggest have no top-tab button (see markup note above) — they're
+  // only reachable via the bottom nav / #hash, so 'tab-measure'/'tab-suggest'
+  // won't exist in the DOM. Guard the tab-button toggle so switching to
+  // either of those screens doesn't throw.
   ['round','measure','suggest','summary','scorecard'].forEach(id => {
     document.getElementById('screen-'+id).classList.toggle('active', id===t);
-    document.getElementById('tab-'+id).classList.toggle('active', id===t);
+    const tabBtn = document.getElementById('tab-'+id);
+    if (tabBtn) tabBtn.classList.toggle('active', id===t);
   });
   if (t==='summary') renderSummary();
   if (t==='scorecard') { renderScorecard(); setScorecardView(scorecardView); }
